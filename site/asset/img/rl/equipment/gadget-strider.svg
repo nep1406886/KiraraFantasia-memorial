@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="96" height="96" viewBox="0 0 96 96">
+  <title>游走护符</title><metadata>kirafan-timer original; winged movement amulet</metadata>
+  <g stroke="#716454" stroke-width="2.5" stroke-linejoin="round" stroke-linecap="round">
+    <path d="M27 12C20 29 32 38 44 43M69 12C76 29 64 38 52 43" fill="none" stroke="#c7a16a" stroke-width="4"/>
+    <path d="M42 51C29 48 17 29 11 25c-3 18 3 27 14 29l-9 3c4 12 15 16 29 10M54 51c13-3 25-22 31-26 3 18-3 27-14 29l9 3c-4 12-15 16-29 10" fill="#d8e8dc"/>
+    <path d="m48 38 14 21-14 26-14-26Z" fill="#edca84"/>
+    <path d="m48 47 7 12-7 15-7-15Z" fill="#75aea5"/>
+    <path d="M20 38 35 55M76 38 61 55" fill="none" stroke="#8fbaac"/>
+    <path d="m7 72 15-2M74 80l14-3" fill="none" stroke="#c7a16a"/>
+  </g>
+</svg>

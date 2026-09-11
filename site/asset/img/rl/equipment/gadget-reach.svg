@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="96" height="96" viewBox="0 0 96 96">
+  <title>延展刻印</title><metadata>kirafan-timer original; elongated range inscription</metadata>
+  <g stroke="#716454" stroke-width="2.5" stroke-linejoin="round" stroke-linecap="round">
+    <path d="m48 9 22 16-7 42-15 19-15-19-7-42Z" fill="#e6cf9a"/>
+    <path d="m48 17 14 12-6 35-8 11-8-11-6-35Z" fill="#afa0c9"/>
+    <path d="M48 27v34m-7-26 7-8 7 8m-14 18 7 8 7-8" fill="none" stroke="#fff7e4" stroke-width="3"/>
+    <path d="M6 48h24m-16-8-8 8 8 8M90 48H66m16-8 8 8-8 8" fill="none" stroke="#bf9458" stroke-width="4"/>
+    <path d="m44 13 4 4 4-4" fill="none" stroke="#fff5de"/>
+  </g>
+</svg>

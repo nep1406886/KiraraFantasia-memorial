@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="闪耀幻想曲 KiraFan Assets 模型与纹理浏览器。">
+    <title>模型素材库 · 闪耀幻想曲</title>
+    <link rel="preconnect" href="https://database.kirafan.cn" crossorigin>
+    <link rel="preconnect" href="https://asset.kirafan.cn" crossorigin>
+    <link rel="preconnect" href="https://bucket-a-asset.kirafan.cn" crossorigin>
+    <link rel="stylesheet" href="css/models.css?v=20260906-1">
+    <link rel="stylesheet" href="css/kirara-cursor.css">
+    <link rel="icon" href="favicon.png">
+</head>
+
+<body class="models-page">
+    <header class="models-topbar">
+        <a class="models-back" href="../index.html" aria-label="返回纪念页">
+            <img class="model-icon" src="vendor/lucide/arrow-left.svg" alt="">
+            <span class="models-back-label">返回纪念页</span>
+        </a>
+        <div class="models-brand">
+            <img src="imgs/official-site/kirarafantasia-logo.svg" alt="きららファンタジア">
+            <h1>模型素材库</h1>
+        </div>
+        <div class="models-topbar-tools">
+            <button id="modelsAboutToggle" class="models-topbar-button" type="button" aria-expanded="false" aria-controls="modelsAboutDrawer">
+                <img class="model-icon" src="vendor/lucide/info.svg" alt=""><span class="models-tool-label">关于</span>
+            </button>
+            <a class="models-source" href="https://asset.kirafan.moe/" target="_blank" rel="noopener noreferrer">
+                打开素材库 <span aria-hidden="true">↗</span>
+            </a>
+        </div>
+    </header>
+
+    <main>
+        <section class="models-workbench" aria-label="模型素材浏览器">
+            <div class="models-toolbar">
+                <div class="models-query-tools">
+                    <label class="models-search">
+                        <span>搜索模型名称、角色或作品</span>
+                        <input id="modelSearch" type="search" placeholder="例如：乃莉、向阳素描、model_pl_100402" autocomplete="off">
+                    </label>
+                    <label class="models-work-filter">
+                        <span>作品筛选</span>
+                        <select id="modelTitleFilter" aria-label="按作品筛选">
+                            <option value="all">全部作品</option>
+                        </select>
+                    </label>
+                </div>
+                <div class="models-filters" role="group" aria-label="模型分类">
+                    <button class="models-filter is-active" type="button" data-kind="all">全部 <span data-count="all">—</span></button>
+                    <button class="models-filter" type="button" data-kind="ready">可预览 <span data-count="ready">—</span></button>
+                    <button class="models-filter" type="button" data-kind="player">玩家 <span data-count="player">—</span></button>
+                    <button class="models-filter" type="button" data-kind="enemy">敌人 <span data-count="enemy">—</span></button>
+                    <button class="models-filter" type="button" data-kind="weapon">武器 <span data-count="weapon">—</span></button>
+                </div>
+            </div>
+
+            <div class="models-status" id="modelsStatus" role="status" aria-live="polite">
+                正在连接 KiraFan Assets 素材索引……
+            </div>
+
+            <div class="models-browser" id="modelsBrowser">
+                <aside class="models-list-panel" aria-label="模型列表">
+                    <div class="models-list-heading">
+                        <div>
+                            <h2>模型目录</h2>
+                        </div>
+                        <div class="models-list-heading-end">
+                            <span id="modelsResultCount" class="models-result-count">—</span>
+                            <!-- 索引可以收起来把宽度让给舞台，但收起后仍留一条可见的
+                                 竖条，点它就回来 —— 原来的「铺满窗口」是把整个观察台
+                                 盖成固定层，列表直接消失，这正是反馈里说的「不好选左边
+                                 的条目」。 -->
+                            <button id="modelsListCollapse" class="models-list-collapse" type="button"
+                                    aria-controls="modelList modelsPagination" aria-expanded="true" aria-label="收起模型目录" title="收起模型目录">
+                                <img class="model-icon" src="vendor/lucide/panel-left-close.svg" alt="">
+                            </button>
+                        </div>
+                    </div>
+                    <div id="modelList" class="models-list" role="listbox" aria-label="模型条目"></div>
+                    <nav id="modelsPagination" class="models-pagination" aria-label="模型列表分页"></nav>
+                </aside>
+
+                <button id="modelsListRail" class="models-list-rail" type="button" hidden
+                        aria-controls="modelsBrowser" title="展开素材条目列表">
+                    <img class="model-icon" src="vendor/lucide/panel-left-open.svg" alt="">
+                    <span class="models-list-rail-text">模型目录</span>
+                </button>
+
+                <section id="modelDetail" class="model-detail" aria-labelledby="modelDetailTitle">
+                    <div class="model-empty-state">
+                        <span class="model-empty-mark" aria-hidden="true">✦</span>
+                        <h2 id="modelDetailTitle">选择一个模型开始观察</h2>
+                    </div>
+                </section>
+            </div>
+        </section>
+    </main>
+
+    <!-- 原来 hero / about / footer 三段都排在观察台前后，页面总高必然超出视口，
+         于是浏览器滚动条一直在，且正好紧贴控制台自己的滚动条。内容没有删，
+         挪进这个抽屉里，由 topbar 的「关于」打开。 -->
+    <div id="modelsAboutDrawer" class="models-drawer" hidden>
+        <div class="models-drawer-panel" role="dialog" aria-modal="true" aria-labelledby="modelsAboutTitle">
+            <header class="models-drawer-head">
+                <div>
+                    <span class="models-eyebrow">KIRARA FANTASIA / UNITY ASSETBUNDLE</span>
+                    <h2 id="modelsAboutTitle">模型素材观察室</h2>
+                </div>
+                <button id="modelsAboutClose" class="models-drawer-close" type="button" aria-label="关闭"><img class="model-icon" src="vendor/lucide/x.svg" alt=""></button>
+            </header>
+            <div class="models-drawer-body">
+                <p>浏览公开素材库中的角色、敌人与武器；玩家模型可切换职业动作、表情组件与实际装备。纹理与模型均按需加载，浏览器只缓存实际打开的条目。</p>
+                <h3>这里展示的是什么？</h3>
+                <p>素材库中的模型以 Unity AssetBundle（<code>.muast</code>）保存，浏览器无法直接交给 Three.js 渲染。本项目在发布前将已验证条目转换为保留 Mesh、Skin、骨骼与 AnimationClip 的 GLB；页面按需下载并缓存，未发布条目仍可查看官方提取的透明纹理和原始包。素材版权归原权利方所有。</p>
+                <nav class="models-drawer-links">
+                    <a href="../index.html">返回纪念页</a>
+                    <a href="gacha.html">前往纪念召唤</a>
+                    <a href="../docs/design/model-visual.md">模型接口文档</a>
+                    <a href="https://database.kirafan.cn/assetBundle.json" target="_blank" rel="noopener noreferrer">查看素材索引 ↗</a>
+                </nav>
+            </div>
+        </div>
+    </div>
+
+    <script type="importmap">
+        {
+            "imports": {
+                "three": "https://cdn.jsdelivr.net/npm/three@0.180.0/build/three.module.js",
+                "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.180.0/examples/jsm/"
+            }
+        }
+    </script>
+    <script src="asset/gacha/cards.js?v=20260902-2"></script>
+    <script src="models.js?v=20260908-1"></script>
+</body>
+
+</html>

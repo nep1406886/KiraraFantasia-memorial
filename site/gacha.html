@@ -1,0 +1,313 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="琪拉拉幻想曲全角色纪念召唤，支持切换原创角色卡池。">
+    <title>纪念召唤 · 琪拉拉幻想曲</title>
+    <link rel="preconnect" href="https://asset.kirafan.cn" crossorigin>
+    <link rel="preconnect" href="https://bucket-f-asset.kirafan.cn" crossorigin>
+    <link rel="preconnect" href="https://bucket-b-asset.kirafan.cn" crossorigin>
+    <link rel="preconnect" href="https://bucket-8-asset.kirafan.cn" crossorigin>
+    <link rel="preconnect" href="https://bucket-c-asset.kirafan.cn" crossorigin>
+    <!-- 结算语音的两个 cue。claire-standard / claire-five-star 是同一份音频的旧
+         名（md5 相同），gacha.js 播的是 voice_gacha_003/004，预加载得跟着走，
+         不然第一次召唤时这两段仍要现拉。 -->
+    <link rel="preload" href="audio/gacha/voice_gacha_003.mp3" as="audio" type="audio/mpeg">
+    <link rel="preload" href="audio/gacha/voice_gacha_004.mp3" as="audio" type="audio/mpeg">
+    <link rel="preload" href="audio/gacha/bgm-gacha.mp3" as="audio" type="audio/mpeg">
+    <link rel="preload" href="audio/gacha/bgm-summon.mp3" as="audio" type="audio/mpeg">
+    <link rel="stylesheet" href="css/gacha.css?v=20260818-5">
+    <link rel="stylesheet" href="css/kirara-cursor.css">
+    <link rel="icon" href="favicon.png">
+</head>
+<body class="gacha-page">
+    <header class="gacha-topbar">
+        <a class="back-link" href="../index.html" aria-label="返回纪念计时器">
+            <span aria-hidden="true">←</span>
+            返回纪念页
+        </a>
+        <div class="topbar-tools">
+            <span class="topbar-title">KIRARA FANTASIA · MEMORIAL CALL</span>
+            <button id="soundToggle" class="sound-toggle" type="button" aria-pressed="true" aria-label="关闭召唤演出音" title="关闭召唤演出音">♪</button>
+        </div>
+    </header>
+
+    <dialog id="summonStage" class="summon-stage" aria-label="召唤演出" aria-hidden="true" hidden>
+        <button id="skipSummon" class="skip-summon" type="button"><span aria-hidden="true">»</span><span>跳过</span></button>
+        <div class="summon-stage-sky" aria-hidden="true">
+            <img class="summon-line-texture summon-line-blue" src="imgs/gacha/gacha_line_blue_web.png" alt="">
+            <img class="summon-line-texture summon-line-gold" src="imgs/gacha/gacha_line_gold_web.png" alt="">
+            <img class="summon-lv3-particles" src="imgs/gacha/gacha_design_lv3_web.png" alt="">
+            <img class="archive-kirakira archive-kirakira-a" src="https://bucket-f-asset.kirafan.cn/uiatlas/gachaplayuiatlas/GachKirakira.png" alt="">
+            <img class="archive-kirakira archive-kirakira-b" src="https://bucket-f-asset.kirafan.cn/uiatlas/gachaplayuiatlas/GachKirakira.png" alt="">
+            <div class="summon-sigil">
+                <img class="summon-magic-texture" src="imgs/gacha/gacha_magic_circle_lv2_web.png" alt="">
+                <span class="sigil-orbit sigil-orbit-outer"></span>
+                <span class="sigil-orbit sigil-orbit-inner"></span>
+                <span class="summon-center-stack">
+                    <span class="summon-official-mask summon-center-common"></span>
+                    <span class="summon-official-mask summon-center-base"></span>
+                    <span class="summon-official-mask summon-center-blur"></span>
+                    <span class="summon-official-mask summon-center-pattern"></span>
+                    <span class="summon-official-mask summon-center-class"></span>
+                    <span class="summon-official-mask summon-center-class-glow"></span>
+                </span>
+            </div>
+        </div>
+        <div class="summon-key-sequence" aria-hidden="true">
+            <canvas id="summonKeyCanvas" class="summon-key-canvas"></canvas>
+            <span class="summon-key-flash"></span>
+        </div>
+        <img id="summonClaire" class="summon-claire-stage" src="https://bucket-8-asset.kirafan.cn/texture/npc/npc_summon/npc_summon.png" alt="克蕾尔">
+        <img id="summonCharacterStand" class="summon-character-stand" alt="">
+        <div class="summon-five-feature" aria-hidden="true">
+            <img id="summonFeatureArt" alt="">
+        </div>
+        <div class="summon-card-reveal" aria-hidden="true">
+            <div class="summon-card-frame"><img id="summonRevealCard" alt=""></div>
+            <strong id="summonRevealRarity"></strong>
+            <span id="summonRevealProgress" class="summon-reveal-progress"></span>
+        </div>
+        <div class="summon-stage-caption">
+            <p id="summonStageText" aria-live="polite"></p>
+            <p id="summonVoiceLine" class="summon-voice-line" lang="ja"></p>
+        </div>
+        <section id="summonResultOverlay" class="summon-result-overlay" aria-labelledby="resultsTitle" hidden>
+            <div class="game-result-window">
+                <div class="result-host">
+                    <img src="https://bucket-8-asset.kirafan.cn/texture/npc/npc_summon/npc_summon.png" alt="克蕾尔">
+                    <div class="result-dialogue">
+                        <strong>克蕾尔</strong>
+                        <p id="resultVoiceLine">召唤完成后，结果会显示在右侧。</p>
+                    </div>
+                </div>
+                <div class="result-panel">
+                    <div class="result-panel-title">
+                        <div>
+                            <p class="eyebrow">SUMMON RESULT</p>
+                            <h2 id="resultsTitle" tabindex="-1">召唤结果</h2>
+                        </div>
+                        <p id="resultStatus" class="result-status" aria-live="polite">星光正在等待你的呼唤。</p>
+                    </div>
+                    <div id="resultsGrid" class="results-grid results-grid-empty">
+                        <div class="empty-result">
+                            <span aria-hidden="true">✧</span>
+                            <p>选择单次或十连召唤，角色头像会在这里显现。</p>
+                        </div>
+                    </div>
+                    <div id="resultRewards" class="result-rewards" hidden>
+                        <div class="result-reward-item">
+                            <img src="https://asset.kirafan.cn/texture/itemicon/itemicon_4010.png" alt="重复召唤结晶">
+                            <span><small>重复卡</small><strong id="duplicateCardCount">0</strong></span>
+                        </div>
+                        <dl class="result-reward-summary">
+                            <div><dt>新相遇</dt><dd id="newCardCount">0</dd></div>
+                            <div><dt>本次召唤</dt><dd id="resultDrawCount">0</dd></div>
+                        </dl>
+                    </div>
+                    <div class="result-actions">
+                        <button id="drawAgain" type="button" hidden>再次召唤</button>
+                        <button id="closeSummonResult" type="button">返回召唤</button>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </dialog>
+
+    <main>
+        <section id="summonRoom" class="gacha-hero" aria-labelledby="gachaTitle">
+            <div class="summon-room">
+                <header class="summon-room-header">
+                    <img src="https://bucket-8-asset.kirafan.cn/texture/scenetitle/scenetitle_gacha/SceneTitle_Gacha.png" alt="召唤">
+                    <span>MEMORIAL SUMMON</span>
+                </header>
+
+                <div class="summon-room-body">
+                    <div class="room-host">
+                        <img src="https://bucket-8-asset.kirafan.cn/texture/npc/npc_summon/npc_summon.png" alt="召唤馆的克蕾尔">
+                        <div class="host-dialogue">
+                            <strong>克蕾尔</strong>
+                            <p id="roomGreetingLine">欢迎来到召唤馆。准备好后，就让星光回应你的呼唤吧。</p>
+                        </div>
+                    </div>
+
+                    <div class="summon-console" aria-labelledby="summonTitle">
+                        <div class="pool-selector" aria-label="当前召唤卡池">
+                            <img class="pool-selector-ribbon" src="https://bucket-b-asset.kirafan.cn/uiatlas/gachauiatlas/SelectionRibbon.png" alt="">
+                            <img class="pool-selector-banner" src="https://bucket-c-asset.kirafan.cn/texture/gachalist/gachalist_0/GachaList_0.png" alt="角色召唤">
+                            <div>
+                                <small>当前选择</small>
+                                <strong>全角色纪念召唤</strong>
+                            </div>
+                        </div>
+
+                        <div class="summon-copy">
+                            <p class="console-kicker">召唤之馆 / 纪念复刻</p>
+                            <h1 id="gachaTitle">与闪耀的她们再次相遇</h1>
+                            <p id="summonTitle">默认收录全部非原创角色卡，十连最后一张必定为 ★4 或以上。</p>
+                            <dl class="pool-summary" aria-label="卡池概要">
+                                <div><dt id="cardCount">634</dt><dd>张角色卡</dd></div>
+                                <div><dt id="characterCount">225</dt><dd>名角色</dd></div>
+                                <div><dt id="titleCount">37</dt><dd>部作品</dd></div>
+                            </dl>
+                            <label class="original-toggle">
+                                <input id="includeOriginalCharacters" type="checkbox">
+                                <span>
+                                    <strong>加入《琪拉拉幻想曲》原创角色</strong>
+                                    <small id="originalPoolStatus">当前未加入 51 张原创角色卡</small>
+                                </span>
+                            </label>
+                        </div>
+
+                        <div class="rate-row" aria-label="召唤概率">
+                            <span><b>★5</b> 2%</span>
+                            <span><b>★4</b> 12%</span>
+                            <span><b>★3</b> 86%</span>
+                        </div>
+                        <div class="summon-actions">
+                            <button id="drawOne" class="summon-button summon-button-secondary" type="button">
+                                <span>单次召唤</span>
+                                <small>1 次</small>
+                            </button>
+                            <button id="drawTen" class="summon-button summon-button-primary" type="button">
+                                <span>十连召唤</span>
+                                <small>10 次 · ★4+</small>
+                            </button>
+                        </div>
+                        <dl class="summon-record" aria-label="本地召唤记录">
+                            <div><dt id="totalDraws">0</dt><dd>累计召唤</dd></div>
+                            <div><dt id="fiveStarDraws">0</dt><dd>★5 相遇</dd></div>
+                            <div><dt id="ownedCards">0</dt><dd>已遇卡片</dd></div>
+                        </dl>
+                        <button id="openSummonHistory" class="history-open-button" type="button">查看抽卡历史</button>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section class="catalog-section" aria-labelledby="catalogTitle">
+            <div class="section-heading catalog-heading">
+                <div>
+                    <p class="eyebrow">COMPLETE ARCHIVE</p>
+                    <h2 id="catalogTitle">完整卡池</h2>
+                </div>
+                <p id="catalogDescription">可以检索全部 634 张非原创角色卡，不需要先抽到。</p>
+            </div>
+
+            <form id="catalogFilters" class="catalog-filters" role="search">
+                <label class="filter-search">
+                    <span>搜索角色或作品</span>
+                    <input id="searchInput" type="search" placeholder="例如：由乃、向阳素描" autocomplete="off">
+                </label>
+                <label>
+                    <span>作品</span>
+                    <select id="titleFilter">
+                        <option value="">全部作品</option>
+                    </select>
+                </label>
+                <label>
+                    <span>稀有度</span>
+                    <select id="rarityFilter">
+                        <option value="">全部稀有度</option>
+                        <option value="5">★5</option>
+                        <option value="4">★4</option>
+                        <option value="3">★3</option>
+                    </select>
+                </label>
+                <label>
+                    <span>名称语言</span>
+                    <select id="languageFilter" aria-label="卡片名称显示语言">
+                        <option value="zh">中文</option>
+                        <option value="ja">日本語</option>
+                        <option value="en">English</option>
+                    </select>
+                </label>
+                <button id="clearFilters" class="clear-filters" type="button" title="重置筛选" aria-label="重置筛选">↺</button>
+            </form>
+
+            <div class="catalog-meta">
+                <p id="poolCount" aria-live="polite"></p>
+                <p>卡图按需从 KiraFan Assets 素材 CDN 加载。</p>
+            </div>
+            <div id="catalogGrid" class="catalog-grid"></div>
+            <nav id="catalogPagination" class="catalog-pagination" aria-label="完整卡池分页"></nav>
+        </section>
+    </main>
+
+    <dialog id="cardViewer" class="card-viewer" aria-labelledby="viewerTitle">
+        <div class="viewer-shell">
+            <button id="viewerClose" class="viewer-close" type="button" aria-label="关闭卡面查看器">×</button>
+            <div class="viewer-layout">
+                <div class="viewer-stage">
+                    <button id="viewerPrevious" class="viewer-arrow viewer-arrow-previous" type="button" aria-label="上一张卡" title="上一张卡">←</button>
+                    <div id="viewerMedia" class="viewer-media"></div>
+                    <button id="viewerNext" class="viewer-arrow viewer-arrow-next" type="button" aria-label="下一张卡" title="下一张卡">→</button>
+                </div>
+                <div class="viewer-copy">
+                    <div class="viewer-identity">
+                        <span id="viewerAvatarFrame" class="viewer-avatar-frame"><img id="viewerAvatar" alt=""></span>
+                        <div>
+                            <p id="viewerSubtitle" class="viewer-subtitle"></p>
+                            <h2 id="viewerTitle"></h2>
+                        </div>
+                    </div>
+                    <div class="viewer-card-meta">
+                        <span id="viewerRarity"></span>
+                        <span id="viewerForm"></span>
+                        <span id="viewerPosition"></span>
+                    </div>
+                    <div class="viewer-control-block">
+                        <span>显示内容</span>
+                        <div class="viewer-segmented" role="group" aria-label="显示内容">
+                            <button id="viewerCardArt" type="button" aria-pressed="true">卡面</button>
+                            <button id="viewerStand" type="button" aria-pressed="false">透明立绘</button>
+                            <button id="viewerFullIllustration" type="button" aria-pressed="false">背景插图</button>
+                        </div>
+                    </div>
+                    <div id="viewerEvolution" class="viewer-control-block" hidden>
+                        <span>卡片形态</span>
+                        <div class="viewer-segmented" role="group" aria-label="卡片形态">
+                            <button id="viewerBase" type="button" aria-pressed="true">初始</button>
+                            <button id="viewerEvolved" type="button" aria-pressed="false">进化</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </dialog>
+
+    <dialog id="summonHistory" class="summon-history" aria-labelledby="summonHistoryTitle">
+        <div class="summon-history-shell">
+            <header class="summon-history-header">
+                <div>
+                    <p class="eyebrow">SUMMON LOG</p>
+                    <h2 id="summonHistoryTitle">抽卡历史</h2>
+                </div>
+                <button id="closeSummonHistory" class="history-close-button" type="button" aria-label="关闭抽卡历史">×</button>
+            </header>
+            <p id="summonHistorySummary" class="summon-history-summary"></p>
+            <div id="summonHistoryList" class="summon-history-list"></div>
+            <footer class="summon-history-actions">
+                <button id="clearSummonHistory" type="button">仅清空历史</button>
+                <button id="resetSummonRecord" class="history-reset-button" type="button">重置全部记录</button>
+                <button id="doneSummonHistory" type="button">完成</button>
+            </footer>
+        </div>
+    </dialog>
+
+    <footer class="gacha-footer">
+        <p>非官方、非商业纪念页面。游戏角色、卡面、BGM 及语音版权归原作者与相关权利方所有。BGM、克蕾尔结果语音与作品专属语音来自 KiraFan CRI Assets 公共镜像。</p>
+        <nav aria-label="数据与素材来源">
+            <a href="https://kirarafantasia.miraheze.org/wiki/List_of_Creamates" target="_blank" rel="noopener noreferrer">角色目录 Wiki</a>
+            <a href="https://kirafan.cn/#/characters" target="_blank" rel="noopener noreferrer">KiraFan 解析 Wiki</a>
+            <a href="https://asset.kirafan.moe/#/" target="_blank" rel="noopener noreferrer">KiraFan Assets</a>
+            <a href="https://cri-asset.kirafan.cn/" target="_blank" rel="noopener noreferrer">KiraFan CRI Assets</a>
+            <a href="https://www.youtube.com/watch?v=2Zx07YxlBf8" target="_blank" rel="noopener noreferrer">五星演出参考</a>
+        </nav>
+    </footer>
+
+    <script src="asset/gacha/cards.js?v=20260818-5"></script>
+    <script src="gacha.js?v=20260829-1"></script>
+</body>
+</html>

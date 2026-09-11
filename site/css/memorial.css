@@ -1,0 +1,962 @@
+/* ==========================================================
+   纪念页布局：计时器与上香并列、时区浮层、上香特效、弹窗修正
+   在 style.css 之后引入，用于覆盖旧的页脚式布局。
+   ========================================================== */
+
+/* ---------- 时区浮层（半透明玻璃组件） ---------- */
+.timezone-overlay {
+    position: sticky;
+    top: 0;
+    z-index: 40;
+    display: flex;
+    max-width: 1488px;
+    margin: 0 auto;
+    padding: 8px 24px;
+    gap: 10px;
+}
+
+.tz-btn {
+    flex: 1 1 50%;
+    min-width: 0;
+    margin: 0;
+    padding: 8px 14px;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    border: 1px solid rgba(255, 255, 255, 0.28);
+    border-radius: 10px;
+    background: rgba(38, 29, 35, 0.36);
+    -webkit-backdrop-filter: blur(10px) saturate(140%);
+    backdrop-filter: blur(10px) saturate(140%);
+    color: rgba(255, 255, 255, 0.78);
+    cursor: pointer;
+    transition: background-color 180ms ease, color 180ms ease, border-color 180ms ease;
+}
+
+.tz-btn input {
+    position: absolute;
+    opacity: 0;
+    pointer-events: none;
+}
+
+.tz-btn small {
+    margin-bottom: 2px;
+    font-size: 0.7rem;
+    letter-spacing: 0.04em;
+}
+
+.tz-btn strong {
+    max-width: 100%;
+    overflow: hidden;
+    font-size: 0.86rem;
+    font-weight: 600;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    font-variant-numeric: tabular-nums;
+}
+
+.tz-btn:hover {
+    background: rgba(43, 37, 41, 0.58);
+    color: #fff;
+}
+
+.tz-btn.active {
+    border-color: rgba(240, 181, 65, 0.75);
+    background: rgba(255, 255, 255, 0.58);
+    color: #2b2529;
+}
+
+/* ---------- 计时器与上香并列（移动端与 PC 端一致的并列关系） ---------- */
+#timer-and-action {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    gap: 18px;
+    align-items: start;
+    margin-bottom: 24px;
+}
+
+@media screen and (min-width: 992px) {
+    #timer-and-action {
+        /* 左侧上香龛位固定宽度，右侧计时器占满剩余空间 */
+        grid-template-columns: 360px minmax(0, 1fr);
+        gap: 24px;
+    }
+
+    #action-and-counter-holder {
+        min-height: 416px;
+    }
+}
+
+#timer-and-action > #columns-holder {
+    margin: 0;
+}
+
+#timer-and-action > #columns-holder > div {
+    padding: 0;
+}
+
+#timer-and-action .event-group {
+    margin-bottom: 0;
+}
+
+/* ---------- 上香龛位 ---------- */
+#action-and-counter-holder {
+    position: relative;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-height: 286px;
+    padding: 28px 18px;
+    border: 1px solid rgba(216, 204, 209, 0.9);
+    border-radius: 10px;
+    /* 半透明叠加，露出角色立绘 */
+    background-color: rgba(255, 253, 250, 0.48);
+    background-image: url("../imgs/Kirara_part2_Star5_StandPic_0.png");
+    background-repeat: no-repeat;
+    background-position: calc(50% + 72px) calc(100% - 4px);
+    background-size: auto 94%;
+    background-blend-mode: normal;
+    -webkit-backdrop-filter: blur(13px) saturate(120%);
+    backdrop-filter: blur(13px) saturate(120%);
+    box-shadow: 0 14px 36px rgba(35, 24, 31, 0.18);
+}
+
+/* 立绘之上的半透明白纱，保证文字可读 */
+#action-and-counter-holder::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(
+        105deg,
+        rgba(255, 253, 250, 0.6) 0%,
+        rgba(255, 253, 250, 0.44) 46%,
+        rgba(255, 250, 244, 0.12) 100%
+    );
+    pointer-events: none;
+}
+
+.incense-scene {
+    --incense-offset-x: -86px;
+    position: relative;
+    z-index: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 7px;
+    width: 100%;
+    padding-top: 50px;
+    transform: translateY(22px);
+}
+
+.incense-scene::before {
+    content: "";
+    position: absolute;
+    left: calc(50% + var(--incense-offset-x));
+    top: 114px;
+    width: 174px;
+    height: 98px;
+    border: 1px solid rgba(240, 181, 65, 0.3);
+    border-radius: 50%;
+    background: radial-gradient(ellipse, rgba(255, 220, 136, 0.2), transparent 66%);
+    transform: translateX(-50%);
+    animation: shrine-aura 3.6s ease-in-out infinite;
+    pointer-events: none;
+}
+
+@keyframes shrine-aura {
+    0%, 100% { opacity: 0.36; transform: translateX(-50%) scale(0.9); }
+    50% { opacity: 0.82; transform: translateX(-50%) scale(1.08); }
+}
+
+.shrine-stars {
+    position: absolute;
+    inset: -16px 0 0;
+    overflow: hidden;
+    pointer-events: none;
+}
+
+.shrine-stars span {
+    position: absolute;
+    width: 5px;
+    height: 5px;
+    border-radius: 50%;
+    background: #f0b541;
+    box-shadow: 0 0 10px rgba(240, 181, 65, 0.9);
+    animation: shrine-twinkle 3.4s ease-in-out infinite;
+}
+
+.shrine-stars span:nth-child(1) { left: 12%; top: 18%; animation-delay: 0s; }
+.shrine-stars span:nth-child(2) { left: 28%; top: 47%; animation-delay: 0.8s; }
+.shrine-stars span:nth-child(3) { left: 54%; top: 14%; animation-delay: 1.7s; }
+.shrine-stars span:nth-child(4) { left: 72%; top: 40%; animation-delay: 2.3s; }
+.shrine-stars span:nth-child(5) { left: 88%; top: 22%; animation-delay: 1.1s; }
+
+@keyframes shrine-twinkle {
+    0%, 100% { opacity: 0.18; transform: scale(0.5); }
+    48% { opacity: 1; transform: scale(1.35); }
+}
+
+/* ---------- 香与烟的特效 ---------- */
+.incense-stick {
+    position: relative;
+    top: 14px;
+    left: var(--incense-offset-x);
+    width: 5px;
+    height: 68px;
+    border-radius: 3px 3px 1px 1px;
+    background: linear-gradient(to bottom, #7d4a2e 0%, #9c5f3c 22%, #6f4326 100%);
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.18);
+}
+
+.incense-burner {
+    position: relative;
+    top: 14px;
+    left: var(--incense-offset-x);
+    z-index: 1;
+    width: 104px;
+    height: 49px;
+    margin-top: -6px;
+    border: 2px solid #713d36;
+    border-radius: 11px 11px 36px 36px;
+    background: linear-gradient(180deg, #e7a06f 0%, #bd684f 52%, #7d3f39 100%);
+    box-shadow: inset 0 3px 4px rgba(255,255,255,0.3), 0 9px 15px rgba(87,45,41,0.2);
+    animation: burner-float 4s ease-in-out infinite;
+}
+
+@keyframes burner-float {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-3px); }
+}
+
+.burner-rim {
+    position: absolute;
+    left: -7px;
+    right: -7px;
+    top: -7px;
+    z-index: 3;
+    height: 15px;
+    border: 2px solid #713d36;
+    border-radius: 50%;
+    background: linear-gradient(180deg, #e2a16a, #843d35);
+}
+
+.burner-ash {
+    position: absolute;
+    left: 8px;
+    right: 8px;
+    top: -3px;
+    z-index: 4;
+    height: 9px;
+    border-radius: 50%;
+    background: radial-gradient(ellipse, #d7c3b6 0 38%, #806963 72%, #4f3a38 100%);
+    box-shadow: inset 0 2px 2px rgba(255, 255, 255, 0.42);
+}
+
+.burner-mark {
+    position: absolute;
+    inset: 13px 0 auto;
+    z-index: 2;
+    color: rgba(255, 224, 157, 0.84);
+    font-size: 0.82rem;
+    text-align: center;
+}
+
+/* 香头的火点 */
+.incense-stick::after {
+    content: "";
+    position: absolute;
+    top: -3px;
+    left: 50%;
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    transform: translateX(-50%);
+    background: radial-gradient(circle, #fff3c4 0%, #ffb347 42%, #e2591f 100%);
+    box-shadow: 0 0 10px 3px rgba(255, 150, 60, 0.65);
+    animation: ember-glow 2.6s ease-in-out infinite;
+}
+
+@keyframes ember-glow {
+    0%, 100% { opacity: 0.82; transform: translateX(-50%) scale(0.9); }
+    50%      { opacity: 1;    transform: translateX(-50%) scale(1.15); }
+}
+
+/* 点击上香时，从按钮升起的星光 */
+.spark-layer {
+    position: absolute;
+    inset: 0;
+    z-index: 2;
+    overflow: hidden;
+    pointer-events: none;
+}
+
+.spark {
+    position: absolute;
+    width: 8px;
+    height: 8px;
+    color: #f0b541;
+    font-size: 8px;
+    line-height: 1;
+    opacity: 0;
+    animation: spark-float 1500ms ease-out forwards;
+}
+
+.spark-petal {
+    color: #e88daf;
+    filter: drop-shadow(0 0 4px rgba(232, 141, 175, 0.55));
+}
+
+.spark-ember {
+    color: #e96f35;
+    text-shadow: 0 0 7px rgba(255, 136, 63, 0.88);
+}
+
+/* 点击后以页面坐标跟随香头生成，避免被龛位和舞台的裁切边界截断。 */
+.offering-smoke-burst {
+    position: absolute;
+    top: 0;
+    left: 0;
+    z-index: 30;
+    overflow: visible;
+    width: 1px;
+    height: 1px;
+    pointer-events: none;
+}
+
+.offering-smoke-line {
+    position: absolute;
+    left: 0;
+    bottom: 0;
+    width: 220px;
+    height: 430px;
+    overflow: visible;
+    transform: translate3d(-50%, 0, 0) rotate(var(--smoke-flow-angle, 0deg));
+    transform-origin: center bottom;
+    backface-visibility: hidden;
+    will-change: transform;
+}
+
+.offering-smoke-line-group {
+    transform-box: fill-box;
+    transform-origin: center bottom;
+    animation: smoke-line-sway 8.4s cubic-bezier(0.4, 0, 0.2, 1) infinite alternate;
+    will-change: transform;
+}
+
+.offering-smoke-path {
+    fill: none;
+    stroke: url("#offeringSmokeGradient");
+    stroke-width: 4.2;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+    opacity: 0.86;
+    vector-effect: non-scaling-stroke;
+    animation: smoke-line-breathe 6.8s ease-in-out infinite;
+    will-change: opacity;
+}
+
+.offering-wave {
+    position: absolute;
+    left: calc(50% - 86px);
+    bottom: 34%;
+    width: 84px;
+    height: 30px;
+    border: 2px solid rgba(240, 181, 65, 0.68);
+    border-radius: 50%;
+    transform: translate(-50%, 50%) scale(0.25);
+    opacity: 0;
+    animation: offering-wave 1100ms ease-out forwards;
+}
+
+@keyframes offering-wave {
+    0% { opacity: 0.9; transform: translate(-50%, 50%) scale(0.25); }
+    100% { opacity: 0; transform: translate(-50%, 50%) scale(3.2); }
+}
+
+@keyframes spark-float {
+    0% {
+        opacity: 0;
+        transform: translateY(0) scale(0.5) rotate(0deg);
+    }
+    18% {
+        opacity: 1;
+    }
+    100% {
+        opacity: 0;
+        transform: translateY(-104px) scale(1.25) rotate(180deg);
+    }
+}
+
+@keyframes smoke-line-sway {
+    0% { transform: rotate(-5.5deg) skewX(-3deg) scaleX(0.9); }
+    18% { transform: rotate(2.8deg) skewX(1.8deg) scaleX(1.05); }
+    42% { transform: rotate(-3.8deg) skewX(-2.2deg) scaleX(0.94); }
+    65% { transform: rotate(4.2deg) skewX(2.6deg) scaleX(1.08); }
+    82% { transform: rotate(-1.8deg) skewX(-1.2deg) scaleX(0.98); }
+    100% { transform: rotate(5.5deg) skewX(3deg) scaleX(1.1); }
+}
+
+@keyframes smoke-line-breathe {
+    0%, 100% { opacity: 0.68; }
+    48% { opacity: 0.92; }
+}
+
+#action-and-counter-holder.is-offering .incense-burner {
+    animation: burner-pulse 1200ms cubic-bezier(0.2, 0.7, 0.26, 1);
+}
+
+#action-and-counter-holder.is-offering .offering-button {
+    animation: offering-button-pulse 700ms ease-out;
+}
+
+#action-and-counter-holder.is-offering .incense-stick {
+    animation: incense-settle 1050ms cubic-bezier(0.2, 0.72, 0.24, 1);
+}
+
+#action-and-counter-holder.is-offering .incense-stick::after {
+    animation: ember-flare 1300ms ease-out both;
+}
+
+@keyframes burner-pulse {
+    0%, 100% { transform: translateY(0) scale(1); filter: brightness(1); }
+    18% { transform: translateY(2px) scale(0.98); }
+    48% { transform: translateY(-4px) scale(1.07); filter: brightness(1.2); }
+    72% { transform: translateY(1px) scale(0.995); }
+}
+
+@keyframes offering-button-pulse {
+    0%, 100% { transform: translateY(0) scale(1); }
+    42% { transform: translateY(-2px) scale(1.045); }
+}
+
+@keyframes incense-settle {
+    0%, 100% { transform: rotate(0deg); }
+    22% { transform: rotate(-1.5deg); }
+    48% { transform: rotate(1.2deg); }
+    70% { transform: rotate(-0.5deg); }
+}
+
+@keyframes ember-flare {
+    0% {
+        opacity: 0.82;
+        transform: translateX(-50%) scale(0.9);
+        box-shadow: 0 0 10px 3px rgba(255, 150, 60, 0.65);
+    }
+    24% {
+        opacity: 1;
+        transform: translateX(-50%) scale(1.85);
+        box-shadow: 0 0 22px 8px rgba(255, 124, 48, 0.86);
+    }
+    62% {
+        transform: translateX(-50%) scale(1.08);
+        box-shadow: 0 0 14px 4px rgba(255, 163, 69, 0.72);
+    }
+    100% {
+        opacity: 0.9;
+        transform: translateX(-50%) scale(0.94);
+        box-shadow: 0 0 10px 3px rgba(255, 150, 60, 0.65);
+    }
+}
+
+/* ---------- 上香按钮与计数 ---------- */
+#action-and-counter-holder .memorial-action {
+    position: relative;
+    left: var(--incense-offset-x);
+    min-height: auto;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 6px;
+    margin-top: 10px;
+}
+
+#action-and-counter-holder .offering-button {
+    min-width: 126px;
+    min-height: 48px;
+    padding: 10px 30px;
+    border: 1px solid rgba(216, 78, 129, 0.85);
+    border-radius: 24px;
+    background: linear-gradient(180deg, rgba(255,255,255,0.94), rgba(255,239,246,0.82));
+    -webkit-backdrop-filter: blur(6px);
+    backdrop-filter: blur(6px);
+    color: #c2416f;
+    font-size: 1.06rem;
+    font-weight: 700;
+    letter-spacing: 0.12em;
+    cursor: pointer;
+    box-shadow: 0 6px 18px rgba(216, 78, 129, 0.2), inset 0 0 0 3px rgba(255,255,255,0.48);
+    transition: background-color 170ms ease, color 170ms ease, box-shadow 170ms ease, transform 120ms ease;
+}
+
+#action-and-counter-holder .offering-button:hover,
+#action-and-counter-holder .offering-button:focus-visible {
+    background: #d84e81;
+    color: #fff;
+    box-shadow: 0 10px 24px rgba(216, 78, 129, 0.34);
+    outline: none;
+}
+
+#action-and-counter-holder .offering-button:active {
+    transform: translateY(1px);
+}
+
+#action-and-counter-holder .offering-button:disabled {
+    cursor: wait;
+    opacity: 0.72;
+}
+
+#action-and-counter-holder .offering-count {
+    min-height: 18px;
+    color: #7d7178;
+    font-size: 0.78rem;
+}
+
+/* ---------- 扫墓人数 ---------- */
+#action-and-counter-holder .visitor-counter {
+    margin-top: 4px;
+    padding-top: 12px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    gap: 6px;
+    width: 100%;
+    border-top: 1px solid rgba(216, 204, 209, 0.7);
+    color: #6f636a;
+    font-size: 0.84rem;
+    text-align: center;
+}
+
+#action-and-counter-holder .visitor-value {
+    color: #c2416f;
+    font-weight: 700;
+    font-variant-numeric: tabular-nums;
+}
+
+#action-and-counter-holder .visitor-value.is-unavailable {
+    color: #938a8f;
+    font-weight: 400;
+}
+
+/* 竖排时不需要竖线分隔 */
+#action-and-counter-holder .counter-divider {
+    display: none;
+}
+
+/* ---------- 上香弹窗：修正尺寸与图片显示 ---------- */
+.offering-dialog {
+    width: min(520px, 92vw);
+    max-height: 94vh;
+    display: flex;
+    flex-direction: column;
+    border: 1px solid rgba(240, 181, 65, 0.58);
+    border-radius: 18px;
+    background: linear-gradient(160deg, #fffdf8 0%, #f8edf3 58%, #f7e5c4 100%);
+    box-shadow: 0 30px 90px rgba(26, 17, 23, 0.48), 0 0 44px rgba(240, 181, 65, 0.2);
+}
+
+.offering-visual {
+    position: relative;
+    height: min(62vh, 540px);
+    min-height: 390px;
+    overflow: hidden;
+    display: grid;
+    place-items: end center;
+    isolation: isolate;
+    background:
+        radial-gradient(circle at 18% 20%, rgba(156, 230, 255, 0.52) 0 2px, transparent 3px),
+        radial-gradient(circle at 82% 32%, rgba(255, 241, 158, 0.66) 0 2px, transparent 3px),
+        linear-gradient(180deg, #7565ad 0%, #d58fbd 47%, #f6d3c7 100%);
+    background-size: 36px 36px, 48px 48px, auto;
+}
+
+.offering-visual::marker { display: none; }
+
+/* 结果页只保留星点底色与角色立绘，不生成角色背后的光环。 */
+.offering-visual::before,
+.offering-visual::after {
+    content: none;
+}
+
+.summon-orbit {
+    position: absolute;
+    left: 50%;
+    top: 53%;
+    z-index: 1;
+    border: 2px solid rgba(255, 245, 183, 0.66);
+    border-right-color: transparent;
+    border-bottom-color: rgba(225, 122, 174, 0.42);
+    border-radius: 50%;
+    opacity: 0;
+    filter: drop-shadow(0 0 8px rgba(255, 228, 144, 0.85));
+}
+
+.summon-orbit-one { width: 290px; height: 128px; }
+.summon-orbit-two { width: 210px; height: 330px; }
+
+.offering-visual::before,
+.offering-visual::after {
+    content: "";
+    position: absolute;
+    inset: auto 8% 4%;
+    height: 36%;
+    border-radius: 50%;
+    background: radial-gradient(ellipse, rgba(240, 181, 65, 0.34), transparent 68%);
+    filter: blur(12px);
+    opacity: 0;
+    z-index: -1;
+}
+
+.offering-visual::before {
+    display: none;
+}
+
+.offering-visual::after {
+    inset: 8% 12% auto;
+    height: 54%;
+    background-image: radial-gradient(circle, rgba(255,255,255,0.95) 0 2px, transparent 3px);
+    background-size: 38px 38px;
+    filter: none;
+}
+
+.offering-visual::before,
+.offering-visual::after {
+    content: none;
+}
+
+.summon-ring {
+    position: absolute;
+    left: 50%;
+    top: 51%;
+    border: 1px solid rgba(210, 145, 35, 0.48);
+    border-radius: 50%;
+    opacity: 0;
+    transform: translate(-50%, -50%) scale(0.25) rotate(0deg);
+}
+
+.summon-ring::before,
+.summon-ring::after {
+    content: "✦　✧　✦　✧　✦　✧";
+    position: absolute;
+    inset: -12px;
+    color: rgba(201, 128, 25, 0.7);
+    font-size: 0.72rem;
+    letter-spacing: 0.18em;
+    white-space: nowrap;
+}
+
+.summon-ring-outer { width: 330px; height: 330px; }
+.summon-ring-inner { width: 235px; height: 235px; border-style: dashed; }
+
+.summon-rays {
+    position: absolute;
+    left: 50%;
+    top: 54%;
+    width: 360px;
+    height: 360px;
+    opacity: 0;
+    transform: translate(-50%, -50%) scale(0.5);
+    background: repeating-conic-gradient(from 4deg, rgba(240,181,65,0.23) 0 2deg, transparent 2deg 18deg);
+    mask-image: radial-gradient(circle, transparent 0 24%, #000 26% 62%, transparent 72%);
+    -webkit-mask-image: radial-gradient(circle, transparent 0 24%, #000 26% 62%, transparent 72%);
+}
+
+.offering-dialog img {
+    position: absolute;
+    left: 4%;
+    bottom: 0;
+    z-index: 2;
+    width: 92%;
+    height: 94%;
+    max-width: 92%;
+    max-height: 94%;
+    aspect-ratio: auto;
+    object-fit: contain;
+    object-position: center bottom;
+    opacity: 0;
+    filter: drop-shadow(0 18px 18px rgba(66, 37, 53, 0.25));
+    transform: translateY(38px) scale(0.9);
+}
+
+.offering-copy {
+    position: relative;
+    z-index: 3;
+    padding: 17px 26px 22px;
+    border-top: 1px solid rgba(211, 172, 113, 0.35);
+    background: rgba(255, 253, 250, 0.84);
+    -webkit-backdrop-filter: blur(10px);
+    backdrop-filter: blur(10px);
+    text-align: center;
+}
+
+.offering-info {
+    width: min(420px, 100%);
+    margin: 13px auto 9px;
+    overflow: hidden;
+    border: 1px solid rgba(211, 172, 113, 0.38);
+    border-radius: 10px;
+    background: rgba(255, 255, 255, 0.56);
+    text-align: left;
+}
+
+.offering-info > div {
+    display: grid;
+    grid-template-columns: 64px minmax(0, 1fr);
+}
+
+.offering-info > div + div { border-top: 1px solid rgba(211, 172, 113, 0.24); }
+
+.offering-info dt,
+.offering-info dd {
+    margin: 0;
+    padding: 6px 10px;
+    font-size: 0.72rem;
+    line-height: 1.35;
+}
+
+.offering-info dt {
+    color: #9a6818;
+    font-weight: 800;
+    background: rgba(247, 226, 183, 0.35);
+}
+
+.offering-info dd {
+    color: #5f4c55;
+    overflow-wrap: anywhere;
+}
+
+.offering-group {
+    display: block;
+    color: #b37a17;
+    font-size: 0.64rem;
+    font-weight: 800;
+    letter-spacing: 0.12em;
+}
+
+.offering-name {
+    display: block;
+    margin-top: 8px;
+    color: #4d333e;
+    font-family: "Noto Serif SC", "STSong", serif;
+    font-size: 1.35rem;
+    line-height: 1.35;
+}
+
+.offering-wiki {
+    display: inline-block;
+    color: inherit;
+    text-decoration: none;
+}
+
+.offering-wiki:hover,
+.offering-wiki:focus-visible {
+    color: #b45c7d;
+    text-decoration: none;
+    outline: none;
+}
+
+.offering-name ruby {
+    ruby-position: over;
+}
+
+.offering-name rt {
+    color: #9a7c88;
+    font-family: "Noto Sans SC", "Microsoft YaHei", sans-serif;
+    font-size: 0.48em;
+    font-weight: 500;
+    letter-spacing: 0.05em;
+}
+
+.offering-chinese {
+    display: block;
+    margin-top: 2px;
+    color: #806d75;
+    font-size: 0.74rem;
+}
+
+.offering-chinese[hidden] {
+    display: none;
+}
+
+.offering-dialog p {
+    margin: 12px auto 0;
+    padding: 11px 16px;
+    border: 1px solid rgba(255, 220, 142, 0.78);
+    border-radius: 8px;
+    background: linear-gradient(100deg, #9f2f59 0%, #c34273 52%, #a9325e 100%);
+    color: #fffdf8;
+    font-family: "Noto Serif SC", "Yu Mincho", "Hiragino Mincho ProN", serif;
+    font-size: 1rem;
+    font-weight: 800;
+    line-height: 1.45;
+    text-shadow: 0 1px 2px rgba(72, 16, 40, 0.3);
+    box-shadow: 0 7px 18px rgba(126, 34, 70, 0.22);
+}
+
+#offeringMessageName {
+    color: inherit;
+    font: inherit;
+}
+
+.offering-modal.is-revealing .offering-dialog img {
+    animation: character-reveal 820ms cubic-bezier(0.16, 0.82, 0.24, 1) 90ms both;
+}
+
+.offering-modal.is-revealing .summon-ring-outer {
+    animation: ring-reveal 1200ms ease-out both, ring-drift 12s linear 1200ms infinite;
+}
+
+.offering-modal.is-revealing .summon-ring-inner {
+    animation: ring-reveal 900ms ease-out 100ms both, ring-drift-reverse 10s linear 1000ms infinite;
+}
+
+.offering-modal.is-revealing .summon-rays {
+    animation: ray-reveal 1100ms ease-out 80ms both, ray-drift 18s linear 1180ms infinite;
+}
+
+.offering-modal.is-revealing .summon-orbit-one {
+    animation: orbit-reveal 1000ms ease-out 120ms both, orbit-spin 7s linear 1120ms infinite;
+}
+
+.offering-modal.is-revealing .summon-orbit-two {
+    animation: orbit-reveal 1050ms ease-out 160ms both, orbit-spin-reverse 9s linear 1210ms infinite;
+}
+
+.offering-modal.is-revealing .offering-visual::before,
+.offering-modal.is-revealing .offering-visual::after {
+    animation: aura-reveal 1250ms ease-out 100ms both;
+}
+
+@keyframes character-reveal {
+    0% { opacity: 0; transform: translateY(48px) scale(0.84); filter: blur(3px) drop-shadow(0 18px 18px rgba(66,37,53,0)); }
+    55% { opacity: 1; filter: blur(0) drop-shadow(0 18px 18px rgba(66,37,53,0.18)); }
+    100% { opacity: 1; transform: translateY(0) scale(1); filter: brightness(1) drop-shadow(0 18px 18px rgba(66,37,53,0.25)); }
+}
+
+@keyframes ring-reveal {
+    0% { opacity: 0; transform: translate(-50%, -50%) scale(0.22) rotate(-40deg); }
+    45% { opacity: 0.9; }
+    100% { opacity: 0.48; transform: translate(-50%, -50%) scale(1) rotate(0deg); }
+}
+
+@keyframes ring-drift { to { transform: translate(-50%, -50%) scale(1) rotate(360deg); } }
+@keyframes ring-drift-reverse { to { transform: translate(-50%, -50%) scale(1) rotate(-360deg); } }
+
+@keyframes ray-reveal {
+    from { opacity: 0; transform: translate(-50%, -50%) scale(0.45) rotate(-22deg); }
+    to { opacity: 0.62; transform: translate(-50%, -50%) scale(1) rotate(0deg); }
+}
+
+@keyframes ray-drift { to { transform: translate(-50%, -50%) scale(1) rotate(360deg); } }
+
+@keyframes orbit-reveal {
+    from { opacity: 0; transform: translate(-50%, -50%) scale(0.45) rotate(-30deg); }
+    to { opacity: 0.82; transform: translate(-50%, -50%) scale(1) rotate(0deg); }
+}
+
+@keyframes orbit-spin { to { transform: translate(-50%, -50%) scale(1) rotate(360deg); } }
+@keyframes orbit-spin-reverse { to { transform: translate(-50%, -50%) scale(1) rotate(-360deg); } }
+
+@keyframes aura-reveal {
+    from { opacity: 0; transform: scale(0.7); }
+    to { opacity: 1; transform: scale(1); }
+}
+
+/* ---------- 响应式布局 ---------- */
+@media screen and (min-width: 992px) {
+    #action-and-counter-holder {
+        background-position: calc(50% + 102px) calc(100% - 4px);
+    }
+
+    .incense-scene {
+        --incense-offset-x: -56px;
+    }
+
+    .offering-wave {
+        left: calc(50% - 56px);
+    }
+}
+
+@media screen and (max-width: 991px) {
+    #action-and-counter-holder {
+        padding-bottom: 32px;
+    }
+}
+
+@media screen and (min-width: 600px) and (max-width: 991px) {
+    #action-and-counter-holder {
+        width: min(480px, 100%);
+        justify-self: center;
+    }
+}
+
+@media screen and (max-width: 767px) {
+    .timezone-overlay {
+        padding: 8px 12px;
+        gap: 8px;
+    }
+
+    .tz-btn {
+        padding: 7px 10px;
+    }
+
+    .tz-btn small {
+        font-size: 0.64rem;
+    }
+
+    .tz-btn strong {
+        font-size: 0.72rem;
+    }
+
+    #action-and-counter-holder {
+        padding: 18px 14px 30px;
+        background-position: calc(50% + 72px) calc(100% - 4px);
+        background-size: auto 94%;
+    }
+
+    .offering-dialog img {
+        width: 92%;
+        height: 92%;
+        max-height: 92%;
+    }
+
+    .offering-visual {
+        min-height: 330px;
+        height: 54vh;
+    }
+
+    .summon-ring-outer { width: 270px; height: 270px; }
+    .summon-ring-inner { width: 190px; height: 190px; }
+    .summon-rays { width: 300px; height: 300px; }
+    .summon-orbit-one { width: 240px; height: 110px; }
+    .summon-orbit-two { width: 180px; height: 280px; }
+
+    .offering-copy { padding: 14px 16px 17px; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .incense-stick::after,
+    .shrine-stars span,
+    .incense-scene::before,
+    .incense-burner,
+    #action-and-counter-holder.is-offering .incense-stick,
+    #action-and-counter-holder.is-offering .incense-burner,
+    #action-and-counter-holder.is-offering .offering-button,
+    .offering-modal.is-revealing .offering-dialog img,
+    .offering-modal.is-revealing .summon-ring,
+    .offering-modal.is-revealing .summon-rays,
+    .offering-modal.is-revealing .summon-orbit,
+    .offering-modal.is-revealing .offering-visual::before,
+    .offering-modal.is-revealing .offering-visual::after {
+        animation-duration: 1ms !important;
+        animation-iteration-count: 1 !important;
+    }
+
+    .offering-smoke-line-group,
+    .offering-smoke-path {
+        animation-duration: 10s !important;
+    }
+
+}

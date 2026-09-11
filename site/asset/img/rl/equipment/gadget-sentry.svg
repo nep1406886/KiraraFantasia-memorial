@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="96" height="96" viewBox="0 0 96 96">
+  <title>守望机关</title><metadata>kirafan-timer original; stationary sentry device</metadata>
+  <g stroke="#716454" stroke-width="2.5" stroke-linejoin="round" stroke-linecap="round">
+    <path d="m39 55-14 25h11l12-17 12 17h11L57 55Z" fill="#b9cace"/>
+    <path d="m37 16-7 8-1 26 12 12h22l11-13-1-25-8-8Z" fill="#ebca84"/>
+    <path d="M43 23h20l6 5-1 18-8 9H42L35 47V30Z" fill="#bed9da"/>
+    <path d="m61 28 25 3v13l-25 5Z" fill="#d6af69"/>
+    <ellipse cx="82" cy="37" rx="7" ry="10" fill="#7196ad"/>
+    <ellipse cx="82" cy="36" rx="3" ry="5" fill="#def5ee" stroke="none"/>
+    <path d="M49 14V8M43 8h12M40 35h12" fill="none" stroke="#a67954"/>
+    <circle cx="46" cy="45" r="4" fill="#f9f3da"/>
+    <path d="M18 32h-7m9 8H7m14 8h-9" stroke="#c6a268"/>
+  </g>
+</svg>

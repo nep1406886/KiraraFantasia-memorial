@@ -1,0 +1,359 @@
+{
+  "_comment": "T09 配比表（spec/02 §3 手写）。volumes: 卷 → 主 kit + 副 kit（extra）+ 雾色/夜标记 + 地面色 + 该卷 kit 里真正可用的物件名（prefer）、必须放平的物件名（flat）与碎片名（exclude）。prefer/flat/exclude 都是物件名的子串匹配（大小写不敏感），`=name` 为整名匹配。flat: 卡的投影方向不在 category 里。water/floor 类天生俯视、mapview 一向放平，但有几张 prop/anim 卡也是俯视画的，立起来就是一块悬在自己接地阴影上方的板子——2026-09-03 逐帧看出来的三处：1075_3 的 cardboard_0/_1（摊开的纸板，立起来是奶白色细条）、1018_8 的 Luggage/Sandal_L/R（俯视的行李箱与人字拖）、1011_4 的 firewood（俯视的柴堆）。放平后它们就是沙地上的纸板、行李与柴堆，也顺带不再挡路、不再有阴影。GroundSheet（1018_8 的条纹沙滩垫）本来在 exclude 里，正因为立着没法看；有了 flat 就放回池子——它是 anim 类，所以 placeAnimated 也认 flat。反过来 1018_0 的 Build（俯视折叠的蓝色海边小屋）没法靠放平救：放平是俯视屋顶，立起来是蓝色折屏，两头都不像房子，整张排掉，卷一的边界改由 Gate（珊瑚拱门）+ GreenConch（大海螺）+ Coral 撑。1011_6 整套 rock*/tree* 也是俯视卡、且背景是不透明灰底，但夜卷的地面本就是灰绿，帧里它们读作暗色苔石，就不动。rooms: 房型 → 摆件配方。池子 = 两个 kit 里 category 匹配、不被 exclude 的物件；prefer 只排序不筛选，而 mapview 的 pickFrom 只在池子前 6 名里取样，所以 prefer 第一位决定这一卷的门面。卷↔kit 是逐张卡看图指派的（2026-09-02 重看一遍：kit_cards.py 早先按每张卡各自猜 v 方向裁图，于是 1075_3 的 board/stand/light 被误判成黑白剪影、EFF_* 被误判成石块；确认图集只有一个 v 约定后重裁，卷四整条 prefer/exclude 都据此改写）：原作没有沙漠/机械 biome，卷二用 1011_4/1011_7 的营地帐篷表达「旅人与食桌」，卷四用 1075_3 的片场道具（纸箱、木板、折梯、摄影灯、麻绳）加 1047_9 的海盗船表达「无人认领的造物」。EFF_*（1075_3）与 Effect*（1047_9）都是出场尘烟特效卡，摆在地上就是一地白团，全排掉——全局 excludes 的 effect 只盖后者的命名。1011_3/1011_6/1011_8 的树石是俯视卡（原作这几关是鸟瞰镜头），立起来只能当苔石/崖壁读，所以这两卷的 floor/water 卡（pond、river）比别卷重要：mapview 把它们放平，那才是它们本来的视角。ground: 地面不来自 kit——64 个 kit 里没有一块可平铺的地砖，floor 类物件都是单张装饰卡（1011_2 的草地椭圆、1075_3 的土坑），平铺它等于把房间铺满椭圆、卡与卡之间露底色，所以地面按卷手写颜色在 mapview 里合成（暗色外围 + 房间矩形 + boss 圆台，亮度台阶就是墙线）；base 与 mottle 的亮度差由 mapview 归一到卷一的 8%（PATCH_WEBER），否则卷三四五的地斑与接地阴影是同一种东西。夜卷（night:true）的卡是无光照贴图，scene.js 的月光照不到它们，mapview 用颜色乘子补（NIGHT_TINT）。exclude 里的名字是同一个 kit 里的碎片，和道具同图集同命名，只能按名字挑掉：尚未核验的拆分件（1011_2 的三组树木现已按原始层级和 idle:0 合并成 treeA/treeB/treeC，不再拆开放置）、山丘剪影（smole*）、描边壳（*_edge 与 1075_3 的 edge_0..6）、1011_2 的 flower3/flower4（UV 只剩镜像区可用，裁出来是一条褐白渐变带，卷三地上那两团白就是它）、1047_9 的水面细条（watersurface：放平后是沙地上的一道蓝线）。2026-09-03 追记两件 mapview 层面的事：其一，flat 动画卡必须烘焙、不能活克隆——mixer 拥有克隆的内部节点，kit 在节点级做的居中配平（GroundSheet 的 ±0.12 一对）会被 idle 轨道覆写，立着只是 0.19 的深度差没人看得出来，放平就变成 0.19 的高度差、整张垫子沉到只低 0.02 的地面底下，所以 laysFlat 的 anim 卡走 placeStatic 烘焙；烘焙时 collectGeometries 还会把 tipped bbox 的 min.y 归位（seat），因为节点级居中偏移沿卡面法向、放平时变成任意高度。其二，mergeGeometries 要求整桶属性集一致、失败返回 null 而 mapview 曾静默丢桶——GroundSheet 是 SkinnedMesh 带 skinIndex，一张卡把同图集的行李/人字拖/果汁全部带没了，collectGeometries 因此改成白名单（只留 position/uv，清 morphAttributes），merge 失败改为 console.error。segments（2026-09-03 阶段 5）：每卷 4 个生态段 × 5 层（roguelike-plan §0.2 分卷表）。段配置是稀疏覆盖——基（卷顶层字段）就是第 1 段，segments[0] 留空 {} 继承基；段字段（name/biome/extra/fog/night/ground/prefer/flat/exclude）逐项盖过基。mapview.volumeConfig(volume, floor) 取 floor 所在段。段名进 HUD。段的 kit 指派依据 mapkit.json 的物件清单（墙/塔/洞窟/苔藓/机器/床铺各是什么名字）：卷一 海底=1018_1 海藻+1011_5 崖壁、深层=1018_2 洞窟海葵+1047_8 苔藓、巨浪=1018_5 塔+1011_8 风暴石壁；卷二 绿洲=1011_3 瀑布水潭+1075_2 长椅海面、夜沙丘=1011_5+1011_8 夜、蜃楼=1011_0 街区+1011_1 花路；卷三 蜜林=1011_1 花草+1075_7 花鸟水船、菌类圈=1047_1 蓝红植物+1011_2 森林、树海=1011_6+1011_2；卷四 时计塔=1075_5 时钟墙帘+1075_0 柱灯屋、核心炉=1075_9 刨冰机+1011_5 岩壁、废墟=1075_4 森之背景+1011_8 石壁；卷五 神殿回廊=1075_6 石柱+1011_8（取代旧 1011_6 基）、地下圣堂=1018_2 洞窟+1047_6 台基、记忆之间=1011_7 帐篷地毯+1075_2、终之书架=1075_5 书架卧铺+1011_8。rooms 的 anchor 词表为段追加了 boat/cave/bench/clock（boss/rest/shop 的锚点必须每段都能落到一个实物上，rl_view_harness 逐段断言）。T22c（2026-09-04，用户实机反馈 3）：其一，每段在 biome+extra 之外追加第三套 kit（extra2）——64 套 kit 此前每段只吃两套、同层房间观感重复；extra2 按各段词条与主题指派（港町+1018_7 贝壳长椅、海底+1018_6 蓝海葵、巨浪+1075_7 花鸟水船、沙漠+1011_6 河流岩石、夜沙丘+1047_9 搁浅船、蜃楼+1075_0 街灯杂货、林边+1047_0、蜜林+1047_2 扶桑洞窟、菌类圈+1047_4 蓝植、树海+1047_7 椰林、机关人偶+1047_6 台基、时计塔/终之书架+1075_10、核心炉+1047_0、废墟+1075_1、神殿回廊+1018_4、地下圣堂+1018_6、记忆之间+1075_1），mapview 的 kit 列表改为 [biome, extra, extra2] 去重后并池。其二，rooms 配方密度上调（battle scatter 6→9、border 38→42；start 8→11/34→38；chest 8→10/34→38；shop 7→9/30→34；rest 7→9/30→34；boss 3→4/42→46；animated 2→3）。其三，房间类型差异化铺法：新增 per-recipe 的 water 计数（battle 2 / boss 2 / start·chest·rest 1），mapview 从段的 kit 里取 water 类、最大边 ≥1.0 的卡（pond/river/sea/WaterSurface；SeaAnemone_*_Edge 太小不算水）放大 1.35 平铺——战斗房有了水洼、篝火房有了池水，不动合成地面。",
+  "volumes": {
+    "1": {
+      "name": "港町",
+      "biome": "1018_0",
+      "extra": "1018_8",
+      "extra2": "1018_7",
+      "fog": "#c9e6e4",
+      "night": false,
+      "ground": { "base": "#efe3c6", "mottle": "#dfd0a8" },
+      "prefer": {
+        "border": ["gate", "conch", "coral"],
+        "scatter": ["seashell", "coral", "groundsheet", "seaweed", "crab", "luggage", "sandal", "juice"]
+      },
+      "flat": ["luggage", "sandal", "groundsheet"],
+      "exclude": ["=area", "build"],
+      "segments": [
+        {},
+        {
+          "name": "海底",
+          "biome": "1018_1",
+          "extra": "1011_5",
+          "extra2": "1018_6",
+          "fog": "#a8d8dc",
+          "ground": { "base": "#7fb0be", "mottle": "#6a9aa8" },
+          "prefer": {
+            "border": ["rock_l", "rock_r", "wall", "rock"],
+            "scatter": ["seaweed", "starfish", "spiralshell", "seaanemone", "stone", "shell"]
+          },
+          "exclude": []
+        },
+        {
+          "name": "深层",
+          "biome": "1018_2",
+          "extra": "1047_8",
+          "extra2": "1018_3",
+          "fog": "#6a92a8",
+          "ground": { "base": "#4e7086", "mottle": "#3d5a6c" },
+          "prefer": {
+            "border": ["cave", "rock"],
+            "scatter": ["seaanemone", "stone", "rock", "moss", "plant"]
+          },
+          "exclude": []
+        },
+        {
+          "name": "巨浪",
+          "biome": "1018_5",
+          "extra": "1011_8",
+          "extra2": "1075_7",
+          "fog": "#bcd4d8",
+          "ground": { "base": "#cfd8c0", "mottle": "#b8c2a8" },
+          "prefer": {
+            "border": ["tower", "bride", "wall", "rockl", "rockr"],
+            "scatter": ["conch", "shell", "seaweed", "seafish", "starfish", "rock"]
+          },
+          "exclude": []
+        }
+      ]
+    },
+    "2": {
+      "name": "沙漠入口",
+      "biome": "1011_4",
+      "extra": "1011_7",
+      "extra2": "1011_6",
+      "fog": "#e8e0c8",
+      "night": false,
+      "ground": { "base": "#e8dcae", "mottle": "#d3c48d" },
+      "prefer": {
+        "border": ["tent", "chaira", "chairb", "chairc", "chair", "carpet", "firewood"],
+        "scatter": ["fire", "table", "firewood", "grass", "carpet"]
+      },
+      "flat": ["firewood"],
+      "exclude": ["ground"],
+      "segments": [
+        {},
+        {
+          "name": "绿洲",
+          "biome": "1011_3",
+          "extra": "1075_2",
+          "extra2": "1011_0",
+          "fog": "#cfe4c0",
+          "ground": { "base": "#a8c488", "mottle": "#8fae6e" },
+          "prefer": {
+            "border": ["walll", "wallr", "treel", "treer"],
+            "scatter": ["pond", "fall", "splash", "bench", "sea", "wave"]
+          },
+          "exclude": []
+        },
+        {
+          "name": "夜沙丘",
+          "biome": "1011_5",
+          "extra": "1011_8",
+          "extra2": "1047_9",
+          "fog": "#6a6a8a",
+          "night": true,
+          "ground": { "base": "#565178", "mottle": "#454560" },
+          "prefer": {
+            "border": ["wall", "rock"],
+            "scatter": ["rock1", "rock2", "rock3", "rockl", "rockr", "ground"]
+          }
+        },
+        {
+          "name": "蜃楼",
+          "biome": "1011_0",
+          "extra": "1011_1",
+          "extra2": "1075_0",
+          "fog": "#eee0c0",
+          "ground": { "base": "#e8d8a8", "mottle": "#d8c890" },
+          "prefer": {
+            "border": ["houseb_wall", "houser_wall", "housey_wall", "gate"],
+            "scatter": ["flag", "flowerbed", "tree", "road", "flower", "grass"]
+          },
+          "exclude": ["=area"]
+        }
+      ]
+    },
+    "3": {
+      "name": "林边",
+      "biome": "1011_2",
+      "extra": "1011_3",
+      "extra2": "1047_0",
+      "fog": "#b8d8b0",
+      "night": false,
+      "ground": { "base": "#9cc568", "mottle": "#7ba24c" },
+      "prefer": {
+        "border": ["=treea", "=treeb", "=treec", "walll", "wallr", "rock"],
+        "focal": ["=treea", "=treeb", "=treec"],
+        "scatter": ["rock", "flower1", "flower2", "stump", "pond", "fall", "splash", "ground"]
+      },
+      "exclude": ["flower3", "flower4"],
+      "segments": [
+        {},
+        {
+          "name": "蜜林",
+          "biome": "1011_1",
+          "extra": "1075_7",
+          "extra2": "1047_2",
+          "fog": "#ecd8a8",
+          "ground": { "base": "#c8b070", "mottle": "#b09858" },
+          "prefer": {
+            "border": ["sign_bar", "boat", "wave_foundation"],
+            "scatter": ["flower", "grass", "road", "bird", "water_eff", "water_mini"]
+          },
+          "exclude": []
+        },
+        {
+          "name": "菌类圈",
+          "biome": "1047_1",
+          "extra": "1011_2",
+          "extra2": "1047_4",
+          "fog": "#a0c0a8",
+          "ground": { "base": "#8aa88f", "mottle": "#6e8a74" },
+          "prefer": {
+            "border": ["=treea", "=treeb", "=treec", "rock"],
+            "focal": ["=treea", "=treeb", "=treec"],
+            "scatter": ["blueplant", "lightgreenplant", "redplant", "vine", "rock", "flower1"]
+          }
+        },
+        {
+          "name": "树海",
+          "biome": "1011_6",
+          "extra": "1011_2",
+          "extra2": "1047_7",
+          "fog": "#88a890",
+          "ground": { "base": "#4e6e50", "mottle": "#3a5a40" },
+          "prefer": {
+            "border": ["=treea", "=treeb", "=treec", "treel", "treer", "rock"],
+            "focal": ["=treea", "=treeb", "=treec"],
+            "scatter": ["river", "rock", "treer1", "treel1", "stump", "flower1"]
+          }
+        }
+      ]
+    },
+    "4": {
+      "name": "机关人偶",
+      "biome": "1075_3",
+      "extra": "1047_9",
+      "extra2": "1047_6",
+      "fog": "#c0ccd8",
+      "night": false,
+      "ground": { "base": "#cbb78f", "mottle": "#ab9268" },
+      "prefer": {
+        "border": ["ship1", "board", "stand", "light", "cardboard_2", "cardboard"],
+        "scatter": ["cardboard_0", "cardboard_1", "ship2", "rope", "cardboard"]
+      },
+      "flat": ["cardboard_0", "cardboard_1"],
+      "exclude": ["eff_", "watersurface", "crab_"],
+      "segments": [
+        {},
+        {
+          "name": "时计塔",
+          "biome": "1075_5",
+          "extra": "1075_0",
+          "extra2": "1075_10",
+          "fog": "#d8ccb8",
+          "ground": { "base": "#b09878", "mottle": "#9a8264" },
+          "prefer": {
+            "border": ["piller", "wall", "house", "fundation"],
+            "scatter": ["clock", "lamp", "barrel", "case1", "curtain", "shelf", "rebon", "plant"]
+          },
+          "exclude": []
+        },
+        {
+          "name": "核心炉",
+          "biome": "1075_9",
+          "extra": "1011_5",
+          "extra2": "1047_0",
+          "fog": "#e0c0a0",
+          "ground": { "base": "#b07858", "mottle": "#98604a" },
+          "prefer": {
+            "border": ["kakigori", "wall", "rock"],
+            "scatter": ["kakigori", "rebon", "rock1", "rock2", "rock3", "ground"]
+          },
+          "exclude": []
+        },
+        {
+          "name": "废墟",
+          "biome": "1075_4",
+          "extra": "1011_8",
+          "extra2": "1075_1",
+          "fog": "#b0b8a8",
+          "ground": { "base": "#9aa088", "mottle": "#7f8874" },
+          "prefer": {
+            "border": ["back_forest", "wave_foundation", "wall", "rockl", "rockr"],
+            "scatter": ["grass", "rock", "wave", "ground"]
+          },
+          "exclude": []
+        }
+      ]
+    },
+    "5": {
+      "name": "神殿回廊",
+      "biome": "1075_6",
+      "extra": "1011_8",
+      "extra2": "1018_4",
+      "fog": "#8a8aa8",
+      "night": true,
+      "ground": { "base": "#5c6b63", "mottle": "#47564f" },
+      "prefer": {
+        "border": ["piller", "wall", "rockl", "rockr"],
+        "scatter": ["plant", "rock", "base2", "ground"]
+      },
+      "exclude": [],
+      "segments": [
+        {},
+        {
+          "name": "地下圣堂",
+          "biome": "1018_2",
+          "extra": "1047_6",
+          "extra2": "1018_6",
+          "fog": "#707898",
+          "ground": { "base": "#4a5068", "mottle": "#3a4058" },
+          "prefer": {
+            "border": ["cave", "foundation", "map1", "map2"],
+            "scatter": ["seaanemone", "stone", "rock", "rebon"]
+          }
+        },
+        {
+          "name": "记忆之间",
+          "biome": "1011_7",
+          "extra": "1075_2",
+          "extra2": "1075_1",
+          "fog": "#9890b0",
+          "ground": { "base": "#6a6480", "mottle": "#565070" },
+          "prefer": {
+            "border": ["tent", "base2", "bench"],
+            "scatter": ["carpet", "chair", "fire", "firewood", "grass", "bench", "sea", "wave"]
+          }
+        },
+        {
+          "name": "终之书架",
+          "biome": "1075_5",
+          "extra": "1011_8",
+          "extra2": "1075_10",
+          "fog": "#b0b0c8",
+          "ground": { "base": "#8a8aa0", "mottle": "#767690" },
+          "prefer": {
+            "border": ["wall", "shelf", "rockl", "rockr"],
+            "scatter": ["shelf", "clock", "curtain", "futon", "rebon", "rock", "ground"]
+          }
+        }
+      ]
+    }
+  },
+  "rooms": {
+    "start": {
+      "scatter": 11,
+      "scatterPrefer": ["flower", "grass", "plant", "moss", "rock", "coral",
+        "seaweed", "shell", "nut", "bird"],
+      "border": 38,
+      "borderPrefer": ["tree", "wall", "rock", "gate", "build", "tent", "coral",
+        "conch", "chain", "boat", "cardboard"],
+      "animated": 3,
+      "water": 1
+    },
+    "battle": {
+      "scatter": 9,
+      "scatterPrefer": ["grass", "rock", "flower", "plant", "shell", "starfish",
+        "crab", "bird", "wave"],
+      "border": 42,
+      "borderPrefer": ["tree", "wall", "rock", "gate", "build", "tent", "coral",
+        "conch", "boat", "cardboard"],
+      "animated": 3,
+      "water": 2
+    },
+    "chest": {
+      "scatter": 10,
+      "scatterPrefer": ["flower", "grass", "rock", "crystal", "shell", "bird", "nut"],
+      "border": 38,
+      "borderPrefer": ["tree", "wall", "rock", "gate", "build", "coral", "conch",
+        "boat", "cardboard"],
+      "animated": 3,
+      "water": 1
+    },
+    "shop": {
+      "scatter": 9,
+      "scatterPrefer": ["tent", "clock", "stand", "table", "case", "chair",
+        "barrel", "boat", "carpet", "cardboard"],
+      "border": 34,
+      "borderPrefer": ["tree", "wall", "rock", "gate", "build", "coral", "conch",
+        "boat", "cardboard"],
+      "animated": 2,
+      "anchor": ["tent", "ship1", "build", "gate", "house", "clock", "stand",
+        "table", "case", "boat", "cardboard_2", "=treea", "rock", "piller",
+        "shelf", "bench", "pond"]
+    },
+    "rest": {
+      "scatter": 9,
+      "scatterPrefer": ["chair", "table", "firewood", "futon", "barrel", "nut",
+        "flower", "grass"],
+      "border": 34,
+      "borderPrefer": ["tree", "wall", "rock", "gate", "build", "coral", "conch",
+        "tent", "cardboard"],
+      "animated": 3,
+      "water": 1,
+      "anchor": ["fire", "firewood", "tent", "chaira", "chair", "table", "pond",
+        "river", "house", "luggage", "cardboard", "rock", "boat", "bench",
+        "clock", "futon", "shelf"]
+    },
+    "boss": {
+      "arena": true,
+      "scatter": 4,
+      "scatterPrefer": ["rock", "wave", "water", "pond", "splash", "coral"],
+      "border": 46,
+      "borderPrefer": ["wall", "tree", "rock", "gate", "build", "conch", "chain",
+        "ship1", "cardboard"],
+      "animated": 3,
+      "water": 2,
+      "anchor": ["gate", "build", "ship1", "tent", "wall", "fall", "pond", "fire",
+        "boat", "cave", "tower", "piller", "back_forest", "foundation", "=treea",
+        "treel", "treer"]
+    }
+  },
+  "excludes": ["edge", "line", "effect", "eff_speed", "eff_ground", "hikari",
+    "hoshi", "maru", "hishigata", "shadow", "back", "dm_base", "piller_",
+    "foundation", "base", "smole", "trunk", "leaves", "tassel", "splash_",
+    "_rear", "_front", "shaft", "mast", "sail"]
+}

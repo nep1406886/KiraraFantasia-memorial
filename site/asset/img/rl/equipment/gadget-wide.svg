@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="96" height="96" viewBox="0 0 96 96">
+  <title>宽弧指环</title><metadata>kirafan-timer original; wide-arc ring</metadata>
+  <g stroke="#716454" stroke-width="2.5" stroke-linejoin="round" stroke-linecap="round">
+    <path d="M64 50a24 27 0 1 1-35 0l7 7a15 19 0 1 0 21 0Z" fill="#e6be72"/>
+    <path d="m48 27 17 17-17 19-17-19Z" fill="#c1d9df"/>
+    <path d="m48 27 0 36 17-19Z" fill="#79aebd" stroke="none"/>
+    <path d="m44 35-6 8" fill="none" stroke="#fff9ef" stroke-width="3"/>
+    <path d="M19 35a35 35 0 0 1 58 0M11 27a45 45 0 0 1 74 0" fill="none" stroke="#d4ac6c" stroke-width="3"/>
+    <path d="m11 19 0 8 9-1m65-7 0 8-9-1" fill="none" stroke="#d4ac6c" stroke-width="3"/>
+  </g>
+</svg>

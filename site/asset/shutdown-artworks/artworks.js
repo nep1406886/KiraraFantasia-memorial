@@ -1,0 +1,272 @@
+var kirafanShutdownArtworks = {
+  "schemaVersion": 1,
+  "title": "《きららファンタジア》关服纪念画师帖整理",
+  "game": "きららファンタジア",
+  "serviceEndedAt": "2023-02-28T15:59:00+09:00",
+  "officialAccount": "https://x.com/kirarafantasia",
+  "compiledAt": "2026-08-13",
+  "scope": "收录正式停服前后（含关服后补发），由参战作品作者或相关创作者本人发布、明确提及关服或致谢且带图片的公开 X 帖文。",
+  "verification": {
+    "status": "verified",
+    "method": "逐条使用 X 帖文链接、X oEmbed/公开帖文元数据及当时的 Posfie 关系者反应存档交叉核对；图片从 pbs.twimg.com 的原图地址下载。",
+    "archiveUrl": "https://posfie.com/@UDONisGOD8432/p/N3MoBme",
+    "notes": [
+      "中文文字为便于网页展示的人工翻译，日文原文保留在 textJa。",
+      "不收录仅有文字、仅转发官方消息、普通玩家二创或身份无法确认的帖子。",
+      "图片版权归原作者及相关权利方所有；本目录用于资料整理，公开网页使用前请自行确认授权与引用方式。"
+    ]
+  },
+  "items": [
+    {
+      "id": "1654459077186183169",
+      "postedAt": "2023-05-05T21:12:37+09:00",
+      "timing": "post-shutdown",
+      "author": {
+        "name": "蒼樹うめ",
+        "handle": "umeaoki",
+        "role": "《向阳素描》作者、《きららファンタジア》原创角色琪拉拉的角色设计"
+      },
+      "work": "向阳素描 / きららファンタジア",
+      "postUrl": "https://x.com/umeaoki/status/1654459077186183169",
+      "textJa": "ついでに、少し前に描いてアップするタイミングを逃しまくっていたきららちゃんを……\nお礼がとてもとても遅くなりまして申し訳ありません💦\n\n運営さま関係者さま、遊んでくださったたくさんの皆さま、本当にありがとうございました！！\n#きららファンタジア",
+      "textZh": "顺便放上稍早前画好、却一直错过发布时机的琪拉拉……这么晚才来道谢，真的非常抱歉。衷心感谢运营方、所有相关人员，以及众多游玩过游戏的各位！",
+      "mediaNote": "关服约两个月后补发的琪拉拉致谢插画；作者说明此前一直错过发布时间。",
+      "images": [
+        {
+          "path": "images/aoki-ume-1654459077186183169-01.jpg",
+          "sourceUrl": "https://pbs.twimg.com/media/FvXQhQUakAUzuZg.jpg?name=orig",
+          "mediaKind": "artwork",
+          "width": 900,
+          "height": 1220,
+          "bytes": 629682,
+          "sha256": "a00af65877c7b1373acd4aecd864c6871f32d340e6ab82b25e302ba8f7e6abf3"
+        }
+      ]
+    },
+    {
+      "id": "1630463141850288128",
+      "postedAt": "2023-02-28T16:01:20+09:00",
+      "author": {
+        "name": "こうのす",
+        "handle": "test_to_",
+        "role": "Kirara 系创作者、《こみっくがーるずアンソロジーコミック》参与作者"
+      },
+      "work": "Kirara 系相关",
+      "postUrl": "https://x.com/test_to_/status/1630463141850288128",
+      "textJa": "#きららファンタジア",
+      "textZh": "#KiraraFantasia",
+      "mediaNote": "停服时刻发布的纪念插画；同作者紧接着发布了回顾博文。",
+      "images": [
+        {
+          "path": "images/kounosu-1630463141850288128-01.jpg",
+          "sourceUrl": "https://pbs.twimg.com/media/FqCRk6caUAEUzfr.jpg?name=orig",
+          "mediaKind": "artwork",
+          "width": 1199,
+          "height": 812,
+          "bytes": 139434,
+          "sha256": "0110910a401f65e799b7fe0d9b0b59c3a7c81a955214f9882742771d10ddbd58"
+        }
+      ]
+    },
+    {
+      "id": "1630512055827730432",
+      "postedAt": "2023-02-28T19:15:42+09:00",
+      "author": {
+        "name": "原悠衣",
+        "handle": "_harayui",
+        "role": "《黄金拼图》作者"
+      },
+      "work": "黄金拼图",
+      "postUrl": "https://x.com/_harayui/status/1630512055827730432",
+      "textJa": "きららファンタジア、プレイして頂きありがとうございました！\nそして、連載中、連載後もたくさんのイラストを描かせて頂き、本当にありがとうございました。\nお疲れ様でした！\n#きららファンタジア",
+      "textZh": "感谢大家游玩《Kirara Fantasia》！也非常感谢在连载期间以及连载结束后，让我有机会绘制了许多插画。辛苦了！",
+      "mediaNote": "关服纪念插画。",
+      "images": [
+        {
+          "path": "images/hara-yui-1630512055827730432-01.jpg",
+          "sourceUrl": "https://pbs.twimg.com/media/FqC9MsfacAA-Nv9.jpg?name=orig",
+          "mediaKind": "artwork",
+          "width": 750,
+          "height": 595,
+          "bytes": 357230,
+          "sha256": "cded849ff481cc4563ec35bac14c83e6ee5befc0705bfd2886d9e5fb144942e0"
+        }
+      ]
+    },
+    {
+      "id": "1630571298090020865",
+      "postedAt": "2023-02-28T23:11:06+09:00",
+      "author": {
+        "name": "はんざわかおり",
+        "handle": "hankao42",
+        "role": "《Comic Girls》作者"
+      },
+      "work": "Comic Girls",
+      "postUrl": "https://x.com/hankao42/status/1630571298090020865",
+      "textJa": "こみっくがーるずもきららファンタジアも終わって今とても心がぽっかり…でもみんなずっと大好き、出会えてしあわせ💝\n本当にありがとうございました！お疲れ様でした！\n#きららファンタジア",
+      "textZh": "《Comic Girls》和《Kirara Fantasia》都结束了，现在心里空落落的……但我会一直喜欢大家，能够相遇很幸福。真的非常感谢！辛苦了！",
+      "mediaNote": "关服纪念插画。",
+      "images": [
+        {
+          "path": "images/hanzawa-kaori-1630571298090020865-01.jpg",
+          "sourceUrl": "https://pbs.twimg.com/media/FqDz808aEAAh9uH.jpg?name=orig",
+          "mediaKind": "artwork",
+          "width": 1749,
+          "height": 1200,
+          "bytes": 243188,
+          "sha256": "449cb31a2cf995df743d3d4a7e5be4a239c6a89ca7c82deede1263dbcd758811"
+        }
+      ]
+    },
+    {
+      "id": "1630426039100010497",
+      "postedAt": "2023-02-28T13:33:54+09:00",
+      "author": {
+        "name": "卯花つかさ",
+        "handle": "unotsuka",
+        "role": "《Anima Yell!》作者"
+      },
+      "work": "Anima Yell!",
+      "postUrl": "https://x.com/unotsuka/status/1630426039100010497",
+      "textJa": "きららファンタジア、プレイしてくださったみなさま、運営に携わっておられたみなさま、本当にありがとうございました！✨✨連載終わってもアニマエール！やほかの作品のキャラが元気で過ごしている姿を見られる素敵な世界でした。\n＃きららファンタジア",
+      "textZh": "衷心感谢游玩《Kirara Fantasia》的各位，以及参与运营的所有人！这是一个很美好的世界，让我即使在连载结束后，也能看到《Anima Yell!》和其他作品的角色们依然精神满满地生活。",
+      "mediaNote": "关服纪念插画。",
+      "images": [
+        {
+          "path": "images/unohana-tsukasa-1630426039100010497-01.jpg",
+          "sourceUrl": "https://pbs.twimg.com/media/FqBvWP7aMAAOEzi.jpg?name=orig",
+          "mediaKind": "artwork",
+          "width": 700,
+          "height": 999,
+          "bytes": 96177,
+          "sha256": "8ffa46fc6b3f2968db67c297141ca950f6be5da5868c877d406536130b94caf7"
+        }
+      ]
+    },
+    {
+      "id": "1629823090833362945",
+      "postedAt": "2023-02-26T21:38:00+09:00",
+      "author": {
+        "name": "千葉サドル",
+        "handle": "chibasadoru",
+        "role": "《学园孤岛》作画"
+      },
+      "work": "学园孤岛",
+      "postUrl": "https://x.com/chibasadoru/status/1629823090833362945",
+      "textJa": "2/28(火)で『きららファンタジア』がサービス終了になります。「次はどんな衣装を描こうかな」と考える日々はとても楽しかったです。５年間、本当にありがとうございました🌟\n#きららファンタジア #がっこうぐらし\n\n⚠️オフライン版データ作成は【2/28(火)15:59まで】にお願いします！",
+      "textZh": "《Kirara Fantasia》将在 2 月 28 日（周二）结束运营。每天思考“接下来画什么服装呢”非常开心。五年来真的非常感谢。请务必在 2 月 28 日 15:59 前完成离线版数据制作！",
+      "mediaNote": "关服前两日发布的致谢插画和离线版提醒。",
+      "images": [
+        {
+          "path": "images/chiba-sadoru-1629823090833362945-01.jpg",
+          "sourceUrl": "https://pbs.twimg.com/media/Fp5HAU6aYAEEFfC.jpg?name=orig",
+          "mediaKind": "artwork",
+          "width": 1199,
+          "height": 743,
+          "bytes": 217242,
+          "sha256": "e72ef551764a294ba93d838eecc5bf88ecc658db2d4b47aaab355d9108808b67"
+        }
+      ]
+    },
+    {
+      "id": "1630406808107110400",
+      "postedAt": "2023-02-28T12:17:29+09:00",
+      "author": {
+        "name": "うちのまいこ",
+        "handle": "uma401",
+        "role": "《SLOW LOOP》作者"
+      },
+      "work": "SLOW LOOP",
+      "postUrl": "https://x.com/uma401/status/1630406808107110400",
+      "textJa": "恋【水着】☆5（妄想）👙\n\nきらファンをプレイしてくださったみなさま、きらファンスタッフのみなさま、ありがとうございました🌟\n#きららファンタジア #slowloop",
+      "textZh": "恋【泳装】★5（想象）👙 感谢所有游玩《Kirara Fantasia》的玩家，也感谢全体工作人员。",
+      "mediaNote": "为未实装的泳装五星角色绘制的关服纪念设想图。",
+      "images": [
+        {
+          "path": "images/uchino-maiko-1630406808107110400-01.jpg",
+          "sourceUrl": "https://pbs.twimg.com/media/FqBeOjwacAICHz7.jpg?name=orig",
+          "mediaKind": "artwork",
+          "width": 1447,
+          "height": 2047,
+          "bytes": 397810,
+          "sha256": "3c6e0bbffcb062b9a5f00c70ded651b135d676696e8b47ef07e8a73f9e86f4eb"
+        }
+      ]
+    },
+    {
+      "id": "1629436626995933184",
+      "postedAt": "2023-02-25T20:02:20+09:00",
+      "author": {
+        "name": "浜弓場双",
+        "handle": "sou_hmymb",
+        "role": "《花舞少女》作者"
+      },
+      "work": "花舞少女",
+      "postUrl": "https://x.com/sou_hmymb/status/1629436626995933184",
+      "textJa": "28日にきらファンサービス終了します😢\n連載が終わったハナヤマタや、普段書かないファンタジー衣装など書かせて頂き自分もとても面白かったです。\nフル覚醒のなるがつよつよ‼\nオフライン化も28日までなのでまだ間に合いますよ！\n#きららファンタジア",
+      "textZh": "《Kirara Fantasia》将在 28 日结束运营。能够再次绘制已经完结的《花舞少女》，以及平时不会画的幻想风服装，我自己也觉得非常有趣。满觉醒的成很强！离线化也截止到 28 日，现在还来得及。",
+      "mediaNote": "关服前三日发布的游戏回顾图，附件以角色插画和游戏界面组合呈现。",
+      "images": [
+        {
+          "path": "images/hamayumiba-sou-1629436626995933184-01.jpg",
+          "sourceUrl": "https://pbs.twimg.com/media/Fpzr4MdaEAEXzFy.jpg?name=orig",
+          "mediaKind": "artwork-and-game-capture",
+          "width": 1818,
+          "height": 1570,
+          "bytes": 1545103,
+          "sha256": "140f2362897cd6f6a3850bfac435fbd2cab14e53453c42fbc8aa67edd7005bfe"
+        }
+      ]
+    },
+    {
+      "id": "1630145794983739393",
+      "postedAt": "2023-02-27T19:00:18+09:00",
+      "author": {
+        "name": "如意自在",
+        "handle": "nyoi_jizai",
+        "role": "《遥的接球》作者"
+      },
+      "work": "遥的接球",
+      "postUrl": "https://x.com/nyoi_jizai/status/1630145794983739393",
+      "textJa": "自らの過去と向き合った時、大城あかりとシーちゃんは一つとなり、真の力(☆5)を手にする…\n#きららファンタジア",
+      "textZh": "当直面自己的过去时，大城明里与小希合而为一，获得真正的力量（★5）……",
+      "mediaNote": "关服前一日发布的大城明里与小希五星设想图。",
+      "images": [
+        {
+          "path": "images/nyoi-jizai-1630145794983739393-01.jpg",
+          "sourceUrl": "https://pbs.twimg.com/media/Fp9wezraMAEtIRC.jpg?name=orig",
+          "mediaKind": "artwork",
+          "width": 2892,
+          "height": 4096,
+          "bytes": 1159753,
+          "sha256": "6fe1a6154294b895be4b3c898687c367b028f7211f7f5300aa03c7d7d0f8bd33"
+        }
+      ]
+    },
+    {
+      "id": "1630556495560712193",
+      "postedAt": "2023-02-28T22:12:17+09:00",
+      "author": {
+        "name": "篤見唯子",
+        "handle": "1093yuiko",
+        "role": "《Slow Start》作者"
+      },
+      "work": "Slow Start",
+      "postUrl": "https://x.com/1093yuiko/status/1630556495560712193",
+      "textJa": "きららファンタジア５年間本当にありがとうございました！　大好きです！（イラスト十倉なのはありものだからです…）そしてこのレベルよ",
+      "textZh": "《Kirara Fantasia》五年来真的非常感谢！我很喜欢它！（十仓荣依子的插画是沿用已有作品……）还有这个等级。",
+      "mediaNote": "作者明确说明这张角色图是旧图重用。原帖另附的游戏等级截图未收入素材目录。",
+      "images": [
+        {
+          "path": "images/tokumi-yuiko-1630556495560712193-01.jpg",
+          "sourceUrl": "https://pbs.twimg.com/media/FqDmfOxaIAEE3Q4.jpg?name=orig",
+          "mediaKind": "reposted-artwork",
+          "width": 1224,
+          "height": 1267,
+          "bytes": 196112,
+          "sha256": "72c787eec66268ee729f4f91a747190eb0bd130ec48736561ab6e1c87b23ed65"
+        }
+      ]
+    }
+  ]
+};

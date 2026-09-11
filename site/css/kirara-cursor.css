@@ -1,0 +1,35 @@
+/* Native system cursors: original GemIcon, no DOM follower or input listener.
+   Hotspot (6, 3) is the crystal tip in both 32px PNGs; see drop/provenance.json.
+   The important inheritance resets component-level pointer/default declarations,
+   including dynamically created dialogs, while retaining semantic exceptions. */
+@media (pointer: fine) {
+    html, body {
+        cursor: url("../asset/img/ui/kirara-crystal.png") 6 3, default !important;
+    }
+    body *, body *::before, body *::after, dialog::backdrop {
+        cursor: inherit !important;
+    }
+    :is(a[href], button, select, summary, [role="button"], [role="tab"], label[for],
+        input[type="button"], input[type="submit"], input[type="reset"],
+        input[type="checkbox"], input[type="radio"], input[type="color"], input[type="file"]) {
+        cursor: url("../asset/img/ui/kirara-crystal-link.png") 6 3, pointer !important;
+    }
+    :is(input:not([type]), input[type="text"], input[type="search"], input[type="password"],
+        input[type="email"], input[type="url"], input[type="tel"], input[type="number"], textarea),
+    [contenteditable]:not([contenteditable="false"]),
+    [contenteditable]:not([contenteditable="false"]) * {
+        cursor: text !important;
+    }
+    input[type="range"] { cursor: ew-resize !important; }
+    body [draggable="true"] { cursor: grab !important; }
+    body .model-3d-canvas canvas { cursor: grab !important; }
+    body .model-3d-canvas canvas:active { cursor: grabbing !important; }
+    body :is(.draw-card-open, .catalog-card-open) { cursor: zoom-in !important; }
+    body :is(:disabled, [aria-disabled="true"]), body [aria-disabled="true"] * {
+        cursor: not-allowed !important;
+    }
+    body .model-action-strip button.is-loading { cursor: progress !important; }
+    body :is(.model-weapon-options button, .model-weapon-pick select, .summon-button, .offering-button):disabled,
+    body .original-toggle:has(input:disabled) { cursor: wait !important; }
+    body [aria-busy="true"], body [aria-busy="true"] * { cursor: progress !important; }
+}

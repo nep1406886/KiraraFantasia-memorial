@@ -1,0 +1,54 @@
+<!doctype html>
+<!-- Minimal harness for core/actor.js build-state verification: create an
+     actor for any resourceId straight through the real pipeline (loader +
+     manifest + facial table + build tail applyFace/applyRestingFallback),
+     record every L30_ layer's visibility, then dispose. No game machinery,
+     no ticking -- the recorded state is exactly what build() left. Served
+     one level below the repo root (loader resolves ../site/asset/...). -->
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<title>face harness</title>
+</head>
+<body>
+<script type="module">
+import { create } from "../site/core/actor.js";
+// create() pulls in loader.js itself (loadModules/load happen inside).
+
+window.__faceTask = function (rid) {
+    return create({
+        resourceId: String(rid),
+        actions: false,
+        weapon: "none"
+    }).then(function (actor) {
+        // Same name resolution as core/loader.js resolveNodeName, so the
+        // recorded keys match what the game-side probe sees.
+        const GENERATED = /^mesh_\d+$/;
+        function resolveName(node) {
+            if (node.name && !GENERATED.test(node.name)) return node.name;
+            let parent = node.parent;
+            while (parent) {
+                if (parent.name && !GENERATED.test(parent.name)) {
+                    return parent.name;
+                }
+                parent = parent.parent;
+            }
+            return node.name || "";
+        }
+        const out = [];
+        actor.object.traverse(function (child) {
+            const name = String(resolveName(child) || "");
+            if (name.slice(0, 4).toUpperCase() === "L30_") {
+                out.push([name, !!child.visible]);
+            }
+        });
+        actor.dispose();
+        return { rid: rid, layers: out };
+    }).catch(function (error) {
+        return { rid: rid, error: String(error && error.message || error) };
+    });
+};
+window.__ready = true;
+</script>
+</body>
+</html>

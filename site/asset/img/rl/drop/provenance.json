@@ -1,0 +1,154 @@
+{
+  "source": {
+    "url": "https://asset.kirafan.cn/uiatlas/commonuiatlas.muast",
+    "sha256": "508ef3792955649d8d8bf203123a5fb6f127cbee958b01b1740dd265c8b9db13"
+  },
+  "assets": {
+    "coin.webp": {
+      "sprite": "GoldIcon",
+      "pathId": "4919073481052689959",
+      "originalSize": [
+        98,
+        102
+      ],
+      "exportSize": [
+        96,
+        96
+      ],
+      "lossless": true
+    },
+    "star.webp": {
+      "sprite": "GemIcon",
+      "pathId": "-3894662343237429784",
+      "originalSize": [
+        70,
+        107
+      ],
+      "exportSize": [
+        96,
+        96
+      ],
+      "lossless": true
+    },
+    "equipment-frame.webp": {
+      "sprite": "IconFrame",
+      "pathId": "-5378377436865591131",
+      "originalSize": [
+        128,
+        128
+      ],
+      "exportSize": [
+        96,
+        96
+      ],
+      "lossless": true
+    },
+    "skill-special.webp": {
+      "sprite": "CMD_SkillSP",
+      "pathId": "8131661405613614428",
+      "originalSize": [
+        101,
+        101
+      ],
+      "exportSize": [
+        96,
+        96
+      ],
+      "lossless": true
+    },
+    "skill-attack.webp": {
+      "sprite": "CMD_SkillAttack",
+      "pathId": "165585270545585761",
+      "originalSize": [
+        94,
+        85
+      ],
+      "exportSize": [
+        96,
+        96
+      ],
+      "lossless": false
+    },
+    "skill-magic.webp": {
+      "sprite": "CMD_SkillMagic",
+      "pathId": "8960017677126365603",
+      "originalSize": [
+        94,
+        85
+      ],
+      "exportSize": [
+        96,
+        96
+      ],
+      "lossless": false
+    },
+    "skill-recovery.webp": {
+      "sprite": "CMD_SkillRecovery",
+      "pathId": "3810391397108090827",
+      "originalSize": [
+        94,
+        85
+      ],
+      "exportSize": [
+        96,
+        96
+      ],
+      "lossless": false
+    },
+    "skill-buff.webp": {
+      "sprite": "CMD_SkillBuff",
+      "pathId": "6986173656419879654",
+      "originalSize": [
+        94,
+        85
+      ],
+      "exportSize": [
+        96,
+        96
+      ],
+      "lossless": false
+    },
+    "skill-debuff.webp": {
+      "sprite": "CMD_SkillDeBuff",
+      "pathId": "6767616172608332841",
+      "originalSize": [
+        94,
+        85
+      ],
+      "exportSize": [
+        96,
+        96
+      ],
+      "lossless": false
+    },
+    "skill-frame.webp": {
+      "sprite": "SkillIconBackground",
+      "pathId": "4128706273287006121",
+      "originalSize": [
+        100,
+        100
+      ],
+      "exportSize": [
+        96,
+        96
+      ],
+      "lossless": false
+    }
+  },
+  "cursor": {
+    "sprite": "GemIcon",
+    "pathId": "-3894662343237429784",
+    "size": [
+      32,
+      32
+    ],
+    "hotspot": [
+      6,
+      3
+    ],
+    "files": [
+      "asset/img/ui/kirara-crystal.png",
+      "asset/img/ui/kirara-crystal-link.png"
+    ]
+  }
+}

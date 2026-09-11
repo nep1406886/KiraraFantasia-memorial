@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="96" height="96" viewBox="0 0 96 96">
+  <title>轻击腕带</title><metadata>kirafan-timer original; rhythm wristband</metadata>
+  <g stroke="#716454" stroke-width="2.5" stroke-linejoin="round" stroke-linecap="round">
+    <path d="M17 32C35 17 62 17 78 30L75 64C59 79 32 80 16 64Z" fill="#c58493"/>
+    <path d="M17 32C35 44 61 44 78 30L76 40C61 53 34 52 17 41Z" fill="#f2c78b"/>
+    <path d="M17 55C34 67 61 66 76 53L75 64C59 79 32 80 16 64Z" fill="#edc67b"/>
+    <path d="M54 44v22l12-4 1-23Z" fill="#a65e7a" stroke="none"/>
+    <path d="m36 43 9 10-9 10m13-20 9 10-9 10" fill="none" stroke="#fff5de" stroke-width="4"/>
+    <path d="m14 17 9-6M5 30l10-2M71 13l8-6" fill="none" stroke="#d9b269"/>
+  </g>
+</svg>

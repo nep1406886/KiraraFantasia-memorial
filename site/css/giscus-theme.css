@@ -1,0 +1,94 @@
+@import url("https://giscus.app/themes/light.css");
+
+main {
+    color-scheme: light;
+    --color-btn-text: #5a454d;
+    --color-btn-bg: #fff8f4;
+    --color-btn-border: #d8c9cf;
+    --color-btn-shadow: 0 1px 2px rgba(65, 43, 54, 0.08);
+    --color-btn-hover-bg: #f7e9ee;
+    --color-btn-hover-border: #c99eae;
+    --color-btn-active-bg: #f1dfe6;
+    --color-btn-active-border: #bd879c;
+    --color-btn-selected-bg: #f3e3e9;
+    --color-btn-primary-bg: #39845a;
+    --color-btn-primary-hover-bg: #2f764f;
+    --color-btn-primary-selected-bg: #286c47;
+    --color-segmented-control-bg: #f4eaee;
+    --color-segmented-control-button-bg: #fffdfb;
+    --color-segmented-control-button-selected-border: #b992a1;
+    --color-fg-default: #43363d;
+    --color-fg-muted: #7d6e76;
+    --color-fg-subtle: #95858d;
+    --color-canvas-default: #fffdfb;
+    --color-canvas-overlay: #fffdfb;
+    --color-canvas-inset: #f8f2f4;
+    --color-canvas-subtle: #fbf6f8;
+    --color-border-default: #d9cdd2;
+    --color-border-muted: #eadfe3;
+    --color-neutral-muted: rgba(137, 107, 120, 0.13);
+    --color-accent-fg: #9c4b69;
+    --color-accent-emphasis: #91405f;
+    --color-accent-muted: rgba(201, 116, 148, 0.4);
+    --color-accent-subtle: #fae9ef;
+    --color-success-fg: #357b52;
+    --color-attention-fg: #9a6b16;
+    --color-attention-muted: rgba(214, 172, 81, 0.4);
+    --color-attention-subtle: #fff7da;
+    --color-danger-fg: #b84d5e;
+    --color-danger-muted: rgba(211, 98, 116, 0.38);
+    --color-danger-subtle: #fdecef;
+    --color-primer-shadow-inset: inset 0 1px 0 rgba(102, 72, 85, 0.06);
+    font-family: "Noto Sans SC", "Microsoft YaHei", "Hiragino Sans GB", sans-serif;
+}
+
+.gsc-homepage-bg {
+    background-color: transparent;
+}
+
+.gsc-main {
+    padding-top: 0.25rem;
+}
+
+.gsc-header {
+    padding-bottom: 1rem;
+}
+
+.gsc-reactions,
+.gsc-comment-box,
+.gsc-comment {
+    overflow: hidden;
+    border-color: var(--color-border-default);
+    border-radius: 12px;
+    background: var(--color-canvas-default);
+    box-shadow: 0 7px 20px rgba(65, 43, 54, 0.07);
+}
+
+.gsc-reactions,
+.gsc-comment-box {
+    margin-bottom: 1rem;
+}
+
+.gsc-comment-box-tabs,
+.gsc-comment-header {
+    background: var(--color-canvas-subtle);
+}
+
+.gsc-comment-box-textarea {
+    border-color: var(--color-border-muted);
+    border-radius: 9px;
+    background: #fff;
+}
+
+.gsc-button,
+.gsc-social-reaction-summary-item {
+    border-radius: 999px;
+}
+
+.gsc-tab {
+    border-radius: 8px 8px 0 0;
+}
+
+.gsc-reply-box {
+    border-radius: 10px;
+}

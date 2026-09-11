@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="96" height="96" viewBox="0 0 96 96">
+  <title>瞄准饰章</title><metadata>kirafan-timer original; manual aim brooch</metadata>
+  <g stroke="#716454" stroke-width="2.5" stroke-linejoin="round" stroke-linecap="round">
+    <path d="m30 62-7 26 17-10 8 11 8-27" fill="#c3899d"/>
+    <path d="m66 62 7 26-17-10-8 11-8-27" fill="#a5718f"/>
+    <circle cx="48" cy="43" r="32" fill="#e6c37b"/>
+    <circle cx="48" cy="43" r="24" fill="#fdf2d9"/>
+    <circle cx="48" cy="43" r="14" fill="#9dc6c7"/>
+    <path d="M48 13v17M48 56v17M18 43h17M61 43h17" fill="none" stroke="#806958" stroke-width="3"/>
+    <path d="m48 36 7 7-7 7-7-7Z" fill="#fff9ec"/>
+  </g>
+</svg>

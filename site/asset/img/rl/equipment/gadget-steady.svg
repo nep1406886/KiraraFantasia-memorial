@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="96" height="96" viewBox="0 0 96 96">
+  <title>定心机关</title><metadata>kirafan-timer original; steady automatic sight, no critical hits</metadata>
+  <g stroke="#716454" stroke-width="2.5" stroke-linejoin="round" stroke-linecap="round">
+    <path d="M18 64 9 50l12-18 14 10h26l14-10 12 18-9 14-17-8H35Z" fill="#e4ba70"/>
+    <path d="m18 53 7-10 10 7-10 6Zm60 0-7-10-10 7 10 6Z" fill="#d7e8e2"/>
+    <path d="m38 69-4 13h28l-4-13" fill="#b7c9cb"/>
+    <circle cx="48" cy="49" r="24" fill="#e8c982"/>
+    <circle cx="48" cy="49" r="17" fill="#f9f0dc"/>
+    <circle cx="48" cy="49" r="8" fill="#87b6b3"/>
+    <path d="M48 30v9m0 20v9M29 49h9m20 0h9" stroke="#537f99"/>
+    <path d="M48 9v10m-5-5h10" stroke="#b4996b"/>
+    <path d="m35 12 26 12" stroke="#ab778b" stroke-width="4"/>
+    <path d="m32 34 5-4M65 61l-3 4" stroke="#fff5de" stroke-width="3"/>
+  </g>
+</svg>

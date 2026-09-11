@@ -1,0 +1,534 @@
+:root {
+    --model-ink: #30373c;
+    --model-muted: #6e777e;
+    --model-paper: #f4f6f7;
+    --model-panel: #ffffff;
+    --model-line: #dce1e4;
+    --model-rose: #b45573;
+    --model-gold: #c9983d;
+    --model-teal: #4b8c89;
+    --model-night: #252a2e;
+}
+
+* { box-sizing: border-box; }
+[hidden] { display: none !important; }
+:focus-visible { outline: 2px solid var(--model-teal); outline-offset: 3px; }
+.model-icon { width: 16px; height: 16px; flex: 0 0 16px; display: block; pointer-events: none; }
+.models-topbar .model-icon, .model-3d-card .model-icon { filter: invert(1); opacity: 0.85; }
+
+html { min-width: 320px; background: var(--model-night); }
+
+body.models-page {
+    min-width: 320px;
+    margin: 0;
+    color: var(--model-ink);
+    background: var(--model-paper);
+    font-family: "Noto Sans SC", "Microsoft YaHei", "PingFang SC", sans-serif;
+    line-height: 1.55;
+}
+
+/* 视口即应用。
+   原来这一页是「文档」：topbar、hero、工具条、状态条、观察台、about、footer
+   依次排在文档流里，而观察台自己就有 clamp(760px, 88vh, 980px) 高，页面总高
+   必然超出视口 —— 于是浏览器滚动条永远在，而它正好紧贴右侧控制台自己的滚动条，
+   两条挨在一起，滚错的那次就是反馈里的「操作不好」。
+   现在把工作台钉成占满视口的一层：文档不滚，只有明确划定的三个区域各自滚。
+   hero / about / footer 的文字没删，挪进「关于」抽屉。 */
+@media (min-width: 901px) {
+    html, body.models-page { height: 100%; overflow: hidden; }
+    body.models-page { display: grid; grid-template-rows: auto minmax(0, 1fr); }
+    body.models-page > main {
+        width: 100%;
+        min-height: 0;
+        margin: 0;
+        padding: 0;
+        display: grid;
+        grid-template-rows: minmax(0, 1fr);
+    }
+}
+
+a { color: inherit; }
+
+button, input, select { font: inherit; }
+
+.models-topbar {
+    position: sticky;
+    top: 0;
+    z-index: 20;
+    min-height: 54px;
+    display: grid;
+    grid-template-columns: 1fr auto 1fr;
+    align-items: center;
+    gap: 18px;
+    padding: 10px 20px;
+    border-bottom: 1px solid rgba(255,255,255,0.18);
+    background: var(--model-night);
+    color: #fffaf7;
+    box-shadow: none;
+    -webkit-backdrop-filter: blur(12px);
+    backdrop-filter: blur(12px);
+}
+
+.models-back, .models-source {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    width: fit-content;
+    color: rgba(255,255,255,0.8);
+    font-size: 0.82rem;
+    text-decoration: none;
+}
+
+.models-back:hover, .models-source:hover { color: #f4d889; }
+.models-back span { color: #f4d889; font-size: 1.1rem; }
+.models-source span { color: #f4d889; }
+.models-topbar-tools { display: flex; align-items: center; justify-content: end; gap: 14px; }
+.models-topbar-button { display: inline-flex; align-items: center; gap: 6px; padding: 6px 11px; border: 1px solid rgba(255,255,255,0.24); border-radius: 4px; background: rgba(255,255,255,0.07); color: rgba(255,255,255,0.82); cursor: pointer; font-size: 0.74rem; }
+.models-topbar-button:hover { border-color: rgba(244,216,137,0.6); color: #f4d889; }
+.models-topbar-button span { color: #f4d889; }
+
+.models-brand { display: flex; align-items: center; gap: 12px; }
+.models-brand img { width: 118px; max-height: 30px; object-fit: contain; filter: brightness(0) invert(1); }
+.models-brand h1 { margin: 0; padding-left: 12px; border-left: 1px solid #596066; font-size: 16px; font-weight: 600; white-space: nowrap; }
+.models-brand span { padding-left: 12px; border-left: 1px solid rgba(255,255,255,0.26); color: #d7c5cd; font-size: 0.66rem; font-weight: 700; letter-spacing: 0.08em; }
+
+main { width: min(1440px, calc(100% - 40px)); margin: 0 auto; padding: 34px 0 54px; }
+
+.models-hero {
+    position: relative;
+    min-height: 196px;
+    display: flex;
+    align-items: stretch;
+    overflow: hidden;
+    border: 1px solid rgba(255,255,255,0.58);
+    border-radius: 8px;
+    background: linear-gradient(105deg, rgba(46,34,42,0.95), rgba(91,62,79,0.86));
+    color: #fff;
+    box-shadow: 0 20px 42px rgba(69,45,57,0.16);
+}
+
+.models-hero-copy { position: relative; z-index: 1; width: min(570px, 62%); padding: 28px clamp(24px, 5vw, 66px); }
+.models-eyebrow { color: var(--model-gold); font-size: 0.68rem; font-weight: 800; letter-spacing: 0.08em; }
+.models-hero h1 { margin: 10px 0 8px; font-family: "Noto Serif SC", "STSong", serif; font-size: clamp(2rem, 4vw, 3.25rem); line-height: 1.18; letter-spacing: 0; }
+.models-hero-copy > p:not(.models-eyebrow) { max-width: 35em; margin: 0; color: rgba(255,255,255,0.78); font-size: 0.92rem; }
+.models-hero-note { display: flex; align-items: center; gap: 9px; margin-top: 24px; color: #f4d889; font-size: 0.76rem; }
+.models-hero-dot { width: 7px; height: 7px; flex: 0 0 auto; border-radius: 50%; background: #f4d889; box-shadow: 0 0 0 5px rgba(244,216,137,0.14); }
+.models-hero-art { position: absolute; inset: 0 0 0 38%; overflow: hidden; opacity: 0.66; }
+.models-hero-art::after { content: ""; position: absolute; inset: 0; background: linear-gradient(90deg, rgba(48,38,44,1) 0%, rgba(48,38,44,0.74) 24%, rgba(48,38,44,0.08) 72%); }
+.models-hero-art img { width: 100%; height: 100%; object-fit: cover; object-position: center 30%; }
+
+.models-workbench { margin-top: 24px; border: 1px solid var(--model-line); border-radius: 8px; background: var(--model-panel); box-shadow: 0 14px 32px rgba(74,51,60,0.09); }
+/* 桌面下工作台就是那一层：不留外边距圆角，行高交给 grid，浏览器（工具条、状态条、
+   浏览区）三行里只有第三行伸缩。 */
+@media (min-width: 901px) {
+    .models-workbench {
+        min-height: 0;
+        margin: 0;
+        border: 0;
+        border-radius: 0;
+        box-shadow: none;
+        display: grid;
+        grid-template-rows: auto auto minmax(0, 1fr);
+    }
+}
+.models-toolbar { display: flex; align-items: end; justify-content: space-between; gap: 18px; padding: 12px 18px; border-bottom: 1px solid var(--model-line); }
+.models-query-tools { min-width: 0; flex: 1 1 620px; display: grid; grid-template-columns: minmax(160px, 1.4fr) minmax(140px, 1fr); align-items: end; gap: 10px; max-width: 720px; }
+.models-search, .models-work-filter { display: grid; gap: 6px; color: var(--model-muted); font-size: 0.72rem; font-weight: 700; }
+.models-search input, .models-work-filter select { width: 100%; min-width: 0; min-height: 36px; padding: 7px 10px; border: 1px solid #cdd4d9; border-radius: 4px; outline: none; background: #fff; color: var(--model-ink); }
+.models-search input:focus, .models-work-filter select:focus { border-color: var(--model-teal); box-shadow: 0 0 0 3px rgba(75,140,137,0.15); }
+.models-filters { display: flex; flex: 0 0 auto; gap: 4px; }
+.models-filter { white-space: nowrap; padding: 7px 9px; border: 1px solid transparent; border-radius: 4px; background: transparent; color: var(--model-muted); cursor: pointer; font-size: 12px; }
+.models-filter span { margin-left: 4px; color: #a4949a; font-variant-numeric: tabular-nums; }
+.models-filter:hover { background: #f3e9e8; color: var(--model-rose); }
+.models-filter.is-active { border-color: #d4a9b1; background: #f7e7e9; color: var(--model-rose); font-weight: 700; }
+.models-filter:disabled { opacity: 0.58; cursor: not-allowed; }
+
+.models-status { min-height: 28px; display: flex; align-items: center; padding: 4px 18px; border-bottom: 1px solid var(--model-line); color: var(--model-muted); font-size: 11px; }
+/* 桌面下这两条的高度同样是从画布里扣的：原来 104 + 36 = 140px，而里面只有一个
+   搜索框、一个下拉和五个筛选按钮。必须写在上面那两条规则之后才能覆盖。 */
+@media (min-width: 901px) {
+    .models-toolbar { padding: 11px 18px; }
+    .models-search input, .models-work-filter select { min-height: 33px; padding: 6px 11px; }
+    .models-search, .models-work-filter { gap: 3px; }
+    .models-status { min-height: 0; padding: 4px 18px; }
+}
+.models-status[data-tone="ready"] { color: var(--model-teal); }
+.models-status[data-tone="error"] { color: #a45151; background: #fff3f0; }
+
+/* 高度不再由 clamp() 猜，改成吃满 grid 分给它的那一行。 */
+.models-browser { display: grid; grid-template-columns: 260px minmax(0, 1fr); height: clamp(760px, 88vh, 980px); min-height: 0; }
+@media (min-width: 901px) {
+    .models-browser { height: auto; min-height: 0; }
+    /* 列表收起：这一列变成 0，右边多出来的宽度全给舞台；那条竖把手接管点击。 */
+    .models-browser.is-list-collapsed { grid-template-columns: 30px minmax(0, 1fr); }
+    .models-browser.is-list-collapsed .models-list-panel { display: none; }
+    .models-browser.is-list-collapsed .models-list-rail { display: flex; }
+}
+.models-list-heading-end { display: flex; align-items: center; gap: 8px; }
+.models-list-collapse { width: 30px; height: 30px; display: grid; place-items: center; border: 1px solid var(--model-line); border-radius: 4px; background: #fff; color: var(--model-rose); cursor: pointer; font-size: 0.9rem; line-height: 1; }
+.models-list-collapse:hover { border-color: #d4a9b1; background: #fdf0f3; }
+/* 收起后的竖把手。它是列表回来的唯一入口，所以必须一直可见、且宽到能点。 */
+.models-list-rail { display: none; width: 100%; flex-direction: column; align-items: center; justify-content: center; gap: 10px; padding: 10px 2px; border: 0; border-right: 1px solid var(--model-line); background: #f6ecea; color: var(--model-rose); cursor: pointer; }
+.models-list-rail:hover { background: #f7e2e6; }
+.models-list-rail > span[aria-hidden] { font-size: 1rem; }
+.models-list-rail-text { writing-mode: vertical-rl; font-size: 0.7rem; letter-spacing: 0.14em; }
+.models-list-panel { display: flex; flex-direction: column; min-width: 0; min-height: 0; overflow: hidden; border-right: 1px solid var(--model-line); background: #fafbfc; }
+.models-list-heading { display: flex; justify-content: space-between; align-items: center; gap: 8px; padding: 10px 12px; }
+.models-list-heading h2 { margin: 0; font-size: 13px; white-space: nowrap; }
+.models-result-count { color: var(--model-muted); font-size: 11px; font-variant-numeric: tabular-nums; white-space: nowrap; }
+.models-list { min-height: 0; flex: 1; overflow-y: auto; padding: 0 10px; overscroll-behavior: contain; }
+.model-list-item { width: 100%; display: flex; align-items: center; gap: 10px; padding: 8px; border: 1px solid transparent; border-radius: 5px; background: transparent; color: var(--model-ink); text-align: left; cursor: pointer; }
+.model-list-item:hover { background: #f8f0ed; }
+.model-list-item.is-selected { border-color: #d7abb5; background: #f7e6e9; }
+.model-list-icon { width: 42px; height: 42px; flex: 0 0 auto; border: 1px solid #e3d8d8; border-radius: 3px; object-fit: contain; background-color: #fff; background-image: linear-gradient(45deg, #eee 25%, transparent 25%), linear-gradient(-45deg, #eee 25%, transparent 25%), linear-gradient(45deg, transparent 75%, #eee 75%), linear-gradient(-45deg, transparent 75%, #eee 75%); background-position: 0 0, 0 6px, 6px -6px, -6px 0; background-size: 12px 12px; }
+.model-list-copy { min-width: 0; display: grid; gap: 2px; }
+.model-list-copy strong { overflow: hidden; color: var(--model-ink); font-size: 12px; text-overflow: ellipsis; white-space: nowrap; }
+.model-list-copy small { overflow: hidden; color: var(--model-muted); font-size: 0.67rem; text-overflow: ellipsis; white-space: nowrap; }
+.model-list-arrow { margin-left: auto; color: #ad8e9a; font-size: 1.2rem; }
+.models-list-empty { padding: 26px 14px; color: var(--model-muted); font-size: 0.8rem; text-align: center; }
+.models-list-empty a { color: var(--model-rose); }
+.models-list-empty button { margin-top: 12px; padding: 7px 20px; border: 1px solid var(--model-line); border-radius: 999px; background: #fffaf8; color: var(--model-rose); font-size: 0.72rem; cursor: pointer; }
+.models-list-empty button:hover { background: #fdf0f3; }
+.models-list-empty button:disabled { opacity: 0.55; cursor: default; }
+.models-pagination { display: flex; justify-content: center; align-items: center; gap: 8px; min-height: 50px; padding: 8px; border-top: 1px solid var(--model-line); color: var(--model-muted); font-size: 11px; }
+.models-pagination:empty { display: none; }
+.models-pagination button { width: 28px; height: 28px; border: 1px solid #dacdd0; border-radius: 4px; background: #fff; color: var(--model-rose); cursor: pointer; }
+.models-pagination button:disabled { opacity: 0.4; cursor: default; }
+
+.model-detail { min-width: 0; overflow-y: auto; padding: 24px; overscroll-behavior: contain; }
+/* 桌面下详情区自己不滚。
+   观察台以前是这个滚动容器里的一个块，纹理图集接在它下面，所以「看纹理」要滚详情，
+   而控制台又在同一片区域里自己滚 —— 三层滚动嵌在一起。现在改成两个视图页签：
+   舞台页不滚（高度由 grid 给满），纹理页才滚。 */
+@media (min-width: 901px) {
+    /* 两行：一条头（标题 + 页签 + 外链），剩下全给视图。 */
+    .model-detail { min-height: 0; overflow: hidden; padding: 0; display: grid; grid-template-rows: auto minmax(0, 1fr); }
+    .model-detail > .model-empty-state,
+    .model-detail > .model-loading,
+    .model-detail > .model-error-state { grid-row: 1 / -1; min-height: 0; }
+    .model-detail > .model-conversion-note { margin: 0 20px 16px; }
+}
+/* 标题、身份标签、视图页签、外链一条排开。原来这些分三块竖着排，合计 202px，
+   而这 202px 是直接从画布高度里扣的。 */
+.model-detail-header { align-items: center; gap: 14px; padding: 8px 18px; border-bottom: 1px solid var(--model-line); }
+.model-detail-ident { min-width: 0; display: grid; gap: 3px; }
+.model-detail-header h2 { margin: 0; font-size: 1.1rem; }
+.model-detail-tags { min-width: 0; display: flex; align-items: baseline; gap: 8px; color: var(--model-muted); font-size: 11px; }
+.model-detail-tags > span { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.model-detail-tags > span:first-child, .model-detail-tags .model-rarity { flex-shrink: 0; }
+.model-detail-tags .model-rarity { color: #c48a12; letter-spacing: 1px; }
+.model-detail-header .model-detail-views { margin-left: auto; }
+.model-detail-views { display: flex; gap: 4px; border-bottom: 0; }
+.model-detail-views button { white-space: nowrap; min-height: 36px; padding: 7px 12px; border: 0; border-bottom: 2px solid transparent; background: transparent; color: var(--model-muted); cursor: pointer; font-size: 12px; }
+.model-detail-views button:hover { color: var(--model-rose); }
+.model-detail-views button.is-active { border-bottom-color: var(--model-rose); color: var(--model-rose); font-weight: 700; }
+.model-detail-view[hidden] { display: none; }
+@media (min-width: 901px) {
+    .model-detail-view { min-height: 0; }
+    /* 舞台页：整页交给观察台，不出滚动条。 */
+    /* 内边距也是从画布里扣的，收到最小 —— 舞台自己有边框做视觉分隔。 */
+    .model-detail-view[data-detail-panel="stage"] { display: grid; grid-template-rows: minmax(0, 1fr); padding: 0; }
+    /* 纹理页是唯一一处还会滚的内容区，而它和控制台不会同时出现。 */
+    .model-detail-view[data-detail-panel="assets"] { overflow-y: auto; overscroll-behavior: contain; padding: 18px 20px 24px; }
+    /* 观察台自己那条工具条已经去掉，卡片只有一行内容了。 */
+    .model-detail-view[data-detail-panel="stage"] > .model-3d-card { min-height: 0; margin: 0; display: grid; grid-template-rows: minmax(0, 1fr); }
+    .model-detail-view[data-detail-panel="stage"] .model-viewer-layout { height: auto; min-height: 0; }
+    .model-detail-view[data-detail-panel="stage"] .model-viewer-stage { height: auto; min-height: 0; }
+}
+.model-detail-header { display: grid; grid-template-columns: minmax(0, 1fr) auto auto; align-items: center; gap: 12px; padding: 10px 16px; min-width: 0; }
+.model-detail-header h2 { margin: 0; color: var(--model-ink); font-family: inherit; font-size: 17px; line-height: 1.3; overflow-wrap: anywhere; }
+.model-detail-path { margin: 4px 0 0; overflow-wrap: anywhere; color: var(--model-muted); font-family: ui-monospace, SFMono-Regular, Consolas, monospace; font-size: 0.7rem; }
+.model-detail-actions { display: flex; gap: 6px; justify-content: end; }
+.model-detail-actions a { display: inline-flex; align-items: center; gap: 5px; white-space: nowrap; }
+.model-detail-actions .model-icon { width: 12px; height: 12px; flex-basis: 12px; opacity: 0.6; }
+.model-detail-actions a, .model-error-state a, .model-error-state button { padding: 7px 10px; border: 1px solid #dac4c8; border-radius: 4px; background: #fffaf8; color: var(--model-rose); font-size: 0.72rem; text-decoration: none; cursor: pointer; }
+.model-detail-actions a:hover, .model-error-state a:hover, .model-error-state button:hover { background: #f8e9ea; }
+.model-meta { display: flex; flex-wrap: wrap; gap: 7px 24px; margin: 18px 0; padding: 10px 12px; border-left: 3px solid var(--model-gold); background: #faf3ed; color: var(--model-muted); font-size: 0.72rem; }
+.model-meta strong { margin-left: 4px; color: var(--model-ink); font-variant-numeric: tabular-nums; }
+/* Stars read as decoration, not data, unless they are tinted and spaced. */
+.model-meta strong.model-rarity { color: #c48a12; letter-spacing: 1px; }
+.model-3d-card { margin: 0; overflow: hidden; border: 0; border-radius: 0; background: #24272b; color: #fff; box-shadow: none; }
+.model-3d-toolbar { min-height: 62px; display: flex; align-items: center; justify-content: space-between; gap: 18px; padding: 10px 14px; border-bottom: 1px solid rgba(255,255,255,0.13); }
+.model-3d-toolbar > div:first-child { display: flex; align-items: baseline; flex-wrap: wrap; gap: 7px 10px; }
+.model-3d-toolbar strong { font-size: 0.9rem; }
+.model-3d-toolbar small { color: rgba(255,255,255,0.58); font-size: 0.68rem; }
+.model-live-badge { display: inline-flex; align-items: center; gap: 5px; padding: 3px 6px; border: 1px solid rgba(115,213,176,0.42); border-radius: 3px; color: #91e0bf; font-size: 0.6rem; font-weight: 800; letter-spacing: 0.06em; }
+.model-live-badge i { width: 6px; height: 6px; border-radius: 50%; background: #74d6ad; box-shadow: 0 0 8px rgba(116,214,173,0.9); }
+.model-3d-actions { display: flex; gap: 6px; }
+.model-3d-actions button { width: 32px; height: 32px; display: grid; place-items: center; padding: 6px; border: 1px solid rgba(255,255,255,0.22); border-radius: 4px; background: rgba(255,255,255,0.06); color: rgba(255,255,255,0.82); cursor: pointer; }
+.model-3d-actions button:hover { border-color: rgba(244,216,137,0.64); color: #f4d889; }
+.model-3d-actions button[aria-expanded="true"] { border-color: rgba(116,214,173,0.58); color: #9be6c5; }
+/* 高度必须是确定值，不能由内容决定。若让行高跟着控制台内容长，舞台的高度就
+   要等控制台挂完才定下来，而 renderer.setSize 已经按挂载前的高度算过一次 aspect
+   和取景，于是首帧的画面比例是错的。 */
+.model-viewer-layout { display: grid; grid-template-columns: minmax(0, 1fr) 264px; height: clamp(620px, 78svh, 860px); }
+/* 舞台改成两行：画布占满剩余高度，播放条固定在底部。
+   画布原本是 absolute inset:0，那样会盖住播放条，所以交给 grid 定尺寸。 */
+/* grid-template-columns 必须写出来。不写的话隐式列是 auto，而 auto 轨道的下限是
+   子项的 min-content——传送栏里那串快捷键提示是 nowrap 的，它一个人就把下限顶到
+   788px。舞台自己只有 378px 宽（1024 视口），轨道照样按 788 排，画布跟着被拉宽，
+   再被这里的 overflow:hidden 把模型右半边裁掉，而且因为没有溢出滚动条，肉眼只看到
+   「模型偏左、缺了一块」。minmax(0,1fr) 把下限压回 0，轨道就永远不超过舞台。 */
+.model-viewer-stage { position: relative; min-width: 0; min-height: 0; display: grid; grid-template-columns: minmax(0, 1fr); grid-template-rows: minmax(0, 1fr) auto; overflow: hidden; container-type: inline-size; }
+/* min-width:0 + overflow:hidden：提示文字是可以牺牲的，按钮不是。窄舞台上让这行
+   字先被截掉，而不是把重置 / 铺满窗口挤出可视区。 */
+.model-shortcut-hint { align-self: center; min-width: 0; overflow: hidden; color: rgba(255,255,255,0.34); font-size: 0.6rem; letter-spacing: 0.02em; white-space: nowrap; text-overflow: ellipsis; }
+.model-transport { min-width: 0; display: flex; align-items: center; gap: 10px; padding: 8px 12px; border-top: 1px solid rgba(255,255,255,0.11); background: #1c2023; }
+.model-transport-tools { display: flex; align-items: center; gap: 8px; flex: 0 0 auto; }
+.model-transport-play { flex: 0 0 auto; width: 34px; height: 34px; display: grid; place-items: center; border: 1px solid rgba(116,214,173,0.5); border-radius: 50%; background: rgba(58,132,105,0.22); color: #9be6c5; cursor: pointer; font-size: 0.72rem; }
+.model-transport-play:hover { border-color: rgba(155,230,197,0.9); background: rgba(58,132,105,0.36); }
+.model-transport-play.is-paused { border-color: rgba(244,216,137,0.55); background: rgba(201,152,61,0.2); color: #f4d889; }
+.model-transport-track { flex: 1 1 auto; min-width: 60px; display: flex; align-items: center; }
+.model-transport-track input { width: 100%; accent-color: #74d6ad; cursor: pointer; }
+.model-transport-track input:disabled { cursor: default; opacity: 0.4; }
+.model-transport-time { flex: 0 0 auto; width: 92px; white-space: nowrap; color: rgba(255,255,255,0.7); font-size: 11px; font-variant-numeric: tabular-nums; text-align: right; }
+.model-transport-speed { flex: 0 0 auto; display: flex; gap: 3px; }
+.model-transport-speed button { width: 32px; min-height: 30px; padding: 3px 4px; border: 1px solid rgba(255,255,255,0.14); border-radius: 4px; background: transparent; color: rgba(255,255,255,0.65); cursor: pointer; font-size: 11px; }
+.model-transport-speed button:hover { border-color: rgba(244,216,137,0.44); color: #f4d889; }
+.model-transport-speed button.is-active { border-color: rgba(116,214,173,0.58); background: rgba(58,132,105,0.2); color: #9be6c5; }
+.model-transport-loop { flex: 0 0 auto; width: 32px; height: 32px; display: grid; place-items: center; border: 1px solid rgba(255,255,255,0.14); border-radius: 4px; background: transparent; color: rgba(255,255,255,0.5); cursor: pointer; font-size: 0.78rem; }
+.model-transport-loop:hover { border-color: rgba(244,216,137,0.44); color: #f4d889; }
+.model-transport-loop.is-active { border-color: rgba(116,214,173,0.58); background: rgba(58,132,105,0.2); color: #9be6c5; }
+/* 重置 / 铺满 从去掉的观察台工具条搬到播放条右端。 */
+.model-transport .model-3d-actions { flex: 0 0 auto; margin-left: 4px; align-items: center; }
+/* 提示文字排在按钮前面，flex 里让它做唯一可压缩的那一项。 */
+.model-transport .model-shortcut-hint { flex: 0 1 auto; margin-right: 4px; }
+/* 敌人的程序化预览没有时间轴，播放条只剩这两个按钮，右对齐即可。 */
+.model-transport-bare { justify-content: end; }
+.model-viewer-inspector { min-width: 0; min-height: 0; display: grid; grid-template-rows: auto minmax(0, 1fr); border-left: 1px solid rgba(255,255,255,0.11); background: #2a3035; }
+.model-inspector-tabs { display: flex; border-bottom: 1px solid rgba(255,255,255,0.11); background: rgba(21,17,20,0.6); }
+.model-inspector-tabs button { flex: 1 1 0; min-width: 0; white-space: nowrap; min-height: 40px; padding: 8px 4px; border: 0; border-bottom: 2px solid transparent; background: transparent; color: rgba(255,255,255,0.68); cursor: pointer; font-size: 12px; }
+.model-inspector-tabs button:hover { color: #f4d889; }
+.model-inspector-tabs button.is-active { border-bottom-color: #74d6ad; color: #9be6c5; }
+/* 只有内容区滚动，分页条始终留在视线里。 */
+.model-inspector-body { min-height: 0; overflow-y: auto; overscroll-behavior: contain; }
+.model-control-panel[hidden] { display: none; }
+.model-action-groups { display: grid; }
+.model-action-group { padding: 12px 12px 13px; border-bottom: 1px solid rgba(255,255,255,0.08); }
+.model-action-group:last-child { border-bottom: 0; }
+/* 必杀演出是这一页的主角，给它更亮的底色和整行的按钮。 */
+.model-action-group[data-action-group="ultimate"] { background: rgba(180,85,115,0.08); }
+.model-action-group[data-action-group="ultimate"] .model-action-strip { grid-template-columns: 1fr; }
+.model-action-group[data-action-group="ultimate"] .model-action-strip button { min-height: 52px; border-color: rgba(244,216,137,0.4); background: rgba(201,152,61,0.14); color: #ffe9b8; font-size: 0.74rem; }
+.model-action-group[data-action-group="ultimate"] .model-action-strip button:hover { border-color: rgba(244,216,137,0.85); }
+.model-control-hint { margin: 0; padding: 10px 12px 14px; color: rgba(255,255,255,0.38); font-size: 0.6rem; line-height: 1.7; }
+.model-control-section { padding: 13px 12px 14px; border-bottom: 1px solid rgba(255,255,255,0.1); }
+.model-control-section[hidden] { display: none; }
+.model-control-heading { display: flex; align-items: baseline; justify-content: space-between; gap: 10px; margin-bottom: 9px; }
+.model-control-heading strong { color: rgba(255,255,255,0.9); font-size: 0.74rem; }
+.model-control-heading small { overflow: hidden; color: rgba(255,255,255,0.46); font-size: 0.58rem; text-overflow: ellipsis; white-space: nowrap; }
+.model-action-strip { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 6px; }
+.model-action-strip button { min-width: 0; min-height: 46px; display: grid; align-content: center; justify-items: start; gap: 2px; padding: 6px 8px; border: 1px solid rgba(255,255,255,0.14); border-radius: 4px; background: rgba(255,255,255,0.04); color: rgba(255,255,255,0.85); cursor: pointer; font-size: 12px; text-align: left; overflow-wrap: anywhere; }
+.model-action-strip button small { color: rgba(255,255,255,0.38); font-family: ui-monospace, SFMono-Regular, Consolas, monospace; font-size: 0.55rem; }
+.model-action-strip button:hover { border-color: rgba(244,216,137,0.42); }
+.model-action-strip button.is-active { border-color: rgba(116,214,173,0.58); background: rgba(58,132,105,0.18); color: #9be6c5; }
+.model-action-strip button.is-active small { color: rgba(155,230,197,0.62); }
+/* 尚未下载的演出：右上角一个点提示「点了才会取」。 */
+.model-action-strip button.is-pending { position: relative; }
+.model-action-strip button.is-pending::after { content: ""; position: absolute; top: 6px; right: 6px; width: 5px; height: 5px; border-radius: 50%; background: #f4d889; }
+.model-action-strip button.is-loading { cursor: progress; opacity: 0.7; }
+.model-action-strip button.is-loading::after { animation: model-spin 0.9s linear infinite; border: 1px solid rgba(244,216,137,0.35); border-top-color: #f4d889; border-radius: 50%; background: none; width: 11px; height: 11px; }
+.model-face-strip { display: flex; flex-wrap: wrap; gap: 6px; }
+.model-face-strip button { min-height: 32px; padding: 5px 8px; border: 1px solid rgba(255,255,255,0.13); border-radius: 4px; background: transparent; color: rgba(255,255,255,0.7); cursor: pointer; font-size: 0.65rem; }
+.model-face-strip button:hover { border-color: rgba(244,216,137,0.42); color: #f4d889; }
+.model-face-strip button.is-active { border-color: rgba(221,151,178,0.62); background: rgba(180,85,115,0.19); color: #ffd4e2; }
+.model-face-advanced { margin-top: 9px; border-top: 1px solid rgba(255,255,255,0.08); }
+.model-face-advanced summary { width: max-content; padding: 8px 0 4px; color: rgba(255,255,255,0.56); cursor: pointer; font-size: 0.63rem; list-style-position: inside; }
+.model-face-advanced summary:hover { color: #f4d889; }
+.model-face-controls { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; padding-top: 6px; }
+.model-face-controls label { min-width: 0; display: grid; gap: 4px; color: rgba(255,255,255,0.48); font-size: 0.6rem; }
+.model-face-controls select { min-height: 30px; padding: 4px 24px 4px 8px; border: 1px solid rgba(255,255,255,0.16); border-radius: 4px; background: #30272c; color: #fff3f7; font: 0.68rem ui-monospace, SFMono-Regular, Consolas, monospace; }
+.model-weapon-options { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 5px; }
+.model-weapon-options button { min-width: 0; min-height: 34px; padding: 5px 4px; border: 1px solid rgba(255,255,255,0.14); border-radius: 4px; background: rgba(255,255,255,0.035); color: rgba(255,255,255,0.7); cursor: pointer; font-size: 0.62rem; }
+.model-weapon-options button:hover { border-color: rgba(244,216,137,0.44); color: #f4d889; }
+.model-weapon-options button.is-active { border-color: rgba(116,214,173,0.58); background: rgba(58,132,105,0.18); color: #9be6c5; }
+.model-weapon-options button:disabled { opacity: 0.55; cursor: wait; }
+/* 通用武器款式。「职业武器」那一档下面的下拉：本职业 17~25 把通用武器，
+   按基础 / 活动 / ★5 自带分组。以前这一档写死成 1C00 一把。 */
+.model-weapon-pick { display: grid; gap: 4px; margin-top: 8px; color: rgba(255,255,255,0.48); font-size: 0.6rem; }
+.model-weapon-pick select { min-width: 0; min-height: 30px; padding: 4px 24px 4px 8px; border: 1px solid rgba(255,255,255,0.16); border-radius: 4px; background: #30272c; color: #fff3f7; font-size: 0.66rem; }
+.model-weapon-pick select:disabled { opacity: 0.55; cursor: wait; }
+/* とっておき 演出开关。只在这个角色导出过演出场景时出现，所以是动态插进
+   大招那一组的标题下面，而不是页面里的固定控件。 */
+.model-cinematic-row { display: flex; align-items: center; gap: 8px; margin: 2px 0 7px; }
+.model-cinematic-row button { min-height: 30px; padding: 5px 10px; border: 1px solid rgba(255,255,255,0.14); border-radius: 4px; background: rgba(255,255,255,0.035); color: rgba(255,255,255,0.7); cursor: pointer; font-size: 0.62rem; white-space: nowrap; }
+.model-cinematic-row button:hover { border-color: rgba(244,216,137,0.44); color: #f4d889; }
+.model-cinematic-row button.is-active { border-color: rgba(244,216,137,0.58); background: rgba(120,92,44,0.22); color: #f4d889; }
+.model-cinematic-status { min-width: 0; color: rgba(255,255,255,0.42); font-size: 0.58rem; line-height: 1.3; }
+.model-cinematic-status.is-busy { color: #f4d889; }
+/* 定点视角与取景。取代原来的「模型大小 / 上下位置」两根滑块：那两根拉的是
+   模型自身的 scale 和 position，而镜头当时被锁在正面 ±15°，等于画布上拖不动，
+   想换角度只能来拉滑块，还转不到背面和鞋底。 */
+.model-view-presets { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 5px; }
+.model-view-zooms { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 5px; margin-top: 6px; }
+.model-view-presets button,
+.model-view-zooms button { min-width: 0; min-height: 32px; padding: 5px 4px; border: 1px solid rgba(255,255,255,0.14); border-radius: 4px; background: rgba(255,255,255,0.035); color: rgba(255,255,255,0.7); cursor: pointer; font-size: 0.62rem; }
+.model-view-presets button:hover,
+.model-view-zooms button:hover { border-color: rgba(244,216,137,0.44); color: #f4d889; }
+.model-view-presets button.is-active,
+.model-view-zooms button.is-active { border-color: rgba(116,214,173,0.58); background: rgba(58,132,105,0.18); color: #9be6c5; }
+/* 画布上可以直接操作，指针要说明这一点。 */
+.model-3d-canvas canvas { cursor: grab; }
+.model-3d-canvas canvas:active { cursor: grabbing; }
+/* 舞台是 grid，画布占第一行；loading / error 覆盖层仍靠它做定位原点。 */
+.model-3d-canvas { position: relative; min-height: 0; overflow: hidden; background: #24272b; touch-action: none; }
+/* 这里曾经有一个 CSS 椭圆当地面阴影（left/right 16%，bottom 10%）。它钉在画布
+   上而不是脚下，镜头一动人和影子就分开，俯视时影子还飘在半空。后来换成游戏自己
+   的 model/shadow/shadow_battle.muast 放进场景里，现在按要求整个去掉了：观察台
+   只看模型本身，脚下不再画任何东西。 */
+/* 画布元素必须脱离文档流。它的 width/height 属性由 renderer.setSize 按
+   host.clientHeight 写入，若留在流内，这个属性尺寸又会反过来决定 grid 行高，
+   于是每次 resize 都把舞台推高一截（实测被顶到 957px）。 */
+.model-3d-canvas canvas { position: absolute; inset: 0; z-index: 1; display: block; width: 100%; height: 100%; cursor: grab; }
+.model-3d-canvas canvas:active { cursor: grabbing; }
+.model-3d-loading, .model-3d-error { position: absolute; inset: 0; display: grid; place-content: center; justify-items: center; gap: 8px; color: rgba(255,255,255,0.7); font-size: 0.76rem; z-index: 2; }
+.model-3d-loading p, .model-3d-error p { max-width: 30em; margin: 0; text-align: center; line-height: 1.7; }
+.model-3d-error button { margin-top: 6px; padding: 7px 20px; border: 1px solid rgba(255,255,255,0.3); border-radius: 999px; background: rgba(255,255,255,0.08); color: #f3e9e4; font-size: 0.72rem; cursor: pointer; }
+.model-3d-error button:hover { background: rgba(255,255,255,0.17); }
+.model-conversion-note { display: flex; align-items: center; gap: 13px; margin-bottom: 20px; padding: 12px 14px; border: 1px solid #ead6bb; border-radius: 5px; background: #fff8ed; }
+.model-conversion-note strong { flex: 0 0 auto; color: #9a6c25; font-size: 0.75rem; }
+.model-conversion-note span { color: var(--model-muted); font-size: 0.7rem; }
+.model-texture-heading { display: flex; align-items: end; justify-content: space-between; gap: 18px; margin: 6px 0 10px; }
+.model-texture-heading h3 { margin: 3px 0 0; font-size: 0.95rem; }
+.model-texture-heading p { margin: 0; color: var(--model-muted); font-size: 0.68rem; }
+.model-texture-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 14px; }
+.model-texture-card { min-width: 0; margin: 0; overflow: hidden; border: 1px solid #ded0d0; border-radius: 5px; background: #fffaf8; }
+.model-texture-frame { min-height: 260px; display: grid; place-items: center; padding: 16px; background-color: #f5f2ef; background-image: linear-gradient(45deg, #e9e5e2 25%, transparent 25%), linear-gradient(-45deg, #e9e5e2 25%, transparent 25%), linear-gradient(45deg, transparent 75%, #e9e5e2 75%), linear-gradient(-45deg, transparent 75%, #e9e5e2 75%); background-position: 0 0, 0 12px, 12px -12px, -12px 0; background-size: 24px 24px; }
+.model-texture-frame img { display: block; max-width: 100%; max-height: 470px; object-fit: contain; }
+.model-texture-card figcaption { display: flex; align-items: baseline; justify-content: space-between; gap: 10px; padding: 10px 12px; border-top: 1px solid #eadfdd; }
+.model-texture-card figcaption strong { overflow: hidden; color: #513d46; font-family: ui-monospace, SFMono-Regular, Consolas, monospace; font-size: 0.72rem; text-overflow: ellipsis; white-space: nowrap; }
+.model-texture-card figcaption span { flex: 0 0 auto; color: var(--model-muted); font-size: 0.68rem; }
+.model-empty-state, .model-loading, .model-error-state { min-height: 560px; display: grid; place-content: center; justify-items: center; padding: 30px; color: var(--model-muted); text-align: center; }
+.model-empty-mark { display: grid; place-items: center; width: 56px; height: 56px; margin-bottom: 12px; border: 1px solid #dfc08a; border-radius: 50%; color: var(--model-gold); font-size: 1.5rem; }
+.model-empty-state h2, .model-loading h2, .model-error-state h2 { margin: 0 0 7px; color: var(--model-ink); font-size: 1.1rem; }
+.model-empty-state p, .model-loading p, .model-error-state p { max-width: 34em; margin: 0; font-size: 0.8rem; }
+.model-spinner { width: 34px; height: 34px; margin-bottom: 16px; border: 3px solid #eadcdf; border-top-color: var(--model-rose); border-radius: 50%; animation: model-spin 0.8s linear infinite; }
+@keyframes model-spin { to { transform: rotate(360deg); } }
+.model-error-state > span { display: grid; place-items: center; width: 36px; height: 36px; margin-bottom: 12px; border-radius: 50%; background: #f3dddd; color: #a45151; font-weight: 800; }
+.model-error-state > div { display: flex; gap: 8px; margin-top: 18px; }
+
+.models-about { display: grid; grid-template-columns: minmax(190px, 0.55fr) minmax(0, 1.45fr); gap: 28px; margin-top: 24px; padding: 22px 24px; border: 1px solid var(--model-line); border-radius: 8px; background: rgba(255,252,249,0.86); }
+.models-about h2 { margin: 5px 0 0; font-family: "Noto Serif SC", "STSong", serif; font-size: 1.2rem; }
+.models-about p { margin: 0; color: var(--model-muted); font-size: 0.78rem; }
+.models-about code { color: var(--model-rose); font-family: ui-monospace, SFMono-Regular, Consolas, monospace; }
+.models-footer { display: flex; justify-content: center; gap: 20px; padding: 22px 18px 30px; color: #8a777e; font-size: 0.72rem; }
+.models-footer a { color: var(--model-rose); text-decoration: none; }
+.models-footer a:hover { text-decoration: underline; }
+
+@media (min-width: 901px) and (max-width: 1100px) {
+    .models-browser { grid-template-columns: 230px minmax(0, 1fr); }
+    .model-viewer-layout { grid-template-columns: minmax(0, 1fr) 240px; }
+    .models-toolbar { flex-wrap: wrap; gap: 8px; }
+    .models-query-tools { flex-basis: 100%; max-width: none; }
+    .models-filters { margin-left: auto; }
+    .model-detail-header { gap: 8px; padding-inline: 12px; }
+    .model-detail-tags > span:nth-child(2) { display: none; }
+}
+
+/* The transport responds to its canvas width, including a collapsed index. */
+@container (max-width: 520px) {
+    .model-transport:not(.model-transport-bare) { display: grid; grid-template-columns: 34px minmax(0, 1fr) auto; gap: 6px 10px; }
+    .model-transport-tools { grid-column: 1 / -1; }
+    .model-transport-tools .model-3d-actions { margin-left: auto; }
+}
+
+@media (max-width: 900px) {
+    main { width: 100%; margin: 0; padding: 0; }
+    .models-topbar { grid-template-columns: 32px minmax(0, 1fr) auto; min-height: 48px; gap: 12px; padding: 8px 12px; }
+    .models-brand { justify-self: center; gap: 8px; min-width: 0; }
+    .models-brand img { width: 90px; }
+    .models-brand h1 { padding-left: 8px; font-size: 14px; }
+    .models-back-label, .models-tool-label, .models-source { display: none; }
+    .models-back, .models-topbar-button { display: grid; place-items: center; width: 32px; height: 32px; padding: 0; }
+    .models-workbench { margin: 0; border: 0; border-radius: 0; box-shadow: none; }
+    .models-toolbar { flex-wrap: wrap; align-items: stretch; gap: 8px; padding: 8px 12px; }
+    .models-query-tools { flex-basis: 100%; max-width: none; grid-template-columns: minmax(0, 1.3fr) minmax(0, 1fr); }
+    .models-search, .models-work-filter { gap: 3px; font-size: 11px; }
+    .models-filters { width: 100%; justify-content: space-between; }
+    .models-filter { flex: 1 1 auto; }
+    .models-status { padding: 4px 12px; }
+    .models-browser { display: block; height: auto; }
+    .models-list-panel { border-right: 0; border-bottom: 1px solid var(--model-line); }
+    .models-list-heading { padding: 7px 12px; }
+    .models-list { max-height: 240px; }
+    .models-browser.is-list-collapsed .models-list,
+    .models-browser.is-list-collapsed .models-pagination { display: none; }
+    .model-detail { min-height: 0; padding: 0; overflow: visible; scroll-margin-top: 52px; }
+    .model-detail-header { grid-template-columns: minmax(0, 1fr) auto; gap: 6px 12px; padding: 10px 12px 4px; }
+    .model-detail-ident { grid-column: 1 / -1; }
+    .model-detail-header h2 { font-size: 16px; }
+    .model-detail-header .model-detail-views { margin-left: 0; }
+    .model-detail-view[data-detail-panel="assets"] { padding: 12px; }
+    .model-viewer-layout { grid-template-columns: 1fr; height: auto; }
+    .model-viewer-stage { height: clamp(380px, 56svh, 600px); }
+    .model-viewer-inspector { grid-template-rows: auto auto; max-height: none; border-top: 1px solid rgba(255,255,255,0.11); border-left: 0; }
+    .model-inspector-body { overflow: visible; }
+    .model-inspector-tabs { position: sticky; top: 48px; z-index: 3; background: #22272b; }
+    .model-action-groups { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .model-action-group { border-right: 1px solid rgba(255,255,255,0.08); }
+    .model-action-group[data-action-group="ultimate"] { grid-column: 1 / -1; }
+    .model-action-group[data-action-group="ultimate"] .model-action-strip { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    #modelPanelSetup { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .model-control-section { border-right: 1px solid rgba(255,255,255,0.08); }
+}
+
+@media (max-width: 620px) {
+    .models-filters { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 2px; }
+    .models-filter { padding: 3px 2px; }
+    .models-filter span { display: block; margin: 0; font-size: 10px; }
+    .model-action-groups { grid-template-columns: 1fr; }
+    .model-action-group { border-right: 0; }
+    .model-action-group[data-action-group="ultimate"] .model-action-strip { grid-template-columns: 1fr; }
+    #modelPanelSetup { grid-template-columns: 1fr; }
+    .model-control-section { border-right: 0; }
+    .model-conversion-note { align-items: flex-start; flex-direction: column; gap: 4px; }
+    .model-texture-heading { align-items: flex-start; flex-direction: column; gap: 4px; }
+    .model-texture-grid { grid-template-columns: 1fr; }
+    .models-about { grid-template-columns: 1fr; gap: 10px; padding: 18px; }
+    .models-footer { flex-wrap: wrap; gap: 10px 16px; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after { animation-duration: 0.001ms !important; transition-duration: 0.001ms !important; }
+}
+
+/* 「关于」抽屉：装原来 hero / about / footer 的文字。 */
+.models-drawer { position: fixed; inset: 0; z-index: 120; display: grid; place-items: center; padding: 24px; background: rgba(32,24,29,0.56); -webkit-backdrop-filter: blur(3px); backdrop-filter: blur(3px); }
+.models-drawer[hidden] { display: none; }
+.models-drawer-panel { width: min(680px, 100%); max-height: min(80vh, 720px); overflow-y: auto; overscroll-behavior: contain; border: 1px solid var(--model-line); border-radius: 8px; background: #fffcf9; box-shadow: 0 28px 60px rgba(40,26,33,0.34); }
+.models-drawer-head { display: flex; align-items: start; justify-content: space-between; gap: 16px; padding: 20px 22px 12px; border-bottom: 1px solid var(--model-line); }
+.models-drawer-head h2 { margin: 4px 0 0; font-family: "Noto Serif SC", "STSong", serif; font-size: 1.3rem; }
+.models-drawer-close { width: 30px; height: 30px; flex: 0 0 auto; border: 1px solid var(--model-line); border-radius: 4px; background: #fffaf8; color: var(--model-muted); cursor: pointer; }
+.models-drawer-close:hover { border-color: #d4a9b1; color: var(--model-rose); }
+.models-drawer-body { padding: 16px 22px 22px; }
+.models-drawer-body p { margin: 0 0 14px; color: var(--model-muted); font-size: 0.82rem; }
+.models-drawer-body h3 { margin: 18px 0 8px; font-size: 0.95rem; }
+.models-drawer-body code { color: var(--model-rose); font-family: ui-monospace, SFMono-Regular, Consolas, monospace; }
+.models-drawer-links { display: flex; flex-wrap: wrap; gap: 8px 18px; padding-top: 6px; border-top: 1px solid #eee4e2; }
+.models-drawer-links a { color: var(--model-rose); font-size: 0.76rem; text-decoration: none; }
+.models-drawer-links a:hover { text-decoration: underline; }
+
+/* 铺满窗口。
+   上一版是把观察台单独提成 position: fixed 的固定层 —— 它确实让舞台和控制台
+   同时可见，但代价是左边的素材列表被整个盖住，要换模型必须先退出铺满。反馈里
+   「铺满窗口就不好选左边的条目了」说的就是这个。
+   现在铺满的对象是整个工作台（搜索 + 列表 + 舞台 + 控制台），而不只是观察台，
+   并且走浏览器原生全屏：连 topbar 一起去掉，列表始终在左边。 */
+.models-workbench:fullscreen {
+    width: 100%;
+    height: 100%;
+    background: var(--model-paper);
+    display: grid;
+    grid-template-rows: auto auto minmax(0, 1fr);
+}
+/* :fullscreen 之外的元素照旧渲染在下面，全屏层自己撑满即可。 */
+.models-workbench:fullscreen .models-browser { height: auto; min-height: 0; }
+
+/* 窄屏（≤900px）回到文档式布局：此时页面本来就要滚，索引折在上方，
+   收起把手和视图页签仍然有效，但不需要那条把宽度让出来的竖条。 */
+@media (max-width: 900px) {
+    .models-list-rail { display: none !important; }
+    .models-list-collapse { display: grid; }
+    .model-detail-views { padding: 0; }
+    .models-workbench:fullscreen { display: block; overflow-y: auto; }
+}

@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="96" height="96" viewBox="0 0 96 96">
+  <title>护甲</title><metadata>kirafan-timer original; armor slot</metadata>
+  <g stroke="#716454" stroke-width="2.5" stroke-linejoin="round" stroke-linecap="round">
+    <path d="m31 15-19 13 7 23 10-5-4 33 23 10 23-10-4-33 10 5 7-23-19-13c-4 14-30 14-34 0Z" fill="#dce8e6"/>
+    <path d="M48 29v54l17-7-5-41Z" fill="#a4bdc5" stroke="none"/>
+    <path d="m31 15 5 19 12 6 12-6 5-19M27 68l21 8 21-8" fill="none" stroke="#c9a063" stroke-width="5"/>
+    <path d="m48 38 8 9-8 10-8-10Z" fill="#e9c577"/>
+    <path d="m17 28 9 3-3 12M79 28l-9 3 3 12" fill="none" stroke="#fff9e9"/>
+  </g>
+</svg>

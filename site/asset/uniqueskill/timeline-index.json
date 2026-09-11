@@ -1,0 +1,9514 @@
+{
+ "100003": {
+  "frames": 511,
+  "fps": 30.0,
+  "duration": 17.0,
+  "channels": 164,
+  "events": 6,
+  "trs": 89
+ },
+ "100004": {
+  "frames": 511,
+  "fps": 30.0,
+  "duration": 17.0,
+  "channels": 175,
+  "events": 6,
+  "trs": 97
+ },
+ "100005": {
+  "frames": 541,
+  "fps": 30.0,
+  "duration": 18.0,
+  "channels": 179,
+  "events": 7,
+  "trs": 96
+ },
+ "100006": {
+  "frames": 541,
+  "fps": 30.0,
+  "duration": 18.0,
+  "channels": 309,
+  "events": 7,
+  "trs": 139
+ },
+ "100007": {
+  "frames": 601,
+  "fps": 30.0,
+  "duration": 20.0,
+  "channels": 122,
+  "events": 3,
+  "trs": 101
+ },
+ "100008": {
+  "frames": 601,
+  "fps": 30.0,
+  "duration": 20.0,
+  "channels": 122,
+  "events": 3,
+  "trs": 101
+ },
+ "100103": {
+  "frames": 541,
+  "fps": 30.0,
+  "duration": 18.0,
+  "channels": 247,
+  "events": 10,
+  "trs": 71
+ },
+ "100105": {
+  "frames": 576,
+  "fps": 30.0,
+  "duration": 19.1667,
+  "channels": 227,
+  "events": 10,
+  "trs": 112
+ },
+ "100106": {
+  "frames": 576,
+  "fps": 30.0,
+  "duration": 19.1667,
+  "channels": 290,
+  "events": 10,
+  "trs": 140
+ },
+ "100203": {
+  "frames": 616,
+  "fps": 30.0,
+  "duration": 20.5,
+  "channels": 162,
+  "events": 7,
+  "trs": 106
+ },
+ "100204": {
+  "frames": 616,
+  "fps": 30.0,
+  "duration": 20.5,
+  "channels": 195,
+  "events": 7,
+  "trs": 117
+ },
+ "100205": {
+  "frames": 661,
+  "fps": 30.0,
+  "duration": 22.0,
+  "channels": 100,
+  "events": 4,
+  "trs": 60
+ },
+ "100206": {
+  "frames": 661,
+  "fps": 30.0,
+  "duration": 22.0,
+  "channels": 128,
+  "events": 4,
+  "trs": 74
+ },
+ "100303": {
+  "frames": 601,
+  "fps": 30.0,
+  "duration": 20.0,
+  "channels": 218,
+  "events": 5,
+  "trs": 222
+ },
+ "100304": {
+  "frames": 601,
+  "fps": 30.0,
+  "duration": 20.0,
+  "channels": 261,
+  "events": 5,
+  "trs": 257
+ },
+ "100503": {
+  "frames": 706,
+  "fps": 30.0,
+  "duration": 23.5,
+  "channels": 238,
+  "events": 6,
+  "trs": 133
+ },
+ "100504": {
+  "frames": 706,
+  "fps": 30.0,
+  "duration": 23.5,
+  "channels": 289,
+  "events": 6,
+  "trs": 158
+ },
+ "110003": {
+  "frames": 526,
+  "fps": 30.0,
+  "duration": 17.5,
+  "channels": 127,
+  "events": 9,
+  "trs": 124
+ },
+ "110004": {
+  "frames": 528,
+  "fps": 30.0,
+  "duration": 17.5667,
+  "channels": 153,
+  "events": 28,
+  "trs": 151
+ },
+ "110005": {
+  "frames": 511,
+  "fps": 30.0,
+  "duration": 17.0,
+  "channels": 443,
+  "events": 14,
+  "trs": 137
+ },
+ "110006": {
+  "frames": 511,
+  "fps": 30.0,
+  "duration": 17.0,
+  "channels": 768,
+  "events": 18,
+  "trs": 250
+ },
+ "110009": {
+  "frames": 756,
+  "fps": 30.0,
+  "duration": 25.1667,
+  "channels": 180,
+  "events": 3,
+  "trs": 132
+ },
+ "110010": {
+  "frames": 756,
+  "fps": 30.0,
+  "duration": 25.1667,
+  "channels": 283,
+  "events": 3,
+  "trs": 184
+ },
+ "110103": {
+  "frames": 511,
+  "fps": 30.0,
+  "duration": 17.0,
+  "channels": 67,
+  "events": 6,
+  "trs": 42
+ },
+ "110104": {
+  "frames": 511,
+  "fps": 30.0,
+  "duration": 17.0,
+  "channels": 76,
+  "events": 6,
+  "trs": 49
+ },
+ "110109": {
+  "frames": 511,
+  "fps": 30.0,
+  "duration": 17.0,
+  "channels": 249,
+  "events": 4,
+  "trs": 170
+ },
+ "110110": {
+  "frames": 511,
+  "fps": 30.0,
+  "duration": 17.0,
+  "channels": 272,
+  "events": 4,
+  "trs": 182
+ },
+ "110111": {
+  "frames": 771,
+  "fps": 30.0,
+  "duration": 25.6667,
+  "channels": 422,
+  "events": 9,
+  "trs": 235
+ },
+ "110112": {
+  "frames": 771,
+  "fps": 30.0,
+  "duration": 25.6667,
+  "channels": 486,
+  "events": 9,
+  "trs": 259
+ },
+ "110203": {
+  "frames": 516,
+  "fps": 30.0,
+  "duration": 17.1667,
+  "channels": 364,
+  "events": 6,
+  "trs": 237
+ },
+ "110204": {
+  "frames": 516,
+  "fps": 30.0,
+  "duration": 17.1667,
+  "channels": 400,
+  "events": 6,
+  "trs": 262
+ },
+ "110205": {
+  "frames": 671,
+  "fps": 30.0,
+  "duration": 22.3333,
+  "channels": 226,
+  "events": 6,
+  "trs": 181
+ },
+ "110206": {
+  "frames": 671,
+  "fps": 30.0,
+  "duration": 22.3333,
+  "channels": 248,
+  "events": 6,
+  "trs": 195
+ },
+ "110207": {
+  "frames": 741,
+  "fps": 30.0,
+  "duration": 24.6667,
+  "channels": 158,
+  "events": 5,
+  "trs": 120
+ },
+ "110208": {
+  "frames": 741,
+  "fps": 30.0,
+  "duration": 24.6667,
+  "channels": 194,
+  "events": 5,
+  "trs": 144
+ },
+ "110303": {
+  "frames": 511,
+  "fps": 30.0,
+  "duration": 17.0,
+  "channels": 183,
+  "events": 6,
+  "trs": 92
+ },
+ "110304": {
+  "frames": 511,
+  "fps": 30.0,
+  "duration": 17.0,
+  "channels": 194,
+  "events": 6,
+  "trs": 100
+ },
+ "110305": {
+  "frames": 632,
+  "fps": 30.0,
+  "duration": 21.0333,
+  "channels": 256,
+  "events": 7,
+  "trs": 176
+ },
+ "110306": {
+  "frames": 632,
+  "fps": 30.0,
+  "duration": 21.0333,
+  "channels": 360,
+  "events": 7,
+  "trs": 236
+ },
+ "110403": {
+  "frames": 571,
+  "fps": 30.0,
+  "duration": 19.0,
+  "channels": 188,
+  "events": 5,
+  "trs": 166
+ },
+ "110404": {
+  "frames": 571,
+  "fps": 30.0,
+  "duration": 19.0,
+  "channels": 272,
+  "events": 5,
+  "trs": 211
+ },
+ "110405": {
+  "frames": 461,
+  "fps": 30.0,
+  "duration": 15.3333,
+  "channels": 146,
+  "events": 3,
+  "trs": 90
+ },
+ "110406": {
+  "frames": 461,
+  "fps": 30.0,
+  "duration": 15.3333,
+  "channels": 149,
+  "events": 3,
+  "trs": 93
+ },
+ "110603": {
+  "frames": 511,
+  "fps": 30.0,
+  "duration": 17.0,
+  "channels": 189,
+  "events": 9,
+  "trs": 128
+ },
+ "110604": {
+  "frames": 511,
+  "fps": 30.0,
+  "duration": 17.0,
+  "channels": 238,
+  "events": 9,
+  "trs": 156
+ },
+ "120003": {
+  "frames": 511,
+  "fps": 30.0,
+  "duration": 17.0,
+  "channels": 248,
+  "events": 4,
+  "trs": 233
+ },
+ "120004": {
+  "frames": 511,
+  "fps": 30.0,
+  "duration": 17.0,
+  "channels": 267,
+  "events": 4,
+  "trs": 220
+ },
+ "120005": {
+  "frames": 541,
+  "fps": 30.0,
+  "duration": 18.0,
+  "channels": 109,
+  "events": 10,
+  "trs": 41
+ },
+ "120006": {
+  "frames": 541,
+  "fps": 30.0,
+  "duration": 18.0,
+  "channels": 121,
+  "events": 10,
+  "trs": 53
+ },
+ "120007": {
+  "frames": 596,
+  "fps": 30.0,
+  "duration": 19.8333,
+  "channels": 196,
+  "events": 5,
+  "trs": 116
+ },
+ "120008": {
+  "frames": 596,
+  "fps": 30.0,
+  "duration": 19.8333,
+  "channels": 211,
+  "events": 5,
+  "trs": 125
+ },
+ "120103": {
+  "frames": 521,
+  "fps": 30.0,
+  "duration": 17.3333,
+  "channels": 320,
+  "events": 3,
+  "trs": 185
+ },
+ "120104": {
+  "frames": 521,
+  "fps": 30.0,
+  "duration": 17.3333,
+  "channels": 349,
+  "events": 3,
+  "trs": 208
+ },
+ "120105": {
+  "frames": 536,
+  "fps": 30.0,
+  "duration": 17.8333,
+  "channels": 217,
+  "events": 8,
+  "trs": 84
+ },
+ "120106": {
+  "frames": 536,
+  "fps": 30.0,
+  "duration": 17.8333,
+  "channels": 226,
+  "events": 8,
+  "trs": 89
+ },
+ "120107": {
+  "frames": 561,
+  "fps": 30.0,
+  "duration": 18.6667,
+  "channels": 316,
+  "events": 8,
+  "trs": 173
+ },
+ "120108": {
+  "frames": 561,
+  "fps": 30.0,
+  "duration": 18.6667,
+  "channels": 342,
+  "events": 8,
+  "trs": 188
+ },
+ "120203": {
+  "frames": 561,
+  "fps": 30.0,
+  "duration": 18.6667,
+  "channels": 256,
+  "events": 23,
+  "trs": 111
+ },
+ "120204": {
+  "frames": 561,
+  "fps": 30.0,
+  "duration": 18.6667,
+  "channels": 378,
+  "events": 23,
+  "trs": 160
+ },
+ "120205": {
+  "frames": 576,
+  "fps": 30.0,
+  "duration": 19.1667,
+  "channels": 135,
+  "events": 6,
+  "trs": 52
+ },
+ "120206": {
+  "frames": 576,
+  "fps": 30.0,
+  "duration": 19.1667,
+  "channels": 160,
+  "events": 6,
+  "trs": 55
+ },
+ "120207": {
+  "frames": 741,
+  "fps": 30.0,
+  "duration": 24.6667,
+  "channels": 179,
+  "events": 3,
+  "trs": 101
+ },
+ "120208": {
+  "frames": 741,
+  "fps": 30.0,
+  "duration": 24.6667,
+  "channels": 207,
+  "events": 3,
+  "trs": 114
+ },
+ "120303": {
+  "frames": 541,
+  "fps": 30.0,
+  "duration": 18.0,
+  "channels": 149,
+  "events": 5,
+  "trs": 115
+ },
+ "120304": {
+  "frames": 541,
+  "fps": 30.0,
+  "duration": 18.0,
+  "channels": 182,
+  "events": 5,
+  "trs": 146
+ },
+ "120305": {
+  "frames": 656,
+  "fps": 30.0,
+  "duration": 21.8333,
+  "channels": 180,
+  "events": 8,
+  "trs": 105
+ },
+ "120306": {
+  "frames": 656,
+  "fps": 30.0,
+  "duration": 21.8333,
+  "channels": 205,
+  "events": 8,
+  "trs": 117
+ },
+ "120403": {
+  "frames": 521,
+  "fps": 30.0,
+  "duration": 17.3333,
+  "channels": 168,
+  "events": 5,
+  "trs": 69
+ },
+ "120404": {
+  "frames": 521,
+  "fps": 30.0,
+  "duration": 17.3333,
+  "channels": 244,
+  "events": 5,
+  "trs": 118
+ },
+ "120405": {
+  "frames": 791,
+  "fps": 30.0,
+  "duration": 26.3333,
+  "channels": 196,
+  "events": 7,
+  "trs": 163
+ },
+ "120406": {
+  "frames": 791,
+  "fps": 30.0,
+  "duration": 26.3333,
+  "channels": 205,
+  "events": 7,
+  "trs": 174
+ },
+ "120501": {
+  "frames": 571,
+  "fps": 30.0,
+  "duration": 19.0,
+  "channels": 196,
+  "events": 10,
+  "trs": 118
+ },
+ "120502": {
+  "frames": 571,
+  "fps": 30.0,
+  "duration": 19.0,
+  "channels": 252,
+  "events": 10,
+  "trs": 165
+ },
+ "122001": {
+  "frames": 761,
+  "fps": 30.0,
+  "duration": 25.3333,
+  "channels": 232,
+  "events": 10,
+  "trs": 161
+ },
+ "122002": {
+  "frames": 761,
+  "fps": 30.0,
+  "duration": 25.3333,
+  "channels": 261,
+  "events": 10,
+  "trs": 177
+ },
+ "122101": {
+  "frames": 511,
+  "fps": 30.0,
+  "duration": 17.0,
+  "channels": 136,
+  "events": 5,
+  "trs": 77
+ },
+ "122102": {
+  "frames": 511,
+  "fps": 30.0,
+  "duration": 17.0,
+  "channels": 278,
+  "events": 5,
+  "trs": 139
+ },
+ "122201": {
+  "frames": 561,
+  "fps": 30.0,
+  "duration": 18.6667,
+  "channels": 414,
+  "events": 3,
+  "trs": 247
+ },
+ "122202": {
+  "frames": 561,
+  "fps": 30.0,
+  "duration": 18.6667,
+  "channels": 652,
+  "events": 3,
+  "trs": 398
+ },
+ "122301": {
+  "frames": 526,
+  "fps": 30.0,
+  "duration": 17.5,
+  "channels": 362,
+  "events": 7,
+  "trs": 236
+ },
+ "122302": {
+  "frames": 526,
+  "fps": 30.0,
+  "duration": 17.5,
+  "channels": 367,
+  "events": 7,
+  "trs": 240
+ },
+ "130003": {
+  "frames": 511,
+  "fps": 30.0,
+  "duration": 17.0,
+  "channels": 187,
+  "events": 13,
+  "trs": 86
+ },
+ "130004": {
+  "frames": 511,
+  "fps": 30.0,
+  "duration": 17.0,
+  "channels": 219,
+  "events": 8,
+  "trs": 103
+ },
+ "130007": {
+  "frames": 526,
+  "fps": 30.0,
+  "duration": 17.5,
+  "channels": 110,
+  "events": 3,
+  "trs": 107
+ },
+ "130008": {
+  "frames": 526,
+  "fps": 30.0,
+  "duration": 17.5,
+  "channels": 124,
+  "events": 3,
+  "trs": 119
+ },
+ "130009": {
+  "frames": 771,
+  "fps": 30.0,
+  "duration": 25.6667,
+  "channels": 251,
+  "events": 11,
+  "trs": 171
+ },
+ "130010": {
+  "frames": 771,
+  "fps": 30.0,
+  "duration": 25.6667,
+  "channels": 269,
+  "events": 11,
+  "trs": 183
+ },
+ "130011": {
+  "frames": 601,
+  "fps": 30.0,
+  "duration": 20.0,
+  "channels": 193,
+  "events": 10,
+  "trs": 138
+ },
+ "130012": {
+  "frames": 601,
+  "fps": 30.0,
+  "duration": 20.0,
+  "channels": 200,
+  "events": 10,
+  "trs": 141
+ },
+ "130105": {
+  "frames": 521,
+  "fps": 30.0,
+  "duration": 17.3333,
+  "channels": 81,
+  "events": 4,
+  "trs": 40
+ },
+ "130106": {
+  "frames": 521,
+  "fps": 30.0,
+  "duration": 17.3333,
+  "channels": 157,
+  "events": 4,
+  "trs": 73
+ },
+ "130107": {
+  "frames": 546,
+  "fps": 30.0,
+  "duration": 18.1667,
+  "channels": 184,
+  "events": 8,
+  "trs": 78
+ },
+ "130108": {
+  "frames": 546,
+  "fps": 30.0,
+  "duration": 18.1667,
+  "channels": 208,
+  "events": 8,
+  "trs": 97
+ },
+ "130109": {
+  "frames": 701,
+  "fps": 30.0,
+  "duration": 23.3333,
+  "channels": 155,
+  "events": 3,
+  "trs": 131
+ },
+ "130110": {
+  "frames": 701,
+  "fps": 30.0,
+  "duration": 23.3333,
+  "channels": 252,
+  "events": 3,
+  "trs": 155
+ },
+ "130203": {
+  "frames": 511,
+  "fps": 30.0,
+  "duration": 17.0,
+  "channels": 169,
+  "events": 11,
+  "trs": 68
+ },
+ "130204": {
+  "frames": 511,
+  "fps": 30.0,
+  "duration": 17.0,
+  "channels": 210,
+  "events": 11,
+  "trs": 83
+ },
+ "130205": {
+  "frames": 541,
+  "fps": 30.0,
+  "duration": 18.0,
+  "channels": 206,
+  "events": 8,
+  "trs": 82
+ },
+ "130206": {
+  "frames": 541,
+  "fps": 30.0,
+  "duration": 18.0,
+  "channels": 248,
+  "events": 8,
+  "trs": 106
+ },
+ "130207": {
+  "frames": 651,
+  "fps": 30.0,
+  "duration": 21.6667,
+  "channels": 192,
+  "events": 8,
+  "trs": 141
+ },
+ "130208": {
+  "frames": 651,
+  "fps": 30.0,
+  "duration": 21.6667,
+  "channels": 268,
+  "events": 8,
+  "trs": 204
+ },
+ "130303": {
+  "frames": 531,
+  "fps": 30.0,
+  "duration": 17.6667,
+  "channels": 349,
+  "events": 4,
+  "trs": 199
+ },
+ "130304": {
+  "frames": 531,
+  "fps": 30.0,
+  "duration": 17.6667,
+  "channels": 401,
+  "events": 4,
+  "trs": 231
+ },
+ "130305": {
+  "frames": 791,
+  "fps": 30.0,
+  "duration": 26.3333,
+  "channels": 135,
+  "events": 7,
+  "trs": 103
+ },
+ "130306": {
+  "frames": 791,
+  "fps": 30.0,
+  "duration": 26.3333,
+  "channels": 143,
+  "events": 7,
+  "trs": 105
+ },
+ "130503": {
+  "frames": 639,
+  "fps": 30.0,
+  "duration": 21.2667,
+  "channels": 135,
+  "events": 8,
+  "trs": 92
+ },
+ "130504": {
+  "frames": 639,
+  "fps": 30.0,
+  "duration": 21.2667,
+  "channels": 145,
+  "events": 8,
+  "trs": 97
+ },
+ "140003": {
+  "frames": 512,
+  "fps": 30.0,
+  "duration": 17.0333,
+  "channels": 125,
+  "events": 11,
+  "trs": 117
+ },
+ "140004": {
+  "frames": 511,
+  "fps": 30.0,
+  "duration": 17.0,
+  "channels": 166,
+  "events": 11,
+  "trs": 149
+ },
+ "140007": {
+  "frames": 541,
+  "fps": 30.0,
+  "duration": 18.0,
+  "channels": 184,
+  "events": 8,
+  "trs": 96
+ },
+ "140008": {
+  "frames": 541,
+  "fps": 30.0,
+  "duration": 18.0,
+  "channels": 200,
+  "events": 8,
+  "trs": 104
+ },
+ "140009": {
+  "frames": 511,
+  "fps": 30.0,
+  "duration": 17.0,
+  "channels": 180,
+  "events": 4,
+  "trs": 99
+ },
+ "140010": {
+  "frames": 511,
+  "fps": 30.0,
+  "duration": 17.0,
+  "channels": 206,
+  "events": 4,
+  "trs": 112
+ },
+ "140011": {
+  "frames": 781,
+  "fps": 30.0,
+  "duration": 26.0,
+  "channels": 218,
+  "events": 5,
+  "trs": 178
+ },
+ "140012": {
+  "frames": 781,
+  "fps": 30.0,
+  "duration": 26.0,
+  "channels": 269,
+  "events": 5,
+  "trs": 200
+ },
+ "140103": {
+  "frames": 531,
+  "fps": 30.0,
+  "duration": 17.6667,
+  "channels": 394,
+  "events": 10,
+  "trs": 187
+ },
+ "140104": {
+  "frames": 531,
+  "fps": 30.0,
+  "duration": 17.6667,
+  "channels": 475,
+  "events": 10,
+  "trs": 230
+ },
+ "140107": {
+  "frames": 526,
+  "fps": 30.0,
+  "duration": 17.5,
+  "channels": 327,
+  "events": 11,
+  "trs": 220
+ },
+ "140108": {
+  "frames": 526,
+  "fps": 30.0,
+  "duration": 17.5,
+  "channels": 250,
+  "events": 11,
+  "trs": 173
+ },
+ "140109": {
+  "frames": 561,
+  "fps": 30.0,
+  "duration": 18.6667,
+  "channels": 209,
+  "events": 8,
+  "trs": 162
+ },
+ "140110": {
+  "frames": 561,
+  "fps": 30.0,
+  "duration": 18.6667,
+  "channels": 225,
+  "events": 8,
+  "trs": 180
+ },
+ "140111": {
+  "frames": 571,
+  "fps": 30.0,
+  "duration": 19.0,
+  "channels": 422,
+  "events": 3,
+  "trs": 228
+ },
+ "140112": {
+  "frames": 571,
+  "fps": 30.0,
+  "duration": 19.0,
+  "channels": 422,
+  "events": 3,
+  "trs": 228
+ },
+ "140205": {
+  "frames": 511,
+  "fps": 30.0,
+  "duration": 17.0,
+  "channels": 109,
+  "events": 5,
+  "trs": 50
+ },
+ "140206": {
+  "frames": 511,
+  "fps": 30.0,
+  "duration": 17.0,
+  "channels": 145,
+  "events": 5,
+  "trs": 62
+ },
+ "140207": {
+  "frames": 601,
+  "fps": 30.0,
+  "duration": 20.0,
+  "channels": 262,
+  "events": 12,
+  "trs": 228
+ },
+ "140208": {
+  "frames": 601,
+  "fps": 30.0,
+  "duration": 20.0,
+  "channels": 273,
+  "events": 12,
+  "trs": 230
+ },
+ "140209": {
+  "frames": 591,
+  "fps": 30.0,
+  "duration": 19.6667,
+  "channels": 206,
+  "events": 8,
+  "trs": 120
+ },
+ "140210": {
+  "frames": 591,
+  "fps": 30.0,
+  "duration": 19.6667,
+  "channels": 403,
+  "events": 8,
+  "trs": 220
+ },
+ "140303": {
+  "frames": 531,
+  "fps": 30.0,
+  "duration": 17.6667,
+  "channels": 264,
+  "events": 23,
+  "trs": 188
+ },
+ "140304": {
+  "frames": 531,
+  "fps": 30.0,
+  "duration": 17.6667,
+  "channels": 295,
+  "events": 23,
+  "trs": 213
+ },
+ "140305": {
+  "frames": 541,
+  "fps": 30.0,
+  "duration": 18.0,
+  "channels": 403,
+  "events": 10,
+  "trs": 316
+ },
+ "140306": {
+  "frames": 541,
+  "fps": 30.0,
+  "duration": 18.0,
+  "channels": 410,
+  "events": 10,
+  "trs": 319
+ },
+ "140307": {
+  "frames": 656,
+  "fps": 30.0,
+  "duration": 21.8333,
+  "channels": 292,
+  "events": 6,
+  "trs": 139
+ },
+ "140308": {
+  "frames": 656,
+  "fps": 30.0,
+  "duration": 21.8333,
+  "channels": 454,
+  "events": 6,
+  "trs": 232
+ },
+ "140403": {
+  "frames": 531,
+  "fps": 30.0,
+  "duration": 17.6667,
+  "channels": 181,
+  "events": 6,
+  "trs": 114
+ },
+ "140404": {
+  "frames": 531,
+  "fps": 30.0,
+  "duration": 17.6667,
+  "channels": 224,
+  "events": 6,
+  "trs": 130
+ },
+ "140405": {
+  "frames": 681,
+  "fps": 30.0,
+  "duration": 22.6667,
+  "channels": 264,
+  "events": 12,
+  "trs": 167
+ },
+ "140406": {
+  "frames": 681,
+  "fps": 30.0,
+  "duration": 22.6667,
+  "channels": 274,
+  "events": 12,
+  "trs": 169
+ },
+ "140407": {
+  "frames": 671,
+  "fps": 30.0,
+  "duration": 22.3333,
+  "channels": 146,
+  "events": 5,
+  "trs": 123
+ },
+ "140408": {
+  "frames": 671,
+  "fps": 30.0,
+  "duration": 22.3333,
+  "channels": 150,
+  "events": 5,
+  "trs": 148
+ },
+ "140503": {
+  "frames": 556,
+  "fps": 30.0,
+  "duration": 18.5,
+  "channels": 278,
+  "events": 6,
+  "trs": 185
+ },
+ "140504": {
+  "frames": 556,
+  "fps": 30.0,
+  "duration": 18.5,
+  "channels": 290,
+  "events": 6,
+  "trs": 189
+ },
+ "140603": {
+  "frames": 511,
+  "fps": 30.0,
+  "duration": 17.0,
+  "channels": 81,
+  "events": 11,
+  "trs": 41
+ },
+ "140604": {
+  "frames": 511,
+  "fps": 30.0,
+  "duration": 17.0,
+  "channels": 92,
+  "events": 11,
+  "trs": 46
+ },
+ "140703": {
+  "frames": 721,
+  "fps": 30.0,
+  "duration": 24.0,
+  "channels": 226,
+  "events": 9,
+  "trs": 198
+ },
+ "140704": {
+  "frames": 721,
+  "fps": 30.0,
+  "duration": 24.0,
+  "channels": 262,
+  "events": 9,
+  "trs": 215
+ },
+ "150003": {
+  "frames": 481,
+  "fps": 30.0,
+  "duration": 16.0,
+  "channels": 282,
+  "events": 10,
+  "trs": 162
+ },
+ "150004": {
+  "frames": 481,
+  "fps": 30.0,
+  "duration": 16.0,
+  "channels": 284,
+  "events": 10,
+  "trs": 163
+ },
+ "150005": {
+  "frames": 511,
+  "fps": 30.0,
+  "duration": 17.0,
+  "channels": 83,
+  "events": 7,
+  "trs": 47
+ },
+ "150006": {
+  "frames": 511,
+  "fps": 30.0,
+  "duration": 17.0,
+  "channels": 94,
+  "events": 7,
+  "trs": 51
+ },
+ "150007": {
+  "frames": 606,
+  "fps": 30.0,
+  "duration": 20.1667,
+  "channels": 178,
+  "events": 3,
+  "trs": 111
+ },
+ "150008": {
+  "frames": 606,
+  "fps": 30.0,
+  "duration": 20.1667,
+  "channels": 276,
+  "events": 3,
+  "trs": 171
+ },
+ "150103": {
+  "frames": 531,
+  "fps": 30.0,
+  "duration": 17.6667,
+  "channels": 84,
+  "events": 15,
+  "trs": 54
+ },
+ "150104": {
+  "frames": 531,
+  "fps": 30.0,
+  "duration": 17.6667,
+  "channels": 89,
+  "events": 15,
+  "trs": 57
+ },
+ "150105": {
+  "frames": 521,
+  "fps": 30.0,
+  "duration": 17.3333,
+  "channels": 210,
+  "events": 8,
+  "trs": 101
+ },
+ "150106": {
+  "frames": 521,
+  "fps": 30.0,
+  "duration": 17.3333,
+  "channels": 280,
+  "events": 8,
+  "trs": 139
+ },
+ "150107": {
+  "frames": 746,
+  "fps": 30.0,
+  "duration": 24.8333,
+  "channels": 296,
+  "events": 8,
+  "trs": 101
+ },
+ "150108": {
+  "frames": 746,
+  "fps": 30.0,
+  "duration": 24.8333,
+  "channels": 339,
+  "events": 8,
+  "trs": 119
+ },
+ "150109": {
+  "frames": 581,
+  "fps": 30.0,
+  "duration": 19.3333,
+  "channels": 87,
+  "events": 5,
+  "trs": 70
+ },
+ "150110": {
+  "frames": 581,
+  "fps": 30.0,
+  "duration": 19.3333,
+  "channels": 87,
+  "events": 5,
+  "trs": 72
+ },
+ "150203": {
+  "frames": 511,
+  "fps": 30.0,
+  "duration": 17.0,
+  "channels": 135,
+  "events": 12,
+  "trs": 86
+ },
+ "150204": {
+  "frames": 511,
+  "fps": 30.0,
+  "duration": 17.0,
+  "channels": 193,
+  "events": 12,
+  "trs": 116
+ },
+ "150305": {
+  "frames": 551,
+  "fps": 30.0,
+  "duration": 18.3333,
+  "channels": 147,
+  "events": 3,
+  "trs": 67
+ },
+ "150306": {
+  "frames": 551,
+  "fps": 30.0,
+  "duration": 18.3333,
+  "channels": 159,
+  "events": 3,
+  "trs": 73
+ },
+ "150403": {
+  "frames": 531,
+  "fps": 30.0,
+  "duration": 17.6667,
+  "channels": 388,
+  "events": 8,
+  "trs": 277
+ },
+ "150404": {
+  "frames": 531,
+  "fps": 30.0,
+  "duration": 17.6667,
+  "channels": 493,
+  "events": 8,
+  "trs": 322
+ },
+ "150405": {
+  "frames": 651,
+  "fps": 30.0,
+  "duration": 21.6667,
+  "channels": 168,
+  "events": 7,
+  "trs": 108
+ },
+ "150406": {
+  "frames": 651,
+  "fps": 30.0,
+  "duration": 21.6667,
+  "channels": 228,
+  "events": 7,
+  "trs": 142
+ },
+ "150407": {
+  "frames": 676,
+  "fps": 30.0,
+  "duration": 22.5,
+  "channels": 300,
+  "events": 5,
+  "trs": 249
+ },
+ "150408": {
+  "frames": 676,
+  "fps": 30.0,
+  "duration": 22.5,
+  "channels": 329,
+  "events": 5,
+  "trs": 261
+ },
+ "150503": {
+  "frames": 541,
+  "fps": 30.0,
+  "duration": 18.0,
+  "channels": 262,
+  "events": 12,
+  "trs": 185
+ },
+ "150504": {
+  "frames": 541,
+  "fps": 30.0,
+  "duration": 18.0,
+  "channels": 275,
+  "events": 12,
+  "trs": 194
+ },
+ "150603": {
+  "frames": 541,
+  "fps": 30.0,
+  "duration": 18.0,
+  "channels": 412,
+  "events": 9,
+  "trs": 230
+ },
+ "150604": {
+  "frames": 541,
+  "fps": 30.0,
+  "duration": 18.0,
+  "channels": 523,
+  "events": 9,
+  "trs": 301
+ },
+ "150703": {
+  "frames": 571,
+  "fps": 30.0,
+  "duration": 19.0,
+  "channels": 153,
+  "events": 9,
+  "trs": 128
+ },
+ "150704": {
+  "frames": 571,
+  "fps": 30.0,
+  "duration": 19.0,
+  "channels": 211,
+  "events": 9,
+  "trs": 157
+ },
+ "100001": {
+  "frames": 461,
+  "fps": 30.0,
+  "duration": 15.3333,
+  "channels": 41,
+  "events": 5,
+  "trs": 20
+ },
+ "110101": {
+  "frames": 451,
+  "fps": 30.0,
+  "duration": 15.0,
+  "channels": 35,
+  "events": 6,
+  "trs": 33
+ },
+ "120001": {
+  "frames": 471,
+  "fps": 30.0,
+  "duration": 15.6667,
+  "channels": 109,
+  "events": 5,
+  "trs": 116
+ },
+ "130001": {
+  "frames": 451,
+  "fps": 30.0,
+  "duration": 15.0,
+  "channels": 87,
+  "events": 8,
+  "trs": 60
+ },
+ "140001": {
+  "frames": 391,
+  "fps": 30.0,
+  "duration": 13.0,
+  "channels": 107,
+  "events": 7,
+  "trs": 78
+ },
+ "140101": {
+  "frames": 451,
+  "fps": 30.0,
+  "duration": 15.0,
+  "channels": 101,
+  "events": 8,
+  "trs": 91
+ },
+ "150001": {
+  "frames": 481,
+  "fps": 30.0,
+  "duration": 16.0,
+  "channels": 84,
+  "events": 11,
+  "trs": 44
+ },
+ "160001": {
+  "frames": 391,
+  "fps": 30.0,
+  "duration": 13.0,
+  "channels": 148,
+  "events": 10,
+  "trs": 116
+ },
+ "170001": {
+  "frames": 451,
+  "fps": 30.0,
+  "duration": 15.0,
+  "channels": 82,
+  "events": 11,
+  "trs": 57
+ },
+ "180001": {
+  "frames": 451,
+  "fps": 30.0,
+  "duration": 15.0,
+  "channels": 91,
+  "events": 10,
+  "trs": 67
+ },
+ "190001": {
+  "frames": 451,
+  "fps": 30.0,
+  "duration": 15.0,
+  "channels": 131,
+  "events": 6,
+  "trs": 121
+ },
+ "200001": {
+  "frames": 451,
+  "fps": 30.0,
+  "duration": 15.0,
+  "channels": 142,
+  "events": 12,
+  "trs": 120
+ },
+ "210001": {
+  "frames": 461,
+  "fps": 30.0,
+  "duration": 15.3333,
+  "channels": 132,
+  "events": 8,
+  "trs": 70
+ },
+ "220001": {
+  "frames": 451,
+  "fps": 30.0,
+  "duration": 15.0,
+  "channels": 128,
+  "events": 6,
+  "trs": 68
+ },
+ "230001": {
+  "frames": 451,
+  "fps": 30.0,
+  "duration": 15.0,
+  "channels": 162,
+  "events": 12,
+  "trs": 85
+ },
+ "230101": {
+  "frames": 436,
+  "fps": 30.0,
+  "duration": 14.5,
+  "channels": 211,
+  "events": 8,
+  "trs": 136
+ },
+ "240001": {
+  "frames": 451,
+  "fps": 30.0,
+  "duration": 15.0,
+  "channels": 82,
+  "events": 4,
+  "trs": 50
+ },
+ "250201": {
+  "frames": 451,
+  "fps": 30.0,
+  "duration": 15.0,
+  "channels": 375,
+  "events": 8,
+  "trs": 215
+ },
+ "260001": {
+  "frames": 461,
+  "fps": 30.0,
+  "duration": 15.3333,
+  "channels": 140,
+  "events": 3,
+  "trs": 81
+ },
+ "270001": {
+  "frames": 431,
+  "fps": 30.0,
+  "duration": 14.3333,
+  "channels": 245,
+  "events": 6,
+  "trs": 182
+ },
+ "280001": {
+  "frames": 451,
+  "fps": 30.0,
+  "duration": 15.0,
+  "channels": 79,
+  "events": 6,
+  "trs": 38
+ },
+ "290001": {
+  "frames": 426,
+  "fps": 30.0,
+  "duration": 14.1667,
+  "channels": 267,
+  "events": 9,
+  "trs": 63
+ },
+ "300001": {
+  "frames": 461,
+  "fps": 30.0,
+  "duration": 15.3333,
+  "channels": 173,
+  "events": 7,
+  "trs": 75
+ },
+ "310001": {
+  "frames": 451,
+  "fps": 30.0,
+  "duration": 15.0,
+  "channels": 260,
+  "events": 9,
+  "trs": 151
+ },
+ "320001": {
+  "frames": 511,
+  "fps": 30.0,
+  "duration": 17.0,
+  "channels": 772,
+  "events": 6,
+  "trs": 353
+ },
+ "321701": {
+  "frames": 791,
+  "fps": 30.0,
+  "duration": 26.3333,
+  "channels": 375,
+  "events": 5,
+  "trs": 351
+ },
+ "330101": {
+  "frames": 471,
+  "fps": 30.0,
+  "duration": 15.6667,
+  "channels": 154,
+  "events": 8,
+  "trs": 84
+ },
+ "340001": {
+  "frames": 451,
+  "fps": 30.0,
+  "duration": 15.0,
+  "channels": 178,
+  "events": 6,
+  "trs": 145
+ },
+ "350001": {
+  "frames": 481,
+  "fps": 30.0,
+  "duration": 16.0,
+  "channels": 75,
+  "events": 5,
+  "trs": 46
+ },
+ "360001": {
+  "frames": 571,
+  "fps": 30.0,
+  "duration": 19.0,
+  "channels": 159,
+  "events": 7,
+  "trs": 92
+ },
+ "370001": {
+  "frames": 571,
+  "fps": 30.0,
+  "duration": 19.0,
+  "channels": 264,
+  "events": 4,
+  "trs": 239
+ },
+ "380001": {
+  "frames": 451,
+  "fps": 30.0,
+  "duration": 15.0,
+  "channels": 223,
+  "events": 8,
+  "trs": 112
+ },
+ "390001": {
+  "frames": 491,
+  "fps": 30.0,
+  "duration": 16.3333,
+  "channels": 386,
+  "events": 7,
+  "trs": 225
+ },
+ "400001": {
+  "frames": 631,
+  "fps": 30.0,
+  "duration": 21.0,
+  "channels": 301,
+  "events": 4,
+  "trs": 197
+ },
+ "410001": {
+  "frames": 451,
+  "fps": 30.0,
+  "duration": 15.0,
+  "channels": 181,
+  "events": 3,
+  "trs": 93
+ },
+ "420001": {
+  "frames": 646,
+  "fps": 30.0,
+  "duration": 21.5,
+  "channels": 234,
+  "events": 10,
+  "trs": 115
+ },
+ "430001": {
+  "frames": 651,
+  "fps": 30.0,
+  "duration": 21.6667,
+  "channels": 213,
+  "events": 5,
+  "trs": 72
+ },
+ "450001": {
+  "frames": 641,
+  "fps": 30.0,
+  "duration": 21.3333,
+  "channels": 217,
+  "events": 5,
+  "trs": 97
+ },
+ "470001": {
+  "frames": 581,
+  "fps": 30.0,
+  "duration": 19.3333,
+  "channels": 663,
+  "events": 4,
+  "trs": 450
+ },
+ "100002": {
+  "frames": 461,
+  "fps": 30.0,
+  "duration": 15.3333,
+  "channels": 50,
+  "events": 5,
+  "trs": 26
+ },
+ "100101": {
+  "frames": 411,
+  "fps": 30.0,
+  "duration": 13.6667,
+  "channels": 83,
+  "events": 9,
+  "trs": 40
+ },
+ "100104": {
+  "frames": 541,
+  "fps": 30.0,
+  "duration": 18.0,
+  "channels": 320,
+  "events": 10,
+  "trs": 92
+ },
+ "100201": {
+  "frames": 411,
+  "fps": 30.0,
+  "duration": 13.6667,
+  "channels": 57,
+  "events": 7,
+  "trs": 33
+ },
+ "100202": {
+  "frames": 411,
+  "fps": 30.0,
+  "duration": 13.6667,
+  "channels": 61,
+  "events": 7,
+  "trs": 37
+ },
+ "100102": {
+  "frames": 411,
+  "fps": 30.0,
+  "duration": 13.6667,
+  "channels": 242,
+  "events": 9,
+  "trs": 96
+ },
+ "100301": {
+  "frames": 391,
+  "fps": 30.0,
+  "duration": 13.0,
+  "channels": 81,
+  "events": 9,
+  "trs": 68
+ },
+ "100302": {
+  "frames": 391,
+  "fps": 30.0,
+  "duration": 13.0,
+  "channels": 101,
+  "events": 9,
+  "trs": 80
+ },
+ "100401": {
+  "frames": 391,
+  "fps": 30.0,
+  "duration": 13.0,
+  "channels": 49,
+  "events": 6,
+  "trs": 33
+ },
+ "100501": {
+  "frames": 401,
+  "fps": 30.0,
+  "duration": 13.3333,
+  "channels": 47,
+  "events": 5,
+  "trs": 35
+ },
+ "100502": {
+  "frames": 401,
+  "fps": 30.0,
+  "duration": 13.3333,
+  "channels": 49,
+  "events": 5,
+  "trs": 36
+ },
+ "100402": {
+  "frames": 391,
+  "fps": 30.0,
+  "duration": 13.0,
+  "channels": 56,
+  "events": 6,
+  "trs": 41
+ },
+ "110001": {
+  "frames": 391,
+  "fps": 30.0,
+  "duration": 13.0,
+  "channels": 29,
+  "events": 6,
+  "trs": 32
+ },
+ "110002": {
+  "frames": 391,
+  "fps": 30.0,
+  "duration": 13.0,
+  "channels": 29,
+  "events": 6,
+  "trs": 30
+ },
+ "110007": {
+  "frames": 451,
+  "fps": 30.0,
+  "duration": 15.0,
+  "channels": 191,
+  "events": 8,
+  "trs": 105
+ },
+ "110008": {
+  "frames": 451,
+  "fps": 30.0,
+  "duration": 15.0,
+  "channels": 216,
+  "events": 8,
+  "trs": 118
+ },
+ "110102": {
+  "frames": 451,
+  "fps": 30.0,
+  "duration": 15.0,
+  "channels": 35,
+  "events": 6,
+  "trs": 33
+ },
+ "110105": {
+  "frames": 471,
+  "fps": 30.0,
+  "duration": 15.6667,
+  "channels": 117,
+  "events": 12,
+  "trs": 68
+ },
+ "110107": {
+  "frames": 451,
+  "fps": 30.0,
+  "duration": 15.0,
+  "channels": 189,
+  "events": 4,
+  "trs": 96
+ },
+ "110108": {
+  "frames": 451,
+  "fps": 30.0,
+  "duration": 15.0,
+  "channels": 190,
+  "events": 4,
+  "trs": 97
+ },
+ "110106": {
+  "frames": 471,
+  "fps": 30.0,
+  "duration": 15.6667,
+  "channels": 112,
+  "events": 12,
+  "trs": 61
+ },
+ "110201": {
+  "frames": 471,
+  "fps": 30.0,
+  "duration": 15.6667,
+  "channels": 52,
+  "events": 5,
+  "trs": 52
+ },
+ "110202": {
+  "frames": 471,
+  "fps": 30.0,
+  "duration": 15.6667,
+  "channels": 59,
+  "events": 5,
+  "trs": 57
+ },
+ "110301": {
+  "frames": 461,
+  "fps": 30.0,
+  "duration": 15.3333,
+  "channels": 44,
+  "events": 4,
+  "trs": 30
+ },
+ "110302": {
+  "frames": 461,
+  "fps": 30.0,
+  "duration": 15.3333,
+  "channels": 61,
+  "events": 4,
+  "trs": 39
+ },
+ "110401": {
+  "frames": 401,
+  "fps": 30.0,
+  "duration": 13.3333,
+  "channels": 43,
+  "events": 6,
+  "trs": 23
+ },
+ "110402": {
+  "frames": 401,
+  "fps": 30.0,
+  "duration": 13.3333,
+  "channels": 46,
+  "events": 6,
+  "trs": 26
+ },
+ "110501": {
+  "frames": 451,
+  "fps": 30.0,
+  "duration": 15.0,
+  "channels": 91,
+  "events": 3,
+  "trs": 65
+ },
+ "110502": {
+  "frames": 451,
+  "fps": 30.0,
+  "duration": 15.0,
+  "channels": 108,
+  "events": 3,
+  "trs": 78
+ },
+ "110601": {
+  "frames": 451,
+  "fps": 30.0,
+  "duration": 15.0,
+  "channels": 144,
+  "events": 6,
+  "trs": 82
+ },
+ "110602": {
+  "frames": 451,
+  "fps": 30.0,
+  "duration": 15.0,
+  "channels": 222,
+  "events": 6,
+  "trs": 135
+ },
+ "120002": {
+  "frames": 471,
+  "fps": 30.0,
+  "duration": 15.6667,
+  "channels": 115,
+  "events": 5,
+  "trs": 120
+ },
+ "120101": {
+  "frames": 391,
+  "fps": 30.0,
+  "duration": 13.0,
+  "channels": 107,
+  "events": 3,
+  "trs": 78
+ },
+ "120102": {
+  "frames": 391,
+  "fps": 30.0,
+  "duration": 13.0,
+  "channels": 155,
+  "events": 12,
+  "trs": 116
+ },
+ "120201": {
+  "frames": 471,
+  "fps": 30.0,
+  "duration": 15.6667,
+  "channels": 94,
+  "events": 6,
+  "trs": 76
+ },
+ "120202": {
+  "frames": 471,
+  "fps": 30.0,
+  "duration": 15.6667,
+  "channels": 128,
+  "events": 6,
+  "trs": 109
+ },
+ "120301": {
+  "frames": 451,
+  "fps": 30.0,
+  "duration": 15.0,
+  "channels": 105,
+  "events": 8,
+  "trs": 85
+ },
+ "120302": {
+  "frames": 451,
+  "fps": 30.0,
+  "duration": 15.0,
+  "channels": 137,
+  "events": 8,
+  "trs": 117
+ },
+ "120401": {
+  "frames": 451,
+  "fps": 30.0,
+  "duration": 15.0,
+  "channels": 128,
+  "events": 10,
+  "trs": 84
+ },
+ "120402": {
+  "frames": 451,
+  "fps": 30.0,
+  "duration": 15.0,
+  "channels": 183,
+  "events": 10,
+  "trs": 122
+ },
+ "130002": {
+  "frames": 451,
+  "fps": 30.0,
+  "duration": 15.0,
+  "channels": 108,
+  "events": 8,
+  "trs": 65
+ },
+ "130005": {
+  "frames": 451,
+  "fps": 30.0,
+  "duration": 15.0,
+  "channels": 328,
+  "events": 8,
+  "trs": 205
+ },
+ "130006": {
+  "frames": 451,
+  "fps": 30.0,
+  "duration": 15.0,
+  "channels": 482,
+  "events": 8,
+  "trs": 317
+ },
+ "130101": {
+  "frames": 451,
+  "fps": 30.0,
+  "duration": 15.0,
+  "channels": 216,
+  "events": 5,
+  "trs": 117
+ },
+ "130102": {
+  "frames": 451,
+  "fps": 30.0,
+  "duration": 15.0,
+  "channels": 225,
+  "events": 5,
+  "trs": 121
+ },
+ "130103": {
+  "frames": 451,
+  "fps": 30.0,
+  "duration": 15.0,
+  "channels": 181,
+  "events": 6,
+  "trs": 99
+ },
+ "130104": {
+  "frames": 451,
+  "fps": 30.0,
+  "duration": 15.0,
+  "channels": 363,
+  "events": 6,
+  "trs": 194
+ },
+ "130201": {
+  "frames": 451,
+  "fps": 30.0,
+  "duration": 15.0,
+  "channels": 159,
+  "events": 7,
+  "trs": 111
+ },
+ "130202": {
+  "frames": 451,
+  "fps": 30.0,
+  "duration": 15.0,
+  "channels": 169,
+  "events": 7,
+  "trs": 118
+ },
+ "130301": {
+  "frames": 451,
+  "fps": 30.0,
+  "duration": 15.0,
+  "channels": 630,
+  "events": 6,
+  "trs": 328
+ },
+ "130302": {
+  "frames": 451,
+  "fps": 30.0,
+  "duration": 15.0,
+  "channels": 660,
+  "events": 6,
+  "trs": 337
+ },
+ "130401": {
+  "frames": 452,
+  "fps": 30.0,
+  "duration": 15.0333,
+  "channels": 142,
+  "events": 5,
+  "trs": 105
+ },
+ "130402": {
+  "frames": 451,
+  "fps": 30.0,
+  "duration": 15.0,
+  "channels": 154,
+  "events": 5,
+  "trs": 115
+ },
+ "130501": {
+  "frames": 451,
+  "fps": 30.0,
+  "duration": 15.0,
+  "channels": 170,
+  "events": 8,
+  "trs": 112
+ },
+ "130502": {
+  "frames": 451,
+  "fps": 30.0,
+  "duration": 15.0,
+  "channels": 178,
+  "events": 8,
+  "trs": 120
+ },
+ "130601": {
+  "frames": 451,
+  "fps": 30.0,
+  "duration": 15.0,
+  "channels": 209,
+  "events": 8,
+  "trs": 140
+ },
+ "130602": {
+  "frames": 451,
+  "fps": 30.0,
+  "duration": 15.0,
+  "channels": 270,
+  "events": 8,
+  "trs": 183
+ },
+ "140002": {
+  "frames": 391,
+  "fps": 30.0,
+  "duration": 13.0,
+  "channels": 230,
+  "events": 7,
+  "trs": 136
+ },
+ "140005": {
+  "frames": 451,
+  "fps": 30.0,
+  "duration": 15.0,
+  "channels": 126,
+  "events": 6,
+  "trs": 69
+ },
+ "140006": {
+  "frames": 451,
+  "fps": 30.0,
+  "duration": 15.0,
+  "channels": 156,
+  "events": 6,
+  "trs": 82
+ },
+ "140102": {
+  "frames": 451,
+  "fps": 30.0,
+  "duration": 15.0,
+  "channels": 131,
+  "events": 8,
+  "trs": 108
+ },
+ "140105": {
+  "frames": 451,
+  "fps": 30.0,
+  "duration": 15.0,
+  "channels": 102,
+  "events": 10,
+  "trs": 70
+ },
+ "140106": {
+  "frames": 451,
+  "fps": 30.0,
+  "duration": 15.0,
+  "channels": 113,
+  "events": 10,
+  "trs": 76
+ },
+ "140201": {
+  "frames": 431,
+  "fps": 30.0,
+  "duration": 14.3333,
+  "channels": 60,
+  "events": 4,
+  "trs": 69
+ },
+ "140202": {
+  "frames": 431,
+  "fps": 30.0,
+  "duration": 14.3333,
+  "channels": 97,
+  "events": 4,
+  "trs": 88
+ },
+ "140203": {
+  "frames": 451,
+  "fps": 30.0,
+  "duration": 15.0,
+  "channels": 189,
+  "events": 10,
+  "trs": 278
+ },
+ "140204": {
+  "frames": 451,
+  "fps": 30.0,
+  "duration": 15.0,
+  "channels": 269,
+  "events": 10,
+  "trs": 496
+ },
+ "140301": {
+  "frames": 391,
+  "fps": 30.0,
+  "duration": 13.0,
+  "channels": 159,
+  "events": 6,
+  "trs": 73
+ },
+ "140302": {
+  "frames": 391,
+  "fps": 30.0,
+  "duration": 13.0,
+  "channels": 183,
+  "events": 6,
+  "trs": 83
+ },
+ "140401": {
+  "frames": 371,
+  "fps": 30.0,
+  "duration": 12.3333,
+  "channels": 117,
+  "events": 35,
+  "trs": 75
+ },
+ "140402": {
+  "frames": 371,
+  "fps": 30.0,
+  "duration": 12.3333,
+  "channels": 129,
+  "events": 3,
+  "trs": 97
+ },
+ "140501": {
+  "frames": 451,
+  "fps": 30.0,
+  "duration": 15.0,
+  "channels": 164,
+  "events": 10,
+  "trs": 180
+ },
+ "140502": {
+  "frames": 451,
+  "fps": 30.0,
+  "duration": 15.0,
+  "channels": 212,
+  "events": 10,
+  "trs": 221
+ },
+ "140601": {
+  "frames": 452,
+  "fps": 30.0,
+  "duration": 15.0333,
+  "channels": 153,
+  "events": 6,
+  "trs": 113
+ },
+ "140602": {
+  "frames": 452,
+  "fps": 30.0,
+  "duration": 15.0333,
+  "channels": 167,
+  "events": 6,
+  "trs": 122
+ },
+ "140701": {
+  "frames": 451,
+  "fps": 30.0,
+  "duration": 15.0,
+  "channels": 96,
+  "events": 12,
+  "trs": 44
+ },
+ "140702": {
+  "frames": 451,
+  "fps": 30.0,
+  "duration": 15.0,
+  "channels": 174,
+  "events": 12,
+  "trs": 76
+ },
+ "140801": {
+  "frames": 451,
+  "fps": 30.0,
+  "duration": 15.0,
+  "channels": 72,
+  "events": 8,
+  "trs": 40
+ },
+ "140802": {
+  "frames": 451,
+  "fps": 30.0,
+  "duration": 15.0,
+  "channels": 92,
+  "events": 8,
+  "trs": 55
+ },
+ "140901": {
+  "frames": 646,
+  "fps": 30.0,
+  "duration": 21.5,
+  "channels": 100,
+  "events": 5,
+  "trs": 65
+ },
+ "140902": {
+  "frames": 646,
+  "fps": 30.0,
+  "duration": 21.5,
+  "channels": 157,
+  "events": 5,
+  "trs": 88
+ },
+ "150002": {
+  "frames": 481,
+  "fps": 30.0,
+  "duration": 16.0,
+  "channels": 104,
+  "events": 11,
+  "trs": 56
+ },
+ "150101": {
+  "frames": 461,
+  "fps": 30.0,
+  "duration": 15.3333,
+  "channels": 81,
+  "events": 9,
+  "trs": 36
+ },
+ "150102": {
+  "frames": 461,
+  "fps": 30.0,
+  "duration": 15.3333,
+  "channels": 125,
+  "events": 9,
+  "trs": 45
+ },
+ "150201": {
+  "frames": 451,
+  "fps": 30.0,
+  "duration": 15.0,
+  "channels": 101,
+  "events": 8,
+  "trs": 59
+ },
+ "150202": {
+  "frames": 451,
+  "fps": 30.0,
+  "duration": 15.0,
+  "channels": 107,
+  "events": 8,
+  "trs": 59
+ },
+ "150301": {
+  "frames": 461,
+  "fps": 30.0,
+  "duration": 15.3333,
+  "channels": 113,
+  "events": 4,
+  "trs": 49
+ },
+ "150302": {
+  "frames": 461,
+  "fps": 30.0,
+  "duration": 15.3333,
+  "channels": 123,
+  "events": 4,
+  "trs": 51
+ },
+ "150401": {
+  "frames": 451,
+  "fps": 30.0,
+  "duration": 15.0,
+  "channels": 65,
+  "events": 8,
+  "trs": 40
+ },
+ "150402": {
+  "frames": 451,
+  "fps": 30.0,
+  "duration": 15.0,
+  "channels": 75,
+  "events": 8,
+  "trs": 44
+ },
+ "150501": {
+  "frames": 451,
+  "fps": 30.0,
+  "duration": 15.0,
+  "channels": 140,
+  "events": 6,
+  "trs": 64
+ },
+ "150502": {
+  "frames": 451,
+  "fps": 30.0,
+  "duration": 15.0,
+  "channels": 165,
+  "events": 6,
+  "trs": 77
+ },
+ "150601": {
+  "frames": 461,
+  "fps": 30.0,
+  "duration": 15.3333,
+  "channels": 824,
+  "events": 10,
+  "trs": 416
+ },
+ "150602": {
+  "frames": 461,
+  "fps": 30.0,
+  "duration": 15.3333,
+  "channels": 832,
+  "events": 10,
+  "trs": 422
+ },
+ "150701": {
+  "frames": 471,
+  "fps": 30.0,
+  "duration": 15.6667,
+  "channels": 242,
+  "events": 12,
+  "trs": 193
+ },
+ "150702": {
+  "frames": 471,
+  "fps": 30.0,
+  "duration": 15.6667,
+  "channels": 292,
+  "events": 12,
+  "trs": 230
+ },
+ "150801": {
+  "frames": 451,
+  "fps": 30.0,
+  "duration": 15.0,
+  "channels": 82,
+  "events": 6,
+  "trs": 59
+ },
+ "150802": {
+  "frames": 451,
+  "fps": 30.0,
+  "duration": 15.0,
+  "channels": 98,
+  "events": 6,
+  "trs": 68
+ },
+ "150803": {
+  "frames": 521,
+  "fps": 30.0,
+  "duration": 17.3333,
+  "channels": 123,
+  "events": 8,
+  "trs": 50
+ },
+ "150804": {
+  "frames": 521,
+  "fps": 30.0,
+  "duration": 17.3333,
+  "channels": 141,
+  "events": 8,
+  "trs": 56
+ },
+ "150805": {
+  "frames": 581,
+  "fps": 30.0,
+  "duration": 19.3333,
+  "channels": 107,
+  "events": 10,
+  "trs": 60
+ },
+ "150806": {
+  "frames": 581,
+  "fps": 30.0,
+  "duration": 19.3333,
+  "channels": 111,
+  "events": 10,
+  "trs": 62
+ },
+ "150901": {
+  "frames": 471,
+  "fps": 30.0,
+  "duration": 15.6667,
+  "channels": 164,
+  "events": 18,
+  "trs": 98
+ },
+ "150902": {
+  "frames": 471,
+  "fps": 30.0,
+  "duration": 15.6667,
+  "channels": 214,
+  "events": 6,
+  "trs": 125
+ },
+ "150903": {
+  "frames": 531,
+  "fps": 30.0,
+  "duration": 17.6667,
+  "channels": 298,
+  "events": 6,
+  "trs": 159
+ },
+ "150904": {
+  "frames": 531,
+  "fps": 30.0,
+  "duration": 17.6667,
+  "channels": 423,
+  "events": 6,
+  "trs": 225
+ },
+ "151101": {
+  "frames": 431,
+  "fps": 30.0,
+  "duration": 14.3333,
+  "channels": 368,
+  "events": 8,
+  "trs": 223
+ },
+ "151102": {
+  "frames": 431,
+  "fps": 30.0,
+  "duration": 14.3333,
+  "channels": 415,
+  "events": 8,
+  "trs": 250
+ },
+ "151001": {
+  "frames": 461,
+  "fps": 30.0,
+  "duration": 15.3333,
+  "channels": 319,
+  "events": 8,
+  "trs": 178
+ },
+ "151002": {
+  "frames": 461,
+  "fps": 30.0,
+  "duration": 15.3333,
+  "channels": 347,
+  "events": 8,
+  "trs": 200
+ },
+ "151103": {
+  "frames": 536,
+  "fps": 30.0,
+  "duration": 17.8333,
+  "channels": 167,
+  "events": 10,
+  "trs": 70
+ },
+ "151104": {
+  "frames": 536,
+  "fps": 30.0,
+  "duration": 17.8333,
+  "channels": 227,
+  "events": 10,
+  "trs": 97
+ },
+ "160002": {
+  "frames": 392,
+  "fps": 30.0,
+  "duration": 13.0333,
+  "channels": 171,
+  "events": 10,
+  "trs": 135
+ },
+ "160003": {
+  "frames": 511,
+  "fps": 30.0,
+  "duration": 17.0,
+  "channels": 129,
+  "events": 10,
+  "trs": 103
+ },
+ "160004": {
+  "frames": 511,
+  "fps": 30.0,
+  "duration": 17.0,
+  "channels": 187,
+  "events": 10,
+  "trs": 151
+ },
+ "160005": {
+  "frames": 471,
+  "fps": 30.0,
+  "duration": 15.6667,
+  "channels": 349,
+  "events": 10,
+  "trs": 165
+ },
+ "160006": {
+  "frames": 471,
+  "fps": 30.0,
+  "duration": 15.6667,
+  "channels": 358,
+  "events": 10,
+  "trs": 169
+ },
+ "160007": {
+  "frames": 596,
+  "fps": 30.0,
+  "duration": 19.8333,
+  "channels": 305,
+  "events": 9,
+  "trs": 208
+ },
+ "160008": {
+  "frames": 596,
+  "fps": 30.0,
+  "duration": 19.8333,
+  "channels": 485,
+  "events": 9,
+  "trs": 237
+ },
+ "160009": {
+  "frames": 661,
+  "fps": 30.0,
+  "duration": 22.0,
+  "channels": 678,
+  "events": 9,
+  "trs": 397
+ },
+ "160010": {
+  "frames": 661,
+  "fps": 30.0,
+  "duration": 22.0,
+  "channels": 724,
+  "events": 9,
+  "trs": 422
+ },
+ "160103": {
+  "frames": 491,
+  "fps": 30.0,
+  "duration": 16.3333,
+  "channels": 130,
+  "events": 9,
+  "trs": 94
+ },
+ "160101": {
+  "frames": 451,
+  "fps": 30.0,
+  "duration": 15.0,
+  "channels": 83,
+  "events": 8,
+  "trs": 68
+ },
+ "160104": {
+  "frames": 491,
+  "fps": 30.0,
+  "duration": 16.3333,
+  "channels": 139,
+  "events": 9,
+  "trs": 102
+ },
+ "160102": {
+  "frames": 451,
+  "fps": 30.0,
+  "duration": 15.0,
+  "channels": 97,
+  "events": 8,
+  "trs": 80
+ },
+ "160105": {
+  "frames": 531,
+  "fps": 30.0,
+  "duration": 17.6667,
+  "channels": 254,
+  "events": 6,
+  "trs": 145
+ },
+ "160106": {
+  "frames": 531,
+  "fps": 30.0,
+  "duration": 17.6667,
+  "channels": 311,
+  "events": 6,
+  "trs": 180
+ },
+ "160203": {
+  "frames": 531,
+  "fps": 30.0,
+  "duration": 17.6667,
+  "channels": 264,
+  "events": 6,
+  "trs": 175
+ },
+ "160201": {
+  "frames": 391,
+  "fps": 30.0,
+  "duration": 13.0,
+  "channels": 252,
+  "events": 5,
+  "trs": 142
+ },
+ "160202": {
+  "frames": 391,
+  "fps": 30.0,
+  "duration": 13.0,
+  "channels": 259,
+  "events": 5,
+  "trs": 150
+ },
+ "160204": {
+  "frames": 531,
+  "fps": 30.0,
+  "duration": 17.6667,
+  "channels": 492,
+  "events": 6,
+  "trs": 313
+ },
+ "160205": {
+  "frames": 731,
+  "fps": 30.0,
+  "duration": 24.3333,
+  "channels": 548,
+  "events": 7,
+  "trs": 292
+ },
+ "160206": {
+  "frames": 731,
+  "fps": 30.0,
+  "duration": 24.3333,
+  "channels": 563,
+  "events": 7,
+  "trs": 298
+ },
+ "160207": {
+  "frames": 581,
+  "fps": 30.0,
+  "duration": 19.3333,
+  "channels": 661,
+  "events": 3,
+  "trs": 349
+ },
+ "160208": {
+  "frames": 581,
+  "fps": 30.0,
+  "duration": 19.3333,
+  "channels": 678,
+  "events": 3,
+  "trs": 373
+ },
+ "160302": {
+  "frames": 451,
+  "fps": 30.0,
+  "duration": 15.0,
+  "channels": 112,
+  "events": 11,
+  "trs": 90
+ },
+ "160301": {
+  "frames": 451,
+  "fps": 30.0,
+  "duration": 15.0,
+  "channels": 94,
+  "events": 11,
+  "trs": 76
+ },
+ "160303": {
+  "frames": 611,
+  "fps": 30.0,
+  "duration": 20.3333,
+  "channels": 231,
+  "events": 6,
+  "trs": 221
+ },
+ "160304": {
+  "frames": 611,
+  "fps": 30.0,
+  "duration": 20.3333,
+  "channels": 413,
+  "events": 6,
+  "trs": 222
+ },
+ "160401": {
+  "frames": 451,
+  "fps": 30.0,
+  "duration": 15.0,
+  "channels": 108,
+  "events": 5,
+  "trs": 83
+ },
+ "160402": {
+  "frames": 451,
+  "fps": 30.0,
+  "duration": 15.0,
+  "channels": 132,
+  "events": 5,
+  "trs": 107
+ },
+ "160403": {
+  "frames": 451,
+  "fps": 30.0,
+  "duration": 15.0,
+  "channels": 146,
+  "events": 5,
+  "trs": 75
+ },
+ "160404": {
+  "frames": 451,
+  "fps": 30.0,
+  "duration": 15.0,
+  "channels": 165,
+  "events": 5,
+  "trs": 86
+ },
+ "160405": {
+  "frames": 576,
+  "fps": 30.0,
+  "duration": 19.1667,
+  "channels": 156,
+  "events": 8,
+  "trs": 98
+ },
+ "160406": {
+  "frames": 576,
+  "fps": 30.0,
+  "duration": 19.1667,
+  "channels": 157,
+  "events": 8,
+  "trs": 98
+ },
+ "160501": {
+  "frames": 471,
+  "fps": 30.0,
+  "duration": 15.6667,
+  "channels": 123,
+  "events": 8,
+  "trs": 77
+ },
+ "160502": {
+  "frames": 471,
+  "fps": 30.0,
+  "duration": 15.6667,
+  "channels": 183,
+  "events": 8,
+  "trs": 106
+ },
+ "160601": {
+  "frames": 461,
+  "fps": 30.0,
+  "duration": 15.3333,
+  "channels": 375,
+  "events": 16,
+  "trs": 114
+ },
+ "160602": {
+  "frames": 461,
+  "fps": 30.0,
+  "duration": 15.3333,
+  "channels": 390,
+  "events": 16,
+  "trs": 109
+ },
+ "160603": {
+  "frames": 691,
+  "fps": 30.0,
+  "duration": 23.0,
+  "channels": 219,
+  "events": 3,
+  "trs": 141
+ },
+ "160503": {
+  "frames": 721,
+  "fps": 30.0,
+  "duration": 24.0,
+  "channels": 516,
+  "events": 8,
+  "trs": 266
+ },
+ "160504": {
+  "frames": 721,
+  "fps": 30.0,
+  "duration": 24.0,
+  "channels": 583,
+  "events": 8,
+  "trs": 317
+ },
+ "160604": {
+  "frames": 691,
+  "fps": 30.0,
+  "duration": 23.0,
+  "channels": 247,
+  "events": 3,
+  "trs": 152
+ },
+ "160701": {
+  "frames": 451,
+  "fps": 30.0,
+  "duration": 15.0,
+  "channels": 265,
+  "events": 8,
+  "trs": 96
+ },
+ "160702": {
+  "frames": 451,
+  "fps": 30.0,
+  "duration": 15.0,
+  "channels": 305,
+  "events": 8,
+  "trs": 117
+ },
+ "160705": {
+  "frames": 761,
+  "fps": 30.0,
+  "duration": 25.3333,
+  "channels": 151,
+  "events": 10,
+  "trs": 98
+ },
+ "160703": {
+  "frames": 591,
+  "fps": 30.0,
+  "duration": 19.6667,
+  "channels": 316,
+  "events": 10,
+  "trs": 181
+ },
+ "160706": {
+  "frames": 761,
+  "fps": 30.0,
+  "duration": 25.3333,
+  "channels": 148,
+  "events": 10,
+  "trs": 90
+ },
+ "160704": {
+  "frames": 591,
+  "fps": 30.0,
+  "duration": 19.6667,
+  "channels": 418,
+  "events": 10,
+  "trs": 232
+ },
+ "160801": {
+  "frames": 501,
+  "fps": 30.0,
+  "duration": 16.6667,
+  "channels": 146,
+  "events": 9,
+  "trs": 162
+ },
+ "160802": {
+  "frames": 501,
+  "fps": 30.0,
+  "duration": 16.6667,
+  "channels": 150,
+  "events": 9,
+  "trs": 162
+ },
+ "170002": {
+  "frames": 451,
+  "fps": 30.0,
+  "duration": 15.0,
+  "channels": 99,
+  "events": 11,
+  "trs": 70
+ },
+ "170005": {
+  "frames": 531,
+  "fps": 30.0,
+  "duration": 17.6667,
+  "channels": 89,
+  "events": 7,
+  "trs": 72
+ },
+ "170003": {
+  "frames": 511,
+  "fps": 30.0,
+  "duration": 17.0,
+  "channels": 293,
+  "events": 7,
+  "trs": 153
+ },
+ "170006": {
+  "frames": 531,
+  "fps": 30.0,
+  "duration": 17.6667,
+  "channels": 92,
+  "events": 7,
+  "trs": 73
+ },
+ "170004": {
+  "frames": 511,
+  "fps": 30.0,
+  "duration": 17.0,
+  "channels": 343,
+  "events": 7,
+  "trs": 182
+ },
+ "170009": {
+  "frames": 621,
+  "fps": 30.0,
+  "duration": 20.6667,
+  "channels": 390,
+  "events": 8,
+  "trs": 260
+ },
+ "170007": {
+  "frames": 471,
+  "fps": 30.0,
+  "duration": 15.6667,
+  "channels": 214,
+  "events": 6,
+  "trs": 81
+ },
+ "170008": {
+  "frames": 471,
+  "fps": 30.0,
+  "duration": 15.6667,
+  "channels": 278,
+  "events": 6,
+  "trs": 111
+ },
+ "170010": {
+  "frames": 621,
+  "fps": 30.0,
+  "duration": 20.6667,
+  "channels": 514,
+  "events": 8,
+  "trs": 305
+ },
+ "170011": {
+  "frames": 766,
+  "fps": 30.0,
+  "duration": 25.5,
+  "channels": 149,
+  "events": 5,
+  "trs": 94
+ },
+ "170012": {
+  "frames": 766,
+  "fps": 30.0,
+  "duration": 25.5,
+  "channels": 162,
+  "events": 5,
+  "trs": 104
+ },
+ "170101": {
+  "frames": 451,
+  "fps": 30.0,
+  "duration": 15.0,
+  "channels": 70,
+  "events": 10,
+  "trs": 37
+ },
+ "170105": {
+  "frames": 521,
+  "fps": 30.0,
+  "duration": 17.3333,
+  "channels": 103,
+  "events": 10,
+  "trs": 42
+ },
+ "170102": {
+  "frames": 451,
+  "fps": 30.0,
+  "duration": 15.0,
+  "channels": 82,
+  "events": 10,
+  "trs": 49
+ },
+ "170103": {
+  "frames": 531,
+  "fps": 30.0,
+  "duration": 17.6667,
+  "channels": 137,
+  "events": 17,
+  "trs": 52
+ },
+ "170106": {
+  "frames": 521,
+  "fps": 30.0,
+  "duration": 17.3333,
+  "channels": 131,
+  "events": 9,
+  "trs": 52
+ },
+ "170104": {
+  "frames": 531,
+  "fps": 30.0,
+  "duration": 17.6667,
+  "channels": 185,
+  "events": 17,
+  "trs": 67
+ },
+ "170107": {
+  "frames": 771,
+  "fps": 30.0,
+  "duration": 25.6667,
+  "channels": 165,
+  "events": 5,
+  "trs": 90
+ },
+ "170109": {
+  "frames": 501,
+  "fps": 30.0,
+  "duration": 16.6667,
+  "channels": 148,
+  "events": 5,
+  "trs": 80
+ },
+ "170110": {
+  "frames": 501,
+  "fps": 30.0,
+  "duration": 16.6667,
+  "channels": 196,
+  "events": 5,
+  "trs": 94
+ },
+ "170108": {
+  "frames": 771,
+  "fps": 30.0,
+  "duration": 25.6667,
+  "channels": 168,
+  "events": 5,
+  "trs": 91
+ },
+ "170204": {
+  "frames": 511,
+  "fps": 30.0,
+  "duration": 17.0,
+  "channels": 52,
+  "events": 9,
+  "trs": 47
+ },
+ "170203": {
+  "frames": 511,
+  "fps": 30.0,
+  "duration": 17.0,
+  "channels": 49,
+  "events": 9,
+  "trs": 35
+ },
+ "170201": {
+  "frames": 481,
+  "fps": 30.0,
+  "duration": 16.0,
+  "channels": 94,
+  "events": 8,
+  "trs": 68
+ },
+ "170202": {
+  "frames": 481,
+  "fps": 30.0,
+  "duration": 16.0,
+  "channels": 98,
+  "events": 8,
+  "trs": 70
+ },
+ "170205": {
+  "frames": 511,
+  "fps": 30.0,
+  "duration": 17.0,
+  "channels": 164,
+  "events": 5,
+  "trs": 122
+ },
+ "170206": {
+  "frames": 511,
+  "fps": 30.0,
+  "duration": 17.0,
+  "channels": 207,
+  "events": 5,
+  "trs": 167
+ },
+ "170207": {
+  "frames": 661,
+  "fps": 30.0,
+  "duration": 22.0,
+  "channels": 386,
+  "events": 3,
+  "trs": 235
+ },
+ "170208": {
+  "frames": 661,
+  "fps": 30.0,
+  "duration": 22.0,
+  "channels": 610,
+  "events": 3,
+  "trs": 351
+ },
+ "170303": {
+  "frames": 511,
+  "fps": 30.0,
+  "duration": 17.0,
+  "channels": 196,
+  "events": 3,
+  "trs": 72
+ },
+ "170301": {
+  "frames": 451,
+  "fps": 30.0,
+  "duration": 15.0,
+  "channels": 97,
+  "events": 5,
+  "trs": 49
+ },
+ "170302": {
+  "frames": 451,
+  "fps": 30.0,
+  "duration": 15.0,
+  "channels": 97,
+  "events": 5,
+  "trs": 49
+ },
+ "170304": {
+  "frames": 511,
+  "fps": 30.0,
+  "duration": 17.0,
+  "channels": 219,
+  "events": 3,
+  "trs": 73
+ },
+ "170305": {
+  "frames": 461,
+  "fps": 30.0,
+  "duration": 15.3333,
+  "channels": 204,
+  "events": 7,
+  "trs": 128
+ },
+ "170306": {
+  "frames": 461,
+  "fps": 30.0,
+  "duration": 15.3333,
+  "channels": 251,
+  "events": 7,
+  "trs": 158
+ },
+ "170307": {
+  "frames": 671,
+  "fps": 30.0,
+  "duration": 22.3333,
+  "channels": 165,
+  "events": 5,
+  "trs": 188
+ },
+ "170308": {
+  "frames": 671,
+  "fps": 30.0,
+  "duration": 22.3333,
+  "channels": 169,
+  "events": 5,
+  "trs": 191
+ },
+ "170401": {
+  "frames": 453,
+  "fps": 30.0,
+  "duration": 15.0667,
+  "channels": 335,
+  "events": 8,
+  "trs": 175
+ },
+ "170402": {
+  "frames": 453,
+  "fps": 30.0,
+  "duration": 15.0667,
+  "channels": 337,
+  "events": 8,
+  "trs": 176
+ },
+ "170501": {
+  "frames": 451,
+  "fps": 30.0,
+  "duration": 15.0,
+  "channels": 243,
+  "events": 6,
+  "trs": 129
+ },
+ "170601": {
+  "frames": 451,
+  "fps": 30.0,
+  "duration": 15.0,
+  "channels": 68,
+  "events": 4,
+  "trs": 41
+ },
+ "170502": {
+  "frames": 451,
+  "fps": 30.0,
+  "duration": 15.0,
+  "channels": 249,
+  "events": 6,
+  "trs": 130
+ },
+ "170503": {
+  "frames": 746,
+  "fps": 30.0,
+  "duration": 24.8333,
+  "channels": 247,
+  "events": 7,
+  "trs": 156
+ },
+ "170602": {
+  "frames": 451,
+  "fps": 30.0,
+  "duration": 15.0,
+  "channels": 92,
+  "events": 4,
+  "trs": 56
+ },
+ "170504": {
+  "frames": 746,
+  "fps": 30.0,
+  "duration": 24.8333,
+  "channels": 258,
+  "events": 7,
+  "trs": 162
+ },
+ "170605": {
+  "frames": 461,
+  "fps": 30.0,
+  "duration": 15.3333,
+  "channels": 267,
+  "events": 8,
+  "trs": 161
+ },
+ "170606": {
+  "frames": 461,
+  "fps": 30.0,
+  "duration": 15.3333,
+  "channels": 412,
+  "events": 8,
+  "trs": 221
+ },
+ "170603": {
+  "frames": 581,
+  "fps": 30.0,
+  "duration": 19.3333,
+  "channels": 274,
+  "events": 11,
+  "trs": 153
+ },
+ "170701": {
+  "frames": 871,
+  "fps": 30.0,
+  "duration": 29.0,
+  "channels": 243,
+  "events": 9,
+  "trs": 143
+ },
+ "170604": {
+  "frames": 581,
+  "fps": 30.0,
+  "duration": 19.3333,
+  "channels": 283,
+  "events": 11,
+  "trs": 155
+ },
+ "170702": {
+  "frames": 871,
+  "fps": 30.0,
+  "duration": 29.0,
+  "channels": 307,
+  "events": 9,
+  "trs": 178
+ },
+ "180002": {
+  "frames": 451,
+  "fps": 30.0,
+  "duration": 15.0,
+  "channels": 123,
+  "events": 10,
+  "trs": 83
+ },
+ "170801": {
+  "frames": 551,
+  "fps": 30.0,
+  "duration": 18.3333,
+  "channels": 291,
+  "events": 7,
+  "trs": 207
+ },
+ "170802": {
+  "frames": 551,
+  "fps": 30.0,
+  "duration": 18.3333,
+  "channels": 301,
+  "events": 7,
+  "trs": 206
+ },
+ "180003": {
+  "frames": 531,
+  "fps": 30.0,
+  "duration": 17.6667,
+  "channels": 113,
+  "events": 15,
+  "trs": 57
+ },
+ "180004": {
+  "frames": 531,
+  "fps": 30.0,
+  "duration": 17.6667,
+  "channels": 122,
+  "events": 15,
+  "trs": 63
+ },
+ "180005": {
+  "frames": 471,
+  "fps": 30.0,
+  "duration": 15.6667,
+  "channels": 187,
+  "events": 5,
+  "trs": 173
+ },
+ "180006": {
+  "frames": 471,
+  "fps": 30.0,
+  "duration": 15.6667,
+  "channels": 201,
+  "events": 5,
+  "trs": 194
+ },
+ "180007": {
+  "frames": 521,
+  "fps": 30.0,
+  "duration": 17.3333,
+  "channels": 140,
+  "events": 5,
+  "trs": 120
+ },
+ "180008": {
+  "frames": 521,
+  "fps": 30.0,
+  "duration": 17.3333,
+  "channels": 152,
+  "events": 5,
+  "trs": 124
+ },
+ "180101": {
+  "frames": 391,
+  "fps": 30.0,
+  "duration": 13.0,
+  "channels": 270,
+  "events": 6,
+  "trs": 139
+ },
+ "180102": {
+  "frames": 391,
+  "fps": 30.0,
+  "duration": 13.0,
+  "channels": 277,
+  "events": 6,
+  "trs": 145
+ },
+ "180105": {
+  "frames": 531,
+  "fps": 30.0,
+  "duration": 17.6667,
+  "channels": 150,
+  "events": 7,
+  "trs": 97
+ },
+ "180103": {
+  "frames": 471,
+  "fps": 30.0,
+  "duration": 15.6667,
+  "channels": 141,
+  "events": 14,
+  "trs": 120
+ },
+ "180106": {
+  "frames": 531,
+  "fps": 30.0,
+  "duration": 17.6667,
+  "channels": 181,
+  "events": 7,
+  "trs": 99
+ },
+ "180104": {
+  "frames": 471,
+  "fps": 30.0,
+  "duration": 15.6667,
+  "channels": 143,
+  "events": 14,
+  "trs": 121
+ },
+ "180109": {
+  "frames": 551,
+  "fps": 30.0,
+  "duration": 18.3333,
+  "channels": 159,
+  "events": 5,
+  "trs": 95
+ },
+ "180110": {
+  "frames": 551,
+  "fps": 30.0,
+  "duration": 18.3333,
+  "channels": 170,
+  "events": 5,
+  "trs": 106
+ },
+ "180201": {
+  "frames": 451,
+  "fps": 30.0,
+  "duration": 15.0,
+  "channels": 97,
+  "events": 8,
+  "trs": 66
+ },
+ "180107": {
+  "frames": 616,
+  "fps": 30.0,
+  "duration": 20.5,
+  "channels": 249,
+  "events": 9,
+  "trs": 175
+ },
+ "180108": {
+  "frames": 616,
+  "fps": 30.0,
+  "duration": 20.5,
+  "channels": 339,
+  "events": 9,
+  "trs": 247
+ },
+ "180202": {
+  "frames": 451,
+  "fps": 30.0,
+  "duration": 15.0,
+  "channels": 95,
+  "events": 8,
+  "trs": 64
+ },
+ "180203": {
+  "frames": 604,
+  "fps": 30.0,
+  "duration": 20.1,
+  "channels": 204,
+  "events": 5,
+  "trs": 206
+ },
+ "180204": {
+  "frames": 604,
+  "fps": 30.0,
+  "duration": 20.1,
+  "channels": 231,
+  "events": 5,
+  "trs": 213
+ },
+ "180205": {
+  "frames": 657,
+  "fps": 30.0,
+  "duration": 21.8667,
+  "channels": 244,
+  "events": 6,
+  "trs": 226
+ },
+ "180207": {
+  "frames": 621,
+  "fps": 30.0,
+  "duration": 20.6667,
+  "channels": 104,
+  "events": 8,
+  "trs": 86
+ },
+ "180208": {
+  "frames": 621,
+  "fps": 30.0,
+  "duration": 20.6667,
+  "channels": 153,
+  "events": 8,
+  "trs": 109
+ },
+ "180206": {
+  "frames": 657,
+  "fps": 30.0,
+  "duration": 21.8667,
+  "channels": 260,
+  "events": 6,
+  "trs": 230
+ },
+ "190002": {
+  "frames": 451,
+  "fps": 30.0,
+  "duration": 15.0,
+  "channels": 137,
+  "events": 6,
+  "trs": 130
+ },
+ "190003": {
+  "frames": 551,
+  "fps": 30.0,
+  "duration": 18.3333,
+  "channels": 302,
+  "events": 6,
+  "trs": 223
+ },
+ "190005": {
+  "frames": 691,
+  "fps": 30.0,
+  "duration": 23.0,
+  "channels": 173,
+  "events": 8,
+  "trs": 114
+ },
+ "190004": {
+  "frames": 551,
+  "fps": 30.0,
+  "duration": 18.3333,
+  "channels": 370,
+  "events": 6,
+  "trs": 264
+ },
+ "190006": {
+  "frames": 691,
+  "fps": 30.0,
+  "duration": 23.0,
+  "channels": 227,
+  "events": 8,
+  "trs": 146
+ },
+ "190007": {
+  "frames": 611,
+  "fps": 30.0,
+  "duration": 20.3333,
+  "channels": 332,
+  "events": 9,
+  "trs": 214
+ },
+ "190008": {
+  "frames": 611,
+  "fps": 30.0,
+  "duration": 20.3333,
+  "channels": 339,
+  "events": 9,
+  "trs": 224
+ },
+ "190101": {
+  "frames": 471,
+  "fps": 30.0,
+  "duration": 15.6667,
+  "channels": 229,
+  "events": 11,
+  "trs": 155
+ },
+ "190102": {
+  "frames": 471,
+  "fps": 30.0,
+  "duration": 15.6667,
+  "channels": 246,
+  "events": 11,
+  "trs": 167
+ },
+ "190103": {
+  "frames": 511,
+  "fps": 30.0,
+  "duration": 17.0,
+  "channels": 241,
+  "events": 6,
+  "trs": 177
+ },
+ "190105": {
+  "frames": 517,
+  "fps": 30.0,
+  "duration": 17.2,
+  "channels": 152,
+  "events": 9,
+  "trs": 88
+ },
+ "190106": {
+  "frames": 517,
+  "fps": 30.0,
+  "duration": 17.2,
+  "channels": 190,
+  "events": 9,
+  "trs": 99
+ },
+ "190107": {
+  "frames": 501,
+  "fps": 30.0,
+  "duration": 16.6667,
+  "channels": 234,
+  "events": 5,
+  "trs": 136
+ },
+ "190108": {
+  "frames": 501,
+  "fps": 30.0,
+  "duration": 16.6667,
+  "channels": 251,
+  "events": 5,
+  "trs": 150
+ },
+ "190201": {
+  "frames": 451,
+  "fps": 30.0,
+  "duration": 15.0,
+  "channels": 507,
+  "events": 6,
+  "trs": 351
+ },
+ "190104": {
+  "frames": 511,
+  "fps": 30.0,
+  "duration": 17.0,
+  "channels": 287,
+  "events": 6,
+  "trs": 198
+ },
+ "190203": {
+  "frames": 511,
+  "fps": 30.0,
+  "duration": 17.0,
+  "channels": 250,
+  "events": 10,
+  "trs": 175
+ },
+ "190202": {
+  "frames": 451,
+  "fps": 30.0,
+  "duration": 15.0,
+  "channels": 513,
+  "events": 6,
+  "trs": 352
+ },
+ "190204": {
+  "frames": 511,
+  "fps": 30.0,
+  "duration": 17.0,
+  "channels": 250,
+  "events": 10,
+  "trs": 182
+ },
+ "190205": {
+  "frames": 436,
+  "fps": 30.0,
+  "duration": 14.5,
+  "channels": 132,
+  "events": 7,
+  "trs": 114
+ },
+ "190301": {
+  "frames": 471,
+  "fps": 30.0,
+  "duration": 15.6667,
+  "channels": 324,
+  "events": 9,
+  "trs": 171
+ },
+ "190302": {
+  "frames": 471,
+  "fps": 30.0,
+  "duration": 15.6667,
+  "channels": 384,
+  "events": 23,
+  "trs": 206
+ },
+ "190206": {
+  "frames": 436,
+  "fps": 30.0,
+  "duration": 14.5,
+  "channels": 170,
+  "events": 7,
+  "trs": 130
+ },
+ "190303": {
+  "frames": 421,
+  "fps": 30.0,
+  "duration": 14.0,
+  "channels": 163,
+  "events": 9,
+  "trs": 120
+ },
+ "190304": {
+  "frames": 421,
+  "fps": 30.0,
+  "duration": 14.0,
+  "channels": 273,
+  "events": 9,
+  "trs": 190
+ },
+ "190306": {
+  "frames": 661,
+  "fps": 30.0,
+  "duration": 22.0,
+  "channels": 308,
+  "events": 3,
+  "trs": 152
+ },
+ "190305": {
+  "frames": 661,
+  "fps": 30.0,
+  "duration": 22.0,
+  "channels": 270,
+  "events": 3,
+  "trs": 134
+ },
+ "190404": {
+  "frames": 671,
+  "fps": 30.0,
+  "duration": 22.3333,
+  "channels": 155,
+  "events": 8,
+  "trs": 88
+ },
+ "190403": {
+  "frames": 671,
+  "fps": 30.0,
+  "duration": 22.3333,
+  "channels": 178,
+  "events": 8,
+  "trs": 92
+ },
+ "190401": {
+  "frames": 451,
+  "fps": 30.0,
+  "duration": 15.0,
+  "channels": 191,
+  "events": 8,
+  "trs": 179
+ },
+ "190402": {
+  "frames": 451,
+  "fps": 30.0,
+  "duration": 15.0,
+  "channels": 209,
+  "events": 8,
+  "trs": 194
+ },
+ "190601": {
+  "frames": 451,
+  "fps": 30.0,
+  "duration": 15.0,
+  "channels": 168,
+  "events": 9,
+  "trs": 152
+ },
+ "190501": {
+  "frames": 451,
+  "fps": 30.0,
+  "duration": 15.0,
+  "channels": 178,
+  "events": 6,
+  "trs": 159
+ },
+ "190602": {
+  "frames": 451,
+  "fps": 30.0,
+  "duration": 15.0,
+  "channels": 194,
+  "events": 11,
+  "trs": 191
+ },
+ "190701": {
+  "frames": 451,
+  "fps": 30.0,
+  "duration": 15.0,
+  "channels": 165,
+  "events": 12,
+  "trs": 113
+ },
+ "190502": {
+  "frames": 451,
+  "fps": 30.0,
+  "duration": 15.0,
+  "channels": 215,
+  "events": 6,
+  "trs": 173
+ },
+ "190702": {
+  "frames": 451,
+  "fps": 30.0,
+  "duration": 15.0,
+  "channels": 179,
+  "events": 12,
+  "trs": 120
+ },
+ "190703": {
+  "frames": 661,
+  "fps": 30.0,
+  "duration": 22.0,
+  "channels": 241,
+  "events": 4,
+  "trs": 222
+ },
+ "200003": {
+  "frames": 531,
+  "fps": 30.0,
+  "duration": 17.6667,
+  "channels": 161,
+  "events": 6,
+  "trs": 85
+ },
+ "190704": {
+  "frames": 661,
+  "fps": 30.0,
+  "duration": 22.0,
+  "channels": 265,
+  "events": 4,
+  "trs": 248
+ },
+ "200002": {
+  "frames": 451,
+  "fps": 30.0,
+  "duration": 15.0,
+  "channels": 422,
+  "events": 12,
+  "trs": 259
+ },
+ "200004": {
+  "frames": 531,
+  "fps": 30.0,
+  "duration": 17.6667,
+  "channels": 196,
+  "events": 6,
+  "trs": 112
+ },
+ "200005": {
+  "frames": 401,
+  "fps": 30.0,
+  "duration": 13.3333,
+  "channels": 71,
+  "events": 3,
+  "trs": 51
+ },
+ "200006": {
+  "frames": 401,
+  "fps": 30.0,
+  "duration": 13.3333,
+  "channels": 135,
+  "events": 3,
+  "trs": 97
+ },
+ "200009": {
+  "frames": 691,
+  "fps": 30.0,
+  "duration": 23.0,
+  "channels": 57,
+  "events": 4,
+  "trs": 38
+ },
+ "200010": {
+  "frames": 691,
+  "fps": 30.0,
+  "duration": 23.0,
+  "channels": 66,
+  "events": 4,
+  "trs": 47
+ },
+ "200007": {
+  "frames": 531,
+  "fps": 30.0,
+  "duration": 17.6667,
+  "channels": 217,
+  "events": 5,
+  "trs": 141
+ },
+ "200008": {
+  "frames": 531,
+  "fps": 30.0,
+  "duration": 17.6667,
+  "channels": 217,
+  "events": 5,
+  "trs": 140
+ },
+ "200101": {
+  "frames": 471,
+  "fps": 30.0,
+  "duration": 15.6667,
+  "channels": 73,
+  "events": 3,
+  "trs": 29
+ },
+ "200102": {
+  "frames": 471,
+  "fps": 30.0,
+  "duration": 15.6667,
+  "channels": 90,
+  "events": 3,
+  "trs": 33
+ },
+ "200103": {
+  "frames": 511,
+  "fps": 30.0,
+  "duration": 17.0,
+  "channels": 382,
+  "events": 10,
+  "trs": 170
+ },
+ "200105": {
+  "frames": 541,
+  "fps": 30.0,
+  "duration": 18.0,
+  "channels": 252,
+  "events": 10,
+  "trs": 155
+ },
+ "200104": {
+  "frames": 511,
+  "fps": 30.0,
+  "duration": 17.0,
+  "channels": 436,
+  "events": 10,
+  "trs": 195
+ },
+ "200106": {
+  "frames": 541,
+  "fps": 30.0,
+  "duration": 18.0,
+  "channels": 357,
+  "events": 10,
+  "trs": 222
+ },
+ "200109": {
+  "frames": 596,
+  "fps": 30.0,
+  "duration": 19.8333,
+  "channels": 291,
+  "events": 3,
+  "trs": 165
+ },
+ "200107": {
+  "frames": 571,
+  "fps": 30.0,
+  "duration": 19.0,
+  "channels": 206,
+  "events": 8,
+  "trs": 74
+ },
+ "200110": {
+  "frames": 596,
+  "fps": 30.0,
+  "duration": 19.8333,
+  "channels": 305,
+  "events": 3,
+  "trs": 171
+ },
+ "200108": {
+  "frames": 571,
+  "fps": 30.0,
+  "duration": 19.0,
+  "channels": 292,
+  "events": 8,
+  "trs": 83
+ },
+ "200111": {
+  "frames": 741,
+  "fps": 30.0,
+  "duration": 24.6667,
+  "channels": 155,
+  "events": 6,
+  "trs": 97
+ },
+ "200203": {
+  "frames": 511,
+  "fps": 30.0,
+  "duration": 17.0,
+  "channels": 223,
+  "events": 4,
+  "trs": 94
+ },
+ "200112": {
+  "frames": 741,
+  "fps": 30.0,
+  "duration": 24.6667,
+  "channels": 201,
+  "events": 6,
+  "trs": 113
+ },
+ "200201": {
+  "frames": 471,
+  "fps": 30.0,
+  "duration": 15.6667,
+  "channels": 629,
+  "events": 8,
+  "trs": 198
+ },
+ "200202": {
+  "frames": 471,
+  "fps": 30.0,
+  "duration": 15.6667,
+  "channels": 634,
+  "events": 8,
+  "trs": 199
+ },
+ "200301": {
+  "frames": 451,
+  "fps": 30.0,
+  "duration": 15.0,
+  "channels": 98,
+  "events": 6,
+  "trs": 51
+ },
+ "200204": {
+  "frames": 511,
+  "fps": 30.0,
+  "duration": 17.0,
+  "channels": 389,
+  "events": 4,
+  "trs": 168
+ },
+ "200302": {
+  "frames": 451,
+  "fps": 30.0,
+  "duration": 15.0,
+  "channels": 124,
+  "events": 6,
+  "trs": 60
+ },
+ "200205": {
+  "frames": 686,
+  "fps": 30.0,
+  "duration": 22.8333,
+  "channels": 268,
+  "events": 9,
+  "trs": 156
+ },
+ "200206": {
+  "frames": 686,
+  "fps": 30.0,
+  "duration": 22.8333,
+  "channels": 273,
+  "events": 9,
+  "trs": 158
+ },
+ "200303": {
+  "frames": 626,
+  "fps": 30.0,
+  "duration": 20.8333,
+  "channels": 255,
+  "events": 11,
+  "trs": 199
+ },
+ "200401": {
+  "frames": 451,
+  "fps": 30.0,
+  "duration": 15.0,
+  "channels": 162,
+  "events": 9,
+  "trs": 102
+ },
+ "200402": {
+  "frames": 451,
+  "fps": 30.0,
+  "duration": 15.0,
+  "channels": 168,
+  "events": 9,
+  "trs": 99
+ },
+ "200304": {
+  "frames": 626,
+  "fps": 30.0,
+  "duration": 20.8333,
+  "channels": 361,
+  "events": 11,
+  "trs": 286
+ },
+ "200403": {
+  "frames": 561,
+  "fps": 30.0,
+  "duration": 18.6667,
+  "channels": 201,
+  "events": 9,
+  "trs": 113
+ },
+ "200404": {
+  "frames": 561,
+  "fps": 30.0,
+  "duration": 18.6667,
+  "channels": 211,
+  "events": 9,
+  "trs": 116
+ },
+ "200405": {
+  "frames": 666,
+  "fps": 30.0,
+  "duration": 22.1667,
+  "channels": 178,
+  "events": 7,
+  "trs": 125
+ },
+ "200406": {
+  "frames": 666,
+  "fps": 30.0,
+  "duration": 22.1667,
+  "channels": 255,
+  "events": 7,
+  "trs": 168
+ },
+ "200501": {
+  "frames": 451,
+  "fps": 30.0,
+  "duration": 15.0,
+  "channels": 319,
+  "events": 21,
+  "trs": 292
+ },
+ "200502": {
+  "frames": 451,
+  "fps": 30.0,
+  "duration": 15.0,
+  "channels": 384,
+  "events": 21,
+  "trs": 333
+ },
+ "210002": {
+  "frames": 461,
+  "fps": 30.0,
+  "duration": 15.3333,
+  "channels": 156,
+  "events": 8,
+  "trs": 78
+ },
+ "210003": {
+  "frames": 551,
+  "fps": 30.0,
+  "duration": 18.3333,
+  "channels": 155,
+  "events": 7,
+  "trs": 70
+ },
+ "210004": {
+  "frames": 551,
+  "fps": 30.0,
+  "duration": 18.3333,
+  "channels": 213,
+  "events": 7,
+  "trs": 94
+ },
+ "210005": {
+  "frames": 451,
+  "fps": 30.0,
+  "duration": 15.0,
+  "channels": 235,
+  "events": 9,
+  "trs": 140
+ },
+ "210006": {
+  "frames": 451,
+  "fps": 30.0,
+  "duration": 15.0,
+  "channels": 376,
+  "events": 9,
+  "trs": 219
+ },
+ "210007": {
+  "frames": 591,
+  "fps": 30.0,
+  "duration": 19.6667,
+  "channels": 155,
+  "events": 6,
+  "trs": 99
+ },
+ "210101": {
+  "frames": 451,
+  "fps": 30.0,
+  "duration": 15.0,
+  "channels": 174,
+  "events": 8,
+  "trs": 108
+ },
+ "210008": {
+  "frames": 591,
+  "fps": 30.0,
+  "duration": 19.6667,
+  "channels": 161,
+  "events": 6,
+  "trs": 99
+ },
+ "210009": {
+  "frames": 791,
+  "fps": 30.0,
+  "duration": 26.3333,
+  "channels": 146,
+  "events": 6,
+  "trs": 76
+ },
+ "210102": {
+  "frames": 451,
+  "fps": 30.0,
+  "duration": 15.0,
+  "channels": 342,
+  "events": 8,
+  "trs": 183
+ },
+ "210010": {
+  "frames": 791,
+  "fps": 30.0,
+  "duration": 26.3333,
+  "channels": 174,
+  "events": 6,
+  "trs": 90
+ },
+ "210105": {
+  "frames": 511,
+  "fps": 30.0,
+  "duration": 17.0,
+  "channels": 158,
+  "events": 4,
+  "trs": 72
+ },
+ "210103": {
+  "frames": 511,
+  "fps": 30.0,
+  "duration": 17.0,
+  "channels": 185,
+  "events": 4,
+  "trs": 128
+ },
+ "210106": {
+  "frames": 511,
+  "fps": 30.0,
+  "duration": 17.0,
+  "channels": 160,
+  "events": 4,
+  "trs": 72
+ },
+ "210107": {
+  "frames": 516,
+  "fps": 30.0,
+  "duration": 17.1667,
+  "channels": 285,
+  "events": 4,
+  "trs": 249
+ },
+ "210108": {
+  "frames": 516,
+  "fps": 30.0,
+  "duration": 17.1667,
+  "channels": 295,
+  "events": 4,
+  "trs": 253
+ },
+ "210201": {
+  "frames": 451,
+  "fps": 30.0,
+  "duration": 15.0,
+  "channels": 209,
+  "events": 6,
+  "trs": 115
+ },
+ "210104": {
+  "frames": 511,
+  "fps": 30.0,
+  "duration": 17.0,
+  "channels": 258,
+  "events": 4,
+  "trs": 195
+ },
+ "210202": {
+  "frames": 451,
+  "fps": 30.0,
+  "duration": 15.0,
+  "channels": 289,
+  "events": 6,
+  "trs": 177
+ },
+ "210203": {
+  "frames": 471,
+  "fps": 30.0,
+  "duration": 15.6667,
+  "channels": 180,
+  "events": 8,
+  "trs": 132
+ },
+ "210204": {
+  "frames": 471,
+  "fps": 30.0,
+  "duration": 15.6667,
+  "channels": 226,
+  "events": 8,
+  "trs": 181
+ },
+ "210205": {
+  "frames": 511,
+  "fps": 30.0,
+  "duration": 17.0,
+  "channels": 200,
+  "events": 5,
+  "trs": 158
+ },
+ "210206": {
+  "frames": 511,
+  "fps": 30.0,
+  "duration": 17.0,
+  "channels": 368,
+  "events": 5,
+  "trs": 271
+ },
+ "210207": {
+  "frames": 761,
+  "fps": 30.0,
+  "duration": 25.3333,
+  "channels": 138,
+  "events": 10,
+  "trs": 108
+ },
+ "210208": {
+  "frames": 761,
+  "fps": 30.0,
+  "duration": 25.3333,
+  "channels": 157,
+  "events": 10,
+  "trs": 116
+ },
+ "210209": {
+  "frames": 611,
+  "fps": 30.0,
+  "duration": 20.3333,
+  "channels": 343,
+  "events": 7,
+  "trs": 291
+ },
+ "210301": {
+  "frames": 461,
+  "fps": 30.0,
+  "duration": 15.3333,
+  "channels": 329,
+  "events": 4,
+  "trs": 163
+ },
+ "210302": {
+  "frames": 461,
+  "fps": 30.0,
+  "duration": 15.3333,
+  "channels": 337,
+  "events": 4,
+  "trs": 169
+ },
+ "210210": {
+  "frames": 611,
+  "fps": 30.0,
+  "duration": 20.3333,
+  "channels": 464,
+  "events": 7,
+  "trs": 367
+ },
+ "210303": {
+  "frames": 521,
+  "fps": 30.0,
+  "duration": 17.3333,
+  "channels": 184,
+  "events": 6,
+  "trs": 154
+ },
+ "210304": {
+  "frames": 521,
+  "fps": 30.0,
+  "duration": 17.3333,
+  "channels": 280,
+  "events": 6,
+  "trs": 216
+ },
+ "210305": {
+  "frames": 626,
+  "fps": 30.0,
+  "duration": 20.8333,
+  "channels": 166,
+  "events": 9,
+  "trs": 127
+ },
+ "210306": {
+  "frames": 626,
+  "fps": 30.0,
+  "duration": 20.8333,
+  "channels": 196,
+  "events": 9,
+  "trs": 136
+ },
+ "210307": {
+  "frames": 621,
+  "fps": 30.0,
+  "duration": 20.6667,
+  "channels": 125,
+  "events": 9,
+  "trs": 76
+ },
+ "210308": {
+  "frames": 621,
+  "fps": 30.0,
+  "duration": 20.6667,
+  "channels": 126,
+  "events": 9,
+  "trs": 78
+ },
+ "210401": {
+  "frames": 546,
+  "fps": 30.0,
+  "duration": 18.1667,
+  "channels": 226,
+  "events": 3,
+  "trs": 197
+ },
+ "210402": {
+  "frames": 546,
+  "fps": 30.0,
+  "duration": 18.1667,
+  "channels": 227,
+  "events": 3,
+  "trs": 200
+ },
+ "210403": {
+  "frames": 451,
+  "fps": 30.0,
+  "duration": 15.0,
+  "channels": 71,
+  "events": 5,
+  "trs": 65
+ },
+ "210404": {
+  "frames": 451,
+  "fps": 30.0,
+  "duration": 15.0,
+  "channels": 83,
+  "events": 5,
+  "trs": 73
+ },
+ "210405": {
+  "frames": 852,
+  "fps": 30.0,
+  "duration": 28.3667,
+  "channels": 135,
+  "events": 5,
+  "trs": 77
+ },
+ "210501": {
+  "frames": 561,
+  "fps": 30.0,
+  "duration": 18.6667,
+  "channels": 234,
+  "events": 9,
+  "trs": 87
+ },
+ "210406": {
+  "frames": 852,
+  "fps": 30.0,
+  "duration": 28.3667,
+  "channels": 136,
+  "events": 5,
+  "trs": 79
+ },
+ "210601": {
+  "frames": 636,
+  "fps": 30.0,
+  "duration": 21.1667,
+  "channels": 159,
+  "events": 9,
+  "trs": 88
+ },
+ "210502": {
+  "frames": 561,
+  "fps": 30.0,
+  "duration": 18.6667,
+  "channels": 236,
+  "events": 9,
+  "trs": 88
+ },
+ "210602": {
+  "frames": 636,
+  "fps": 30.0,
+  "duration": 21.1667,
+  "channels": 173,
+  "events": 9,
+  "trs": 98
+ },
+ "210603": {
+  "frames": 631,
+  "fps": 30.0,
+  "duration": 21.0,
+  "channels": 142,
+  "events": 6,
+  "trs": 281
+ },
+ "210604": {
+  "frames": 631,
+  "fps": 30.0,
+  "duration": 21.0,
+  "channels": 171,
+  "events": 6,
+  "trs": 310
+ },
+ "210701": {
+  "frames": 571,
+  "fps": 30.0,
+  "duration": 19.0,
+  "channels": 226,
+  "events": 5,
+  "trs": 123
+ },
+ "210702": {
+  "frames": 571,
+  "fps": 30.0,
+  "duration": 19.0,
+  "channels": 243,
+  "events": 5,
+  "trs": 132
+ },
+ "220002": {
+  "frames": 451,
+  "fps": 30.0,
+  "duration": 15.0,
+  "channels": 161,
+  "events": 6,
+  "trs": 88
+ },
+ "220003": {
+  "frames": 531,
+  "fps": 30.0,
+  "duration": 17.6667,
+  "channels": 265,
+  "events": 8,
+  "trs": 74
+ },
+ "220004": {
+  "frames": 531,
+  "fps": 30.0,
+  "duration": 17.6667,
+  "channels": 368,
+  "events": 8,
+  "trs": 97
+ },
+ "220005": {
+  "frames": 536,
+  "fps": 30.0,
+  "duration": 17.8333,
+  "channels": 239,
+  "events": 5,
+  "trs": 114
+ },
+ "220006": {
+  "frames": 536,
+  "fps": 30.0,
+  "duration": 17.8333,
+  "channels": 253,
+  "events": 5,
+  "trs": 124
+ },
+ "220101": {
+  "frames": 451,
+  "fps": 30.0,
+  "duration": 15.0,
+  "channels": 150,
+  "events": 5,
+  "trs": 73
+ },
+ "220102": {
+  "frames": 451,
+  "fps": 30.0,
+  "duration": 15.0,
+  "channels": 174,
+  "events": 5,
+  "trs": 79
+ },
+ "220103": {
+  "frames": 531,
+  "fps": 30.0,
+  "duration": 17.6667,
+  "channels": 92,
+  "events": 8,
+  "trs": 75
+ },
+ "220104": {
+  "frames": 531,
+  "fps": 30.0,
+  "duration": 17.6667,
+  "channels": 113,
+  "events": 8,
+  "trs": 103
+ },
+ "220105": {
+  "frames": 631,
+  "fps": 30.0,
+  "duration": 21.0,
+  "channels": 178,
+  "events": 5,
+  "trs": 105
+ },
+ "220201": {
+  "frames": 451,
+  "fps": 30.0,
+  "duration": 15.0,
+  "channels": 47,
+  "events": 8,
+  "trs": 45
+ },
+ "220106": {
+  "frames": 631,
+  "fps": 30.0,
+  "duration": 21.0,
+  "channels": 184,
+  "events": 5,
+  "trs": 109
+ },
+ "220202": {
+  "frames": 451,
+  "fps": 30.0,
+  "duration": 15.0,
+  "channels": 54,
+  "events": 8,
+  "trs": 51
+ },
+ "220203": {
+  "frames": 451,
+  "fps": 30.0,
+  "duration": 15.0,
+  "channels": 177,
+  "events": 8,
+  "trs": 111
+ },
+ "220204": {
+  "frames": 451,
+  "fps": 30.0,
+  "duration": 15.0,
+  "channels": 213,
+  "events": 8,
+  "trs": 130
+ },
+ "220301": {
+  "frames": 451,
+  "fps": 30.0,
+  "duration": 15.0,
+  "channels": 86,
+  "events": 15,
+  "trs": 54
+ },
+ "220302": {
+  "frames": 451,
+  "fps": 30.0,
+  "duration": 15.0,
+  "channels": 102,
+  "events": 15,
+  "trs": 54
+ },
+ "220401": {
+  "frames": 451,
+  "fps": 30.0,
+  "duration": 15.0,
+  "channels": 174,
+  "events": 8,
+  "trs": 56
+ },
+ "220402": {
+  "frames": 451,
+  "fps": 30.0,
+  "duration": 15.0,
+  "channels": 193,
+  "events": 8,
+  "trs": 56
+ },
+ "220403": {
+  "frames": 521,
+  "fps": 30.0,
+  "duration": 17.3333,
+  "channels": 336,
+  "events": 13,
+  "trs": 152
+ },
+ "220404": {
+  "frames": 521,
+  "fps": 30.0,
+  "duration": 17.3333,
+  "channels": 442,
+  "events": 13,
+  "trs": 210
+ },
+ "220501": {
+  "frames": 451,
+  "fps": 30.0,
+  "duration": 15.0,
+  "channels": 142,
+  "events": 7,
+  "trs": 87
+ },
+ "220502": {
+  "frames": 451,
+  "fps": 30.0,
+  "duration": 15.0,
+  "channels": 185,
+  "events": 7,
+  "trs": 115
+ },
+ "220601": {
+  "frames": 661,
+  "fps": 30.0,
+  "duration": 22.0,
+  "channels": 632,
+  "events": 5,
+  "trs": 258
+ },
+ "230002": {
+  "frames": 451,
+  "fps": 30.0,
+  "duration": 15.0,
+  "channels": 164,
+  "events": 12,
+  "trs": 87
+ },
+ "220602": {
+  "frames": 661,
+  "fps": 30.0,
+  "duration": 22.0,
+  "channels": 654,
+  "events": 5,
+  "trs": 282
+ },
+ "230003": {
+  "frames": 513,
+  "fps": 30.0,
+  "duration": 17.0667,
+  "channels": 204,
+  "events": 6,
+  "trs": 153
+ },
+ "230004": {
+  "frames": 513,
+  "fps": 30.0,
+  "duration": 17.0667,
+  "channels": 249,
+  "events": 10,
+  "trs": 172
+ },
+ "230005": {
+  "frames": 541,
+  "fps": 30.0,
+  "duration": 18.0,
+  "channels": 137,
+  "events": 9,
+  "trs": 73
+ },
+ "230006": {
+  "frames": 541,
+  "fps": 30.0,
+  "duration": 18.0,
+  "channels": 202,
+  "events": 9,
+  "trs": 101
+ },
+ "230007": {
+  "frames": 766,
+  "fps": 30.0,
+  "duration": 25.5,
+  "channels": 411,
+  "events": 8,
+  "trs": 269
+ },
+ "230008": {
+  "frames": 766,
+  "fps": 30.0,
+  "duration": 25.5,
+  "channels": 430,
+  "events": 8,
+  "trs": 277
+ },
+ "230102": {
+  "frames": 436,
+  "fps": 30.0,
+  "duration": 14.5,
+  "channels": 255,
+  "events": 8,
+  "trs": 174
+ },
+ "230103": {
+  "frames": 541,
+  "fps": 30.0,
+  "duration": 18.0,
+  "channels": 122,
+  "events": 6,
+  "trs": 89
+ },
+ "230105": {
+  "frames": 546,
+  "fps": 30.0,
+  "duration": 18.1667,
+  "channels": 78,
+  "events": 9,
+  "trs": 56
+ },
+ "230104": {
+  "frames": 541,
+  "fps": 30.0,
+  "duration": 18.0,
+  "channels": 128,
+  "events": 6,
+  "trs": 94
+ },
+ "230106": {
+  "frames": 546,
+  "fps": 30.0,
+  "duration": 18.1667,
+  "channels": 88,
+  "events": 9,
+  "trs": 59
+ },
+ "230107": {
+  "frames": 521,
+  "fps": 30.0,
+  "duration": 17.3333,
+  "channels": 116,
+  "events": 9,
+  "trs": 66
+ },
+ "230108": {
+  "frames": 521,
+  "fps": 30.0,
+  "duration": 17.3333,
+  "channels": 167,
+  "events": 9,
+  "trs": 72
+ },
+ "230109": {
+  "frames": 691,
+  "fps": 30.0,
+  "duration": 23.0,
+  "channels": 185,
+  "events": 9,
+  "trs": 102
+ },
+ "230201": {
+  "frames": 421,
+  "fps": 30.0,
+  "duration": 14.0,
+  "channels": 112,
+  "events": 4,
+  "trs": 81
+ },
+ "230110": {
+  "frames": 691,
+  "fps": 30.0,
+  "duration": 23.0,
+  "channels": 248,
+  "events": 9,
+  "trs": 126
+ },
+ "230202": {
+  "frames": 421,
+  "fps": 30.0,
+  "duration": 14.0,
+  "channels": 147,
+  "events": 4,
+  "trs": 104
+ },
+ "230203": {
+  "frames": 546,
+  "fps": 30.0,
+  "duration": 18.1667,
+  "channels": 203,
+  "events": 6,
+  "trs": 170
+ },
+ "230204": {
+  "frames": 546,
+  "fps": 30.0,
+  "duration": 18.1667,
+  "channels": 257,
+  "events": 6,
+  "trs": 195
+ },
+ "230301": {
+  "frames": 441,
+  "fps": 30.0,
+  "duration": 14.6667,
+  "channels": 153,
+  "events": 6,
+  "trs": 109
+ },
+ "230302": {
+  "frames": 441,
+  "fps": 30.0,
+  "duration": 14.6667,
+  "channels": 174,
+  "events": 6,
+  "trs": 125
+ },
+ "230303": {
+  "frames": 521,
+  "fps": 30.0,
+  "duration": 17.3333,
+  "channels": 284,
+  "events": 5,
+  "trs": 174
+ },
+ "230304": {
+  "frames": 521,
+  "fps": 30.0,
+  "duration": 17.3333,
+  "channels": 472,
+  "events": 5,
+  "trs": 306
+ },
+ "230305": {
+  "frames": 551,
+  "fps": 30.0,
+  "duration": 18.3333,
+  "channels": 356,
+  "events": 10,
+  "trs": 213
+ },
+ "230401": {
+  "frames": 471,
+  "fps": 30.0,
+  "duration": 15.6667,
+  "channels": 425,
+  "events": 5,
+  "trs": 256
+ },
+ "230306": {
+  "frames": 551,
+  "fps": 30.0,
+  "duration": 18.3333,
+  "channels": 378,
+  "events": 10,
+  "trs": 237
+ },
+ "230402": {
+  "frames": 471,
+  "fps": 30.0,
+  "duration": 15.6667,
+  "channels": 461,
+  "events": 5,
+  "trs": 275
+ },
+ "230403": {
+  "frames": 551,
+  "fps": 30.0,
+  "duration": 18.3333,
+  "channels": 167,
+  "events": 11,
+  "trs": 111
+ },
+ "230404": {
+  "frames": 551,
+  "fps": 30.0,
+  "duration": 18.3333,
+  "channels": 275,
+  "events": 11,
+  "trs": 175
+ },
+ "230501": {
+  "frames": 701,
+  "fps": 30.0,
+  "duration": 23.3333,
+  "channels": 402,
+  "events": 7,
+  "trs": 251
+ },
+ "230502": {
+  "frames": 701,
+  "fps": 30.0,
+  "duration": 23.3333,
+  "channels": 423,
+  "events": 7,
+  "trs": 259
+ },
+ "231001": {
+  "frames": 566,
+  "fps": 30.0,
+  "duration": 18.8333,
+  "channels": 84,
+  "events": 5,
+  "trs": 61
+ },
+ "231002": {
+  "frames": 566,
+  "fps": 30.0,
+  "duration": 18.8333,
+  "channels": 128,
+  "events": 5,
+  "trs": 81
+ },
+ "240002": {
+  "frames": 451,
+  "fps": 30.0,
+  "duration": 15.0,
+  "channels": 93,
+  "events": 4,
+  "trs": 58
+ },
+ "240003": {
+  "frames": 511,
+  "fps": 30.0,
+  "duration": 17.0,
+  "channels": 260,
+  "events": 6,
+  "trs": 132
+ },
+ "240004": {
+  "frames": 511,
+  "fps": 30.0,
+  "duration": 17.0,
+  "channels": 281,
+  "events": 6,
+  "trs": 142
+ },
+ "240005": {
+  "frames": 511,
+  "fps": 30.0,
+  "duration": 17.0,
+  "channels": 449,
+  "events": 11,
+  "trs": 249
+ },
+ "240006": {
+  "frames": 511,
+  "fps": 30.0,
+  "duration": 17.0,
+  "channels": 468,
+  "events": 11,
+  "trs": 270
+ },
+ "240007": {
+  "frames": 751,
+  "fps": 30.0,
+  "duration": 25.0,
+  "channels": 241,
+  "events": 3,
+  "trs": 198
+ },
+ "240008": {
+  "frames": 751,
+  "fps": 30.0,
+  "duration": 25.0,
+  "channels": 247,
+  "events": 3,
+  "trs": 202
+ },
+ "240009": {
+  "frames": 581,
+  "fps": 30.0,
+  "duration": 19.3333,
+  "channels": 122,
+  "events": 7,
+  "trs": 90
+ },
+ "240010": {
+  "frames": 581,
+  "fps": 30.0,
+  "duration": 19.3333,
+  "channels": 139,
+  "events": 7,
+  "trs": 100
+ },
+ "240101": {
+  "frames": 451,
+  "fps": 30.0,
+  "duration": 15.0,
+  "channels": 108,
+  "events": 12,
+  "trs": 81
+ },
+ "240102": {
+  "frames": 451,
+  "fps": 30.0,
+  "duration": 15.0,
+  "channels": 117,
+  "events": 12,
+  "trs": 84
+ },
+ "240103": {
+  "frames": 566,
+  "fps": 30.0,
+  "duration": 18.8333,
+  "channels": 287,
+  "events": 9,
+  "trs": 197
+ },
+ "240104": {
+  "frames": 566,
+  "fps": 30.0,
+  "duration": 18.8333,
+  "channels": 290,
+  "events": 9,
+  "trs": 201
+ },
+ "240105": {
+  "frames": 601,
+  "fps": 30.0,
+  "duration": 20.0,
+  "channels": 241,
+  "events": 7,
+  "trs": 139
+ },
+ "240201": {
+  "frames": 451,
+  "fps": 30.0,
+  "duration": 15.0,
+  "channels": 173,
+  "events": 7,
+  "trs": 126
+ },
+ "240106": {
+  "frames": 601,
+  "fps": 30.0,
+  "duration": 20.0,
+  "channels": 262,
+  "events": 7,
+  "trs": 147
+ },
+ "240202": {
+  "frames": 451,
+  "fps": 30.0,
+  "duration": 15.0,
+  "channels": 321,
+  "events": 7,
+  "trs": 222
+ },
+ "240203": {
+  "frames": 461,
+  "fps": 30.0,
+  "duration": 15.3333,
+  "channels": 272,
+  "events": 8,
+  "trs": 175
+ },
+ "240204": {
+  "frames": 461,
+  "fps": 30.0,
+  "duration": 15.3333,
+  "channels": 364,
+  "events": 8,
+  "trs": 220
+ },
+ "240205": {
+  "frames": 591,
+  "fps": 30.0,
+  "duration": 19.6667,
+  "channels": 219,
+  "events": 7,
+  "trs": 176
+ },
+ "240206": {
+  "frames": 591,
+  "fps": 30.0,
+  "duration": 19.6667,
+  "channels": 239,
+  "events": 7,
+  "trs": 187
+ },
+ "240207": {
+  "frames": 803,
+  "fps": 30.0,
+  "duration": 26.7333,
+  "channels": 386,
+  "events": 5,
+  "trs": 244
+ },
+ "240301": {
+  "frames": 451,
+  "fps": 30.0,
+  "duration": 15.0,
+  "channels": 131,
+  "events": 6,
+  "trs": 55
+ },
+ "240208": {
+  "frames": 803,
+  "fps": 30.0,
+  "duration": 26.7333,
+  "channels": 413,
+  "events": 5,
+  "trs": 253
+ },
+ "240302": {
+  "frames": 451,
+  "fps": 30.0,
+  "duration": 15.0,
+  "channels": 151,
+  "events": 6,
+  "trs": 68
+ },
+ "240303": {
+  "frames": 566,
+  "fps": 30.0,
+  "duration": 18.8333,
+  "channels": 207,
+  "events": 11,
+  "trs": 149
+ },
+ "240304": {
+  "frames": 566,
+  "fps": 30.0,
+  "duration": 18.8333,
+  "channels": 214,
+  "events": 11,
+  "trs": 132
+ },
+ "240401": {
+  "frames": 466,
+  "fps": 30.0,
+  "duration": 15.5,
+  "channels": 130,
+  "events": 8,
+  "trs": 67
+ },
+ "240402": {
+  "frames": 466,
+  "fps": 30.0,
+  "duration": 15.5,
+  "channels": 143,
+  "events": 8,
+  "trs": 74
+ },
+ "240403": {
+  "frames": 596,
+  "fps": 30.0,
+  "duration": 19.8333,
+  "channels": 142,
+  "events": 4,
+  "trs": 62
+ },
+ "240404": {
+  "frames": 596,
+  "fps": 30.0,
+  "duration": 19.8333,
+  "channels": 180,
+  "events": 4,
+  "trs": 83
+ },
+ "240501": {
+  "frames": 477,
+  "fps": 30.0,
+  "duration": 15.8667,
+  "channels": 128,
+  "events": 9,
+  "trs": 72
+ },
+ "240502": {
+  "frames": 477,
+  "fps": 30.0,
+  "duration": 15.8667,
+  "channels": 132,
+  "events": 9,
+  "trs": 75
+ },
+ "240601": {
+  "frames": 696,
+  "fps": 30.0,
+  "duration": 23.1667,
+  "channels": 203,
+  "events": 6,
+  "trs": 166
+ },
+ "240602": {
+  "frames": 696,
+  "fps": 30.0,
+  "duration": 23.1667,
+  "channels": 256,
+  "events": 6,
+  "trs": 198
+ },
+ "240701": {
+  "frames": 626,
+  "fps": 30.0,
+  "duration": 20.8333,
+  "channels": 191,
+  "events": 3,
+  "trs": 106
+ },
+ "240702": {
+  "frames": 626,
+  "fps": 30.0,
+  "duration": 20.8333,
+  "channels": 207,
+  "events": 3,
+  "trs": 114
+ },
+ "250001": {
+  "frames": 461,
+  "fps": 30.0,
+  "duration": 15.3333,
+  "channels": 133,
+  "events": 5,
+  "trs": 94
+ },
+ "250002": {
+  "frames": 461,
+  "fps": 30.0,
+  "duration": 15.3333,
+  "channels": 176,
+  "events": 5,
+  "trs": 105
+ },
+ "250003": {
+  "frames": 531,
+  "fps": 30.0,
+  "duration": 17.6667,
+  "channels": 169,
+  "events": 6,
+  "trs": 95
+ },
+ "250004": {
+  "frames": 531,
+  "fps": 30.0,
+  "duration": 17.6667,
+  "channels": 283,
+  "events": 6,
+  "trs": 212
+ },
+ "250005": {
+  "frames": 701,
+  "fps": 30.0,
+  "duration": 23.3333,
+  "channels": 164,
+  "events": 7,
+  "trs": 78
+ },
+ "250006": {
+  "frames": 701,
+  "fps": 30.0,
+  "duration": 23.3333,
+  "channels": 168,
+  "events": 7,
+  "trs": 81
+ },
+ "250101": {
+  "frames": 471,
+  "fps": 30.0,
+  "duration": 15.6667,
+  "channels": 164,
+  "events": 5,
+  "trs": 120
+ },
+ "250102": {
+  "frames": 471,
+  "fps": 30.0,
+  "duration": 15.6667,
+  "channels": 186,
+  "events": 5,
+  "trs": 131
+ },
+ "250103": {
+  "frames": 521,
+  "fps": 30.0,
+  "duration": 17.3333,
+  "channels": 221,
+  "events": 4,
+  "trs": 118
+ },
+ "250104": {
+  "frames": 521,
+  "fps": 30.0,
+  "duration": 17.3333,
+  "channels": 273,
+  "events": 4,
+  "trs": 141
+ },
+ "250301": {
+  "frames": 461,
+  "fps": 30.0,
+  "duration": 15.3333,
+  "channels": 165,
+  "events": 9,
+  "trs": 114
+ },
+ "250202": {
+  "frames": 451,
+  "fps": 30.0,
+  "duration": 15.0,
+  "channels": 447,
+  "events": 8,
+  "trs": 282
+ },
+ "250302": {
+  "frames": 461,
+  "fps": 30.0,
+  "duration": 15.3333,
+  "channels": 163,
+  "events": 9,
+  "trs": 107
+ },
+ "250303": {
+  "frames": 556,
+  "fps": 30.0,
+  "duration": 18.5,
+  "channels": 171,
+  "events": 7,
+  "trs": 130
+ },
+ "250304": {
+  "frames": 556,
+  "fps": 30.0,
+  "duration": 18.5,
+  "channels": 225,
+  "events": 7,
+  "trs": 163
+ },
+ "250401": {
+  "frames": 451,
+  "fps": 30.0,
+  "duration": 15.0,
+  "channels": 325,
+  "events": 8,
+  "trs": 177
+ },
+ "250402": {
+  "frames": 451,
+  "fps": 30.0,
+  "duration": 15.0,
+  "channels": 367,
+  "events": 8,
+  "trs": 192
+ },
+ "250403": {
+  "frames": 626,
+  "fps": 30.0,
+  "duration": 20.8333,
+  "channels": 358,
+  "events": 6,
+  "trs": 206
+ },
+ "250404": {
+  "frames": 626,
+  "fps": 30.0,
+  "duration": 20.8333,
+  "channels": 366,
+  "events": 6,
+  "trs": 213
+ },
+ "260002": {
+  "frames": 461,
+  "fps": 30.0,
+  "duration": 15.3333,
+  "channels": 154,
+  "events": 3,
+  "trs": 89
+ },
+ "260003": {
+  "frames": 521,
+  "fps": 30.0,
+  "duration": 17.3333,
+  "channels": 132,
+  "events": 11,
+  "trs": 71
+ },
+ "260004": {
+  "frames": 521,
+  "fps": 30.0,
+  "duration": 17.3333,
+  "channels": 160,
+  "events": 11,
+  "trs": 84
+ },
+ "260005": {
+  "frames": 518,
+  "fps": 30.0,
+  "duration": 17.2333,
+  "channels": 144,
+  "events": 10,
+  "trs": 82
+ },
+ "260006": {
+  "frames": 518,
+  "fps": 30.0,
+  "duration": 17.2333,
+  "channels": 153,
+  "events": 10,
+  "trs": 85
+ },
+ "260007": {
+  "frames": 561,
+  "fps": 30.0,
+  "duration": 18.6667,
+  "channels": 335,
+  "events": 6,
+  "trs": 169
+ },
+ "260008": {
+  "frames": 561,
+  "fps": 30.0,
+  "duration": 18.6667,
+  "channels": 378,
+  "events": 6,
+  "trs": 179
+ },
+ "260009": {
+  "frames": 511,
+  "fps": 30.0,
+  "duration": 17.0,
+  "channels": 146,
+  "events": 5,
+  "trs": 82
+ },
+ "260010": {
+  "frames": 511,
+  "fps": 30.0,
+  "duration": 17.0,
+  "channels": 220,
+  "events": 5,
+  "trs": 118
+ },
+ "260011": {
+  "frames": 671,
+  "fps": 30.0,
+  "duration": 22.3333,
+  "channels": 452,
+  "events": 7,
+  "trs": 200
+ },
+ "260013": {
+  "frames": 456,
+  "fps": 30.0,
+  "duration": 15.1667,
+  "channels": 230,
+  "events": 4,
+  "trs": 204
+ },
+ "260012": {
+  "frames": 671,
+  "fps": 30.0,
+  "duration": 22.3333,
+  "channels": 478,
+  "events": 7,
+  "trs": 206
+ },
+ "260014": {
+  "frames": 456,
+  "fps": 30.0,
+  "duration": 15.1667,
+  "channels": 256,
+  "events": 4,
+  "trs": 214
+ },
+ "260101": {
+  "frames": 451,
+  "fps": 30.0,
+  "duration": 15.0,
+  "channels": 139,
+  "events": 7,
+  "trs": 92
+ },
+ "260102": {
+  "frames": 451,
+  "fps": 30.0,
+  "duration": 15.0,
+  "channels": 174,
+  "events": 7,
+  "trs": 118
+ },
+ "260103": {
+  "frames": 511,
+  "fps": 30.0,
+  "duration": 17.0,
+  "channels": 165,
+  "events": 10,
+  "trs": 84
+ },
+ "260104": {
+  "frames": 511,
+  "fps": 30.0,
+  "duration": 17.0,
+  "channels": 173,
+  "events": 10,
+  "trs": 89
+ },
+ "260105": {
+  "frames": 541,
+  "fps": 30.0,
+  "duration": 18.0,
+  "channels": 229,
+  "events": 7,
+  "trs": 187
+ },
+ "260201": {
+  "frames": 531,
+  "fps": 30.0,
+  "duration": 17.6667,
+  "channels": 167,
+  "events": 9,
+  "trs": 99
+ },
+ "260106": {
+  "frames": 541,
+  "fps": 30.0,
+  "duration": 18.0,
+  "channels": 234,
+  "events": 7,
+  "trs": 189
+ },
+ "260202": {
+  "frames": 531,
+  "fps": 30.0,
+  "duration": 17.6667,
+  "channels": 314,
+  "events": 9,
+  "trs": 184
+ },
+ "260203": {
+  "frames": 451,
+  "fps": 30.0,
+  "duration": 15.0,
+  "channels": 235,
+  "events": 8,
+  "trs": 160
+ },
+ "260301": {
+  "frames": 451,
+  "fps": 30.0,
+  "duration": 15.0,
+  "channels": 185,
+  "events": 6,
+  "trs": 112
+ },
+ "260204": {
+  "frames": 451,
+  "fps": 30.0,
+  "duration": 15.0,
+  "channels": 425,
+  "events": 8,
+  "trs": 269
+ },
+ "260302": {
+  "frames": 451,
+  "fps": 30.0,
+  "duration": 15.0,
+  "channels": 205,
+  "events": 6,
+  "trs": 115
+ },
+ "260303": {
+  "frames": 786,
+  "fps": 30.0,
+  "duration": 26.1667,
+  "channels": 372,
+  "events": 4,
+  "trs": 296
+ },
+ "260304": {
+  "frames": 786,
+  "fps": 30.0,
+  "duration": 26.1667,
+  "channels": 369,
+  "events": 4,
+  "trs": 294
+ },
+ "260401": {
+  "frames": 781,
+  "fps": 30.0,
+  "duration": 26.0,
+  "channels": 325,
+  "events": 8,
+  "trs": 219
+ },
+ "260402": {
+  "frames": 781,
+  "fps": 30.0,
+  "duration": 26.0,
+  "channels": 379,
+  "events": 8,
+  "trs": 253
+ },
+ "270002": {
+  "frames": 431,
+  "fps": 30.0,
+  "duration": 14.3333,
+  "channels": 314,
+  "events": 6,
+  "trs": 253
+ },
+ "270003": {
+  "frames": 496,
+  "fps": 30.0,
+  "duration": 16.5,
+  "channels": 272,
+  "events": 6,
+  "trs": 163
+ },
+ "270004": {
+  "frames": 496,
+  "fps": 30.0,
+  "duration": 16.5,
+  "channels": 301,
+  "events": 6,
+  "trs": 184
+ },
+ "270101": {
+  "frames": 451,
+  "fps": 30.0,
+  "duration": 15.0,
+  "channels": 137,
+  "events": 7,
+  "trs": 80
+ },
+ "270102": {
+  "frames": 451,
+  "fps": 30.0,
+  "duration": 15.0,
+  "channels": 186,
+  "events": 7,
+  "trs": 111
+ },
+ "270103": {
+  "frames": 526,
+  "fps": 30.0,
+  "duration": 17.5,
+  "channels": 196,
+  "events": 8,
+  "trs": 92
+ },
+ "270104": {
+  "frames": 526,
+  "fps": 30.0,
+  "duration": 17.5,
+  "channels": 252,
+  "events": 8,
+  "trs": 128
+ },
+ "270201": {
+  "frames": 471,
+  "fps": 30.0,
+  "duration": 15.6667,
+  "channels": 113,
+  "events": 4,
+  "trs": 69
+ },
+ "270202": {
+  "frames": 471,
+  "fps": 30.0,
+  "duration": 15.6667,
+  "channels": 119,
+  "events": 4,
+  "trs": 75
+ },
+ "270301": {
+  "frames": 526,
+  "fps": 30.0,
+  "duration": 17.5,
+  "channels": 244,
+  "events": 8,
+  "trs": 130
+ },
+ "270302": {
+  "frames": 526,
+  "fps": 30.0,
+  "duration": 17.5,
+  "channels": 271,
+  "events": 27,
+  "trs": 144
+ },
+ "270401": {
+  "frames": 716,
+  "fps": 30.0,
+  "duration": 23.8333,
+  "channels": 648,
+  "events": 7,
+  "trs": 367
+ },
+ "270402": {
+  "frames": 716,
+  "fps": 30.0,
+  "duration": 23.8333,
+  "channels": 685,
+  "events": 7,
+  "trs": 366
+ },
+ "280002": {
+  "frames": 451,
+  "fps": 30.0,
+  "duration": 15.0,
+  "channels": 106,
+  "events": 6,
+  "trs": 52
+ },
+ "280003": {
+  "frames": 511,
+  "fps": 30.0,
+  "duration": 17.0,
+  "channels": 143,
+  "events": 6,
+  "trs": 73
+ },
+ "280004": {
+  "frames": 511,
+  "fps": 30.0,
+  "duration": 17.0,
+  "channels": 165,
+  "events": 6,
+  "trs": 82
+ },
+ "280005": {
+  "frames": 601,
+  "fps": 30.0,
+  "duration": 20.0,
+  "channels": 53,
+  "events": 5,
+  "trs": 34
+ },
+ "280006": {
+  "frames": 601,
+  "fps": 30.0,
+  "duration": 20.0,
+  "channels": 55,
+  "events": 5,
+  "trs": 34
+ },
+ "280007": {
+  "frames": 481,
+  "fps": 30.0,
+  "duration": 16.0,
+  "channels": 112,
+  "events": 5,
+  "trs": 81
+ },
+ "280008": {
+  "frames": 481,
+  "fps": 30.0,
+  "duration": 16.0,
+  "channels": 153,
+  "events": 5,
+  "trs": 105
+ },
+ "280009": {
+  "frames": 691,
+  "fps": 30.0,
+  "duration": 23.0,
+  "channels": 194,
+  "events": 3,
+  "trs": 89
+ },
+ "280010": {
+  "frames": 691,
+  "fps": 30.0,
+  "duration": 23.0,
+  "channels": 235,
+  "events": 3,
+  "trs": 110
+ },
+ "280101": {
+  "frames": 451,
+  "fps": 30.0,
+  "duration": 15.0,
+  "channels": 189,
+  "events": 7,
+  "trs": 117
+ },
+ "280102": {
+  "frames": 451,
+  "fps": 30.0,
+  "duration": 15.0,
+  "channels": 265,
+  "events": 7,
+  "trs": 152
+ },
+ "280103": {
+  "frames": 511,
+  "fps": 30.0,
+  "duration": 17.0,
+  "channels": 369,
+  "events": 8,
+  "trs": 243
+ },
+ "280104": {
+  "frames": 511,
+  "fps": 30.0,
+  "duration": 17.0,
+  "channels": 421,
+  "events": 8,
+  "trs": 271
+ },
+ "280105": {
+  "frames": 845,
+  "fps": 30.0,
+  "duration": 28.1333,
+  "channels": 298,
+  "events": 4,
+  "trs": 166
+ },
+ "280201": {
+  "frames": 461,
+  "fps": 30.0,
+  "duration": 15.3333,
+  "channels": 135,
+  "events": 5,
+  "trs": 89
+ },
+ "280106": {
+  "frames": 845,
+  "fps": 30.0,
+  "duration": 28.1333,
+  "channels": 321,
+  "events": 4,
+  "trs": 176
+ },
+ "280203": {
+  "frames": 536,
+  "fps": 30.0,
+  "duration": 17.8333,
+  "channels": 174,
+  "events": 7,
+  "trs": 98
+ },
+ "280202": {
+  "frames": 461,
+  "fps": 30.0,
+  "duration": 15.3333,
+  "channels": 161,
+  "events": 3,
+  "trs": 105
+ },
+ "280204": {
+  "frames": 536,
+  "fps": 30.0,
+  "duration": 17.8333,
+  "channels": 207,
+  "events": 7,
+  "trs": 116
+ },
+ "280205": {
+  "frames": 806,
+  "fps": 30.0,
+  "duration": 26.8333,
+  "channels": 160,
+  "events": 7,
+  "trs": 113
+ },
+ "280206": {
+  "frames": 806,
+  "fps": 30.0,
+  "duration": 26.8333,
+  "channels": 184,
+  "events": 7,
+  "trs": 126
+ },
+ "280301": {
+  "frames": 561,
+  "fps": 30.0,
+  "duration": 18.6667,
+  "channels": 148,
+  "events": 11,
+  "trs": 101
+ },
+ "280302": {
+  "frames": 561,
+  "fps": 30.0,
+  "duration": 18.6667,
+  "channels": 153,
+  "events": 11,
+  "trs": 98
+ },
+ "280401": {
+  "frames": 473,
+  "fps": 30.0,
+  "duration": 15.7333,
+  "channels": 92,
+  "events": 5,
+  "trs": 66
+ },
+ "280402": {
+  "frames": 473,
+  "fps": 30.0,
+  "duration": 15.7333,
+  "channels": 92,
+  "events": 5,
+  "trs": 66
+ },
+ "280403": {
+  "frames": 591,
+  "fps": 30.0,
+  "duration": 19.6667,
+  "channels": 183,
+  "events": 7,
+  "trs": 112
+ },
+ "280404": {
+  "frames": 591,
+  "fps": 30.0,
+  "duration": 19.6667,
+  "channels": 292,
+  "events": 7,
+  "trs": 244
+ },
+ "280501": {
+  "frames": 481,
+  "fps": 30.0,
+  "duration": 16.0,
+  "channels": 160,
+  "events": 5,
+  "trs": 82
+ },
+ "280502": {
+  "frames": 481,
+  "fps": 30.0,
+  "duration": 16.0,
+  "channels": 170,
+  "events": 5,
+  "trs": 88
+ },
+ "280503": {
+  "frames": 661,
+  "fps": 30.0,
+  "duration": 22.0,
+  "channels": 499,
+  "events": 6,
+  "trs": 242
+ },
+ "280504": {
+  "frames": 661,
+  "fps": 30.0,
+  "duration": 22.0,
+  "channels": 500,
+  "events": 6,
+  "trs": 243
+ },
+ "290002": {
+  "frames": 426,
+  "fps": 30.0,
+  "duration": 14.1667,
+  "channels": 346,
+  "events": 9,
+  "trs": 86
+ },
+ "290003": {
+  "frames": 491,
+  "fps": 30.0,
+  "duration": 16.3333,
+  "channels": 411,
+  "events": 19,
+  "trs": 94
+ },
+ "290004": {
+  "frames": 491,
+  "fps": 30.0,
+  "duration": 16.3333,
+  "channels": 514,
+  "events": 19,
+  "trs": 119
+ },
+ "290005": {
+  "frames": 461,
+  "fps": 30.0,
+  "duration": 15.3333,
+  "channels": 160,
+  "events": 3,
+  "trs": 84
+ },
+ "290006": {
+  "frames": 461,
+  "fps": 30.0,
+  "duration": 15.3333,
+  "channels": 169,
+  "events": 3,
+  "trs": 93
+ },
+ "290007": {
+  "frames": 681,
+  "fps": 30.0,
+  "duration": 22.6667,
+  "channels": 211,
+  "events": 3,
+  "trs": 94
+ },
+ "290008": {
+  "frames": 681,
+  "fps": 30.0,
+  "duration": 22.6667,
+  "channels": 260,
+  "events": 3,
+  "trs": 119
+ },
+ "290101": {
+  "frames": 461,
+  "fps": 30.0,
+  "duration": 15.3333,
+  "channels": 335,
+  "events": 6,
+  "trs": 105
+ },
+ "290102": {
+  "frames": 461,
+  "fps": 30.0,
+  "duration": 15.3333,
+  "channels": 508,
+  "events": 6,
+  "trs": 154
+ },
+ "290103": {
+  "frames": 511,
+  "fps": 30.0,
+  "duration": 17.0,
+  "channels": 341,
+  "events": 8,
+  "trs": 165
+ },
+ "290105": {
+  "frames": 463,
+  "fps": 30.0,
+  "duration": 15.4,
+  "channels": 519,
+  "events": 9,
+  "trs": 279
+ },
+ "290104": {
+  "frames": 511,
+  "fps": 30.0,
+  "duration": 17.0,
+  "channels": 391,
+  "events": 8,
+  "trs": 183
+ },
+ "290107": {
+  "frames": 631,
+  "fps": 30.0,
+  "duration": 21.0,
+  "channels": 175,
+  "events": 3,
+  "trs": 109
+ },
+ "290106": {
+  "frames": 463,
+  "fps": 30.0,
+  "duration": 15.4,
+  "channels": 519,
+  "events": 9,
+  "trs": 280
+ },
+ "290108": {
+  "frames": 631,
+  "fps": 30.0,
+  "duration": 21.0,
+  "channels": 245,
+  "events": 3,
+  "trs": 158
+ },
+ "290201": {
+  "frames": 451,
+  "fps": 30.0,
+  "duration": 15.0,
+  "channels": 235,
+  "events": 8,
+  "trs": 96
+ },
+ "290202": {
+  "frames": 451,
+  "fps": 30.0,
+  "duration": 15.0,
+  "channels": 257,
+  "events": 8,
+  "trs": 113
+ },
+ "290203": {
+  "frames": 511,
+  "fps": 30.0,
+  "duration": 17.0,
+  "channels": 128,
+  "events": 4,
+  "trs": 62
+ },
+ "290205": {
+  "frames": 471,
+  "fps": 30.0,
+  "duration": 15.6667,
+  "channels": 219,
+  "events": 4,
+  "trs": 100
+ },
+ "290204": {
+  "frames": 511,
+  "fps": 30.0,
+  "duration": 17.0,
+  "channels": 149,
+  "events": 4,
+  "trs": 74
+ },
+ "290206": {
+  "frames": 471,
+  "fps": 30.0,
+  "duration": 15.6667,
+  "channels": 258,
+  "events": 4,
+  "trs": 121
+ },
+ "290301": {
+  "frames": 441,
+  "fps": 30.0,
+  "duration": 14.6667,
+  "channels": 456,
+  "events": 5,
+  "trs": 263
+ },
+ "290302": {
+  "frames": 441,
+  "fps": 30.0,
+  "duration": 14.6667,
+  "channels": 500,
+  "events": 5,
+  "trs": 284
+ },
+ "290303": {
+  "frames": 571,
+  "fps": 30.0,
+  "duration": 19.0,
+  "channels": 266,
+  "events": 3,
+  "trs": 149
+ },
+ "290304": {
+  "frames": 571,
+  "fps": 30.0,
+  "duration": 19.0,
+  "channels": 283,
+  "events": 3,
+  "trs": 156
+ },
+ "290401": {
+  "frames": 471,
+  "fps": 30.0,
+  "duration": 15.6667,
+  "channels": 311,
+  "events": 12,
+  "trs": 177
+ },
+ "290402": {
+  "frames": 471,
+  "fps": 30.0,
+  "duration": 15.6667,
+  "channels": 367,
+  "events": 12,
+  "trs": 196
+ },
+ "290501": {
+  "frames": 561,
+  "fps": 30.0,
+  "duration": 18.6667,
+  "channels": 289,
+  "events": 6,
+  "trs": 137
+ },
+ "290601": {
+  "frames": 501,
+  "fps": 30.0,
+  "duration": 16.6667,
+  "channels": 78,
+  "events": 4,
+  "trs": 39
+ },
+ "290502": {
+  "frames": 561,
+  "fps": 30.0,
+  "duration": 18.6667,
+  "channels": 325,
+  "events": 6,
+  "trs": 150
+ },
+ "290602": {
+  "frames": 501,
+  "fps": 30.0,
+  "duration": 16.6667,
+  "channels": 89,
+  "events": 4,
+  "trs": 44
+ },
+ "290603": {
+  "frames": 721,
+  "fps": 30.0,
+  "duration": 24.0,
+  "channels": 201,
+  "events": 5,
+  "trs": 117
+ },
+ "290604": {
+  "frames": 721,
+  "fps": 30.0,
+  "duration": 24.0,
+  "channels": 227,
+  "events": 5,
+  "trs": 131
+ },
+ "300002": {
+  "frames": 461,
+  "fps": 30.0,
+  "duration": 15.3333,
+  "channels": 210,
+  "events": 7,
+  "trs": 89
+ },
+ "300003": {
+  "frames": 531,
+  "fps": 30.0,
+  "duration": 17.6667,
+  "channels": 370,
+  "events": 7,
+  "trs": 163
+ },
+ "300004": {
+  "frames": 531,
+  "fps": 30.0,
+  "duration": 17.6667,
+  "channels": 411,
+  "events": 7,
+  "trs": 179
+ },
+ "300005": {
+  "frames": 511,
+  "fps": 30.0,
+  "duration": 17.0,
+  "channels": 347,
+  "events": 7,
+  "trs": 109
+ },
+ "300006": {
+  "frames": 511,
+  "fps": 30.0,
+  "duration": 17.0,
+  "channels": 487,
+  "events": 7,
+  "trs": 141
+ },
+ "300007": {
+  "frames": 651,
+  "fps": 30.0,
+  "duration": 21.6667,
+  "channels": 422,
+  "events": 12,
+  "trs": 270
+ },
+ "300008": {
+  "frames": 651,
+  "fps": 30.0,
+  "duration": 21.6667,
+  "channels": 644,
+  "events": 12,
+  "trs": 394
+ },
+ "300009": {
+  "frames": 801,
+  "fps": 30.0,
+  "duration": 26.6667,
+  "channels": 290,
+  "events": 5,
+  "trs": 214
+ },
+ "300101": {
+  "frames": 451,
+  "fps": 30.0,
+  "duration": 15.0,
+  "channels": 223,
+  "events": 20,
+  "trs": 74
+ },
+ "300010": {
+  "frames": 801,
+  "fps": 30.0,
+  "duration": 26.6667,
+  "channels": 431,
+  "events": 5,
+  "trs": 317
+ },
+ "300102": {
+  "frames": 451,
+  "fps": 30.0,
+  "duration": 15.0,
+  "channels": 291,
+  "events": 20,
+  "trs": 93
+ },
+ "300103": {
+  "frames": 561,
+  "fps": 30.0,
+  "duration": 18.6667,
+  "channels": 290,
+  "events": 5,
+  "trs": 146
+ },
+ "300104": {
+  "frames": 561,
+  "fps": 30.0,
+  "duration": 18.6667,
+  "channels": 336,
+  "events": 5,
+  "trs": 147
+ },
+ "300105": {
+  "frames": 541,
+  "fps": 30.0,
+  "duration": 18.0,
+  "channels": 167,
+  "events": 5,
+  "trs": 93
+ },
+ "300107": {
+  "frames": 796,
+  "fps": 30.0,
+  "duration": 26.5,
+  "channels": 97,
+  "events": 9,
+  "trs": 68
+ },
+ "300108": {
+  "frames": 796,
+  "fps": 30.0,
+  "duration": 26.5,
+  "channels": 104,
+  "events": 9,
+  "trs": 73
+ },
+ "300106": {
+  "frames": 541,
+  "fps": 30.0,
+  "duration": 18.0,
+  "channels": 168,
+  "events": 5,
+  "trs": 92
+ },
+ "300201": {
+  "frames": 451,
+  "fps": 30.0,
+  "duration": 15.0,
+  "channels": 58,
+  "events": 6,
+  "trs": 48
+ },
+ "300202": {
+  "frames": 451,
+  "fps": 30.0,
+  "duration": 15.0,
+  "channels": 74,
+  "events": 6,
+  "trs": 55
+ },
+ "300203": {
+  "frames": 521,
+  "fps": 30.0,
+  "duration": 17.3333,
+  "channels": 109,
+  "events": 5,
+  "trs": 60
+ },
+ "300204": {
+  "frames": 521,
+  "fps": 30.0,
+  "duration": 17.3333,
+  "channels": 144,
+  "events": 5,
+  "trs": 82
+ },
+ "300205": {
+  "frames": 621,
+  "fps": 30.0,
+  "duration": 20.6667,
+  "channels": 235,
+  "events": 9,
+  "trs": 68
+ },
+ "300206": {
+  "frames": 621,
+  "fps": 30.0,
+  "duration": 20.6667,
+  "channels": 431,
+  "events": 9,
+  "trs": 144
+ },
+ "300207": {
+  "frames": 696,
+  "fps": 30.0,
+  "duration": 23.1667,
+  "channels": 211,
+  "events": 6,
+  "trs": 127
+ },
+ "300208": {
+  "frames": 696,
+  "fps": 30.0,
+  "duration": 23.1667,
+  "channels": 239,
+  "events": 6,
+  "trs": 136
+ },
+ "300301": {
+  "frames": 451,
+  "fps": 30.0,
+  "duration": 15.0,
+  "channels": 208,
+  "events": 4,
+  "trs": 125
+ },
+ "300302": {
+  "frames": 451,
+  "fps": 30.0,
+  "duration": 15.0,
+  "channels": 251,
+  "events": 4,
+  "trs": 148
+ },
+ "300303": {
+  "frames": 511,
+  "fps": 30.0,
+  "duration": 17.0,
+  "channels": 228,
+  "events": 4,
+  "trs": 143
+ },
+ "300304": {
+  "frames": 511,
+  "fps": 30.0,
+  "duration": 17.0,
+  "channels": 247,
+  "events": 4,
+  "trs": 152
+ },
+ "300305": {
+  "frames": 591,
+  "fps": 30.0,
+  "duration": 19.6667,
+  "channels": 248,
+  "events": 10,
+  "trs": 111
+ },
+ "300306": {
+  "frames": 591,
+  "fps": 30.0,
+  "duration": 19.6667,
+  "channels": 337,
+  "events": 10,
+  "trs": 157
+ },
+ "300401": {
+  "frames": 461,
+  "fps": 30.0,
+  "duration": 15.3333,
+  "channels": 90,
+  "events": 7,
+  "trs": 43
+ },
+ "300402": {
+  "frames": 461,
+  "fps": 30.0,
+  "duration": 15.3333,
+  "channels": 123,
+  "events": 7,
+  "trs": 52
+ },
+ "300403": {
+  "frames": 526,
+  "fps": 30.0,
+  "duration": 17.5,
+  "channels": 181,
+  "events": 5,
+  "trs": 73
+ },
+ "300404": {
+  "frames": 526,
+  "fps": 30.0,
+  "duration": 17.5,
+  "channels": 262,
+  "events": 5,
+  "trs": 100
+ },
+ "300405": {
+  "frames": 636,
+  "fps": 30.0,
+  "duration": 21.1667,
+  "channels": 206,
+  "events": 12,
+  "trs": 160
+ },
+ "300406": {
+  "frames": 636,
+  "fps": 30.0,
+  "duration": 21.1667,
+  "channels": 286,
+  "events": 12,
+  "trs": 217
+ },
+ "300407": {
+  "frames": 721,
+  "fps": 30.0,
+  "duration": 24.0,
+  "channels": 108,
+  "events": 5,
+  "trs": 84
+ },
+ "300501": {
+  "frames": 481,
+  "fps": 30.0,
+  "duration": 16.0,
+  "channels": 141,
+  "events": 7,
+  "trs": 97
+ },
+ "300408": {
+  "frames": 721,
+  "fps": 30.0,
+  "duration": 24.0,
+  "channels": 112,
+  "events": 5,
+  "trs": 84
+ },
+ "300502": {
+  "frames": 481,
+  "fps": 30.0,
+  "duration": 16.0,
+  "channels": 187,
+  "events": 7,
+  "trs": 121
+ },
+ "300503": {
+  "frames": 561,
+  "fps": 30.0,
+  "duration": 18.6667,
+  "channels": 278,
+  "events": 9,
+  "trs": 130
+ },
+ "300504": {
+  "frames": 561,
+  "fps": 30.0,
+  "duration": 18.6667,
+  "channels": 310,
+  "events": 9,
+  "trs": 144
+ },
+ "300601": {
+  "frames": 466,
+  "fps": 30.0,
+  "duration": 15.5,
+  "channels": 108,
+  "events": 5,
+  "trs": 66
+ },
+ "300602": {
+  "frames": 466,
+  "fps": 30.0,
+  "duration": 15.5,
+  "channels": 113,
+  "events": 5,
+  "trs": 68
+ },
+ "300603": {
+  "frames": 521,
+  "fps": 30.0,
+  "duration": 17.3333,
+  "channels": 281,
+  "events": 5,
+  "trs": 211
+ },
+ "300604": {
+  "frames": 521,
+  "fps": 30.0,
+  "duration": 17.3333,
+  "channels": 283,
+  "events": 5,
+  "trs": 211
+ },
+ "300701": {
+  "frames": 696,
+  "fps": 30.0,
+  "duration": 23.1667,
+  "channels": 485,
+  "events": 11,
+  "trs": 178
+ },
+ "300702": {
+  "frames": 696,
+  "fps": 30.0,
+  "duration": 23.1667,
+  "channels": 531,
+  "events": 11,
+  "trs": 197
+ },
+ "300801": {
+  "frames": 661,
+  "fps": 30.0,
+  "duration": 22.0,
+  "channels": 235,
+  "events": 4,
+  "trs": 162
+ },
+ "300802": {
+  "frames": 661,
+  "fps": 30.0,
+  "duration": 22.0,
+  "channels": 253,
+  "events": 4,
+  "trs": 176
+ },
+ "310002": {
+  "frames": 451,
+  "fps": 30.0,
+  "duration": 15.0,
+  "channels": 272,
+  "events": 9,
+  "trs": 155
+ },
+ "310003": {
+  "frames": 516,
+  "fps": 30.0,
+  "duration": 17.1667,
+  "channels": 211,
+  "events": 8,
+  "trs": 233
+ },
+ "310004": {
+  "frames": 516,
+  "fps": 30.0,
+  "duration": 17.1667,
+  "channels": 211,
+  "events": 8,
+  "trs": 224
+ },
+ "310005": {
+  "frames": 681,
+  "fps": 30.0,
+  "duration": 22.6667,
+  "channels": 163,
+  "events": 7,
+  "trs": 107
+ },
+ "310006": {
+  "frames": 681,
+  "fps": 30.0,
+  "duration": 22.6667,
+  "channels": 173,
+  "events": 7,
+  "trs": 110
+ },
+ "310101": {
+  "frames": 451,
+  "fps": 30.0,
+  "duration": 15.0,
+  "channels": 162,
+  "events": 8,
+  "trs": 90
+ },
+ "310103": {
+  "frames": 606,
+  "fps": 30.0,
+  "duration": 20.1667,
+  "channels": 121,
+  "events": 9,
+  "trs": 65
+ },
+ "310102": {
+  "frames": 451,
+  "fps": 30.0,
+  "duration": 15.0,
+  "channels": 189,
+  "events": 8,
+  "trs": 106
+ },
+ "310105": {
+  "frames": 621,
+  "fps": 30.0,
+  "duration": 20.6667,
+  "channels": 247,
+  "events": 7,
+  "trs": 180
+ },
+ "310104": {
+  "frames": 606,
+  "fps": 30.0,
+  "duration": 20.1667,
+  "channels": 129,
+  "events": 9,
+  "trs": 70
+ },
+ "310106": {
+  "frames": 621,
+  "fps": 30.0,
+  "duration": 20.6667,
+  "channels": 286,
+  "events": 7,
+  "trs": 218
+ },
+ "310107": {
+  "frames": 681,
+  "fps": 30.0,
+  "duration": 22.6667,
+  "channels": 293,
+  "events": 3,
+  "trs": 171
+ },
+ "310108": {
+  "frames": 681,
+  "fps": 30.0,
+  "duration": 22.6667,
+  "channels": 360,
+  "events": 3,
+  "trs": 203
+ },
+ "310201": {
+  "frames": 461,
+  "fps": 30.0,
+  "duration": 15.3333,
+  "channels": 193,
+  "events": 10,
+  "trs": 104
+ },
+ "310202": {
+  "frames": 461,
+  "fps": 30.0,
+  "duration": 15.3333,
+  "channels": 222,
+  "events": 10,
+  "trs": 118
+ },
+ "310203": {
+  "frames": 656,
+  "fps": 30.0,
+  "duration": 21.8333,
+  "channels": 269,
+  "events": 8,
+  "trs": 184
+ },
+ "310204": {
+  "frames": 656,
+  "fps": 30.0,
+  "duration": 21.8333,
+  "channels": 345,
+  "events": 8,
+  "trs": 212
+ },
+ "310205": {
+  "frames": 751,
+  "fps": 30.0,
+  "duration": 25.0,
+  "channels": 441,
+  "events": 10,
+  "trs": 282
+ },
+ "310301": {
+  "frames": 471,
+  "fps": 30.0,
+  "duration": 15.6667,
+  "channels": 285,
+  "events": 9,
+  "trs": 182
+ },
+ "310302": {
+  "frames": 471,
+  "fps": 30.0,
+  "duration": 15.6667,
+  "channels": 337,
+  "events": 9,
+  "trs": 213
+ },
+ "310206": {
+  "frames": 751,
+  "fps": 30.0,
+  "duration": 25.0,
+  "channels": 585,
+  "events": 10,
+  "trs": 381
+ },
+ "310303": {
+  "frames": 531,
+  "fps": 30.0,
+  "duration": 17.6667,
+  "channels": 150,
+  "events": 9,
+  "trs": 76
+ },
+ "310304": {
+  "frames": 531,
+  "fps": 30.0,
+  "duration": 17.6667,
+  "channels": 180,
+  "events": 9,
+  "trs": 92
+ },
+ "310305": {
+  "frames": 781,
+  "fps": 30.0,
+  "duration": 26.0,
+  "channels": 270,
+  "events": 5,
+  "trs": 126
+ },
+ "310306": {
+  "frames": 781,
+  "fps": 30.0,
+  "duration": 26.0,
+  "channels": 311,
+  "events": 5,
+  "trs": 147
+ },
+ "310401": {
+  "frames": 461,
+  "fps": 30.0,
+  "duration": 15.3333,
+  "channels": 178,
+  "events": 7,
+  "trs": 169
+ },
+ "310402": {
+  "frames": 461,
+  "fps": 30.0,
+  "duration": 15.3333,
+  "channels": 197,
+  "events": 7,
+  "trs": 182
+ },
+ "310403": {
+  "frames": 656,
+  "fps": 30.0,
+  "duration": 21.8333,
+  "channels": 295,
+  "events": 6,
+  "trs": 293
+ },
+ "310404": {
+  "frames": 656,
+  "fps": 30.0,
+  "duration": 21.8333,
+  "channels": 320,
+  "events": 6,
+  "trs": 309
+ },
+ "310405": {
+  "frames": 721,
+  "fps": 30.0,
+  "duration": 24.0,
+  "channels": 234,
+  "events": 6,
+  "trs": 125
+ },
+ "310406": {
+  "frames": 721,
+  "fps": 30.0,
+  "duration": 24.0,
+  "channels": 332,
+  "events": 6,
+  "trs": 191
+ },
+ "310501": {
+  "frames": 471,
+  "fps": 30.0,
+  "duration": 15.6667,
+  "channels": 96,
+  "events": 10,
+  "trs": 60
+ },
+ "310502": {
+  "frames": 471,
+  "fps": 30.0,
+  "duration": 15.6667,
+  "channels": 146,
+  "events": 10,
+  "trs": 84
+ },
+ "320002": {
+  "frames": 511,
+  "fps": 30.0,
+  "duration": 17.0,
+  "channels": 816,
+  "events": 6,
+  "trs": 368
+ },
+ "320003": {
+  "frames": 736,
+  "fps": 30.0,
+  "duration": 24.5,
+  "channels": 431,
+  "events": 6,
+  "trs": 289
+ },
+ "320004": {
+  "frames": 736,
+  "fps": 30.0,
+  "duration": 24.5,
+  "channels": 543,
+  "events": 6,
+  "trs": 341
+ },
+ "320005": {
+  "frames": 781,
+  "fps": 30.0,
+  "duration": 26.0,
+  "channels": 378,
+  "events": 8,
+  "trs": 316
+ },
+ "320006": {
+  "frames": 781,
+  "fps": 30.0,
+  "duration": 26.0,
+  "channels": 424,
+  "events": 8,
+  "trs": 373
+ },
+ "320101": {
+  "frames": 551,
+  "fps": 30.0,
+  "duration": 18.3333,
+  "channels": 339,
+  "events": 8,
+  "trs": 184
+ },
+ "320103": {
+  "frames": 451,
+  "fps": 30.0,
+  "duration": 15.0,
+  "channels": 188,
+  "events": 8,
+  "trs": 95
+ },
+ "320102": {
+  "frames": 551,
+  "fps": 30.0,
+  "duration": 18.3333,
+  "channels": 453,
+  "events": 8,
+  "trs": 231
+ },
+ "320104": {
+  "frames": 451,
+  "fps": 30.0,
+  "duration": 15.0,
+  "channels": 254,
+  "events": 8,
+  "trs": 117
+ },
+ "320105": {
+  "frames": 571,
+  "fps": 30.0,
+  "duration": 19.0,
+  "channels": 226,
+  "events": 8,
+  "trs": 95
+ },
+ "320107": {
+  "frames": 601,
+  "fps": 30.0,
+  "duration": 20.0,
+  "channels": 259,
+  "events": 6,
+  "trs": 164
+ },
+ "320106": {
+  "frames": 571,
+  "fps": 30.0,
+  "duration": 19.0,
+  "channels": 242,
+  "events": 8,
+  "trs": 105
+ },
+ "320108": {
+  "frames": 601,
+  "fps": 30.0,
+  "duration": 20.0,
+  "channels": 272,
+  "events": 6,
+  "trs": 160
+ },
+ "320109": {
+  "frames": 736,
+  "fps": 30.0,
+  "duration": 24.5,
+  "channels": 310,
+  "events": 13,
+  "trs": 198
+ },
+ "320111": {
+  "frames": 641,
+  "fps": 30.0,
+  "duration": 21.3333,
+  "channels": 304,
+  "events": 4,
+  "trs": 151
+ },
+ "320110": {
+  "frames": 736,
+  "fps": 30.0,
+  "duration": 24.5,
+  "channels": 365,
+  "events": 13,
+  "trs": 226
+ },
+ "320112": {
+  "frames": 641,
+  "fps": 30.0,
+  "duration": 21.3333,
+  "channels": 320,
+  "events": 4,
+  "trs": 157
+ },
+ "320201": {
+  "frames": 451,
+  "fps": 30.0,
+  "duration": 15.0,
+  "channels": 223,
+  "events": 3,
+  "trs": 148
+ },
+ "320202": {
+  "frames": 451,
+  "fps": 30.0,
+  "duration": 15.0,
+  "channels": 341,
+  "events": 3,
+  "trs": 238
+ },
+ "320203": {
+  "frames": 521,
+  "fps": 30.0,
+  "duration": 17.3333,
+  "channels": 215,
+  "events": 8,
+  "trs": 104
+ },
+ "320204": {
+  "frames": 521,
+  "fps": 30.0,
+  "duration": 17.3333,
+  "channels": 242,
+  "events": 8,
+  "trs": 120
+ },
+ "320205": {
+  "frames": 951,
+  "fps": 30.0,
+  "duration": 31.6667,
+  "channels": 555,
+  "events": 3,
+  "trs": 367
+ },
+ "320206": {
+  "frames": 951,
+  "fps": 30.0,
+  "duration": 31.6667,
+  "channels": 559,
+  "events": 3,
+  "trs": 370
+ },
+ "320207": {
+  "frames": 861,
+  "fps": 30.0,
+  "duration": 28.6667,
+  "channels": 312,
+  "events": 7,
+  "trs": 245
+ },
+ "320301": {
+  "frames": 526,
+  "fps": 30.0,
+  "duration": 17.5,
+  "channels": 140,
+  "events": 11,
+  "trs": 70
+ },
+ "320208": {
+  "frames": 861,
+  "fps": 30.0,
+  "duration": 28.6667,
+  "channels": 349,
+  "events": 7,
+  "trs": 279
+ },
+ "320302": {
+  "frames": 526,
+  "fps": 30.0,
+  "duration": 17.5,
+  "channels": 154,
+  "events": 11,
+  "trs": 76
+ },
+ "320303": {
+  "frames": 481,
+  "fps": 30.0,
+  "duration": 16.0,
+  "channels": 209,
+  "events": 3,
+  "trs": 152
+ },
+ "320304": {
+  "frames": 481,
+  "fps": 30.0,
+  "duration": 16.0,
+  "channels": 217,
+  "events": 3,
+  "trs": 155
+ },
+ "320305": {
+  "frames": 681,
+  "fps": 30.0,
+  "duration": 22.6667,
+  "channels": 328,
+  "events": 9,
+  "trs": 207
+ },
+ "320307": {
+  "frames": 841,
+  "fps": 30.0,
+  "duration": 28.0,
+  "channels": 188,
+  "events": 4,
+  "trs": 132
+ },
+ "320306": {
+  "frames": 681,
+  "fps": 30.0,
+  "duration": 22.6667,
+  "channels": 383,
+  "events": 9,
+  "trs": 219
+ },
+ "320308": {
+  "frames": 841,
+  "fps": 30.0,
+  "duration": 28.0,
+  "channels": 213,
+  "events": 4,
+  "trs": 144
+ },
+ "320401": {
+  "frames": 511,
+  "fps": 30.0,
+  "duration": 17.0,
+  "channels": 134,
+  "events": 5,
+  "trs": 82
+ },
+ "320402": {
+  "frames": 511,
+  "fps": 30.0,
+  "duration": 17.0,
+  "channels": 154,
+  "events": 5,
+  "trs": 92
+ },
+ "320403": {
+  "frames": 641,
+  "fps": 30.0,
+  "duration": 21.3333,
+  "channels": 228,
+  "events": 8,
+  "trs": 159
+ },
+ "320404": {
+  "frames": 641,
+  "fps": 30.0,
+  "duration": 21.3333,
+  "channels": 229,
+  "events": 8,
+  "trs": 163
+ },
+ "320405": {
+  "frames": 691,
+  "fps": 30.0,
+  "duration": 23.0,
+  "channels": 527,
+  "events": 7,
+  "trs": 338
+ },
+ "320406": {
+  "frames": 691,
+  "fps": 30.0,
+  "duration": 23.0,
+  "channels": 561,
+  "events": 7,
+  "trs": 345
+ },
+ "320407": {
+  "frames": 601,
+  "fps": 30.0,
+  "duration": 20.0,
+  "channels": 347,
+  "events": 4,
+  "trs": 169
+ },
+ "320408": {
+  "frames": 601,
+  "fps": 30.0,
+  "duration": 20.0,
+  "channels": 753,
+  "events": 4,
+  "trs": 360
+ },
+ "320501": {
+  "frames": 616,
+  "fps": 30.0,
+  "duration": 20.5,
+  "channels": 428,
+  "events": 7,
+  "trs": 234
+ },
+ "320502": {
+  "frames": 616,
+  "fps": 30.0,
+  "duration": 20.5,
+  "channels": 664,
+  "events": 7,
+  "trs": 307
+ },
+ "320601": {
+  "frames": 561,
+  "fps": 30.0,
+  "duration": 18.6667,
+  "channels": 373,
+  "events": 9,
+  "trs": 243
+ },
+ "320602": {
+  "frames": 561,
+  "fps": 30.0,
+  "duration": 18.6667,
+  "channels": 399,
+  "events": 9,
+  "trs": 255
+ },
+ "320603": {
+  "frames": 551,
+  "fps": 30.0,
+  "duration": 18.3333,
+  "channels": 224,
+  "events": 6,
+  "trs": 217
+ },
+ "320605": {
+  "frames": 601,
+  "fps": 30.0,
+  "duration": 20.0,
+  "channels": 176,
+  "events": 4,
+  "trs": 137
+ },
+ "320604": {
+  "frames": 551,
+  "fps": 30.0,
+  "duration": 18.3333,
+  "channels": 371,
+  "events": 6,
+  "trs": 310
+ },
+ "320606": {
+  "frames": 601,
+  "fps": 30.0,
+  "duration": 20.0,
+  "channels": 244,
+  "events": 4,
+  "trs": 222
+ },
+ "320701": {
+  "frames": 836,
+  "fps": 30.0,
+  "duration": 27.8333,
+  "channels": 261,
+  "events": 5,
+  "trs": 208
+ },
+ "320702": {
+  "frames": 836,
+  "fps": 30.0,
+  "duration": 27.8333,
+  "channels": 277,
+  "events": 5,
+  "trs": 231
+ },
+ "320801": {
+  "frames": 546,
+  "fps": 30.0,
+  "duration": 18.1667,
+  "channels": 289,
+  "events": 13,
+  "trs": 131
+ },
+ "320802": {
+  "frames": 546,
+  "fps": 30.0,
+  "duration": 18.1667,
+  "channels": 366,
+  "events": 13,
+  "trs": 173
+ },
+ "320803": {
+  "frames": 566,
+  "fps": 30.0,
+  "duration": 18.8333,
+  "channels": 267,
+  "events": 6,
+  "trs": 125
+ },
+ "320804": {
+  "frames": 566,
+  "fps": 30.0,
+  "duration": 18.8333,
+  "channels": 288,
+  "events": 6,
+  "trs": 133
+ },
+ "320805": {
+  "frames": 806,
+  "fps": 30.0,
+  "duration": 26.8333,
+  "channels": 93,
+  "events": 5,
+  "trs": 119
+ },
+ "320806": {
+  "frames": 806,
+  "fps": 30.0,
+  "duration": 26.8333,
+  "channels": 97,
+  "events": 5,
+  "trs": 119
+ },
+ "320807": {
+  "frames": 651,
+  "fps": 30.0,
+  "duration": 21.6667,
+  "channels": 293,
+  "events": 8,
+  "trs": 183
+ },
+ "320901": {
+  "frames": 511,
+  "fps": 30.0,
+  "duration": 17.0,
+  "channels": 211,
+  "events": 9,
+  "trs": 125
+ },
+ "320808": {
+  "frames": 651,
+  "fps": 30.0,
+  "duration": 21.6667,
+  "channels": 319,
+  "events": 8,
+  "trs": 196
+ },
+ "320902": {
+  "frames": 511,
+  "fps": 30.0,
+  "duration": 17.0,
+  "channels": 220,
+  "events": 9,
+  "trs": 130
+ },
+ "320903": {
+  "frames": 666,
+  "fps": 30.0,
+  "duration": 22.1667,
+  "channels": 362,
+  "events": 3,
+  "trs": 222
+ },
+ "320904": {
+  "frames": 666,
+  "fps": 30.0,
+  "duration": 22.1667,
+  "channels": 390,
+  "events": 3,
+  "trs": 248
+ },
+ "321001": {
+  "frames": 526,
+  "fps": 30.0,
+  "duration": 17.5,
+  "channels": 259,
+  "events": 6,
+  "trs": 108
+ },
+ "321002": {
+  "frames": 526,
+  "fps": 30.0,
+  "duration": 17.5,
+  "channels": 344,
+  "events": 6,
+  "trs": 146
+ },
+ "321003": {
+  "frames": 786,
+  "fps": 30.0,
+  "duration": 26.1667,
+  "channels": 382,
+  "events": 7,
+  "trs": 276
+ },
+ "321004": {
+  "frames": 786,
+  "fps": 30.0,
+  "duration": 26.1667,
+  "channels": 383,
+  "events": 7,
+  "trs": 275
+ },
+ "321005": {
+  "frames": 761,
+  "fps": 30.0,
+  "duration": 25.3333,
+  "channels": 553,
+  "events": 5,
+  "trs": 288
+ },
+ "321101": {
+  "frames": 511,
+  "fps": 30.0,
+  "duration": 17.0,
+  "channels": 260,
+  "events": 6,
+  "trs": 126
+ },
+ "321006": {
+  "frames": 761,
+  "fps": 30.0,
+  "duration": 25.3333,
+  "channels": 625,
+  "events": 5,
+  "trs": 323
+ },
+ "321102": {
+  "frames": 511,
+  "fps": 30.0,
+  "duration": 17.0,
+  "channels": 260,
+  "events": 6,
+  "trs": 125
+ },
+ "321103": {
+  "frames": 511,
+  "fps": 30.0,
+  "duration": 17.0,
+  "channels": 344,
+  "events": 5,
+  "trs": 188
+ },
+ "321104": {
+  "frames": 511,
+  "fps": 30.0,
+  "duration": 17.0,
+  "channels": 348,
+  "events": 5,
+  "trs": 191
+ },
+ "321201": {
+  "frames": 541,
+  "fps": 30.0,
+  "duration": 18.0,
+  "channels": 224,
+  "events": 4,
+  "trs": 109
+ },
+ "321202": {
+  "frames": 541,
+  "fps": 30.0,
+  "duration": 18.0,
+  "channels": 256,
+  "events": 4,
+  "trs": 120
+ },
+ "321203": {
+  "frames": 636,
+  "fps": 30.0,
+  "duration": 21.1667,
+  "channels": 71,
+  "events": 17,
+  "trs": 88
+ },
+ "321204": {
+  "frames": 636,
+  "fps": 30.0,
+  "duration": 21.1667,
+  "channels": 71,
+  "events": 17,
+  "trs": 95
+ },
+ "321301": {
+  "frames": 521,
+  "fps": 30.0,
+  "duration": 17.3333,
+  "channels": 200,
+  "events": 6,
+  "trs": 139
+ },
+ "321302": {
+  "frames": 521,
+  "fps": 30.0,
+  "duration": 17.3333,
+  "channels": 273,
+  "events": 6,
+  "trs": 185
+ },
+ "321303": {
+  "frames": 651,
+  "fps": 30.0,
+  "duration": 21.6667,
+  "channels": 203,
+  "events": 11,
+  "trs": 110
+ },
+ "321304": {
+  "frames": 651,
+  "fps": 30.0,
+  "duration": 21.6667,
+  "channels": 213,
+  "events": 11,
+  "trs": 115
+ },
+ "321401": {
+  "frames": 546,
+  "fps": 30.0,
+  "duration": 18.1667,
+  "channels": 782,
+  "events": 3,
+  "trs": 252
+ },
+ "321403": {
+  "frames": 511,
+  "fps": 30.0,
+  "duration": 17.0,
+  "channels": 207,
+  "events": 7,
+  "trs": 113
+ },
+ "321404": {
+  "frames": 511,
+  "fps": 30.0,
+  "duration": 17.0,
+  "channels": 296,
+  "events": 7,
+  "trs": 154
+ },
+ "321402": {
+  "frames": 546,
+  "fps": 30.0,
+  "duration": 18.1667,
+  "channels": 825,
+  "events": 3,
+  "trs": 259
+ },
+ "321501": {
+  "frames": 526,
+  "fps": 30.0,
+  "duration": 17.5,
+  "channels": 204,
+  "events": 5,
+  "trs": 120
+ },
+ "321502": {
+  "frames": 526,
+  "fps": 30.0,
+  "duration": 17.5,
+  "channels": 217,
+  "events": 5,
+  "trs": 123
+ },
+ "321503": {
+  "frames": 771,
+  "fps": 30.0,
+  "duration": 25.6667,
+  "channels": 191,
+  "events": 8,
+  "trs": 110
+ },
+ "321504": {
+  "frames": 771,
+  "fps": 30.0,
+  "duration": 25.6667,
+  "channels": 221,
+  "events": 8,
+  "trs": 123
+ },
+ "321601": {
+  "frames": 681,
+  "fps": 30.0,
+  "duration": 22.6667,
+  "channels": 431,
+  "events": 8,
+  "trs": 273
+ },
+ "321602": {
+  "frames": 681,
+  "fps": 30.0,
+  "duration": 22.6667,
+  "channels": 565,
+  "events": 8,
+  "trs": 334
+ },
+ "321702": {
+  "frames": 791,
+  "fps": 30.0,
+  "duration": 26.3333,
+  "channels": 454,
+  "events": 5,
+  "trs": 432
+ },
+ "321703": {
+  "frames": 751,
+  "fps": 30.0,
+  "duration": 25.0,
+  "channels": 219,
+  "events": 3,
+  "trs": 164
+ },
+ "321704": {
+  "frames": 751,
+  "fps": 30.0,
+  "duration": 25.0,
+  "channels": 258,
+  "events": 3,
+  "trs": 188
+ },
+ "321801": {
+  "frames": 751,
+  "fps": 30.0,
+  "duration": 25.0,
+  "channels": 393,
+  "events": 7,
+  "trs": 189
+ },
+ "321802": {
+  "frames": 751,
+  "fps": 30.0,
+  "duration": 25.0,
+  "channels": 395,
+  "events": 7,
+  "trs": 191
+ },
+ "321901": {
+  "frames": 686,
+  "fps": 30.0,
+  "duration": 22.8333,
+  "channels": 250,
+  "events": 4,
+  "trs": 103
+ },
+ "322001": {
+  "frames": 701,
+  "fps": 30.0,
+  "duration": 23.3333,
+  "channels": 224,
+  "events": 3,
+  "trs": 109
+ },
+ "321902": {
+  "frames": 686,
+  "fps": 30.0,
+  "duration": 22.8333,
+  "channels": 298,
+  "events": 4,
+  "trs": 127
+ },
+ "330001": {
+  "frames": 451,
+  "fps": 30.0,
+  "duration": 15.0,
+  "channels": 56,
+  "events": 5,
+  "trs": 45
+ },
+ "322002": {
+  "frames": 701,
+  "fps": 30.0,
+  "duration": 23.3333,
+  "channels": 281,
+  "events": 3,
+  "trs": 132
+ },
+ "330002": {
+  "frames": 451,
+  "fps": 30.0,
+  "duration": 15.0,
+  "channels": 76,
+  "events": 5,
+  "trs": 56
+ },
+ "330003": {
+  "frames": 551,
+  "fps": 30.0,
+  "duration": 18.3333,
+  "channels": 102,
+  "events": 7,
+  "trs": 76
+ },
+ "330004": {
+  "frames": 551,
+  "fps": 30.0,
+  "duration": 18.3333,
+  "channels": 120,
+  "events": 7,
+  "trs": 92
+ },
+ "330005": {
+  "frames": 731,
+  "fps": 30.0,
+  "duration": 24.3333,
+  "channels": 114,
+  "events": 9,
+  "trs": 83
+ },
+ "330006": {
+  "frames": 731,
+  "fps": 30.0,
+  "duration": 24.3333,
+  "channels": 141,
+  "events": 9,
+  "trs": 99
+ },
+ "330102": {
+  "frames": 471,
+  "fps": 30.0,
+  "duration": 15.6667,
+  "channels": 217,
+  "events": 8,
+  "trs": 114
+ },
+ "330103": {
+  "frames": 481,
+  "fps": 30.0,
+  "duration": 16.0,
+  "channels": 171,
+  "events": 5,
+  "trs": 60
+ },
+ "330104": {
+  "frames": 481,
+  "fps": 30.0,
+  "duration": 16.0,
+  "channels": 173,
+  "events": 5,
+  "trs": 60
+ },
+ "330105": {
+  "frames": 601,
+  "fps": 30.0,
+  "duration": 20.0,
+  "channels": 341,
+  "events": 5,
+  "trs": 186
+ },
+ "330201": {
+  "frames": 451,
+  "fps": 30.0,
+  "duration": 15.0,
+  "channels": 310,
+  "events": 6,
+  "trs": 180
+ },
+ "330106": {
+  "frames": 601,
+  "fps": 30.0,
+  "duration": 20.0,
+  "channels": 341,
+  "events": 5,
+  "trs": 186
+ },
+ "330202": {
+  "frames": 451,
+  "fps": 30.0,
+  "duration": 15.0,
+  "channels": 369,
+  "events": 6,
+  "trs": 213
+ },
+ "330203": {
+  "frames": 581,
+  "fps": 30.0,
+  "duration": 19.3333,
+  "channels": 186,
+  "events": 5,
+  "trs": 125
+ },
+ "330204": {
+  "frames": 581,
+  "fps": 30.0,
+  "duration": 19.3333,
+  "channels": 200,
+  "events": 5,
+  "trs": 136
+ },
+ "330301": {
+  "frames": 496,
+  "fps": 30.0,
+  "duration": 16.5,
+  "channels": 118,
+  "events": 7,
+  "trs": 69
+ },
+ "330302": {
+  "frames": 496,
+  "fps": 30.0,
+  "duration": 16.5,
+  "channels": 142,
+  "events": 7,
+  "trs": 79
+ },
+ "330303": {
+  "frames": 681,
+  "fps": 30.0,
+  "duration": 22.6667,
+  "channels": 211,
+  "events": 10,
+  "trs": 122
+ },
+ "330401": {
+  "frames": 631,
+  "fps": 30.0,
+  "duration": 21.0,
+  "channels": 188,
+  "events": 3,
+  "trs": 125
+ },
+ "330304": {
+  "frames": 681,
+  "fps": 30.0,
+  "duration": 22.6667,
+  "channels": 269,
+  "events": 10,
+  "trs": 156
+ },
+ "330402": {
+  "frames": 631,
+  "fps": 30.0,
+  "duration": 21.0,
+  "channels": 210,
+  "events": 3,
+  "trs": 159
+ },
+ "330403": {
+  "frames": 601,
+  "fps": 30.0,
+  "duration": 20.0,
+  "channels": 173,
+  "events": 7,
+  "trs": 109
+ },
+ "330404": {
+  "frames": 601,
+  "fps": 30.0,
+  "duration": 20.0,
+  "channels": 218,
+  "events": 7,
+  "trs": 150
+ },
+ "330501": {
+  "frames": 621,
+  "fps": 30.0,
+  "duration": 20.6667,
+  "channels": 178,
+  "events": 3,
+  "trs": 141
+ },
+ "330502": {
+  "frames": 621,
+  "fps": 30.0,
+  "duration": 20.6667,
+  "channels": 271,
+  "events": 3,
+  "trs": 186
+ },
+ "330601": {
+  "frames": 657,
+  "fps": 30.0,
+  "duration": 21.8667,
+  "channels": 357,
+  "events": 6,
+  "trs": 283
+ },
+ "330602": {
+  "frames": 657,
+  "fps": 30.0,
+  "duration": 21.8667,
+  "channels": 396,
+  "events": 6,
+  "trs": 318
+ },
+ "330603": {
+  "frames": 531,
+  "fps": 30.0,
+  "duration": 17.6667,
+  "channels": 91,
+  "events": 4,
+  "trs": 47
+ },
+ "330604": {
+  "frames": 531,
+  "fps": 30.0,
+  "duration": 17.6667,
+  "channels": 136,
+  "events": 4,
+  "trs": 69
+ },
+ "340002": {
+  "frames": 451,
+  "fps": 30.0,
+  "duration": 15.0,
+  "channels": 200,
+  "events": 6,
+  "trs": 157
+ },
+ "340003": {
+  "frames": 536,
+  "fps": 30.0,
+  "duration": 17.8333,
+  "channels": 154,
+  "events": 7,
+  "trs": 112
+ },
+ "340004": {
+  "frames": 536,
+  "fps": 30.0,
+  "duration": 17.8333,
+  "channels": 197,
+  "events": 7,
+  "trs": 151
+ },
+ "340005": {
+  "frames": 801,
+  "fps": 30.0,
+  "duration": 26.6667,
+  "channels": 344,
+  "events": 11,
+  "trs": 193
+ },
+ "340006": {
+  "frames": 801,
+  "fps": 30.0,
+  "duration": 26.6667,
+  "channels": 372,
+  "events": 11,
+  "trs": 203
+ },
+ "350002": {
+  "frames": 481,
+  "fps": 30.0,
+  "duration": 16.0,
+  "channels": 94,
+  "events": 5,
+  "trs": 53
+ },
+ "350003": {
+  "frames": 566,
+  "fps": 30.0,
+  "duration": 18.8333,
+  "channels": 127,
+  "events": 6,
+  "trs": 124
+ },
+ "350004": {
+  "frames": 566,
+  "fps": 30.0,
+  "duration": 18.8333,
+  "channels": 188,
+  "events": 6,
+  "trs": 162
+ },
+ "350005": {
+  "frames": 681,
+  "fps": 30.0,
+  "duration": 22.6667,
+  "channels": 220,
+  "events": 10,
+  "trs": 112
+ },
+ "350006": {
+  "frames": 681,
+  "fps": 30.0,
+  "duration": 22.6667,
+  "channels": 226,
+  "events": 10,
+  "trs": 115
+ },
+ "350101": {
+  "frames": 451,
+  "fps": 30.0,
+  "duration": 15.0,
+  "channels": 148,
+  "events": 6,
+  "trs": 82
+ },
+ "350102": {
+  "frames": 451,
+  "fps": 30.0,
+  "duration": 15.0,
+  "channels": 181,
+  "events": 6,
+  "trs": 102
+ },
+ "350103": {
+  "frames": 541,
+  "fps": 30.0,
+  "duration": 18.0,
+  "channels": 264,
+  "events": 6,
+  "trs": 189
+ },
+ "350104": {
+  "frames": 541,
+  "fps": 30.0,
+  "duration": 18.0,
+  "channels": 271,
+  "events": 6,
+  "trs": 191
+ },
+ "350105": {
+  "frames": 721,
+  "fps": 30.0,
+  "duration": 24.0,
+  "channels": 270,
+  "events": 3,
+  "trs": 234
+ },
+ "350201": {
+  "frames": 456,
+  "fps": 30.0,
+  "duration": 15.1667,
+  "channels": 144,
+  "events": 5,
+  "trs": 74
+ },
+ "350106": {
+  "frames": 721,
+  "fps": 30.0,
+  "duration": 24.0,
+  "channels": 288,
+  "events": 3,
+  "trs": 251
+ },
+ "350202": {
+  "frames": 456,
+  "fps": 30.0,
+  "duration": 15.1667,
+  "channels": 160,
+  "events": 5,
+  "trs": 81
+ },
+ "350203": {
+  "frames": 766,
+  "fps": 30.0,
+  "duration": 25.5,
+  "channels": 746,
+  "events": 5,
+  "trs": 575
+ },
+ "350204": {
+  "frames": 766,
+  "fps": 30.0,
+  "duration": 25.5,
+  "channels": 1022,
+  "events": 5,
+  "trs": 737
+ },
+ "350301": {
+  "frames": 476,
+  "fps": 30.0,
+  "duration": 15.8333,
+  "channels": 182,
+  "events": 5,
+  "trs": 111
+ },
+ "350302": {
+  "frames": 476,
+  "fps": 30.0,
+  "duration": 15.8333,
+  "channels": 198,
+  "events": 5,
+  "trs": 121
+ },
+ "350303": {
+  "frames": 671,
+  "fps": 30.0,
+  "duration": 22.3333,
+  "channels": 317,
+  "events": 9,
+  "trs": 177
+ },
+ "350304": {
+  "frames": 671,
+  "fps": 30.0,
+  "duration": 22.3333,
+  "channels": 451,
+  "events": 9,
+  "trs": 248
+ },
+ "350401": {
+  "frames": 451,
+  "fps": 30.0,
+  "duration": 15.0,
+  "channels": 153,
+  "events": 5,
+  "trs": 87
+ },
+ "350403": {
+  "frames": 706,
+  "fps": 30.0,
+  "duration": 23.5,
+  "channels": 503,
+  "events": 5,
+  "trs": 326
+ },
+ "350402": {
+  "frames": 451,
+  "fps": 30.0,
+  "duration": 15.0,
+  "channels": 165,
+  "events": 5,
+  "trs": 91
+ },
+ "350404": {
+  "frames": 706,
+  "fps": 30.0,
+  "duration": 23.5,
+  "channels": 566,
+  "events": 5,
+  "trs": 359
+ },
+ "360003": {
+  "frames": 451,
+  "fps": 30.0,
+  "duration": 15.0,
+  "channels": 55,
+  "events": 4,
+  "trs": 39
+ },
+ "360002": {
+  "frames": 571,
+  "fps": 30.0,
+  "duration": 19.0,
+  "channels": 165,
+  "events": 7,
+  "trs": 101
+ },
+ "360004": {
+  "frames": 451,
+  "fps": 30.0,
+  "duration": 15.0,
+  "channels": 81,
+  "events": 4,
+  "trs": 53
+ },
+ "360005": {
+  "frames": 501,
+  "fps": 30.0,
+  "duration": 16.6667,
+  "channels": 69,
+  "events": 3,
+  "trs": 40
+ },
+ "360006": {
+  "frames": 501,
+  "fps": 30.0,
+  "duration": 16.6667,
+  "channels": 81,
+  "events": 3,
+  "trs": 42
+ },
+ "360101": {
+  "frames": 531,
+  "fps": 30.0,
+  "duration": 17.6667,
+  "channels": 277,
+  "events": 3,
+  "trs": 166
+ },
+ "360102": {
+  "frames": 531,
+  "fps": 30.0,
+  "duration": 17.6667,
+  "channels": 304,
+  "events": 3,
+  "trs": 179
+ },
+ "360201": {
+  "frames": 546,
+  "fps": 30.0,
+  "duration": 18.1667,
+  "channels": 181,
+  "events": 8,
+  "trs": 175
+ },
+ "360202": {
+  "frames": 546,
+  "fps": 30.0,
+  "duration": 18.1667,
+  "channels": 298,
+  "events": 8,
+  "trs": 243
+ },
+ "360301": {
+  "frames": 522,
+  "fps": 30.0,
+  "duration": 17.3667,
+  "channels": 234,
+  "events": 3,
+  "trs": 208
+ },
+ "360302": {
+  "frames": 522,
+  "fps": 30.0,
+  "duration": 17.3667,
+  "channels": 365,
+  "events": 3,
+  "trs": 272
+ },
+ "370002": {
+  "frames": 571,
+  "fps": 30.0,
+  "duration": 19.0,
+  "channels": 413,
+  "events": 4,
+  "trs": 241
+ },
+ "370003": {
+  "frames": 591,
+  "fps": 30.0,
+  "duration": 19.6667,
+  "channels": 168,
+  "events": 3,
+  "trs": 103
+ },
+ "370004": {
+  "frames": 591,
+  "fps": 30.0,
+  "duration": 19.6667,
+  "channels": 177,
+  "events": 3,
+  "trs": 114
+ },
+ "370005": {
+  "frames": 701,
+  "fps": 30.0,
+  "duration": 23.3333,
+  "channels": 118,
+  "events": 3,
+  "trs": 115
+ },
+ "370006": {
+  "frames": 701,
+  "fps": 30.0,
+  "duration": 23.3333,
+  "channels": 146,
+  "events": 3,
+  "trs": 142
+ },
+ "370101": {
+  "frames": 476,
+  "fps": 30.0,
+  "duration": 15.8333,
+  "channels": 138,
+  "events": 7,
+  "trs": 113
+ },
+ "370102": {
+  "frames": 476,
+  "fps": 30.0,
+  "duration": 15.8333,
+  "channels": 165,
+  "events": 7,
+  "trs": 169
+ },
+ "370103": {
+  "frames": 601,
+  "fps": 30.0,
+  "duration": 20.0,
+  "channels": 214,
+  "events": 9,
+  "trs": 91
+ },
+ "370104": {
+  "frames": 601,
+  "fps": 30.0,
+  "duration": 20.0,
+  "channels": 226,
+  "events": 9,
+  "trs": 93
+ },
+ "370105": {
+  "frames": 661,
+  "fps": 30.0,
+  "duration": 22.0,
+  "channels": 223,
+  "events": 6,
+  "trs": 154
+ },
+ "370106": {
+  "frames": 661,
+  "fps": 30.0,
+  "duration": 22.0,
+  "channels": 252,
+  "events": 6,
+  "trs": 174
+ },
+ "370201": {
+  "frames": 481,
+  "fps": 30.0,
+  "duration": 16.0,
+  "channels": 227,
+  "events": 9,
+  "trs": 162
+ },
+ "370202": {
+  "frames": 481,
+  "fps": 30.0,
+  "duration": 16.0,
+  "channels": 363,
+  "events": 9,
+  "trs": 246
+ },
+ "370203": {
+  "frames": 671,
+  "fps": 30.0,
+  "duration": 22.3333,
+  "channels": 300,
+  "events": 7,
+  "trs": 156
+ },
+ "370204": {
+  "frames": 671,
+  "fps": 30.0,
+  "duration": 22.3333,
+  "channels": 348,
+  "events": 7,
+  "trs": 164
+ },
+ "370205": {
+  "frames": 751,
+  "fps": 30.0,
+  "duration": 25.0,
+  "channels": 341,
+  "events": 3,
+  "trs": 235
+ },
+ "370301": {
+  "frames": 956,
+  "fps": 30.0,
+  "duration": 31.8333,
+  "channels": 414,
+  "events": 7,
+  "trs": 217
+ },
+ "370206": {
+  "frames": 751,
+  "fps": 30.0,
+  "duration": 25.0,
+  "channels": 444,
+  "events": 3,
+  "trs": 296
+ },
+ "370302": {
+  "frames": 956,
+  "fps": 30.0,
+  "duration": 31.8333,
+  "channels": 464,
+  "events": 7,
+  "trs": 261
+ },
+ "380002": {
+  "frames": 451,
+  "fps": 30.0,
+  "duration": 15.0,
+  "channels": 240,
+  "events": 8,
+  "trs": 121
+ },
+ "380005": {
+  "frames": 511,
+  "fps": 30.0,
+  "duration": 17.0,
+  "channels": 616,
+  "events": 5,
+  "trs": 398
+ },
+ "380006": {
+  "frames": 511,
+  "fps": 30.0,
+  "duration": 17.0,
+  "channels": 813,
+  "events": 5,
+  "trs": 517
+ },
+ "380101": {
+  "frames": 471,
+  "fps": 30.0,
+  "duration": 15.6667,
+  "channels": 266,
+  "events": 13,
+  "trs": 109
+ },
+ "380102": {
+  "frames": 471,
+  "fps": 30.0,
+  "duration": 15.6667,
+  "channels": 270,
+  "events": 13,
+  "trs": 111
+ },
+ "380103": {
+  "frames": 801,
+  "fps": 30.0,
+  "duration": 26.6667,
+  "channels": 220,
+  "events": 5,
+  "trs": 128
+ },
+ "380104": {
+  "frames": 801,
+  "fps": 30.0,
+  "duration": 26.6667,
+  "channels": 317,
+  "events": 5,
+  "trs": 169
+ },
+ "380105": {
+  "frames": 531,
+  "fps": 30.0,
+  "duration": 17.6667,
+  "channels": 169,
+  "events": 3,
+  "trs": 71
+ },
+ "380106": {
+  "frames": 531,
+  "fps": 30.0,
+  "duration": 17.6667,
+  "channels": 227,
+  "events": 3,
+  "trs": 94
+ },
+ "380201": {
+  "frames": 501,
+  "fps": 30.0,
+  "duration": 16.6667,
+  "channels": 320,
+  "events": 11,
+  "trs": 160
+ },
+ "380202": {
+  "frames": 501,
+  "fps": 30.0,
+  "duration": 16.6667,
+  "channels": 367,
+  "events": 11,
+  "trs": 183
+ },
+ "380203": {
+  "frames": 671,
+  "fps": 30.0,
+  "duration": 22.3333,
+  "channels": 353,
+  "events": 5,
+  "trs": 167
+ },
+ "380204": {
+  "frames": 671,
+  "fps": 30.0,
+  "duration": 22.3333,
+  "channels": 422,
+  "events": 5,
+  "trs": 205
+ },
+ "380301": {
+  "frames": 781,
+  "fps": 30.0,
+  "duration": 26.0,
+  "channels": 166,
+  "events": 6,
+  "trs": 124
+ },
+ "380401": {
+  "frames": 666,
+  "fps": 30.0,
+  "duration": 22.1667,
+  "channels": 82,
+  "events": 5,
+  "trs": 41
+ },
+ "380402": {
+  "frames": 666,
+  "fps": 30.0,
+  "duration": 22.1667,
+  "channels": 103,
+  "events": 5,
+  "trs": 45
+ },
+ "380302": {
+  "frames": 781,
+  "fps": 30.0,
+  "duration": 26.0,
+  "channels": 181,
+  "events": 6,
+  "trs": 132
+ },
+ "380403": {
+  "frames": 656,
+  "fps": 30.0,
+  "duration": 21.8333,
+  "channels": 195,
+  "events": 5,
+  "trs": 147
+ },
+ "380404": {
+  "frames": 656,
+  "fps": 30.0,
+  "duration": 21.8333,
+  "channels": 202,
+  "events": 5,
+  "trs": 149
+ },
+ "390002": {
+  "frames": 491,
+  "fps": 30.0,
+  "duration": 16.3333,
+  "channels": 414,
+  "events": 7,
+  "trs": 240
+ },
+ "390003": {
+  "frames": 511,
+  "fps": 30.0,
+  "duration": 17.0,
+  "channels": 331,
+  "events": 7,
+  "trs": 206
+ },
+ "390004": {
+  "frames": 511,
+  "fps": 30.0,
+  "duration": 17.0,
+  "channels": 347,
+  "events": 7,
+  "trs": 223
+ },
+ "390101": {
+  "frames": 506,
+  "fps": 30.0,
+  "duration": 16.8333,
+  "channels": 193,
+  "events": 10,
+  "trs": 84
+ },
+ "390201": {
+  "frames": 771,
+  "fps": 30.0,
+  "duration": 25.6667,
+  "channels": 180,
+  "events": 5,
+  "trs": 127
+ },
+ "390102": {
+  "frames": 506,
+  "fps": 30.0,
+  "duration": 16.8333,
+  "channels": 223,
+  "events": 10,
+  "trs": 95
+ },
+ "390202": {
+  "frames": 771,
+  "fps": 30.0,
+  "duration": 25.6667,
+  "channels": 268,
+  "events": 5,
+  "trs": 185
+ },
+ "390301": {
+  "frames": 576,
+  "fps": 30.0,
+  "duration": 19.1667,
+  "channels": 209,
+  "events": 3,
+  "trs": 152
+ },
+ "390302": {
+  "frames": 576,
+  "fps": 30.0,
+  "duration": 19.1667,
+  "channels": 238,
+  "events": 3,
+  "trs": 172
+ },
+ "400002": {
+  "frames": 631,
+  "fps": 30.0,
+  "duration": 21.0,
+  "channels": 320,
+  "events": 4,
+  "trs": 201
+ },
+ "400101": {
+  "frames": 456,
+  "fps": 30.0,
+  "duration": 15.1667,
+  "channels": 107,
+  "events": 5,
+  "trs": 60
+ },
+ "400102": {
+  "frames": 456,
+  "fps": 30.0,
+  "duration": 15.1667,
+  "channels": 135,
+  "events": 5,
+  "trs": 77
+ },
+ "400103": {
+  "frames": 641,
+  "fps": 30.0,
+  "duration": 21.3333,
+  "channels": 614,
+  "events": 6,
+  "trs": 385
+ },
+ "400201": {
+  "frames": 527,
+  "fps": 30.0,
+  "duration": 17.5333,
+  "channels": 198,
+  "events": 4,
+  "trs": 119
+ },
+ "400104": {
+  "frames": 641,
+  "fps": 30.0,
+  "duration": 21.3333,
+  "channels": 781,
+  "events": 6,
+  "trs": 475
+ },
+ "400202": {
+  "frames": 527,
+  "fps": 30.0,
+  "duration": 17.5333,
+  "channels": 219,
+  "events": 4,
+  "trs": 135
+ },
+ "400203": {
+  "frames": 626,
+  "fps": 30.0,
+  "duration": 20.8333,
+  "channels": 317,
+  "events": 8,
+  "trs": 166
+ },
+ "400204": {
+  "frames": 626,
+  "fps": 30.0,
+  "duration": 20.8333,
+  "channels": 404,
+  "events": 8,
+  "trs": 201
+ },
+ "400301": {
+  "frames": 598,
+  "fps": 30.0,
+  "duration": 19.9,
+  "channels": 85,
+  "events": 5,
+  "trs": 45
+ },
+ "400303": {
+  "frames": 531,
+  "fps": 30.0,
+  "duration": 17.6667,
+  "channels": 220,
+  "events": 3,
+  "trs": 114
+ },
+ "400302": {
+  "frames": 598,
+  "fps": 30.0,
+  "duration": 19.9,
+  "channels": 108,
+  "events": 5,
+  "trs": 57
+ },
+ "400304": {
+  "frames": 531,
+  "fps": 30.0,
+  "duration": 17.6667,
+  "channels": 246,
+  "events": 3,
+  "trs": 124
+ },
+ "400401": {
+  "frames": 651,
+  "fps": 30.0,
+  "duration": 21.6667,
+  "channels": 176,
+  "events": 6,
+  "trs": 159
+ },
+ "400402": {
+  "frames": 651,
+  "fps": 30.0,
+  "duration": 21.6667,
+  "channels": 206,
+  "events": 6,
+  "trs": 163
+ },
+ "410002": {
+  "frames": 451,
+  "fps": 30.0,
+  "duration": 15.0,
+  "channels": 236,
+  "events": 3,
+  "trs": 120
+ },
+ "410003": {
+  "frames": 451,
+  "fps": 30.0,
+  "duration": 15.0,
+  "channels": 332,
+  "events": 8,
+  "trs": 182
+ },
+ "410004": {
+  "frames": 451,
+  "fps": 30.0,
+  "duration": 15.0,
+  "channels": 451,
+  "events": 8,
+  "trs": 252
+ },
+ "410101": {
+  "frames": 461,
+  "fps": 30.0,
+  "duration": 15.3333,
+  "channels": 129,
+  "events": 4,
+  "trs": 73
+ },
+ "410201": {
+  "frames": 451,
+  "fps": 30.0,
+  "duration": 15.0,
+  "channels": 298,
+  "events": 7,
+  "trs": 177
+ },
+ "410102": {
+  "frames": 461,
+  "fps": 30.0,
+  "duration": 15.3333,
+  "channels": 168,
+  "events": 4,
+  "trs": 93
+ },
+ "410202": {
+  "frames": 451,
+  "fps": 30.0,
+  "duration": 15.0,
+  "channels": 308,
+  "events": 7,
+  "trs": 182
+ },
+ "410203": {
+  "frames": 521,
+  "fps": 30.0,
+  "duration": 17.3333,
+  "channels": 240,
+  "events": 7,
+  "trs": 170
+ },
+ "410204": {
+  "frames": 521,
+  "fps": 30.0,
+  "duration": 17.3333,
+  "channels": 296,
+  "events": 7,
+  "trs": 208
+ },
+ "410301": {
+  "frames": 671,
+  "fps": 30.0,
+  "duration": 22.3333,
+  "channels": 209,
+  "events": 3,
+  "trs": 148
+ },
+ "410302": {
+  "frames": 671,
+  "fps": 30.0,
+  "duration": 22.3333,
+  "channels": 237,
+  "events": 3,
+  "trs": 169
+ },
+ "420003": {
+  "frames": 631,
+  "fps": 30.0,
+  "duration": 21.0,
+  "channels": 144,
+  "events": 6,
+  "trs": 80
+ },
+ "420002": {
+  "frames": 646,
+  "fps": 30.0,
+  "duration": 21.5,
+  "channels": 267,
+  "events": 10,
+  "trs": 131
+ },
+ "420004": {
+  "frames": 631,
+  "fps": 30.0,
+  "duration": 21.0,
+  "channels": 169,
+  "events": 6,
+  "trs": 93
+ },
+ "420101": {
+  "frames": 501,
+  "fps": 30.0,
+  "duration": 16.6667,
+  "channels": 261,
+  "events": 8,
+  "trs": 218
+ },
+ "420103": {
+  "frames": 651,
+  "fps": 30.0,
+  "duration": 21.6667,
+  "channels": 125,
+  "events": 5,
+  "trs": 86
+ },
+ "420102": {
+  "frames": 501,
+  "fps": 30.0,
+  "duration": 16.6667,
+  "channels": 277,
+  "events": 8,
+  "trs": 224
+ },
+ "420104": {
+  "frames": 651,
+  "fps": 30.0,
+  "duration": 21.6667,
+  "channels": 187,
+  "events": 5,
+  "trs": 120
+ },
+ "420201": {
+  "frames": 766,
+  "fps": 30.0,
+  "duration": 25.5,
+  "channels": 133,
+  "events": 3,
+  "trs": 81
+ },
+ "420202": {
+  "frames": 766,
+  "fps": 30.0,
+  "duration": 25.5,
+  "channels": 257,
+  "events": 3,
+  "trs": 190
+ },
+ "430003": {
+  "frames": 591,
+  "fps": 30.0,
+  "duration": 19.6667,
+  "channels": 158,
+  "events": 11,
+  "trs": 80
+ },
+ "430002": {
+  "frames": 651,
+  "fps": 30.0,
+  "duration": 21.6667,
+  "channels": 265,
+  "events": 5,
+  "trs": 98
+ },
+ "430004": {
+  "frames": 591,
+  "fps": 30.0,
+  "duration": 19.6667,
+  "channels": 303,
+  "events": 11,
+  "trs": 164
+ },
+ "430101": {
+  "frames": 466,
+  "fps": 30.0,
+  "duration": 15.5,
+  "channels": 90,
+  "events": 4,
+  "trs": 70
+ },
+ "430102": {
+  "frames": 466,
+  "fps": 30.0,
+  "duration": 15.5,
+  "channels": 102,
+  "events": 4,
+  "trs": 79
+ },
+ "430103": {
+  "frames": 671,
+  "fps": 30.0,
+  "duration": 22.3333,
+  "channels": 240,
+  "events": 5,
+  "trs": 117
+ },
+ "430104": {
+  "frames": 671,
+  "fps": 30.0,
+  "duration": 22.3333,
+  "channels": 245,
+  "events": 5,
+  "trs": 121
+ },
+ "430201": {
+  "frames": 511,
+  "fps": 30.0,
+  "duration": 17.0,
+  "channels": 113,
+  "events": 6,
+  "trs": 68
+ },
+ "430202": {
+  "frames": 511,
+  "fps": 30.0,
+  "duration": 17.0,
+  "channels": 159,
+  "events": 6,
+  "trs": 90
+ },
+ "430301": {
+  "frames": 611,
+  "fps": 30.0,
+  "duration": 20.3333,
+  "channels": 388,
+  "events": 6,
+  "trs": 220
+ },
+ "430302": {
+  "frames": 611,
+  "fps": 30.0,
+  "duration": 20.3333,
+  "channels": 444,
+  "events": 6,
+  "trs": 252
+ },
+ "430401": {
+  "frames": 551,
+  "fps": 30.0,
+  "duration": 18.3333,
+  "channels": 241,
+  "events": 4,
+  "trs": 129
+ },
+ "430402": {
+  "frames": 551,
+  "fps": 30.0,
+  "duration": 18.3333,
+  "channels": 360,
+  "events": 4,
+  "trs": 183
+ },
+ "440001": {
+  "frames": 704,
+  "fps": 30.0,
+  "duration": 23.4333,
+  "channels": 103,
+  "events": 6,
+  "trs": 70
+ },
+ "440002": {
+  "frames": 704,
+  "fps": 30.0,
+  "duration": 23.4333,
+  "channels": 108,
+  "events": 6,
+  "trs": 86
+ },
+ "440101": {
+  "frames": 741,
+  "fps": 30.0,
+  "duration": 24.6667,
+  "channels": 648,
+  "events": 8,
+  "trs": 355
+ },
+ "441001": {
+  "frames": 681,
+  "fps": 30.0,
+  "duration": 22.6667,
+  "channels": 166,
+  "events": 6,
+  "trs": 82
+ },
+ "440102": {
+  "frames": 741,
+  "fps": 30.0,
+  "duration": 24.6667,
+  "channels": 786,
+  "events": 8,
+  "trs": 451
+ },
+ "441101": {
+  "frames": 786,
+  "fps": 30.0,
+  "duration": 26.1667,
+  "channels": 253,
+  "events": 5,
+  "trs": 160
+ },
+ "441002": {
+  "frames": 681,
+  "fps": 30.0,
+  "duration": 22.6667,
+  "channels": 255,
+  "events": 6,
+  "trs": 125
+ },
+ "441102": {
+  "frames": 786,
+  "fps": 30.0,
+  "duration": 26.1667,
+  "channels": 468,
+  "events": 5,
+  "trs": 284
+ },
+ "442001": {
+  "frames": 691,
+  "fps": 30.0,
+  "duration": 23.0,
+  "channels": 91,
+  "events": 5,
+  "trs": 87
+ },
+ "442002": {
+  "frames": 691,
+  "fps": 30.0,
+  "duration": 23.0,
+  "channels": 92,
+  "events": 5,
+  "trs": 91
+ },
+ "442101": {
+  "frames": 881,
+  "fps": 30.0,
+  "duration": 29.3333,
+  "channels": 629,
+  "events": 7,
+  "trs": 368
+ },
+ "442102": {
+  "frames": 881,
+  "fps": 30.0,
+  "duration": 29.3333,
+  "channels": 718,
+  "events": 7,
+  "trs": 499
+ },
+ "442201": {
+  "frames": 661,
+  "fps": 30.0,
+  "duration": 22.0,
+  "channels": 232,
+  "events": 3,
+  "trs": 157
+ },
+ "442202": {
+  "frames": 661,
+  "fps": 30.0,
+  "duration": 22.0,
+  "channels": 324,
+  "events": 3,
+  "trs": 214
+ },
+ "450101": {
+  "frames": 431,
+  "fps": 30.0,
+  "duration": 14.3333,
+  "channels": 181,
+  "events": 3,
+  "trs": 112
+ },
+ "450102": {
+  "frames": 431,
+  "fps": 30.0,
+  "duration": 14.3333,
+  "channels": 212,
+  "events": 3,
+  "trs": 128
+ },
+ "450002": {
+  "frames": 641,
+  "fps": 30.0,
+  "duration": 21.3333,
+  "channels": 331,
+  "events": 5,
+  "trs": 143
+ },
+ "450103": {
+  "frames": 725,
+  "fps": 30.0,
+  "duration": 24.1333,
+  "channels": 124,
+  "events": 4,
+  "trs": 63
+ },
+ "450104": {
+  "frames": 725,
+  "fps": 30.0,
+  "duration": 24.1333,
+  "channels": 139,
+  "events": 4,
+  "trs": 78
+ },
+ "450201": {
+  "frames": 521,
+  "fps": 30.0,
+  "duration": 17.3333,
+  "channels": 71,
+  "events": 3,
+  "trs": 49
+ },
+ "450202": {
+  "frames": 521,
+  "fps": 30.0,
+  "duration": 17.3333,
+  "channels": 89,
+  "events": 3,
+  "trs": 63
+ },
+ "450301": {
+  "frames": 461,
+  "fps": 30.0,
+  "duration": 15.3333,
+  "channels": 118,
+  "events": 7,
+  "trs": 98
+ },
+ "450302": {
+  "frames": 461,
+  "fps": 30.0,
+  "duration": 15.3333,
+  "channels": 157,
+  "events": 7,
+  "trs": 118
+ },
+ "460001": {
+  "frames": 671,
+  "fps": 30.0,
+  "duration": 22.3333,
+  "channels": 85,
+  "events": 5,
+  "trs": 59
+ },
+ "460002": {
+  "frames": 671,
+  "fps": 30.0,
+  "duration": 22.3333,
+  "channels": 93,
+  "events": 5,
+  "trs": 64
+ },
+ "460101": {
+  "frames": 471,
+  "fps": 30.0,
+  "duration": 15.6667,
+  "channels": 100,
+  "events": 3,
+  "trs": 66
+ },
+ "460102": {
+  "frames": 471,
+  "fps": 30.0,
+  "duration": 15.6667,
+  "channels": 175,
+  "events": 3,
+  "trs": 90
+ },
+ "460201": {
+  "frames": 561,
+  "fps": 30.0,
+  "duration": 18.6667,
+  "channels": 253,
+  "events": 3,
+  "trs": 149
+ },
+ "460202": {
+  "frames": 561,
+  "fps": 30.0,
+  "duration": 18.6667,
+  "channels": 273,
+  "events": 3,
+  "trs": 161
+ },
+ "460301": {
+  "frames": 471,
+  "fps": 30.0,
+  "duration": 15.6667,
+  "channels": 163,
+  "events": 7,
+  "trs": 89
+ },
+ "460302": {
+  "frames": 471,
+  "fps": 30.0,
+  "duration": 15.6667,
+  "channels": 237,
+  "events": 7,
+  "trs": 130
+ },
+ "470002": {
+  "frames": 581,
+  "fps": 30.0,
+  "duration": 19.3333,
+  "channels": 683,
+  "events": 4,
+  "trs": 464
+ },
+ "470101": {
+  "frames": 436,
+  "fps": 30.0,
+  "duration": 14.5,
+  "channels": 92,
+  "events": 4,
+  "trs": 91
+ },
+ "470102": {
+  "frames": 436,
+  "fps": 30.0,
+  "duration": 14.5,
+  "channels": 103,
+  "events": 4,
+  "trs": 98
+ },
+ "470103": {
+  "frames": 431,
+  "fps": 30.0,
+  "duration": 14.3333,
+  "channels": 120,
+  "events": 5,
+  "trs": 92
+ },
+ "470104": {
+  "frames": 431,
+  "fps": 30.0,
+  "duration": 14.3333,
+  "channels": 193,
+  "events": 5,
+  "trs": 131
+ },
+ "470201": {
+  "frames": 381,
+  "fps": 30.0,
+  "duration": 12.6667,
+  "channels": 72,
+  "events": 5,
+  "trs": 60
+ },
+ "470202": {
+  "frames": 381,
+  "fps": 30.0,
+  "duration": 12.6667,
+  "channels": 84,
+  "events": 5,
+  "trs": 67
+ },
+ "380004": {
+  "frames": 571,
+  "fps": 30.0,
+  "duration": 19.0,
+  "channels": 388,
+  "events": 9,
+  "trs": 215
+ }
+}

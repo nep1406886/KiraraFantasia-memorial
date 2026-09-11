@@ -1,0 +1,304 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="utf-8">
+    <title>闪耀幻想曲纪念计时器</title>
+    <meta name="description" content="闪耀幻想曲停服纪念与时间记录页面">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <!-- Vendored locally: the CDN copies added ~10s of blocking round trips
+         (momentjs.com alone was 2.9s for 632 KB) and made the page depend on
+         five third parties. Load order is unchanged. -->
+    <script src="site/js/moment-with-locales.js"></script>
+    <script src="site/js/moment-timezone-with-data-10-year-range.min.js"></script>
+
+    <script src="site/js/jquery-3.3.1.slim.min.js"></script>
+    <script src="site/js/popper.min.js"></script>
+
+    <script type="text/javascript" src="site/data.js?v=20260813-5"></script>
+    <script type="text/javascript" src="site/asset/shutdown-artworks/artworks.js?v=20260813-5"></script>
+    <script type="text/javascript" src="site/asset/original-characters.js?v=20260813-7"></script>
+    <script src="site/js/vue.min.js"></script>
+    <script type="text/javascript" src="site/components.js?v=20260813-5"></script>
+
+    <link rel="preload" as="image" href="site/imgs/op1900.jpg">
+    <link rel="stylesheet" href="site/css/bootstrap.min.css">
+    <script src="site/js/bootstrap.min.js"></script>
+
+    <link rel="stylesheet" type="text/css" href="site/style.css?v=20260826-1">
+    <link rel="stylesheet" type="text/css" href="site/css/memorial.css?v=20260814-27">
+    <link rel="stylesheet" type="text/css" href="site/css/official-theme.css?v=20260826-4">
+    <link rel="stylesheet" href="site/css/kirara-cursor.css">
+
+    <link rel="icon" href="site/favicon.png">
+</head>
+
+<body>
+    <div class="container-fluid" id="app">
+        <div class="memorial-stage">
+        <div class="hero-ambient" aria-hidden="true">
+            <span></span><span></span><span></span><span></span><span></span><span></span>
+        </div>
+        <div id="header" v-show="showHeader">
+            <div class="hero-copy">
+                <img class="hero-main-logo" src="site/imgs/official-site/kirarafantasia-logo.svg" alt="きららファンタジア">
+                <span class="hero-kicker">MEMORIAL TIMER / 2017—2023</span>
+                <h1>闪耀幻想曲<span>纪念计时器</span></h1>
+                <p>故事已经停在那一天，留下的时间仍在继续。</p>
+                <span class="hero-color-bars" aria-hidden="true"></span>
+            </div>
+
+            <div class="alert-container" :class='{ alertsshow: alerts.length > 0 }'>
+                <div v-for='(item, index) in alerts' :key="index" class="alert" :class="'alert-'+alertTypes[0]" role="alert" v-html="item"></div>
+            </div>
+        </div>
+
+        <div class="timezone-overlay" role="group" aria-label="时区选择">
+            <label class="tz-btn" :class="{active: currentZone == 'japan' }" id="japan-time">
+                <input type="radio" name="options" value="japan" v-model="currentZone" @change="changeTimezone">
+                <small>日本标准时间</small>
+                <strong v-text="japanTime"></strong>
+            </label>
+            <label class="tz-btn" :class="{active: currentZone == 'local' }" id="local-time">
+                <input type="radio" name="options" value="local" v-model="currentZone" @change="changeTimezone">
+                <small>你的当地时间</small>
+                <strong v-text="localTime"></strong>
+            </label>
+        </div>
+
+        <main class="stage-main">
+        <div id="timer-and-action">
+            <div id="action-and-counter-holder">
+                <div class="incense-scene">
+                    <div class="shrine-stars" aria-hidden="true">
+                        <span></span><span></span><span></span><span></span><span></span>
+                    </div>
+                    <div class="incense-stick" aria-hidden="true">
+                    </div>
+                    <div class="incense-burner" aria-hidden="true">
+                        <span class="burner-rim"></span>
+                        <span class="burner-ash"></span>
+                        <span class="burner-mark">✦</span>
+                    </div>
+                    <div class="memorial-action">
+                        <button id="offeringButton" class="offering-button" type="button" aria-haspopup="dialog">
+                            上香
+                        </button>
+                        <span id="offeringCount" class="offering-count" aria-live="polite"></span>
+                    </div>
+                    <div class="visitor-counter" aria-live="polite">
+                        <span>已有 <strong id="vercount_value_site_uv" class="visitor-value">读取中</strong> 人来扫墓</span>
+                        <span class="counter-divider" aria-hidden="true"></span>
+                        <span>页面浏览 <strong id="vercount_value_site_pv" class="visitor-value">读取中</strong></span>
+                    </div>
+                </div>
+            </div>
+            <div class="row" id="columns-holder">
+                <div v-for="(col, colIndex) in visibleTimerColumns" :key="colIndex" class="col-12">
+                    <event-group v-for="(t, index) in col" v-bind:ev="t" :key='index'></event-group>
+                </div>
+            </div>
+        </div>
+        </main>
+        </div>
+
+        <section class="official-roster" aria-labelledby="officialRosterTitle">
+            <div class="official-roster-inner">
+                <div class="official-roster-copy">
+                    <img class="official-roster-logo" src="site/imgs/official-site/kirarafantasia-logo.svg" alt="きららファンタジア">
+                    <span>OFFICIAL VISUAL ARCHIVE / 2021—2023</span>
+                    <h2 id="officialRosterTitle">官网留下的星光，仍在轮转。</h2>
+                    <p>收录停服前官网留下的原创角色群像与历年主视觉，让那些曾经照亮艾特瓦利亚的相遇继续留在这里。</p>
+                </div>
+                <section class="official-hero-carousel" id="officialHeroCarousel" aria-label="官网主视觉轮播" aria-roledescription="轮播">
+                    <div class="official-hero-slides" aria-live="off">
+                        <figure class="official-hero-slide is-active" data-slide-index="0" aria-hidden="false">
+                            <picture>
+                                <img src="site/imgs/official-site/official-original-cast.png" alt="闪耀幻想曲原创角色群像" width="1646" height="904" loading="eager" decoding="async">
+                            </picture>
+                        </figure>
+                        <figure class="official-hero-slide" data-slide-index="1" aria-hidden="true">
+                            <picture>
+                                <img data-src="site/imgs/official-site/hero/hero-01-pc.png" alt="官网主视觉：在艾特瓦利亚相遇的角色们" width="1646" height="904" decoding="async">
+                            </picture>
+                        </figure>
+                        <figure class="official-hero-slide" data-slide-index="2" aria-hidden="true">
+                            <picture>
+                                <img data-src="site/imgs/official-site/hero/hero-02-pc.png" alt="官网主视觉：夏日装束的角色们" width="1646" height="904" decoding="async">
+                            </picture>
+                        </figure>
+                        <figure class="official-hero-slide" data-slide-index="3" aria-hidden="true">
+                            <picture>
+                                <img data-src="site/imgs/official-site/hero/hero-03-pc.png" alt="官网主视觉：冒险装束的角色们" width="1646" height="904" decoding="async">
+                            </picture>
+                        </figure>
+                        <figure class="official-hero-slide" data-slide-index="4" aria-hidden="true">
+                            <picture>
+                                <img data-src="site/imgs/official-site/hero/hero-04-pc.png" alt="官网主视觉：创作者与原创角色们" width="1646" height="904" decoding="async">
+                            </picture>
+                        </figure>
+                    </div>
+                    <span class="official-hero-sweep" aria-hidden="true"></span>
+                    <div class="official-hero-dots" role="group" aria-label="选择主视觉">
+                        <button class="is-active" type="button" data-hero-slide="0" aria-label="显示第 1 张主视觉" aria-current="true"></button>
+                        <button type="button" data-hero-slide="1" aria-label="显示第 2 张主视觉"></button>
+                        <button type="button" data-hero-slide="2" aria-label="显示第 3 张主视觉"></button>
+                        <button type="button" data-hero-slide="3" aria-label="显示第 4 张主视觉"></button>
+                        <button type="button" data-hero-slide="4" aria-label="显示第 5 张主视觉"></button>
+                    </div>
+                    <span class="official-hero-source">OFFICIAL VISUAL / WEB ARCHIVE</span>
+                </section>
+            </div>
+        </section>
+
+        <main class="archive-main">
+        <section class="memory-section" aria-labelledby="memoryTitle">
+            <div class="section-heading memory-heading">
+                <span class="section-kicker">ARCHIVE / 2023.02.28</span>
+                <h2 id="memoryTitle">留下来的星光</h2>
+                <p>关服前后，创作者们为这个世界留下的几封信。</p>
+            </div>
+            <div class="memory-grid memory-grid-featured">
+                <article class="memory-card" v-for="artwork in featuredArtworks" :key="artwork.id">
+                    <a :href="artwork.postUrl" target="_blank" rel="noopener noreferrer">
+                        <img :src="'site/asset/shutdown-artworks/' + artwork.images[0].path" :alt="artwork.mediaNote" loading="lazy">
+                    </a>
+                    <div class="memory-card-body">
+                        <span>{{ artwork.author.name }} · {{ artwork.work }}</span>
+                        <p class="memory-original" v-text="artwork.textJa" lang="ja"></p>
+                    </div>
+                </article>
+            </div>
+            <div class="memory-grid memory-grid-archive">
+                <article class="memory-card" v-for="artwork in archiveArtworks" :key="artwork.id">
+                    <a :href="artwork.postUrl" target="_blank" rel="noopener noreferrer">
+                        <img :src="'site/asset/shutdown-artworks/' + artwork.images[0].path" :alt="artwork.mediaNote" loading="lazy">
+                    </a>
+                    <div class="memory-card-body">
+                        <span>{{ artwork.author.name }} · {{ artwork.work }}</span>
+                        <p class="memory-original" v-text="artwork.textJa" lang="ja"></p>
+                    </div>
+                </article>
+            </div>
+            <p class="memory-credit">素材整理自公开帖文，图片版权归原作者及相关权利方所有。</p>
+        </section>
+
+        <section class="comments-section" aria-labelledby="commentsTitle">
+            <div class="section-heading">
+                <span class="section-kicker">MESSAGE BOARD / GITHUB DISCUSSIONS</span>
+                <h2 id="commentsTitle">留言簿</h2>
+                <p>留下你与艾特瓦利亚相遇的记忆。</p>
+            </div>
+            <div class="comments-frame">
+                <div id="giscusThread" class="giscus"></div>
+                <div id="giscusSetupNotice" class="giscus-setup-notice" hidden>
+                    <strong>留言簿尚未启用</strong>
+                    <span>请先在 GitHub 仓库设置中开启 Discussions，并在 giscus.app 生成分类 ID。</span>
+                </div>
+            </div>
+        </section>
+        </main>
+
+        <footer class="memorial-footer">
+            <nav class="memorial-entry-links" aria-label="纪念页面入口">
+                <a class="memorial-entry" href="site/gacha.html">
+                    <span class="memorial-entry-mark" aria-hidden="true">✦</span>
+                    <span class="memorial-entry-copy">
+                        <small>MEMORIAL CALL / 高达2%的爆率</small>
+                        <strong>前往抽卡界面</strong>
+                    </span>
+                    <span class="memorial-entry-arrow" aria-hidden="true">→</span>
+                </a>
+                <a class="memorial-entry" href="site/models.html">
+                    <span class="memorial-entry-mark" aria-hidden="true">◇</span>
+                    <span class="memorial-entry-copy">
+                        <small>MODEL ARCHIVE / 糖比小人会动</small>
+                        <strong>前往模型观察室</strong>
+                    </span>
+                    <span class="memorial-entry-arrow" aria-hidden="true">→</span>
+                </a>
+                <a class="memorial-entry" href="site/game/roguelike.html">
+                    <span class="memorial-entry-mark" aria-hidden="true">▶</span>
+                    <span class="memorial-entry-copy">
+                        <small>FAN MADE / 同人小游戏</small>
+                        <strong>进入百物語の残页</strong>
+                    </span>
+                    <span class="memorial-entry-arrow" aria-hidden="true">→</span>
+                </a>
+            </nav>
+            <p class="footer-note">感谢每一段在艾特瓦利亚度过的时光。</p>
+            <nav class="source-links" aria-label="游戏资料来源">
+                <a href="https://kirarafantasia.miraheze.org/wiki/Main_Page" target="_blank" rel="noopener noreferrer">Kirara Fantasia Fan-Wiki</a>
+                <a href="https://wiki.kirafan.moe" target="_blank" rel="noopener noreferrer">きらファン解析 Wiki</a>
+            </nav>
+        </footer>
+
+        <div id="offeringModal" class="offering-modal" role="dialog" aria-modal="true" aria-labelledby="offeringMessage" hidden>
+            <button class="offering-backdrop" type="button" data-close-offering aria-label="关闭"></button>
+            <div class="offering-dialog">
+                <div class="offering-visual">
+                    <img id="offeringImage" src="" alt="">
+                </div>
+                <div class="offering-copy">
+                    <span id="offeringGroup" class="offering-group"></span>
+                    <a id="offeringWiki" class="offering-wiki" href="#" target="_blank" rel="noopener noreferrer">
+                        <strong id="offeringName" class="offering-name" lang="ja">
+                            <ruby><span id="offeringJapanese"></span><rt id="offeringRomaji"></rt></ruby>
+                        </strong>
+                        <span id="offeringChinese" class="offering-chinese" lang="zh-CN"></span>
+                    </a>
+                    <dl class="offering-info" aria-label="角色资料">
+                        <div><dt>CV</dt><dd id="offeringCv"></dd></div>
+                        <div><dt>画师</dt><dd id="offeringArtist"></dd></div>
+                        <div><dt>作品</dt><dd id="offeringSeries"></dd></div>
+                    </dl>
+                    <p id="offeringMessage">你为 <strong id="offeringMessageName">抽中的角色</strong> 上了一炷香。</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="bgm-player" id="bgmPlayer">
+        <div class="bgm-menu" id="bgmMenu" hidden>
+            <span class="bgm-menu-heading" aria-hidden="true">BGM / きららファンタジア</span>
+            <div class="bgm-tabs" id="bgmTabs" role="tablist" aria-label="BGM分组"></div>
+            <div class="bgm-menu-list" id="bgmMenuList" role="listbox" aria-label="选择BGM曲目"></div>
+        </div>
+        <div class="bgm-dock">
+            <span class="bgm-now" id="bgmNow" aria-live="polite"></span>
+            <button id="bgmMenuToggle" class="bgm-dock-button bgm-dock-list" type="button" aria-expanded="false" aria-controls="bgmMenu" aria-label="选择BGM曲目" title="选择BGM曲目">&#9835;</button>
+            <button id="bgmToggle" class="bgm-dock-button bgm-dock-play" type="button" aria-pressed="false" aria-label="播放BGM" title="播放 / 暂停BGM">
+                <span class="bgm-disc" aria-hidden="true"></span>
+            </button>
+        </div>
+    </div>
+
+    <script type="text/javascript" src="site/app.js?v=20260826-7"></script>
+    <!-- async, not defer: a deferred script still runs before
+         DOMContentLoaded, and this counter took 1.2s — which delayed every
+         DOMContentLoaded handler, including the BGM player's init. -->
+    <script async src="https://events.vercount.one/js" onerror="window.handleVisitorCounterError && window.handleVisitorCounterError()"></script>
+    <script>
+        window.kirafanGiscus = {
+            repo: "nep1406886/kirafan-timer",
+            repoId: "R_kgDOJhoUTQ",
+            category: "General",
+            categoryId: "DIC_kwDOJhoUTc4DDRbi",
+            mapping: "specific",
+            term: "kirafan-timer-home",
+            strict: "0",
+            reactionsEnabled: "1",
+            emitMetadata: "0",
+            inputPosition: "top",
+            // Relative on purpose: app.js resolves it against this page's own
+            // origin. Hardcoding the github.io host broke the theme, because
+            // that host now 301s to the custom domain over plain http and the
+            // giscus iframe is on https, so the redirect is refused as mixed
+            // content before CORS is even consulted.
+            theme: "site/css/giscus-theme.css?v=20260818-1",
+            lang: "zh-CN"
+        };
+    </script>
+</body>
+</html>

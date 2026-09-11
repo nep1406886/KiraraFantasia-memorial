@@ -1,0 +1,136 @@
+{
+ "cue": "voice_400",
+ "resources": {
+  "1000": "Voice_Original_009",
+  "1100": "Voice_Original_010",
+  "1200": "Voice_Original_011",
+  "1300": "Voice_Original_012",
+  "1301": "Voice_Original_012",
+  "1400": "Voice_Original_013",
+  "1500": "Voice_Original_014",
+  "1600": "Voice_Original_015",
+  "1700": "Voice_Original_008",
+  "4300": "Voice_Original_008",
+  "6600": "Voice_Misc_000",
+  "6700": "Voice_Original_020",
+  "6800": "Voice_Original_022",
+  "6900": "Voice_Original_021",
+  "7000": "Voice_Original_027",
+  "7100": "Voice_Original_026",
+  "7200": "Voice_Original_024",
+  "7300": "Voice_Original_025",
+  "7400": "Voice_Original_019",
+  "8300": "Voice_Original_018",
+  "8400": "Voice_Original_018"
+ },
+ "sheets": {
+  "Voice_Misc_000": {
+   "files": [
+    "Voice_Misc_000/voice_400_0.mp3",
+    "Voice_Misc_000/voice_400_1.mp3"
+   ]
+  },
+  "Voice_Original_008": {
+   "files": [
+    "Voice_Original_008/voice_400_0.mp3",
+    "Voice_Original_008/voice_400_1.mp3"
+   ]
+  },
+  "Voice_Original_009": {
+   "files": [
+    "Voice_Original_009/voice_400_0.mp3",
+    "Voice_Original_009/voice_400_1.mp3"
+   ]
+  },
+  "Voice_Original_010": {
+   "files": [
+    "Voice_Original_010/voice_400_0.mp3",
+    "Voice_Original_010/voice_400_1.mp3"
+   ]
+  },
+  "Voice_Original_011": {
+   "files": [
+    "Voice_Original_011/voice_400_0.mp3",
+    "Voice_Original_011/voice_400_1.mp3"
+   ]
+  },
+  "Voice_Original_012": {
+   "files": [
+    "Voice_Original_012/voice_400_0.mp3",
+    "Voice_Original_012/voice_400_1.mp3"
+   ]
+  },
+  "Voice_Original_013": {
+   "files": [
+    "Voice_Original_013/voice_400_0.mp3",
+    "Voice_Original_013/voice_400_1.mp3"
+   ]
+  },
+  "Voice_Original_014": {
+   "files": [
+    "Voice_Original_014/voice_400_0.mp3",
+    "Voice_Original_014/voice_400_1.mp3"
+   ]
+  },
+  "Voice_Original_015": {
+   "files": [
+    "Voice_Original_015/voice_400_0.mp3",
+    "Voice_Original_015/voice_400_1.mp3"
+   ]
+  },
+  "Voice_Original_018": {
+   "files": [
+    "Voice_Original_018/voice_400_0.mp3",
+    "Voice_Original_018/voice_400_1.mp3"
+   ]
+  },
+  "Voice_Original_019": {
+   "files": [
+    "Voice_Original_019/voice_400_0.mp3",
+    "Voice_Original_019/voice_400_1.mp3"
+   ]
+  },
+  "Voice_Original_020": {
+   "files": [
+    "Voice_Original_020/voice_400_0.mp3",
+    "Voice_Original_020/voice_400_1.mp3"
+   ]
+  },
+  "Voice_Original_021": {
+   "files": [
+    "Voice_Original_021/voice_400_0.mp3",
+    "Voice_Original_021/voice_400_1.mp3"
+   ]
+  },
+  "Voice_Original_022": {
+   "files": [
+    "Voice_Original_022/voice_400_0.mp3",
+    "Voice_Original_022/voice_400_1.mp3"
+   ]
+  },
+  "Voice_Original_024": {
+   "files": [
+    "Voice_Original_024/voice_400_0.mp3",
+    "Voice_Original_024/voice_400_1.mp3"
+   ]
+  },
+  "Voice_Original_025": {
+   "files": [
+    "Voice_Original_025/voice_400_0.mp3",
+    "Voice_Original_025/voice_400_1.mp3"
+   ]
+  },
+  "Voice_Original_026": {
+   "files": [
+    "Voice_Original_026/voice_400_0.mp3",
+    "Voice_Original_026/voice_400_1.mp3"
+   ]
+  },
+  "Voice_Original_027": {
+   "files": [
+    "Voice_Original_027/voice_400_0.mp3",
+    "Voice_Original_027/voice_400_1.mp3"
+   ]
+  }
+ }
+}

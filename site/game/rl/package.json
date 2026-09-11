@@ -1,0 +1,6 @@
+{
+  "name": "kirafan-rl",
+  "private": true,
+  "type": "module",
+  "comment": "Node 20 treats .js as CommonJS unless the nearest package.json says otherwise; this marker lets tools/rl_*_harness.mjs import game/rl/*.js directly. The browser never fetches this file."
+}

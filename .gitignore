@@ -1,0 +1,33 @@
+# ---- 文档：一律不提交（只在本机工作树保留） ----
+docs/
+
+# ---- 编辑器 / 本地工具 ----
+.idea/
+.vscode/
+*.swp
+.DS_Store
+Thumbs.db
+
+# ---- Python ----
+__pycache__/
+*.py[cod]
+.venv/
+
+# ---- Claude Code 本地状态 ----
+.claude/
+.codex-tmp/
+.codex-tmp-mine/
+
+# ---- 一次性 / 实验文件 ----
+test.html
+/ui_paper_*.png
+__face/
+__probe/
+__shots/
+*.stackdump
+
+# ---- 可重取的大缓存（非源码：工具可从 CDN 重新抓取/重建） ----
+.cache/
+*.muast
+site/asset/models/class-actions/*/actions.glb.gz
+site/asset/rl/_raw/

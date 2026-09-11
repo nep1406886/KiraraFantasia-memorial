@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="96" height="96" viewBox="0 0 96 96">
+  <title>巡猎罗盘</title><metadata>kirafan-timer original; pathfinding compass</metadata>
+  <g stroke="#716454" stroke-width="2.5" stroke-linejoin="round" stroke-linecap="round">
+    <circle cx="48" cy="13" r="7" fill="#e8c982"/>
+    <circle cx="48" cy="52" r="34" fill="#e4ba70"/>
+    <circle cx="48" cy="52" r="26" fill="#f9f0dc"/>
+    <path d="M48 29v8M48 67v8M25 52h8M63 52h8" stroke="#b4996b"/>
+    <path d="m63 33-8 25-22 13 8-25Z" fill="#87b6b3"/>
+    <path d="m63 33-8 25-7-6Z" fill="#537f99" stroke="none"/>
+    <path d="m33 71 8-25 7 6Z" fill="#d19bab" stroke="none"/>
+    <circle cx="48" cy="52" r="4" fill="#fdf9e7"/>
+    <path d="m34 29 6-3M70 68l-4 5" stroke="#fff5de" stroke-width="3"/>
+  </g>
+</svg>
