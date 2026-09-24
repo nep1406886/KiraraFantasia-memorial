@@ -563,7 +563,11 @@ body.touch-on .hud-menu-key { display:none; }
 #coin-display { font-size:12px; font-weight:500; margin-top:6px; }
 .player-health-track { height:5px; background:var(--kf-sky); }
 .player-health-track i { background:var(--kf-hp); transition:transform var(--ui-time) var(--ui-ease); }
-.low-health .player-health-track i { background:var(--kf-hp-low); }
+.low-health .player-health-track i { background:var(--kf-hp-low); animation:kf-hp-pulse 1.4s var(--ui-ease) infinite; }
+@keyframes kf-hp-pulse { 0%,100% { opacity:1; } 50% { opacity:.55; } }
+@media (prefers-reduced-motion:reduce) {
+    .low-health .player-health-track i { animation:none; }
+}
 .boss-readout { color:var(--kf-ink-soft); }
 .hud-effects:empty { display:none; }
 .hud-effects:not(:empty) { border-top:1px solid var(--kf-line); margin-top:8px; padding-top:8px; font-size:11px; }
