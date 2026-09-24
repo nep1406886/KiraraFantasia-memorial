@@ -90,7 +90,10 @@ test("real player and weapon masks retain their direction and source cooldown", 
     assert.deepEqual(decode(170020302).statResets, [{ target: 0, stats: ["atk"], mode: "down" }]);
     assert.deepEqual(decode(321420012).statResets, [{ target: 1, stats: ["atk", "mgc"], mode: "up" }]);
     assert.deepEqual(decode(460020012).statResets, decode(460020001).statResets);
-    assert.ok(decode(460020002).unhandled.includes(4), "Isolation is still a separate gap");
+    // 460020002's only kind-4 slot is Isolation (idx 7), which is
+    // structurally inapplicable (this game has no friend-join or member
+    // change), so it is no longer disclosed as a gap under the registry.
+    assert.ok(!decode(460020002).unhandled.includes(4), "Isolation is structurally inapplicable, not a gap");
     const normalIds = Object.values(weapons.passives).flatMap(p => p.effects
         .filter(e => e.type === 8 && e.args[0] > 0).map(e => e.args[0]));
     assert.ok(normalIds.every(id => !(weapons.childSkills[id]?.effects || []).some(e => e.kind === 3)));
@@ -232,8 +235,8 @@ test("real type-8 enemy cleanse rides the shot, keeps negative stacks and ignore
     let bullet; w.danmaku.forEach(b => { if (b.side === "player") bullet = b; });
     assert.equal(bullet.skillId, 321420012); assert.equal(bullet.statEffects[0].reset.mode, "up");
     p.skills.applyWeapon({}); step(w, 1);
-    assert.equal(100000 - e.hp, 312); near(effectiveStat(e, "atk"), 70); near(effectiveStat(e, "mgc"), 80);
-    assert.ok(e.slow && e.resists.length); assert.equal(p.skills.gauge, 312);
+    assert.equal(100000 - e.hp, 533); near(effectiveStat(e, "atk"), 70); near(effectiveStat(e, "mgc"), 80);
+    assert.ok(e.slow && e.resists.length); assert.equal(p.skills.gauge, 533);
     assert.equal(w.events.filter(ev => ev.type === "statReset" && ev.unit === e).length, 1);
 });
 for (const guarded of ["iframes", "barrier", "dead"]) test("outgoing reset obeys the accepted-hit boundary: " + guarded, () => {
@@ -250,8 +253,8 @@ test("projectile damage reads defence before removing its up effect", () => {
     const effects = [{ kind: 0, target: 1, args: [1000, 0] }, resetEffect(["def"], "up", 1)];
     const w = makeWorld({ table: replaceSlot(effects, false, 1) }), e = foe(w);
     e.debuffs = [{ def: 1, remaining: 8 }]; w.aim = e; cast(w); step(w, 1);
-    assert.equal(100000 - e.hp, 140); near(effectiveStat(e, "def"), 100);
-    assert.equal(tryHit(e, attackFrom(w.player, e, { coef: 1, magic: false }, { crit: false })).damage, 200);
+    assert.equal(100000 - e.hp, 295); near(effectiveStat(e, "def"), 100);
+    assert.equal(tryHit(e, attackFrom(w.player, e, { coef: 1, magic: false }, { crit: false })).damage, 355);
 });
 for (const side of ["self", "enemy"]) for (const first of [false, true]) test("ultimate atomic order " + side + " reset-first=" + first, () => {
     const damage = { kind: 0, target: 1, args: [1000, 0] };
@@ -259,7 +262,7 @@ for (const side of ["self", "enemy"]) for (const first of [false, true]) test("u
     const w = makeWorld({ table: replaceSlot(first ? [reset, damage] : [damage, reset], true, 1) }), p = w.player, e = foe(w);
     if (side === "self") add(p.skills, { atk: -.5 }); else e.debuffs = [{ def: 1, remaining: 8 }];
     p.skills.addGauge(p.skills.gaugeMax); assert.ok(w.useUltimate());
-    assert.equal(100000 - e.hp, first ? 200 : side === "self" ? 70 : 140);
+    assert.equal(100000 - e.hp, first ? 355 : side === "self" ? 148 : 295);
     assert.equal(p.skills.gauge, 0); assert.equal(w.useUltimate(), false);
 });
 test("ultimate never retargets a dead single target, but an independent reset is not a bullet rider", () => {
@@ -341,6 +344,8 @@ test("descriptions distinguish down/up/all and player speed adaptation without h
     assert.match(skillWords(decode(321420012)).join(";"), /解除敌方单体物攻.*魔攻提高.*保留降低/);
     assert.match(skillWords(slot([resetEffect(["spd"], "all")])).join(";"), /技能恢复速度.*正负变化/);
     assert.ok(!skillWords(decode(460020001)).join(";").includes("未适配：能力"));
-    assert.ok(skillWords(decode(460020002)).join(";").includes("未适配：自身异常"));
+    // 460020002's only kind-4 slot is Isolation (idx 7), structurally
+    // inapplicable, so the chip no longer discloses "未适配：自身异常".
+    assert.ok(!skillWords(decode(460020002)).join(";").includes("未适配：自身异常"));
 });
 console.log("Stat reset: " + checks + " checks passed.");

@@ -34,9 +34,12 @@
 // allies) all mean the player, 1 (single enemy) is an aimed shot, 2 (all
 // enemies) is a ring around the player.
 
-import { HEALING_LOCK_INDEX, HEALING_LOCK_TURNS } from "./playerstatus.js";
+import { HEALING_LOCK_INDEX, HEALING_LOCK_TURNS, POISON_INDEX, POISON_TURNS,
+    AILMENTS } from "./playerstatus.js";
 import { decodeStatReset, resetStatChanges } from "./statreset.js";
 import { decodeNextCritical } from "./nextcritical.js";
+
+const AILMENT_INDEXES = AILMENTS.map(ailment => ailment.index);
 
 // Fallbacks only: the shipped table carries both numbers and they win.
 export const RECAST_SECONDS = 0.35;
@@ -177,17 +180,29 @@ export function decodeSkill(row, id, recastSeconds, skillCards = {}) {
                 out.unhandled.push(3);
             }
         } else if (effect.kind === 5) {
-            const supported = SELF_TARGETS.includes(effect.target) && Array.isArray(args)
-                && Number.isFinite(args[HEALING_LOCK_INDEX]) && args[HEALING_LOCK_INDEX] !== 0;
-            if (supported) out.statusEffects.push({ kind: 5, target: effect.target });
-            if ((!supported || args.some((v, i) => i !== HEALING_LOCK_INDEX && v !== 0))
-                    && !out.unhandled.includes(5)) out.unhandled.push(5);
+            // AbnormalRecover: one eStateAbnormal reset per non-zero m_Args
+            // slot (BattleCommandParser.SolveSkillContent_AbnormalRecover).
+            // Read against the game's registered ailments: a mask that flags
+            // a registered slot is executable; a mask that only flags slots
+            // this game does not run clears nothing and stays a disclosed gap.
+            const mask = Array.isArray(args)
+                ? args.map((v, i) => (Number.isFinite(v) && v !== 0 ? i : -1)).filter(i => i >= 0) : [];
+            const supported = SELF_TARGETS.includes(effect.target)
+                && mask.some(i => AILMENT_INDEXES.includes(i));
+            if (supported) out.statusEffects.push({ kind: 5, target: effect.target, mask });
+            if (!supported && !out.unhandled.includes(5)) out.unhandled.push(5);
         } else if (effect.kind === 6) {
-            if (SELF_TARGETS.includes(effect.target) && Number.isSafeInteger(args[1]) && args[1] > 0) {
+            // AbnormalDisable: [turnConsume, turns] grants ONE buff that
+            // protects against every abnormal state for its duration
+            // (BattleCommandParser.SolveSkillContent_AbnormalDisable →
+            // CharacterBattleParam.SetStateAbnormalDisableBuff). No trait
+            // list is carried, so this is fully executable per row.
+            if (SELF_TARGETS.includes(effect.target)
+                    && Number.isSafeInteger(args[1]) && args[1] > 0) {
                 out.statusEffects.push({ kind: 6, target: effect.target, turns: args[1] });
+            } else if (!out.unhandled.includes(6)) {
+                out.unhandled.push(6);
             }
-            // This grants protection against one supported ailment, not all eight.
-            if (!out.unhandled.includes(6)) out.unhandled.push(6);
         } else if (effect.kind === 10) {
             // Original WeakElementBonus adds abs(percent/100) to the element
             // coefficient, not to the final damage. Preserve each target/timer.
@@ -195,7 +210,7 @@ export function decodeSkill(row, id, recastSeconds, skillCards = {}) {
                     && args[1] > 0 && Number.isFinite(args[2]) && args[2] !== 0) {
                 out.weakBonuses.push({ target: effect.target, turns: args[1], pct: Math.abs(args[2]) / 100 });
             } else if (!out.unhandled.includes(effect.kind)) {
-                out.unhandled.push(effect.kind);
+                out.unhandled.push(effect.kind); 
             }
         } else if (effect.kind === 21) {
             const child = skillCards && skillCards[args[1]];
@@ -248,11 +263,12 @@ export function decodeSkill(row, id, recastSeconds, skillCards = {}) {
         } else if (effect.kind === 4) {
             // Abnormal: args are one chance% PER eStateAbnormal slot
             // (0 Confusion 1 Paralysis 2 Poison 3 Bearish 4 Sleep 5 Unhappy
-            // 6 Silence 7 Isolation — the original's own enum). The slots do
-            // not map to stations this game runs, so the rogue fold keeps
-            // only the strength: the strongest listed chance becomes the
-            // slow a damaging cast leaves on what it hits. Duration is the
-            // adapter's own — the shipped rows carry none.
+            // 6 Silence 7 Isolation — the original's own enum). Enemy
+            // targets keep the rogue fold (the strongest listed chance
+            // becomes the slow a damaging cast leaves on what it hits).
+            // Self targets now decode against the REGISTERED ailment table:
+            // every registered slot with a positive chance becomes its own
+            // status effect; slots this game does not run stay disclosed.
             let best = 0;
             for (let a = 0; a < args.length; a++) {
                 if (args[a] > best) { best = args[a]; }
@@ -260,12 +276,37 @@ export function decodeSkill(row, id, recastSeconds, skillCards = {}) {
             if (effect.target === 1 || effect.target === 2) {
                 out.slow = { pct: best / 100, turns: 2, target: effect.target };
             } else {
-                const supported = SELF_TARGETS.includes(effect.target) && Array.isArray(args)
-                    && Number.isFinite(args[HEALING_LOCK_INDEX]) && args[HEALING_LOCK_INDEX] > 0;
-                if (supported) out.statusEffects.push({ kind: 4, target: effect.target,
-                    chance: Math.min(1, args[HEALING_LOCK_INDEX] / 100), turns: HEALING_LOCK_TURNS });
-                if ((!supported || args.some((v, i) => i !== HEALING_LOCK_INDEX && v !== 0))
-                        && !out.unhandled.includes(4)) out.unhandled.push(4);
+                const self = SELF_TARGETS.includes(effect.target) && Array.isArray(args);
+                if (!self && !out.unhandled.includes(4)) { out.unhandled.push(4); }
+                let applied = false;
+                AILMENTS.forEach(function (ailment) {
+                    const raw = args[ailment.index];
+                    if (!self || !Number.isFinite(raw) || raw <= 0) { return; }
+                    applied = true;
+                    out.statusEffects.push({ kind: 4, target: effect.target,
+                        ailment: ailment.key, index: ailment.index,
+                        chance: Math.min(1, raw / 100) });
+                });
+                // Isolation (slot 7) only blocks friend-join and member
+                // change in the original (BattleSystem
+                // OnJudgeInterruptFriendJoinSelect / SetupForOpenMemberChange),
+                // and this game has neither, so it is structurally
+                // inapplicable rather than a gap still to fill. The other
+                // unregistered slots (confusion/paralysis/sleep/silence) stay
+                // disclosed until their semantics are wired.
+                // Isolation (slot 7) only blocks friend-join and member change
+                // in the original, and this game has neither, so a numeric
+                // chance there is structurally inapplicable rather than a gap.
+                // Anything else that names a slot this game does not run, or a
+                // non-numeric chance on a slot it does run, stays disclosed.
+                const STRUCTURAL = [7];
+                const gap = args.some((v, i) => {
+                    if (i >= 8 || v === 0) { return false; }
+                    if (STRUCTURAL.includes(i)) { return false; }
+                    if (!Number.isFinite(v)) { return true; }
+                    return !AILMENT_INDEXES.includes(i);
+                });
+                if (gap && !out.unhandled.includes(4)) { out.unhandled.push(4); }
             }
         } else if (out.unhandled.indexOf(effect.kind) < 0) {
             out.unhandled.push(effect.kind);
@@ -696,9 +737,15 @@ export function enemyMoveset(table, skillIds) {
             coef: row.coef || 0,
             magic: !!row.magic,
             pattern: row.pattern || "aimed",
+            // The original's skill action name (SkillList_EN m_SAP): the key
+            // into the enemy attack effect map.
+            action: row.sap || "",
             sap: row.sap || "",
             healingLockChance: 0,
             healingLockSeconds: 0,
+            // Every registered ailment this row can land on its opponent,
+            // decoded from the same per-slot chance args as the healing lock.
+            statusRiders: [],
             hitStatResets: []
         };
         // Enemy target 1/2 means its opponent (the player), not the caster.
@@ -713,16 +760,67 @@ export function enemyMoveset(table, skillIds) {
                     const reset = decodeStatReset(effect);
                     if (reset) entry.hitStatResets.push(reset);
                 }
-                const chance = (effect.args || [])[HEALING_LOCK_INDEX];
-                if (effect.kind === 4 && (effect.target === 1 || effect.target === 2)
-                        && Number.isFinite(chance) && chance > 0) {
-                    entry.healingLockChance = Math.max(entry.healingLockChance, Math.min(1, chance / 100));
-                    entry.healingLockSeconds = HEALING_LOCK_TURNS * (table.turnSeconds || TURN_SECONDS);
-                }
+                if (effect.kind !== 4 || !(effect.target === 1 || effect.target === 2)) { continue; }
+                const args = effect.args || [];
+                AILMENTS.forEach(function (ailment) {
+                    const chance = args[ailment.index];
+                    if (!Number.isFinite(chance) || chance <= 0) { return; }
+                    const pct = Math.min(1, chance / 100);
+                    const seconds = (ailment.index === HEALING_LOCK_INDEX ? HEALING_LOCK_TURNS
+                        : ailment.index === POISON_INDEX ? POISON_TURNS : 0)
+                        * (table.turnSeconds || TURN_SECONDS);
+                    entry.statusRiders.push(Object.freeze({ key: ailment.key, chance: pct, seconds: seconds }));
+                    if (ailment.index === HEALING_LOCK_INDEX) {
+                        entry.healingLockChance = Math.max(entry.healingLockChance, pct);
+                        entry.healingLockSeconds = seconds;
+                    }
+                });
             }
         }
+        // Support rows (pattern "buff" or no coefficient): the original's
+        // turn-based command the enemy runs as its action. Decoded into the
+        // executable shapes world.applyEnemySupport dispatches. Targets are
+        // from the caster's perspective: 0 self, 3 ally-lowest-HP, 4 all
+        // allies; 1/2 are the row's "敌人" — the player. A kind-2 negative
+        // on the player is a debuff; a kind-1 heal on the player is authored
+        // as-is (a narrative boss moment), not corrected away.
+        const supportEffects = [];
+        for (const effect of row.effects || []) {
+            const args = effect.args || [];
+            if (effect.kind === 1) {
+                supportEffects.push({ kind: 1, target: effect.target,
+                    pct: (args[0] || 0) / 100 });
+            } else if (effect.kind === 13) {
+                supportEffects.push({ kind: 13, target: effect.target,
+                    cut: (args[0] || 0) / 100, hits: args[1] || 0 });
+            } else if (effect.kind === 2) {
+                // [turnConsume, turns, atk, mgc, def, mdef, spd, luck];
+                // turns 0 = the original's turn+1 single turn. spd is the
+                // original action-time ratio: the fold 1/x-1 (a 1.3 row
+                // means ~23% slower actions for that many turns).
+                supportEffects.push({ kind: 2, target: effect.target,
+                    turns: Math.max(1, args[1] || 0),
+                    atk: (args[2] || 0) / 100, mgc: (args[3] || 0) / 100,
+                    def: (args[4] || 0) / 100, mdef: (args[5] || 0) / 100,
+                    spd: Number.isFinite(args[6]) && args[6] > 0 ? 1 / args[6] - 1 : 0,
+                    luck: (args[7] || 0) / 100 });
+            }
+        }
+        Object.freeze(entry.statusRiders);
         Object.freeze(entry.hitStatResets);
         if (row.pattern === "buff" || !row.coef) {
+            // A row that also carries a turn-charge effect (kind 19) is the
+            // original's charged big move; there is no charge gauge in this
+            // game, so the whole row stays undispatched (see enemyai.js
+            // pickSupport and spec/06). Mark it from the SOURCE row, not the
+            // decoded subset.
+            if ((row.effects || []).some(function (e) { return e.kind === 19; })) {
+                entry.hasCharge = true;
+            }
+            if (supportEffects.length) {
+                Object.freeze(supportEffects);
+                entry.supportEffects = supportEffects;
+            }
             support.push(entry);
         } else {
             attacks.push(entry);

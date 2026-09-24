@@ -139,18 +139,22 @@ test("self abnormal effects are not transferred onto enemies", () => {
     cast(w, 1);
     assert.ok(e.hp < 100000, "ring actually hit");
     assert.ok(!e.slow, "self-only abnormal must not slow a foe");
-    assert.ok(decode(321720001).unhandled.includes(4));
+    // The registered Bearish (idx 3) now decodes as an executable status;
+    // the Isolation (idx 7) slot is structurally inapplicable (no
+    // friend-join in this game), so kind 4 is no longer disclosed as a gap.
+    assert.ok(!decode(321720001).unhandled.includes(4));
+    assert.ok(decode(321720001).statusEffects.some(e => e.ailment === "bearish"));
 });
 test("damage-borne resistance affects subsequent hits of its element only", () => {
     const w = makeWorld(14011000), e = foe(w);
     cast(w, 2);
-    assert.equal(100000 - e.hp, 234); // 100 * 0.9 * 2.6, before the debuff
+    assert.equal(100000 - e.hp, 374); // 100 * 0.9 * 4.15, before the debuff
     near(sumResists(e, 5), -0.2);
-    assert.equal(bullet(w, e, 5), 312);
-    assert.equal(bullet(w, e, 0), 260);
+    assert.equal(bullet(w, e, 5), 498);
+    assert.equal(bullet(w, e, 0), 415);
     step(w, 8.5);
     near(sumResists(e, 5), 0);
-    assert.equal(bullet(w, e, 5), 260);
+    assert.equal(bullet(w, e, 5), 415);
 });
 test("self resistance reduces only matching incoming damage", () => {
     const w = makeWorld(10001000), e = foe(w);
@@ -194,7 +198,7 @@ test("direct vulnerability chooses nearest live enemy and expires during stun", 
     const w = makeWorld(19000000), e = foe(w), far = foe(w, { x: 22 });
     cast(w, 2);
     near(sumResists(e, 1), -0.1); near(sumResists(far, 1), 0);
-    assert.equal(bullet(w, e, 1), 286);
+    assert.equal(bullet(w, e, 1), 457);
     e.stunTimer = 20;
     step(w, 8.5);
     near(sumResists(e, 1), 0);
@@ -236,11 +240,11 @@ test("resistance total is capped in both directions", () => {
 test("warrior: one +35% swing boosts both targets; the next swing is normal", () => {
     const w = makeWorld(), a = foe(w, { x: 16.3 }), b = foe(w, { x: 16.3, y: 15.3 });
     cast(w, 2); swing(w);
-    assert.equal(100000 - a.hp, 176); assert.equal(100000 - b.hp, 176);
+    assert.equal(100000 - a.hp, 280); assert.equal(100000 - b.hp, 280);
     near(w.player.nextAtkBonus, 0);
     a.x = b.x = 16.3; a.y = 15; b.y = 15.3; a.kx = a.ky = b.kx = b.ky = 0;
     swing(w);
-    assert.equal(100000 - a.hp, 306); assert.equal(100000 - b.hp, 306);
+    assert.equal(100000 - a.hp, 488); assert.equal(100000 - b.hp, 488);
 });
 test("whiff, skill bullets and ultimate gauge spending preserve next attack", () => {
     const w = makeWorld(); cast(w, 2); swing(w);
@@ -259,7 +263,7 @@ test("next attack and critical damage multiply without a second consumption", ()
     const w = makeWorld(), e = foe(w, { x: 16.3 });
     w.player.critBonus = 1;
     cast(w, 2); swing(w);
-    assert.equal(100000 - e.hp, 263); // round(100*.5*2.6*1.35*1.5)
+    assert.equal(100000 - e.hp, 420); // round(100*.5*4.15*1.35*1.5)
     near(w.player.nextAtkBonus, 0);
 });
 test("mage: original ultimate hits beyond normal projectile reach and shortens later cooldowns", () => {
@@ -290,7 +294,7 @@ test("a full bullet pool consumes cooldown safely; recycled bullets lose old eff
     const castEvent = w.drainEvents().find(event => event.type === "playerShot");
     assert.ok(castEvent && castEvent.bullets === 0, "no allocation past capacity");
     w.danmaku.clear(); step(w, 0.6);
-    assert.equal(bullet(w, e, 0), 260);
+    assert.equal(bullet(w, e, 0), 415);
     assert.ok(!e.slow && !e.resists?.length && !e.debuffs?.length,
         "fresh ordinary bullet must not inherit recycled payloads");
 });
@@ -383,7 +387,10 @@ test("skill chips state actual percentages and disclose unsupported effects", ()
     assert.ok(infocard.skillWords(decode(140110002)).some(s => s.includes("-20%")));
     assert.ok(infocard.skillWords(decode(150000002)).some(s => s.includes("35%")));
     assert.ok(infocard.skillWords(decode(100020002)).some(s => s.includes("27%") && s.includes("3")));
-    assert.ok(infocard.skillWords(decode(321720001)).some(s => s.includes("未适配")));
+    // 321720001's kind-4 self abnormal now resolves to the registered
+    // Bearish (idx 3); the chip lists it as an executable effect rather than
+    // disclosing an unadapted gap, so the chip asserts the Bearish wording.
+    assert.ok(infocard.skillWords(decode(321720001)).some(s => s.includes("弱守") || s.includes("必暴")));
 });
 
 console.log("T25: " + (checks - failures) + "/" + checks + " passed");

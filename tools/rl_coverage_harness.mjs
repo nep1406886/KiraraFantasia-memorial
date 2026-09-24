@@ -7,11 +7,11 @@ import { fileURLToPath } from "node:url";
 import { PLAYABLE_ROSTER } from "../site/game/rl/rosterids.js";
 const root = new URL("../", import.meta.url);
 const read = path => JSON.parse(readFileSync(new URL(path, root), "utf8"));
-const before = readFileSync(new URL("docs/combat-identities.json", root), "utf8");
+const before = readFileSync(new URL("docs/data/combat-identities.json", root), "utf8");
 const check = spawnSync(process.execPath, [fileURLToPath(new URL("tools/build_rl_skill_coverage.mjs", root)), "--check"], { encoding: "utf8" });
 assert.equal(check.status, 0, check.stdout + check.stderr);
-assert.equal(readFileSync(new URL("docs/combat-identities.json", root), "utf8"), before);
-const report = read("docs/skill-coverage.json"), byId = new Map(report.characters.map(row => [row.cardId, row]));
+assert.equal(readFileSync(new URL("docs/data/combat-identities.json", root), "utf8"), before);
+const report = read("docs/data/skill-coverage.json"), byId = new Map(report.characters.map(row => [row.cardId, row]));
 assert.equal(report.schemaVersion, 3);
 assert.equal(report.totals.characters, 41); assert.equal(report.totals.activeSkills, 82);
 assert.equal(report.totals.ultimates, 41); assert.equal(report.totals.sourceSkills, 123);
@@ -37,7 +37,9 @@ for (const [id, kind, range] of [[14002001, "slash", 2.1], [23002001, "projectil
     assert.equal(byId.get(id).defaultAttack.kind, kind); assert.equal(byId.get(id).defaultAttack.range, range);
 }
 assert.equal(byId.get(36002001).skills[2].executable.usable, true);
-assert.ok(byId.get(36002001).skills[2].unsupported.some(effect => effect.kind === 5));
+// 2026-09-17: Harumi's kind-5 mask now runs against the registered
+// ailments, so it is executable rather than disclosed as a gap.
+assert.equal(byId.get(36002001).skills[2].unsupported.some(effect => effect.kind === 5), false);
 assert.equal(report.playerSpeedAdaptation.affects, "ordinary-skill-recovery");
 assert.equal(report.skillCardAdaptation.namespace, "CARD");
 assert.equal(report.skillCardAdaptation.persisted, false);
@@ -53,7 +55,8 @@ assert.equal(report.statResetAdaptation.enemySelfAndSupportUnimplemented, true);
 assert.deepEqual(byId.get(46002001).skills[1].executable.statResets,
     [{ target: 0, stats: ["mdef"], mode: "down" }]);
 assert.ok(!byId.get(46002001).skills[1].unsupported.some(effect => effect.kind === 3));
-assert.ok(byId.get(46002001).skills[2].unsupported.some(effect => effect.kind === 4));
+assert.ok(!byId.get(46002001).skills[2].unsupported.some(effect => effect.kind === 4),
+    "Isolation-only slot is structural, not a gap");
 assert.equal(report.nextCriticalAdaptation.weaponChild, 320320013);
 assert.equal(report.nextCriticalAdaptation.consumption, "committed-player-damage-action");
 assert.deepEqual(report.nextCriticalAdaptation.includes, ["normal", "skill", "ultimate"]);

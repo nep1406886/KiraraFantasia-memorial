@@ -53,6 +53,7 @@ import { createDamageTextLayer } from "./view/damagetext.js";
 import { createHealthBars } from "./view/healthbars.js";
 import { createBattleIndicators } from "./view/battleindicators.js";
 import { createSkillVFX } from "./view/skillvfx.js";
+import { loadEnemyAttacks } from "./view/nativeassets.js";
 import { COMBAT_HEIGHT } from "./view/layers.js";
 import { setCharacterPitch } from "./view/tilt.js";
 import { showRoster } from "./ui/roster.js";
@@ -70,7 +71,10 @@ import { showFloorLoading } from "./ui/floorload.js";
 import { createRoomLoading, waitForRoomFade } from './ui/roomload.js';
 import { retryNativeRequests } from './view/nativeassets.js';
 import { createMeta, mergeState, pagesForVolume, FINALE_PAGES } from "./meta.js";
-import { ACHIEVEMENTS } from "./achievements.js";
+import { createTutorial } from "./tutorial.js";
+import { ACHIEVEMENTS, evaluateAchievements } from "./achievements.js";
+import { showAchievements, showAchievementToast } from "./ui/achievements.js";
+import { showHowto } from "./ui/howto.js";
 import { load as loadSlot, write as writeSlot, clear as clearSlot, exportSave, previewImport,
     importSave, storageState, setImportValidator, initializeStorage, retryStorage,
     exportPendingSave, subscribeStorage, checkStorageChanges, beginRun, resultState, acknowledgeResult } from "./save.js";
@@ -127,9 +131,15 @@ function beat(text, seconds) {
 // T22g: between beats the line doubles as the interact prompt — whatever is
 // in E range says so, so the interactables advertise themselves without a
 // tutorial. setHint caches so the idle path never churns the DOM per frame.
+// While the walkthrough is active it owns the line and writes it directly
+// (its onHint bypasses this guard); every other writer yields to it — e.g. a
+// chest opened during the interact step must not overwrite the step hint.
 let lastHintText = null;
 function setHint(text) {
     if (!hintBox || text === lastHintText) {
+        return;
+    }
+    if (tutorial && tutorial.active) {
         return;
     }
     lastHintText = text;
@@ -169,6 +179,11 @@ function interactHint() {
 }
 
 function updateHint(dt) {
+    // The walkthrough owns the hint line for its whole step (plan 阶段 8);
+    // the interact prompt comes back once it dismisses.
+    if (tutorial && tutorial.active) {
+        return;
+    }
     if (hintTimer <= 0) {
         setHint(interactHint() || HINT_DEFAULT);
         return;
@@ -177,6 +192,58 @@ function updateHint(dt) {
     if (hintTimer <= 0) {
         setHint(HINT_DEFAULT);
     }
+}
+
+// The first-run walkthrough (plan 阶段 8「菜单、教学、成就」). tutorialEntryOpen
+// is set when a fresh run boots on an un-tutored save (and when the howto
+// overlay's 重新教学 asks again); tickTutorial begins it on the first step the
+// player actually controls the world, then feeds it input edge detections.
+// A frozen world (dialogue, menu, shop, overlays, loading) simply stalls the
+// walkthrough; it resumes when control returns.
+// While active the player is untouchable: tryHit treats iframes>0 as a full
+// miss, so a fixed i-frame floor lets the tutorial teach without punishing —
+// the first room can be a battle room and the walkthrough must not end in a
+// death screen. onDone/dispose drop the floor again.
+const TUTORIAL_IFRAMES = 1e6;
+function clearTutorialSafety() {
+    if (world && world.player && world.player.iframes === TUTORIAL_IFRAMES) {
+        world.player.iframes = 0;
+    }
+}
+function tickTutorial(dt) {
+    if (tutorialEntryOpen && world && world.player
+            && runPhase === "active" && !world.frozen) {
+        tutorialEntryOpen = false;
+        if (tutorial) {
+            tutorial.begin();
+        }
+    }
+    if (tutorial && tutorial.active && world && !world.frozen) {
+        if (world.player && world.player.iframes !== undefined) {
+            world.player.iframes = Math.max(world.player.iframes, TUTORIAL_IFRAMES);
+        }
+        tutorial.update(input.state, dt);
+    }
+}
+
+// Achievements (plan 阶段 8): evaluate checks every table row as a pure read
+// and persists passing ones through meta.unlockAchievements — one batch write
+// per sweep — so repeated sweeps return [] after the first and each unlock
+// toasts once.
+function sweepAchievements() {
+    if (!meta) {
+        return;
+    }
+    const fresh = evaluateAchievements(meta);
+    if (fresh.length) {
+        // One chime per sweep that actually unlocked something (the browser
+        // still blocks audio before the first gesture, so a boot sweep is
+        // silent until the player has armed a sound).
+        audio.se("chime", { volume: 0.6 });
+    }
+    fresh.forEach(function (entry) {
+        showAchievementToast(entry);
+    });
 }
 
 // 游玩说明 §三: 每卷 20 层，第 20 层是 Boss. The volume-clear unlock only
@@ -290,6 +357,7 @@ let damageTextLayer = null;
 let healthBars = null;
 let battleIndicators = null;
 let skillVFX = null;        // Skill visual effects (Task 4.4)
+let enemyAttacks = null;    // original enemy attack effect map (slash/blow/bite/claw)
 let hud = null;             // the real HUD + touch controls (ui/hud.js)
 // A room change while an enemy model is still loading must not push a ghost
 // view into the new room: every load remembers the generation it started in.
@@ -348,6 +416,10 @@ let decisionOpen = false;
 let activeDecision = null;
 let lastShopKeys = [false, false, false];
 let codexOpen = false;
+let achvOpen = false;
+let howtoOpen = false;
+let tutorial = null;          // first-run walkthrough (tutorial.js, plan 阶段 8)
+let tutorialEntryOpen = false; // start the walkthrough on the next unfrozen step
 let lastMenu = false;
 let lastInteract = false;
 let weaponsData = null;     // weapons-rl.json, for shop affix detail text
@@ -409,6 +481,11 @@ function setup(modules) {
     healthBars = createHealthBars(stage, THREE);
     battleIndicators = createBattleIndicators(stage, THREE);
     skillVFX = createSkillVFX(scene, THREE, { maxEffects: 28, camera: camera });
+    // The original's enemy attack effects (slash/blow/bite/claw by grade),
+    // keyed by the enemy skill's action name. Loaded once; a missing map only
+    // means enemy swings play without their burst.
+    loadEnemyAttacks().then(map => { enemyAttacks = map; })
+        .catch(error => console.warn("Enemy attack effects:", error));
     dropTextures = loadDropTextures();
 
     // Initialize BGM system
@@ -472,9 +549,11 @@ function setup(modules) {
         step: 1 / 60,
         update: function (dt) {
             motion.beginStep(world);
+            updateFollowCamera(dt, 1, motion);
             projectAim();
             world.update(dt);
             consumeEvents();
+            tickTutorial(dt);
             if (hud) {
                 hud.pump();     // release touch-latched presses the step saw
             }
@@ -561,6 +640,9 @@ function setup(modules) {
         get volume() { return volume; },
         get volumeBiome() { return volumeConfig(volume).biome; },
         get quality() { return quality; },
+        // plan 阶段 8: read-only first-run-tutorial handle for headless
+        // drivers (the walkthrough marks it via meta.markTutorialSeen).
+        get tutorialSeen() { return !!(meta && meta.seenTutorial()); },
         get floorBiome() { return volumeConfig(volume, world ? world.floor : 1).biome; },
         get floorLabel() { return floorBox ? floorBox.textContent : ""; },
         get views() { return { player: playerView, enemies: enemyViews, danmaku: danmakuView,
@@ -617,6 +699,7 @@ function setup(modules) {
         skipUltimate: skipUltimate,
         renderOnce: renderFrame,
         step: function (dt) {
+            updateFollowCamera(dt);
             projectAim();
             world.update(dt);
             consumeEvents();
@@ -664,6 +747,24 @@ function renderFrame() {
 
 // One place both the rAF render and the headless step go through, so what a
 // check sees is what a player sees.
+// The follow rig advances BEFORE the aim projection, not in syncViews:
+// projectAim unprojects the cursor through the camera and the shot fires off
+// world.aim inside the same world.update — with the advance left in syncViews
+// (which runs after world.update), every aim read last frame's camera. While
+// the player walks, the rig trails the frame behind, and the bullet visibly
+// missed the cursor's screen spot by that frame delta along the view ray
+// (2026-09-16 实机反馈：弹丸特效方向与鼠标指向有偏差). Exactly one advance
+// per frame: the clock update/k.step call this before projectAim, syncViews
+// no longer does.
+function updateFollowCamera(dt, alpha, motionSampler) {
+    const p = world && world.player;
+    if (!p) { return; }
+    const position = unit => motionSampler
+        ? motionSampler.position(unit, world.frozen || world.hitStop > 0 ? 1 : alpha) : unit;
+    const at = position(p);
+    followCam.update(at.x, at.y, world.frozen ? 0 : dt);
+}
+
 function syncViews(dt, motion, alpha) {
     if (!world) {
         return;
@@ -674,12 +775,8 @@ function syncViews(dt, motion, alpha) {
     const position = unit => motion
         ? motion.position(unit, world.frozen || world.hitStop > 0 ? 1 : alpha) : unit;
     const p = world.player;
-    if (p) {
-        const at = position(p);
-        followCam.update(at.x, at.y, world.frozen ? 0 : dt);
-    }
-    // T22m: publish the live camera pitch BEFORE any view syncs — the
-    // character stacks tilt back by it (view/tilt.js) to read straight-on.
+    // The camera rig already advanced this frame (updateFollowCamera before
+    // projectAim); views sync against the camera the aim just used.
     setCharacterPitch(followCam.pitch());
     if (playerView) {
         playerView.sync(poseDt, position(p));
@@ -775,7 +872,15 @@ function unitName(unit) {
     return unit.nameZh || unit.name || (unit.kind === "player" ? "我方" : "敌人");
 }
 
+let lastSeenSwing = 0;
 function consumeEvents() {
+    // A quick click's latch stays armed until the world has actually swung
+    // with it (swingId changed this update) — a click landing mid-swing then
+    // queues the next one instead of being swallowed (input.js).
+    const player = world && world.player;
+    const seen = !!player && player.swingId !== lastSeenSwing;
+    if (seen) { lastSeenSwing = player.swingId; }
+    input.endStep(seen);
     const events = world.drainEvents();
     // A reload during a cinematic must retain the completed fight and its loot.
     if (events.some(event => event.type === 'roomClear')) { saveRun(); }
@@ -811,6 +916,7 @@ function consumeEvents() {
             if (activeDecision) { activeDecision.close(); }
             rebuildRoom(event.room);
             recordEncounters();
+            sweepAchievements();
             minimap.setCurrent(event.to);
             // battle stance on first entry of a fight room (anchor table,
             // master plan §2.3; battle_in plays once, non-looping)
@@ -991,6 +1097,7 @@ function consumeEvents() {
                     y: target.y,
                     crit: event.crit || false,
                     hitFlag: event.hitFlag || 0,
+                    element: event.attacker ? event.attacker.element : null,
                     side: event.attacker && event.attacker.kind === "player" ? "player" : "enemy",
                     camera: camera,
                     renderer: renderer
@@ -1005,6 +1112,16 @@ function consumeEvents() {
                     event.attacker ? event.attacker.element || 0 : 0,
                     event.crit || false
                 );
+                // The original's common death burst (ef_btl_common_dead):
+                // every kill gets it at the kill point, scaled up for bosses
+                // and elites — the readable "it died" beat that a vanishing
+                // model alone never gave. 2026-09-18 原素材美术优化.
+                if (event.died && event.target.kind !== "player") {
+                    const big = event.target.kind === "boss" || event.target.elite;
+                    skillVFX.emitNative("ef_btl_common_dead", impact.x, impact.y, {
+                        kind: "impact", height: COMBAT_HEIGHT,
+                        scale: big ? 1.6 : 1.0, duration: .5 });
+                }
             }
             // Impact shake: taking a hit moves the camera harder than dealing
             // one, and a crit the player lands still lands a little.
@@ -1226,6 +1343,19 @@ function consumeEvents() {
             // the dodge input); enemies never dodge, so no unit filter.
             audio.se("dodge", { volume: 0.6 });
             break;
+        case "enemySkill":
+            // The original's enemy attack burst (ef_btl_dmg_enemy_attack_*),
+            // chosen by the skill's action plan: kind (slash/blow/bite/claw)
+            // and grade. Played at the attacker, aimed along the swing.
+            if (skillVFX && enemyAttacks && event.skill) {
+                const row = enemyAttacks.skills[event.skill.action];
+                if (row) {
+                    skillVFX.emitNative(row.effect, event.unit.x, event.unit.y, {
+                        kind: "impact", enemyAttack: true, height: COMBAT_HEIGHT,
+                        angle: event.unit.facing, scale: 1.1, duration: .5 });
+                }
+            }
+            break;
         default:
             break;      // swing/enemySkill/dash/playerShot: view-side already
         }
@@ -1308,6 +1438,7 @@ function tickRunSave(dt) {
 function syncWorldFrozen() {
     if (!world) { return; }
     world.frozen = runPhase !== "active" || menuOpen || shopOpen || codexOpen || decisionOpen
+        || achvOpen || howtoOpen
         || dialogueBusy || dialogueQueue.length > 0 || usLoading || !!usPlayer || storageConflict || landscapeBlocked
         || !!pendingRoomLoad;
 }
@@ -1352,6 +1483,10 @@ function finishRun(outcome) {
     const facts = { outcome, volume, floor: world.floor, cardId: p.card ? p.card.id : 0,
         level: p.level, coin: world.coin || 0, items };
     const settled = meta ? meta.settleRun(activeRunId, facts) : { receipt: null, saved: false };
+    // Volume/page/gem achievements land with the terminal commit. They are NOT
+    // swept here: the terminal gate (rl_terminal_browser.py) counts storage
+    // commits in the victory window and an extra write would break its
+    // single-transaction contract. The sweep runs at the next run start.
     const receipt = settled.receipt || { ...facts, runId: activeRunId, equipmentCount: items.length,
         gems: 0, newPages: [], pages: meta ? meta.progression.pages.length : 0 };
     if (outcome === "defeat") {
@@ -1533,6 +1668,7 @@ async function attemptDescent(tx) {
             const entry = window.kirafanPages && window.kirafanPages[String(pageId)];
             beat("◇ 救回残页：〈" + workZhFor(pageId, entry ? entry.work : String(pageId)) + "〉", 5.0);
         });
+        sweepAchievements();
         beat("▼ 下潜到第 " + tx.to + " 层", 4.0);
         queueDialogue(conditionalStory("segment"));
     } catch (error) {
@@ -2474,14 +2610,105 @@ function openCodex() {
     });
 }
 
+// 成就 overlay (plan 阶段 8): same codex pattern — the pause menu hands focus
+// to the overlay, the run stays frozen, and closing restores the menu so a
+// keyboard player's flow is Esc→成就→Esc, not a dropped menu.
+function openAchievements() {
+    if (achvOpen || (runPhase !== "active" && runPhase !== "selecting")) {
+        return;
+    }
+    achvOpen = true;
+    const fromMenu = menuOpen;
+    if (menuOpen) {
+        menuOpen = false;
+        if (menuPanel) {
+            menuPanel.classList.add("hidden");
+        }
+    }
+    if (world) {
+        world.frozen = true;
+    }
+    showAchievements({
+        entries: ACHIEVEMENTS.map(function (row) {
+            const done = meta
+                ? meta.state.achievements.some(function (a) {
+                    return String(a) === String(row.id);
+                }) : false;
+            return { id: row.id, name: row.name, desc: row.desc, done: done };
+        }),
+        onClose: function () {
+            achvOpen = false;
+            if (world) {
+                syncWorldFrozen();
+            }
+            if (fromMenu) {
+                menuOpen = true;
+                if (menuPanel) {
+                    menuPanel.classList.remove("hidden");
+                }
+                const back = document.getElementById("menu-achv");
+                if (back) {
+                    back.focus();
+                }
+            }
+        }
+    });
+}
+
+// 操作说明 overlay (plan 阶段 8): a static controls reference. 重新教学 starts
+// the walkthrough again (spec/09: 教学可在菜单重开, 无重复奖励); it only shows
+// with an active run and dismisses the overlay so the world can unfreeze.
+function openHowto() {
+    if (howtoOpen || (runPhase !== "active" && runPhase !== "selecting")) {
+        return;
+    }
+    howtoOpen = true;
+    const fromMenu = menuOpen;
+    if (menuOpen) {
+        menuOpen = false;
+        if (menuPanel) {
+            menuPanel.classList.add("hidden");
+        }
+    }
+    if (world) {
+        world.frozen = true;
+    }
+    showHowto({
+        canRetryTutorial: runPhase === "active" && !!world && !!world.player,
+        onRetryTutorial: function () {
+            if (tutorial) {
+                tutorial.dispose();
+            }
+            clearTutorialSafety();
+            tutorialEntryOpen = true;
+        },
+        onClose: function () {
+            howtoOpen = false;
+            if (world) {
+                syncWorldFrozen();
+            }
+            if (fromMenu) {
+                menuOpen = true;
+                if (menuPanel) {
+                    menuPanel.classList.remove("hidden");
+                }
+                const back = document.getElementById("menu-howto");
+                if (back) {
+                    back.focus();
+                }
+            }
+        }
+    });
+}
+
 // Esc: closes the shop first if it is up, otherwise toggles the pause menu.
 // While the codex is open its own Escape handler owns the key — swallowing
 // the edge here stops the menu from also opening underneath the overlay.
 function updateMenuKey() {
     const down = !!input.state.menu;
     if (down && !lastMenu) {
-        if (decisionOpen || codexOpen) {
-            // owned by the codex overlay
+        if (decisionOpen || codexOpen || achvOpen || howtoOpen) {
+            // owned by the overlay's own Escape handler
         } else if (document.getElementById("rl-skillcard")) {
             // T22i 技能卡: Escape dismisses the card, not the menu under it.
             const el = document.getElementById("rl-skillcard");
@@ -2601,6 +2828,17 @@ function initOverlays() {
     if (codexBtn) {
         codexBtn.addEventListener("click", openCodex);
     }
+    // plan 阶段 8 菜单: 成就 and 操作说明 were rendered for a long time with no
+    // handler — the overlay builders (ui/achievements.js, ui/howto.js) were
+    // orphans. Wire both here like the codex button above.
+    const achvBtn = document.getElementById("menu-achv");
+    if (achvBtn) {
+        achvBtn.addEventListener("click", openAchievements);
+    }
+    const howtoBtn = document.getElementById("menu-howto");
+    if (howtoBtn) {
+        howtoBtn.addEventListener("click", openHowto);
+    }
     // T22i 技能卡: readable at any moment mid-run — the pause menu is up and
     // the world frozen, so the card just stacks on top and closing it hands
     // focus back to the menu (world.frozen is still menuOpen-driven).
@@ -2624,6 +2862,13 @@ function initOverlays() {
             if (bgm) {
                 bgm.setVolume(Number(volumeControl.value) / 100);
             }
+        });
+    }
+    const seVolumeControl = document.getElementById("menu-sevol");
+    if (seVolumeControl) {
+        seVolumeControl.value = String(Math.round(audio.getSeVolume() * 100));
+        seVolumeControl.addEventListener("input", function () {
+            audio.setSeVolume(Number(seVolumeControl.value) / 100);
         });
     }
     // T22b 镜头高度 slider: tenths of a world unit in the input, a plain
@@ -2733,7 +2978,9 @@ async function playUltimate() {
     if (!skill) { beat("当前无法使用必杀"); return; }
     audio.se("special", { volume: 0.8 });
     beat(skill.name || "必杀", 2.5);
-    if (skillVFX) { skillVFX.emitCharge(world.player.x, world.player.y); }
+    // 用户反馈 2026-09-16：必杀前不再垫 ef_btl_buff_ring 蓄力圆环——原作
+    // とっておき演出（有 sceneId 的身份）自带上场特效，无演出的身份也不该
+    // 出现一个代码加的圆。emitPickup 的拾取圆环与此无关，保留。
     const rid = skill.sceneId;
     usLoading = !!rid;
     world.events.filter(function (event) { return event.type === "hit"; }).forEach(settleTerminalHit);
@@ -3158,6 +3405,11 @@ function loadPlayer() {
                 runPhase = "active";
                 syncWorldFrozen();
                 say("");
+                // Achievements earned by the previous run's terminal commit
+                // land here — never inside finishRun's victory window (the
+                // terminal gate counts storage commits there, and the sweep
+                // must not add a second transaction to the terminal one).
+                sweepAchievements();
                 // Same floor-entry warmup as the descent path (see below):
                 // the run's first battle room must not pay network + inflate
                 // for unseen enemy models on its strict load path.
@@ -3174,6 +3426,13 @@ function loadPlayer() {
                     queueDialogue("v" + volume + "_open");
                 } else {
                     queueDialogue("v" + volume + "_open");
+                }
+                // First-run tutorial (plan 阶段 8): once per save, right after
+                // the volume opening — きらら previews the controls, then the
+                // on-screen walkthrough takes over when control returns.
+                if (!resume && meta && !meta.seenTutorial()) {
+                    queueDialogue("tutorial");
+                    tutorialEntryOpen = true;
                 }
 
                 // Switch to exploration BGM after the character loads
@@ -3240,6 +3499,7 @@ function loadPlayer() {
     }
     const rosterOptions = {
         onCodex: openCodex,
+        onAchievements: openAchievements,
         onStorage: openStorage,
         onTrain: function () {
             if (!meta || runPhase !== "selecting" || decisionOpen) { return; }
@@ -3350,6 +3610,34 @@ Promise.all([loader.loadModules(), loadTables()]).then(function (booted) {
     // Cross-run state (T11): roster gating, run start level, death settle.
     meta = createMeta();
     meta.read();
+    // First-run walkthrough: DOM-free, main.js owns the hint line + the
+    // one-shot flag. 重新教学 from the howto overlay reuses the same object.
+    tutorial = createTutorial({
+        onHint: function (step, text) {
+            // Write the walkthrough hint directly — setHint yields to the
+            // active walkthrough, so this is the only writer that must bypass
+            // that guard (a chest/shop beat during the interact step must not
+            // replace the step text). The tutorial-active class re-shows the
+            // box on touch (body.touch-on hides it) so mobile guidance lives.
+            if (!hintBox) {
+                return;
+            }
+            hintBox.classList.add("tutorial-active");
+            lastHintText = text;
+            hintBox.textContent = text;
+            hintBox.hidden = !text;
+        },
+        onDone: function () {
+            if (hintBox) {
+                hintBox.classList.remove("tutorial-active");
+            }
+            setHint(HINT_DEFAULT);
+            clearTutorialSafety();
+            if (meta) {
+                meta.markTutorialSeen();
+            }
+        }
+    });
     // Dialogue (T12): resolver + presenter + one-time validation of every
     // script tag above; the prologue plays once per save, not per boot.
     initDialogue();
@@ -3361,6 +3649,11 @@ Promise.all([loader.loadModules(), loadTables()]).then(function (booted) {
         runResult = resultSummary(receipt); maybeShowRunResult();
         return;
     }
+    // Achievements earned in a previous session unlock retroactively at boot.
+    // This runs only AFTER the receipt early-return: the terminal gate boots
+    // with an unacknowledged receipt and expects zero storage writes until it
+    // is confirmed, so the sweep must never fire on that path.
+    sweepAchievements();
     if (meta && !meta.seenPrologue()) {
         queueDialogue("prologue");
         meta.markPrologueSeen();

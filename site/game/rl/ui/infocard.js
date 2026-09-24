@@ -11,6 +11,7 @@
 // decodeSkill is the game's own decoder; the roster card must show skills
 // exactly as a run would decode them, so it is imported, never re-derived.
 import { decodeSkill, PLAYER_RECOVERY_RATE, TURN_SECONDS } from "../skills.js";
+import { AILMENTS, POISON_TURNS, HEALING_LOCK_TURNS } from "../playerstatus.js";
 import { SKILL_ICON_BY_TYPE, ELEMENT_TINT } from "./skillart.js";
 
 const INFOCARD_CSS = `
@@ -315,12 +316,21 @@ export function skillWords(slot, turnSeconds = TURN_SECONDS) {
     });
     (slot.statusEffects || []).forEach(function (effect) {
         if (effect.kind === 4) {
-            words.push("自身治疗封锁（不幸）" + Math.round(effect.chance * 100) + "%概率×" + effect.turns
-                + "回合：技能/持续/吸血回复无效，补给、升级与保命不受影响");
+            const ailment = AILMENTS.find(a => a.key === effect.ailment);
+            const name = ailment ? ailment.name : "异常";
+            const detail = effect.ailment === "poison"
+                ? "：每个原作回合按最大生命 3% 结算一次"
+                : "：技能/持续/吸血回复无效，补给、升级与保命不受影响";
+            words.push("自身" + name + Math.round(effect.chance * 100) + "%概率×"
+                + Math.round((effect.ailment === "poison" ? POISON_TURNS : HEALING_LOCK_TURNS)) + "回合" + detail);
         } else if (effect.kind === 5) {
-            words.push("解除治疗封锁");
+            // Mask-driven (2026-09-17): name the registered ailments the
+            // flagged slots actually clear.
+            const names = AILMENTS.filter(a => (effect.mask || []).includes(a.index))
+                .map(a => a.name);
+            words.push("解除异常（" + (names.join("、") || "无已登记异常") + "）");
         } else if (effect.kind === 6) {
-            words.push("治疗封锁免疫×" + effect.turns + "回合（不解除已有封锁）");
+            words.push("全异常免疫×" + effect.turns + "回合（不解除已有异常）");
         }
     });
     for (const placement of slot.cardPlacements || []) {
@@ -341,8 +351,10 @@ export function skillWords(slot, turnSeconds = TURN_SECONDS) {
         22: "眩晕恢复", 24: "原作后续效果" };
     (slot.unhandled || []).forEach(function (kind) {
         const partial = (slot.statusEffects || []).some(effect => effect.kind === kind);
-        const name = partial && [4, 5, 6].includes(kind)
-            ? ({ 4: "其余自身异常", 5: "其余异常解除", 6: "其余异常免疫" })[kind] : unsupported[kind];
+        // 2026-09-17: kinds 5/6 are fully executable against the registered
+        // ailment set now, so only the self-abnormal row keeps a partial
+        // wording; an unhandled 5/6 is a plain gap again.
+        const name = partial && kind === 4 ? "其余自身异常" : unsupported[kind];
         words.push("未适配：" + (name || "原作特殊效果"));
     });
     const delivery = { self: "自身", ring: "环形", aimed: "指向" };

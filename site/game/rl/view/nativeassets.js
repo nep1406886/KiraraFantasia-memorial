@@ -34,10 +34,10 @@ function trimCache() {
     }
 }
 
-function request(kind, key, index) {
+function request(kind, key, index, entryOverride) {
     const cacheKey = kind + ":" + key;
     if (templates.has(cacheKey)) { return templates.get(cacheKey); }
-    const entry = index[kind] && index[kind][key];
+    const entry = entryOverride || (index[kind] && index[kind][key]);
     if (!entry) { throw new Error("native asset missing: " + cacheKey); }
     const record = { key: cacheKey, refs: 0, stamp: ++serial, ready: false };
     let pendingScene = null, invalidated = false;
@@ -98,6 +98,36 @@ export async function preloadNative(kind, keys) {
     trimCache();
 }
 
+const ENEMY_ATTACKS = new URL("asset/rl/native/enemy-attacks.json", ROOT);
+let enemyAttacksPromise = null;
+
+// The enemy attack map (enemy-attacks.json) is a separate authored table:
+// skill action -> ef_btl_dmg_enemy_attack_<kind>_<grade>. Resolved on demand
+// so the main index stays the player/town catalogue.
+export function loadEnemyAttacks() {
+    if (!enemyAttacksPromise) {
+        const request = fetch(ENEMY_ATTACKS).then(response => {
+            if (!response.ok) { throw new Error("enemy attack map " + response.status); }
+            return response.json();
+        }).catch(error => { if (enemyAttacksPromise === request) enemyAttacksPromise = null; throw error; });
+        enemyAttacksPromise = request;
+    }
+    return enemyAttacksPromise;
+}
+
+export async function acquireEnemyAttack(effect) {
+    const map = await loadEnemyAttacks();
+    const entry = map.effects && map.effects[effect];
+    if (!entry) { throw new Error("enemy attack effect missing: " + effect); }
+    const index = await loadNativeIndex();
+    const record = request("effects", effect, index, entry);
+    record.refs++; record.stamp = ++serial;
+    let template;
+    try { template = await record.promise; }
+    catch (error) { record.refs--; throw error; }
+    return instantiate(record, template);
+}
+
 export async function acquireNative(kind, key) {
     const index = await loadNativeIndex();
     const record = request(kind, key, index);
@@ -105,6 +135,10 @@ export async function acquireNative(kind, key) {
     let template;
     try { template = await record.promise; }
     catch (error) { record.refs--; throw error; }
+    return instantiate(record, template);
+}
+
+function instantiate(record, template) {
     const root = template.root.clone(true);
     const materials = new Set(), textures = new Set();
     function ownMaterial(source) {

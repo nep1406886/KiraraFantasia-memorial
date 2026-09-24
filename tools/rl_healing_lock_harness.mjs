@@ -23,7 +23,9 @@ test("Kaoruko's real cleanse/immunity slot is executable, not an empty cooldown"
 // Kept after the red gate so the pre-implementation failure identifies the
 // actual missing player behaviour, rather than the not-yet-created module.
 const { applyHealingLock, cleanseHealingLock, grantHealingLockImmunity,
-    updatePlayerStatus, clearPlayerStatus } = await import("../site/game/rl/playerstatus.js");
+    cleanseAbnormals, grantAbnormalDisable, abnormalDisabled, applyPoison, poisoned,
+    applyBearish, bearished, updatePlayerStatus, clearPlayerStatus, POISON_TURNS,
+    } = await import("../site/game/rl/playerstatus.js");
 const stats = { statsFor: () => ({ hp: 1000, atk: 100, mgc: 100,
     def: 10, mdef: 10, spd: 100, luck: 0 }) };
 function makeWorld(id = 24002001, extra = {}) {
@@ -60,35 +62,114 @@ function curse(w, extra = {}) {
 }
 
 test("current masks and status order are retained without claiming other ailments", () => {
+    // 2026-09-17: kind 5 carries the original's per-slot mask, kind 6 is the
+    // original's blanket disable ([turnConsume, turns] — no trait list).
     assert.deepEqual(decode(240020002).statusEffects, [
-        { kind: 5, target: 3 }, { kind: 6, target: 3, turns: 3 }
+        { kind: 5, target: 3, mask: [0, 1, 2, 3, 4, 5, 6, 7] },
+        { kind: 6, target: 3, turns: 3 }
     ]);
     assert.deepEqual(decode(280020002).statusEffects, [
-        { kind: 4, target: 0, chance: 1, turns: 2 }, { kind: 6, target: 0, turns: 3 }
+        { kind: 4, target: 0, ailment: "healingLock", index: 5, chance: 1 },
+        { kind: 6, target: 0, turns: 3 }
     ]);
-    assert.ok(decode(240020002).unhandled.includes(5));
-    assert.ok(decode(240020002).unhandled.includes(6));
+    assert.ok(!decode(240020002).unhandled.includes(5), "an all-slot mask runs against the registry");
+    assert.ok(!decode(240020002).unhandled.includes(6), "the blanket disable has no trait list to miss");
     assert.ok(decode(280020002).unhandled.includes(18));
-    assert.ok(decode(321720001).unhandled.includes(4));
-    assert.equal(decode(370020001).statusEffects.length, 0, "a Poison-only cleanse is not an Unhappy cleanse");
+    // 321720001 self-inflicts Bearish (registered) + Isolation (slot 7).
+    // Isolation only blocks friend-join and member change in the original,
+    // neither of which exists here, so the row is fully executable.
+    assert.ok(decode(321720001).statusEffects.some(e => e.kind === 4 && e.ailment === "bearish"));
+    assert.ok(!decode(321720001).unhandled.includes(4), "isolation is structurally inapplicable, not a gap");
+    // 460020002 flags only Isolation, so it decodes to nothing and stays unusable.
+    assert.equal(decode(460020002).statusEffects.length, 0);
+    assert.ok(!decode(460020002).unhandled.includes(4));
+    assert.deepEqual(decode(370020001).statusEffects,
+        [{ kind: 5, target: 3, mask: [2] }],
+        "Poison is registered now, so the Poison-only cleanse runs");
     near(decode(340020002).slow.pct, .7);
 });
 for (const target of [0, 3, 4]) test("single-player status target " + target, () => {
     const row = { target, effects: [{ kind: 6, target, args: [1, 3] }] };
     assert.equal(decodeSkill(row, 1, .35).usable, true);
 });
+test("a registered-ailment-only cleanse is executable, not a gap", () => {
+    const poisonOnly = decodeSkill({ target: 0, effects: [
+        { kind: 5, target: 0, args: [0, 0, 1, 0, 0, 0, 0, 0] }] }, 1, .35);
+    assert.equal(poisonOnly.usable, true);
+    assert.deepEqual(poisonOnly.statusEffects, [{ kind: 5, target: 0, mask: [2] }]);
+    // Flagging only UNREGISTERED slots (0 Confusion here) still clears
+    // nothing and stays a gap; Poison(2)/Bearish(3)/Unhappy(5) are registered.
+    const bearOnly = decodeSkill({ target: 0, effects: [
+        { kind: 5, target: 0, args: [1, 0, 0, 0, 0, 0, 0, 0] }] }, 1, .35);
+    assert.equal(bearOnly.usable, false);
+    assert.ok(bearOnly.unhandled.includes(5));
+});
 for (const effect of [
     { kind: 4, target: 0, args: [0, 0, 0, 0, 0, "100", 0, 0] },
     { kind: 4, target: 0, args: [0, 0, 0, 0, 0, Infinity, 0, 0] },
     { kind: 4, target: 8, args: [0, 0, 0, 0, 0, 100, 0, 0] },
     { kind: 5, target: 2, args: [1, 1, 1, 1, 1, 1, 1, 1] },
-    { kind: 5, target: 0, args: [0, 0, 1, 0, 0, 0, 0, 0] },
     { kind: 5, target: 0, args: [0, 0, 0, 0, 0, "1", 0, 0] },
     { kind: 6, target: 1, args: [1, 3] }, { kind: 6, target: 0, args: [1, 0] },
     { kind: 6, target: 0, args: [1, Infinity] }, { kind: 6, target: 0, args: [1, "3"] }
 ]) test("invalid/unsupported status stays unusable " + JSON.stringify(effect), () => {
     const slot = decodeSkill({ target: effect.target, effects: [effect] }, 1, .35);
-    assert.equal(slot.usable, false); assert.ok(slot.unhandled.includes(effect.kind));
+    assert.equal(slot.usable, false, "usable " + JSON.stringify(effect));
+    assert.ok(slot.unhandled.includes(effect.kind), "unhandled " + JSON.stringify(effect) + " got " + JSON.stringify(slot.unhandled));
+});
+test("Poison is a registered ailment with the original's per-turn tick fold", () => {
+    const w = makeWorld(32002001), p = w.player;
+    // A 3-turn poison ticks exactly three times, each at 3% of max HP.
+    applyPoison(p, 1, POISON_TURNS * 2.8, () => 0);
+    near(p.poison, 8.4);
+    let ticks = 0;
+    const tick = () => { ticks++; return true; };
+    for (let left = 8.4 - 1 / 60; left > 0; left -= 1 / 60) {
+        updatePlayerStatus(p, 1 / 60, 2.8, tick);
+    }
+    assert.equal(ticks, POISON_TURNS); assert.equal(p.poison, 0);
+    // The blanket disable turns poison away; the per-ailment equipment
+    // protection (Unhappy only) does not.
+    grantAbnormalDisable(p, 5); assert.equal(applyPoison(p, 1, 5, () => 0).action, "immune");
+    clearPlayerStatus(p); grantHealingLockImmunity(p, 5);
+    assert.equal(applyPoison(p, 1, 5, () => 0).action, "applied");
+    // A Poison-only cleanse now clears it; a healing-lock cleanse must not.
+    clearPlayerStatus(p); lock(p);
+    assert.equal(cleanseAbnormals(p, [2]), null, "a Poison-only mask leaves the lock");
+    clearPlayerStatus(p); applyPoison(p, 1, 5, () => 0);
+    const poisonClear = cleanseAbnormals(p, [2]);
+    assert.ok(poisonClear && poisonClear.cleared.indexOf("poison") >= 0);
+    assert.equal(poisoned(p), false);
+    lock(p);
+    const lockClear = cleanseAbnormals(p, [5]);
+    assert.ok(lockClear && lockClear.cleared.indexOf("healingLock") >= 0);
+});
+test("a real self-poison row and the poison-only cleanse agree", () => {
+    // 330110001 self-inflicts Poison at 100%; its cleanse mask [2] clears it.
+    const slot = decode(330110001);
+    assert.ok(slot.statusEffects.some(e => e.kind === 4 && e.ailment === "poison" && e.chance === 1));
+    const cleanse = decode(370020001);
+    assert.deepEqual(cleanse.statusEffects, [{ kind: 5, target: 3, mask: [2] }]);
+});
+test("Bearish forces every incoming hit to crit (source CalcCritical rule)", () => {
+    const w = makeWorld(32002001), p = w.player;
+    assert.equal(applyBearish(p, 1, 8.4, () => 0).action, "applied");
+    assert.equal(bearished(p), true);
+    // A zero-crit-chance enemy hit is a crit while Bearish runs, and not after.
+    const hit = () => {
+        const e = foe(w); e.actionTimer = 0; w.rng = () => .99;
+        const r = w.hitPlayerFrom(e, { coef: .5, magic: false });
+        e.actionTimer = 1e9;
+        return r;
+    };
+    assert.equal(hit().crit, true);
+    p.bearish = 0; p.iframes = 0;
+    assert.equal(hit().crit, false);
+    // The blanket disable refuses it, and a cleanse can clear it.
+    grantAbnormalDisable(p, 4);
+    assert.equal(applyBearish(p, 1, 4, () => 0).action, "immune");
+    clearPlayerStatus(p); applyBearish(p, 1, 4, () => 0);
+    assert.ok(cleanseAbnormals(p, [3]).cleared.indexOf("bearish") >= 0);
 });
 test("probability bounds and immunity avoid unnecessary random draws", () => {
     const p = makeWorld().player; let draws = 0;
@@ -116,20 +197,20 @@ test("refresh keeps the longer timer; immunity never cleanses an existing lock",
     near(p.healingLockImmunity, 8.4);
     updatePlayerStatus(p, 8.4); assert.equal(p.healingLockImmunity, 0);
 });
-test("Hanako's real input applies the drawback before immunity and consumes one cooldown", () => {
+test("Hanako's real input applies the drawback before the blanket disable and consumes one cooldown", () => {
     const w = makeWorld(28002001), p = w.player; p.hp = 400; cast(w, 2);
-    near(p.healingLock, 5.6 - 1 / 60); near(p.healingLockImmunity, 8.4 - 1 / 60);
+    near(p.healingLock, 5.6 - 1 / 60); near(p.abnormalDisable, 8.4 - 1 / 60);
     near(p.skills.slots[2].remaining, 11.55 - 1 / 60);
     assert.equal(p.hp, 400); assert.equal(p.skills.gauge, 0); near(p.speed, 3.5);
     step(w, .5); cast(w, 2);
     assert.equal(w.events.filter(e => e.type === "skill").length, 1);
-    step(w, 5.6); assert.equal(p.healingLock, 0); assert.ok(p.healingLockImmunity > 0);
+    step(w, 5.6); assert.equal(p.healingLock, 0); assert.ok(abnormalDisabled(p));
 });
 test("Kaoruko's real input clears only the lock, keeps buffs, and protects for three turns", () => {
     const w = makeWorld(), p = w.player; lock(p); p.skills.addGauge(123);
     p.skills.applySelf({ buff: { turns: 3, def: .2 }, barrier: { cut: 1, hits: 3 } });
     cast(w, 2);
-    assert.equal(p.healingLock, 0); near(p.healingLockImmunity, 8.4 - 1 / 60);
+    assert.equal(p.healingLock, 0); near(p.abnormalDisable, 8.4 - 1 / 60);
     near(p.skills.slots[2].remaining, 6.3 - 1 / 60);
     near(p.skills.statMult("def"), 1.2); assert.equal(p.skills.barrier.hits, 3);
     assert.equal(p.skills.gauge, 123);
@@ -161,7 +242,7 @@ test("reversed ultimate sub-effects cannot retroactively unblock an earlier heal
 test("Kirara's heal then immunity does not secretly cleanse or refund the gauge", () => {
     const w = makeWorld(32002001), p = w.player; p.hp = 400; lock(p);
     p.skills.addGauge(p.skills.gaugeMax); assert.ok(w.useUltimate());
-    assert.equal(p.hp, 400); near(p.healingLock, 5.6); near(p.healingLockImmunity, 8.4);
+    assert.equal(p.hp, 400); near(p.healingLock, 5.6); near(p.abnormalDisable, 8.4);
     assert.equal(p.skills.gauge, 0);
 });
 test("regen spends blocked ticks without backlog and respects the expiry boundary", () => {
@@ -173,7 +254,7 @@ test("regen spends blocked ticks without backlog and respects the expiry boundar
 });
 test("non-default table turn duration is used once, not re-derived", () => {
     const w = makeWorld(28002001, { table: { ...table, turnSeconds: 1.5 } }); cast(w, 2);
-    near(w.player.healingLock, 3 - 1 / 60); near(w.player.healingLockImmunity, 4.5 - 1 / 60);
+    near(w.player.healingLock, 3 - 1 / 60); near(w.player.abnormalDisable, 4.5 - 1 / 60);
     const move = enemyMoveset({ ...table, turnSeconds: 1.5 }, [138002]).attacks[0];
     near(move.healingLockSeconds, 3);
 });
@@ -222,10 +303,10 @@ test("lifesteal is blocked without changing the landed attack", () => {
     const w = makeWorld(14002001), p = w.player; p.hp = 400; p.passives.lifesteal = .1; lock(p);
     const e = foe(w, { x: 16.5 });
     w.inputState.attack = true; w.update(1 / 60); w.inputState.attack = false; step(w, .5);
-    assert.equal(p.hp, 400); assert.equal(e.hp, 99876);
+    assert.equal(p.hp, 400); assert.equal(e.hp, 99798);
     cleanseHealingLock(p); Object.assign(e, { x: 16.5, y: 12, kx: 0, ky: 0, stun: 0 });
     w.inputState.attack = true; w.update(1 / 60); w.inputState.attack = false; step(w, .5);
-    assert.equal(p.hp, 412);
+    assert.equal(p.hp, 420);
 });
 test("pause, hit-stop, room change and death keep their existing ownership boundaries", () => {
     const w = makeWorld(28002001), p = w.player; cast(w, 2); p.skills.addGauge(123);
@@ -241,12 +322,14 @@ test("pause, hit-stop, room change and death keep their existing ownership bound
     lock(p); grantHealingLockImmunity(p, 10); p.dead = true; p.sm.force("dead"); w.update(1 / 60);
     assert.equal(p.healingLock, 0); assert.equal(p.healingLockImmunity, 0);
 });
-test("status text names the actual supported scope instead of promising every ailment", () => {
+test("status text names the registered scope; the blanket disable promises every registered ailment", () => {
     const words = skillWords(decode(240020002)).join(";");
-    assert.match(words, /解除治疗封锁/); assert.match(words, /治疗封锁免疫/);
-    assert.match(words, /其余异常/);
+    assert.match(words, /解除异常（治疗封锁、中毒、弱守）/);
+    assert.match(words, /全异常免疫×3回合（不解除已有异常）/);
+    assert.ok(!/其余异常/.test(words), "the mask and the blanket are executable now, not partial:" + words);
     const hanako = skillWords(decode(280020002)).join(";");
     assert.match(hanako, /治疗封锁/); assert.match(hanako, /2回合/); assert.match(hanako, /补给/);
+    const miria = skillWords(decode(380020001)).join(";");
 });
 test("the real type-2 passive protects only future applications and survives room clearing", () => {
     const item = { slot: "armor", rarity: 0, affixes: ["11032001"] };

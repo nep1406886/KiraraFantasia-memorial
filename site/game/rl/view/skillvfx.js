@@ -3,7 +3,7 @@
 // This layer NEVER deals damage or owns actor bones/the combat camera.
 import { createPlayer as createTimelinePlayer } from "../../../core/uniqueskill.js";
 import { createEmitters } from "../../../core/usparticle.js";
-import { loadNativeIndex, acquireNative, preloadNative } from "./nativeassets.js";
+import { loadNativeIndex, acquireNative, preloadNative, loadEnemyAttacks, acquireEnemyAttack } from "./nativeassets.js";
 import { characterTiltX } from "./tilt.js";
 import { LAYER, CHARACTER_SCALE, COMBAT_HEIGHT } from "./layers.js";
 import { graphicFor, projectileEvent, normalEffectConfig, ELEMENT_NAMES } from "./effectcatalog.js";
@@ -18,12 +18,17 @@ export const EFFECT_TYPES = { SKILL_CAST: "cast", SKILL_TRAIL: "trail", HIT_IMPA
 // full swing) have no peActive channel and keep their authored delivery.
 function particleActiveRange(timeline) {
     if (!timeline || !Array.isArray(timeline.channels)) { return null; }
+    // The player clamps every seek to (frames||1)-1; a peActive key beyond
+    // that clamp can never be reached, and a range ending past it makes the
+    // projectile loop's toEnd go non-positive (see the break guard in
+    // update). Clamp the range into the reachable span up front.
+    const frameCap = Math.max(0, (timeline.frames || 1) - 1);
     let first = null, last = null;
     for (const ch of timeline.channels) {
         if (!ch || ch.target !== "peActive" || !Array.isArray(ch.keys)) { continue; }
         for (const key of ch.keys) {
             if (Array.isArray(key) && key.length >= 2 && key[1] > 0) {
-                const frame = key[0];
+                const frame = Math.min(key[0], frameCap);
                 if (first === null || frame < first) { first = frame; }
                 if (last === null || frame > last) { last = frame; }
             }
@@ -31,7 +36,7 @@ function particleActiveRange(timeline) {
     }
     return (first === null || last === null) ? null : [first, last];
 }
-const COMMON = ["ef_btl_recover_00", "ef_btl_barrier_00", "ef_btl_buff_line", "ef_btl_buff_ring", "ef_btl_dmg_single_00", "ef_btl_stun_occur"];
+const COMMON = ["ef_btl_recover_00", "ef_btl_barrier_00", "ef_btl_buff_line", "ef_btl_buff_ring", "ef_btl_dmg_single_00", "ef_btl_stun_occur", "ef_btl_common_dead"];
 const ROOT = new URL("../../../", import.meta.url);
 
 export function createSkillVFX(scene, THREE, options) {
@@ -45,8 +50,36 @@ export function createSkillVFX(scene, THREE, options) {
     let seenBullets = new WeakMap();
     const projectileTurn = new THREE.Quaternion(), zAxis = new THREE.Vector3(0, 0, 1);
     const directionOffset = new THREE.Vector3();
+    const projectileOffset = new THREE.Vector3();
     const trailGeometry = new THREE.PlaneGeometry(1, 1);
     let index = null, player = null, time = 0, generation = 0, disposed = false;
+    // The template arts are authored around an anchor that is NOT their visual
+    // mass centre (the water swoosh's mass sits ~1.1u above/right of its
+    // origin at base scale — measured on the real page: the effect flew
+    // ~120px above the logical flight line while the invisible bullet was
+    // exactly on it, 2026-09-17 实机反馈). Cache each template's LOCAL
+    // bounding-box centre once, so the follow placement can compensate.
+    const centreCache = new Map();
+    const PROJECTILE_CENTRE_K = 1.68;
+    function visualCentreOf(root) {
+        if (centreCache.has(root)) { return centreCache.get(root); }
+        const keep = { p: root.position.clone(), q: root.quaternion.clone(),
+            s: root.scale.clone() };
+        root.position.set(0, 0, 0);
+        root.quaternion.identity();
+        root.scale.set(1, 1, 1);
+        root.updateMatrixWorld(true);
+        const box = new (THREE.Box3)().setFromObject(root);
+        const centre = box.isEmpty()
+            ? new (THREE.Vector3)()
+            : new (THREE.Vector3)((box.min.x + box.max.x) / 2,
+                (box.min.y + box.max.y) / 2, (box.min.z + box.max.z) / 2);
+        root.position.copy(keep.p); root.quaternion.copy(keep.q);
+        root.scale.copy(keep.s);
+        root.updateMatrixWorld(true);
+        centreCache.set(root, centre);
+        return centre;
+    }
     const ready = loadNativeIndex().then(data => {
         index = data;
         const textures = Object.entries(data.trails || {}).map(([element, spec]) => new Promise((resolve, reject) => {
@@ -100,6 +133,17 @@ export function createSkillVFX(scene, THREE, options) {
             projectileTurn.setFromAxisAngle(zAxis, Math.atan2(sy, sx));
             root.quaternion.multiply(projectileTurn);
         } else { root.rotation.set(characterTiltX(), 0, -Math.atan2(body.vy, body.vx)); }
+        // Ride the VISUAL CENTRE on the bullet, not the authored anchor: the
+        // art's local bounding-box centre (scaled, rotated by the final
+        // quaternion) is subtracted so the swoosh flies ON the logical
+        // flight line instead of ~1.1u above it.
+        // k: the bbox centre under-estimates the pixel mass (faint outer
+        // frames pull it down); calibrated on the real page so the bright
+        // swoosh rides the line (residual <=10px, was ~120px uncorrected).
+        const centre = visualCentreOf(root);
+        projectileOffset.copy(centre).multiplyScalar(PROJECTILE_CENTRE_K)
+            .multiply(root.scale).applyQuaternion(root.quaternion);
+        root.position.sub(projectileOffset);
     }
     function placeDirectional(record) {
         const cfg = record.config, root = record.instance.root;
@@ -117,18 +161,24 @@ export function createSkillVFX(scene, THREE, options) {
         root.position.set(record.x, cfg.height || 0, record.y);
         if (cfg.combatPivot) {
             // The source art contains its own body-height offset. Rotate that
-            // offset ABOUT the projected combat point, not about the feet.
-            // At horizontal facing and unit stretch this preserves every pixel.
+            // offset ABOUT the projected combat point by the CAMERA
+            // quaternion only: the offset is "up along the character's body",
+            // which is screen-up no matter where the player aims. Rotating it
+            // by the aim-rotated root quaternion (the old code) made the
+            // effect ORBIT the character as the aim swept — aiming right put
+            // the slash below the unit, aiming up/down put it beside them
+            // (2026-09-17 实机反馈：弹丸特效方向/位置不对).
             const baseScale = cfg.scale === undefined ? CHARACTER_SCALE : cfg.scale;
-            directionOffset.set(0, projectedHeight * root.scale.y / baseScale, 0).applyQuaternion(root.quaternion);
+            directionOffset.set(0, projectedHeight * root.scale.y / baseScale, 0)
+                .applyQuaternion(opts.camera.quaternion);
             root.position.y += COMBAT_HEIGHT;
             root.position.sub(directionOffset);
         }
     }
     function emit(effect, x, y, config) {
         const cfg = config || {};
-        if (disposed || !index || !index.effects[effect]
-                || !Number.isFinite(x) || !Number.isFinite(y)) { return null; }
+        if (disposed || !Number.isFinite(x) || !Number.isFinite(y)) { return null; }
+        if (!cfg.enemyAttack && !(index && index.effects[effect])) { return null; }
         if (active.length >= cap) {
             const old = active.find(r => r.kind === "impact" || r.kind === "charge");
             if (!old) { return null; }
@@ -141,9 +191,10 @@ export function createSkillVFX(scene, THREE, options) {
         active.push(record);
         const cached = idle.get(reuseKey); idle.delete(reuseKey);
         const acquired = cached ? Promise.resolve(cached)
-            : acquireNative("effects", effect).then(instance => ({ instance, particles: null, timeline: null }));
+            : (cfg.enemyAttack ? acquireEnemyAttack(effect) : acquireNative("effects", effect))
+                .then(instance => ({ instance, particles: null, timeline: null }));
         acquired.then(resource => {
-            if (disposed || record.closed || token !== generation
+            if (disposed || record.closed || (token !== generation && !cfg.enemyAttack)
                     || (cfg.follow && !currentProjectile(record))) {
                 release(resource); retire(record, false); return;
             }
@@ -169,6 +220,7 @@ export function createSkillVFX(scene, THREE, options) {
                 });
             }
             scene.add(root);
+            visualCentreOf(root);
             if (!resource.timeline) {
                 resource.particles = createEmitters({ THREE, root });
                 resource.timeline = createTimelinePlayer({ THREE, root, timeline: instance.timeline,
@@ -206,7 +258,7 @@ export function createSkillVFX(scene, THREE, options) {
                     }
                 }
             });
-        }).catch(error => { errors.push(effect + ": " + error.message); console.warn("Native effect unavailable", effect, error); retire(record, false); });
+        }).catch(error => { errors.push(effect + ": " + (error && error.message || error)); retire(record, false); });
         return record;
     }
 
@@ -230,7 +282,10 @@ export function createSkillVFX(scene, THREE, options) {
         casts.forEach(ev => {
             // Ground delivery is realtime: caster effects stay on the caster;
             // projectile parts are attached to actual world bullets below.
+            // height: the muzzle flash renders at the combat (chest) height —
+            // the same plane the bolt flies in — not at the unit's feet.
             emit(ev.effect, unit.x, unit.y, { ...(normal ? normalEffectConfig(unit) : { duration: duration || .48 }),
+                height: COMBAT_HEIGHT,
                 mirror: Math.cos(unit.facing) > 0, kind: "cast",
                 angle: !skill || skill.damage ? unit.facing : undefined });
         });
@@ -303,6 +358,14 @@ export function createSkillVFX(scene, THREE, options) {
                 const toEnd = cfg.frameRange
                     ? (cfg.frameRange[1] - record.timeline.frame) / record.timeline.fps : Infinity;
                 const part = Math.min(remaining, 1 / 30, toEnd);
+                // A frameRange past the timeline's own length (peActive keys
+                // beyond the authored clip, or a bundle without a frames
+                // count) makes seek() clamp to lastFrame >= frameRange[1],
+                // so toEnd goes non-positive and this loop would spin
+                // forever, sampling once per pass until the renderer OOMs.
+                // Break instead; the projectile holds its last pose, which is
+                // what a finished clip shows anyway.
+                if (!(part > 1e-7)) { break; }
                 record.timeline.update(part);
                 if (record.particles) { record.particles.update(part, opts.camera); }
                 remaining -= part;
@@ -326,7 +389,10 @@ export function createSkillVFX(scene, THREE, options) {
     }
     function clear() {
         generation++;
-        active.slice().forEach(record => retire(record, false));
+        // A record whose scene is still loading has nothing on screen yet;
+        // retiring it here would discard the effect the moment it arrives
+        // (enemy attack bursts are requested exactly when a room begins).
+        active.slice().filter(record => record.instance).forEach(record => retire(record, false));
         idle.forEach(release); idle.clear();
         seenBullets = new WeakMap();
         trails.forEach(t => { t.mesh.removeFromParent(); t.mesh.material.dispose(); }); trails.length = 0;
@@ -344,6 +410,11 @@ export function createSkillVFX(scene, THREE, options) {
         emitBreak(x, y) { return emit("ef_btl_dmg_single_00", x, y, { kind: "impact", height: .3, duration: .3 }); },
         emitBuff(x, y) { return emit("ef_btl_buff_line", x, y, { kind: "cast", duration: .55 }); },
         emitStun(x, y) { return emit("ef_btl_stun_occur", x, y, { kind: "stun", duration: .8 }); },
+        // Gate surface (read-only): the centre-compensation parameters, so a
+        // check can reconstruct the compensated placement of a projectile
+        // record (root.position == bullet − centre·k·scale rotated).
+        visualCentreOf: visualCentreOf,
+        projectileCentreK: PROJECTILE_CENTRE_K,
         get stats() { return { active: active.length, loaded: active.filter(r => r.instance).length,
             cached: idle.size, cacheCapacity: idleLimit,
             trails: trails.length, sources: active.map(r => r.effect), errors: errors.slice() }; },
