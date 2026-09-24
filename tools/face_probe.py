@@ -247,7 +247,7 @@ def main() -> int:
                         if not page.evaluate(
                                 "(() => { const b ="
                                 " document.getElementById('dialogue-box');"
-                                " return !!(b && b.style.display !== 'none');"
+                                " return !!(b && !b.classList.contains('dlg-hidden') && !b.classList.contains('dlg-out'));"
                                 " })()"):
                             break
                         page.evaluate(

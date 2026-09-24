@@ -246,8 +246,8 @@ def main() -> int:
                       "document.getElementById('boss-bar').style.display !== 'none'"))
             check("v1_boss_pre plays at the floor-20 boss",
                   wait_for(page, "Boolean(document.getElementById('dialogue-box')"
-                                 " && document.getElementById('dialogue-box').style.display"
-                                 " !== 'none')"))
+                                 " && !document.getElementById('dialogue-box').classList.contains('dlg-hidden')"
+                                 " && !document.getElementById('dialogue-box').classList.contains('dlg-out'))"))
             click_through(page)
 
             roster0 = page.evaluate("""(() => import('/site/game/rl/meta.js')
@@ -255,8 +255,8 @@ def main() -> int:
             page.evaluate(KILL_ROOM)
             check("boss died and the volume-end chain started",
                   wait_for(page, "Boolean(document.getElementById('dialogue-box')"
-                                 " && document.getElementById('dialogue-box').style.display"
-                                 " !== 'none')"))
+                                 " && !document.getElementById('dialogue-box').classList.contains('dlg-hidden')"
+                                 " && !document.getElementById('dialogue-box').classList.contains('dlg-out'))"))
             click_through(page)
             check("no descent past the final floor",
                   page.evaluate("window.kirafanRL.world.floor === 20"))

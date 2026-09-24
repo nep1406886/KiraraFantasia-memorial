@@ -37,7 +37,7 @@ def dismiss_dialogue(page):
     for _ in range(180):
         visible = page.evaluate("""() => {
             const box = document.getElementById('dialogue-box');
-            return !!box && box.style.display !== 'none';
+            return !!box && !box.classList.contains('dlg-hidden') && !box.classList.contains('dlg-out');
         }""")
         if not visible:
             page.wait_for_timeout(30)

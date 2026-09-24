@@ -26,7 +26,7 @@ ROOT = Path(__file__).resolve().parent.parent
 
 BOX_STATE = """(() => {
   const box = document.getElementById('dialogue-box');
-  if (!box || box.style.display === 'none') {
+  if (!box || box.classList.contains('dlg-hidden') || box.classList.contains('dlg-out')) {
     return {vis: false, name: '', text: '', bust: false, bustSrc: ''};
   }
   const body = box.children[1];

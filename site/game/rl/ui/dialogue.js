@@ -4,6 +4,7 @@
 // game/rl/dialogue.js drives it through the presenter contract.
 
 const TYPE_MS = 24;
+const DIALOGUE_OUT_MS = 120;
 
 export function createDialoguePresenter(options) {
     const opts = options || {};
@@ -20,10 +21,13 @@ export function createDialoguePresenter(options) {
     let inputResolve = null;
     let keyHandler = null;
     let skipped = false;
+    let currentBust = "";
+    let outTimer = null;
 
     function build() {
         box = document.createElement("div");
         box.id = "dialogue-box";
+        box.className = "dlg-hidden";
         box.setAttribute("role", "dialog");
         box.setAttribute("aria-label", "冒险对白");
         // spec/01 §4.4: 底部纸面板 — paper token card, bust left, name tag a
@@ -50,7 +54,6 @@ export function createDialoguePresenter(options) {
             box-shadow: 0 6px 18px var(--kf-shadow);
             font-family: var(--font-sans);
             color: var(--kf-ink);
-            display: none;
         `;
         imgEl = document.createElement("img");
         imgEl.alt = "";
@@ -125,7 +128,7 @@ export function createDialoguePresenter(options) {
     }
 
     function advance() {
-        if (!box || box.style.display === "none") {
+        if (!box || box.classList.contains("dlg-hidden") || box.classList.contains("dlg-out")) {
             return;
         }
         if (typing) {
@@ -149,24 +152,45 @@ export function createDialoguePresenter(options) {
         }
     }
 
+    function stopAll() {
+        stopTyping();
+        if (outTimer !== null) { clearTimeout(outTimer); outTimer = null; }
+    }
+
     return {
         begin: function () { skipped = false; },
         isSkipped: function () { return skipped; },
         showLine: function (line) {
             if (!box) { build(); }
             const who = resolver(line.who);
-            if (who && who.bust) {
-                imgEl.src = who.bust;
+            const bustSrc = who && who.bust ? who.bust : "";
+            if (bustSrc) {
+                imgEl.src = bustSrc;
                 imgEl.style.display = "";
+                if (bustSrc !== currentBust) {
+                    imgEl.classList.add("dlg-bust-fade");
+                    imgEl.addEventListener("animationend", function onEnd() {
+                        imgEl.classList.remove("dlg-bust-fade");
+                        imgEl.removeEventListener("animationend", onEnd);
+                    });
+                    currentBust = bustSrc;
+                }
             } else {
                 imgEl.style.display = "none";
+                currentBust = "";
             }
             nameEl.textContent = who ? (who.nameZh || who.name || line.who) : line.who;
             fullText = line.text;
             textEl.textContent = "";
-            box.style.display = "flex";
+            if (box.classList.contains("dlg-hidden") || box.classList.contains("dlg-out")) {
+                if (outTimer) { clearTimeout(outTimer); outTimer = null; }
+                box.classList.remove("dlg-hidden", "dlg-out");
+            } else {
+                box.classList.remove("dlg-hidden");
+            }
             document.addEventListener("keydown", keyHandler, true);
 
+            stopTyping(); // clear any prior line's interval before re-arming
             typing = true;
             let i = 0;
             typeTimer = setInterval(function () {
@@ -185,19 +209,30 @@ export function createDialoguePresenter(options) {
         },
 
         finish: function () {
-            stopTyping();
+            stopAll();
             if (inputResolve) {
                 const r = inputResolve;
                 inputResolve = null;
                 r();
             }
             if (box) {
-                box.style.display = "none";
                 document.removeEventListener("keydown", keyHandler, true);
+                box.classList.add("dlg-out");
+                box.classList.remove("dlg-hidden");
+                outTimer = setTimeout(function () {
+                    box.classList.add("dlg-hidden");
+                    box.classList.remove("dlg-out");
+                    outTimer = null;
+                }, DIALOGUE_OUT_MS);
             }
+            currentBust = "";
         },
 
         // test/inspection hook
-        isTyping: function () { return typing; }
+        isTyping: function () { return typing; },
+
+        // stop all timers (typewriter + fade-out) without closing the box.
+        // Lets a harness drop references without leaking intervals.
+        _stopAll: stopAll,
     };
 }

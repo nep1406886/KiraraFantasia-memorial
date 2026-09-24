@@ -60,14 +60,14 @@ def dismiss_dialogue(page):
     while time.time() < deadline:
         if page.evaluate(
                 "(() => { const b = document.getElementById('dialogue-box');"
-                " return !!(b && b.style.display !== 'none'); })()"):
+                " return !!(b && !b.classList.contains('dlg-hidden') && !b.classList.contains('dlg-out')); })()"):
             break
         page.wait_for_timeout(100)
     for _ in range(120):
         state = page.evaluate(
             "(() => { const b = document.getElementById('dialogue-box');"
             " const w = window.kirafanRL && window.kirafanRL.world;"
-            " return { vis: !!(b && b.style.display !== 'none'),"
+            " return { vis: !!(b && !b.classList.contains('dlg-hidden') && !b.classList.contains('dlg-out')),"
             "          frozen: !!(w && w.frozen) }; })()")
         if not state["vis"] and not state["frozen"]:
             return True

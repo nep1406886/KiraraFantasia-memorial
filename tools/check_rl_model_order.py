@@ -240,7 +240,7 @@ def boot(page, url):
     for _ in range(90):
         opened = page.evaluate("""() => {
             const b=document.getElementById('dialogue-box');
-            if(b&&b.style.display!=='none'){b.click();return true;}return false;
+            if(b&&!b.classList.contains('dlg-hidden')&&!b.classList.contains('dlg-out')){b.click();return true;}return false;
         }""")
         if not opened:
             break

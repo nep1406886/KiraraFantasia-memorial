@@ -507,17 +507,6 @@
     transition: opacity 0.15s ease-in;
 }
 #room-fade.instant { transition:none; }
-/* T29 精美细腻: the reveal "settle" — a 120 ms scale 1.015→1.0 ease-out on
-   the stage container. Transform-only (no layout reflow), skipped under
-   prefers-reduced-motion. spec/01 §1 MOTION_INTENSITY 4: restrained. */
-#stage.room-settle { animation: kf-room-settle 120ms var(--ui-ease) both; }
-@keyframes kf-room-settle {
-    from { transform: scale(1.015); }
-    to   { transform: scale(1); }
-}
-@media (prefers-reduced-motion:reduce) {
-    #stage.room-settle { animation: none; }
-}
 .room-loading :is(.hud-skillbar,.hud-gauge,.touch-zone,.touch-stick,.touch-knob,
     .touch-btn:not(.hud-pause),.battle-indicators,.damage-text-layer,.floor-shrine-marker) { visibility:hidden; pointer-events:none; }
 .room-loading #hud { z-index:30; }
@@ -635,6 +624,21 @@ body.touch-on #hint:not([hidden]) { display:block; max-width:calc(100% - clamp(6
 #menu-panel .menu-note { font-size:11px; line-height:1.6; color:var(--kf-ink-soft); }
 .rl-decision[open], #shop-panel[open], #menu-panel:not(.hidden) { animation:kf-panel-appear var(--ui-time) var(--ui-ease); }
 @keyframes kf-panel-appear { from { translate:0 4px; } to { translate:0 0; } }
+
+/* T29 对白盒: 出现淡入上浮 / bust 换人淡入 / 关闭淡出。
+   spec/01 §1 MOTION_INTENSITY 4: 180ms ease-out, 无弹跳。 */
+#dialogue-box { opacity:0; }
+#dialogue-box:not(.dlg-hidden):not(.dlg-out) { animation:kf-dialogue-in var(--ui-time) var(--ui-ease) both; }
+#dialogue-box.dlg-hidden { display:none; }
+#dialogue-box.dlg-out { opacity:0; transition:opacity 120ms var(--ui-ease); }
+@keyframes kf-dialogue-in { from { opacity:0; translate:0 6px; } to { opacity:1; translate:0 0; } }
+#dialogue-box .dlg-bust-fade { animation:kf-bust-in var(--ui-time) var(--ui-ease) both; }
+@keyframes kf-bust-in { from { opacity:0; } to { opacity:1; } }
+@media (prefers-reduced-motion:reduce) {
+    #dialogue-box:not(.dlg-hidden):not(.dlg-out) { animation:none; opacity:1; }
+    #dialogue-box .dlg-bust-fade { animation:none; }
+    #dialogue-box.dlg-out { transition:none; }
+}
 
 :is(.hud-skill,.hud-gauge,.hud-assist,.touch-btn,.rl-save-status button,.rl-decision button,.panel button) {
     transition:background-color var(--ui-time) var(--ui-ease), border-color var(--ui-time) var(--ui-ease),
