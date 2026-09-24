@@ -1881,9 +1881,52 @@ function rebuildRoom(room) {
     attemptRoomLoad(load);
 }
 
+// Adjust a hex colour's HSL lightness by `delta` (percentage points).
+// Returns a hex string. Used for the room-fade radial gradient (spec/01 §1:
+// the reveal centre is slightly brighter than the fog edge).
+function shadeFog(hex, delta) {
+    if (!/^#[0-9a-f]{6}$/i.test(hex || "")) { return hex || ""; }
+    let r = parseInt(hex.slice(1, 3), 16) / 255,
+        g = parseInt(hex.slice(3, 5), 16) / 255,
+        b = parseInt(hex.slice(5, 7), 16) / 255;
+    const max = Math.max(r, g, b), min = Math.min(r, g, b);
+    let h = 0, s = 0, l = (max + min) / 2;
+    if (max !== min) {
+        const d = max - min;
+        s = l > .5 ? d / (2 - max - min) : d / (max + min);
+        if (max === r) { h = (g - b) / d + (g < b ? 6 : 0); }
+        else if (max === g) { h = (b - r) / d + 2; }
+        else { h = (r - g) / d + 4; }
+        h /= 6;
+    }
+    l = Math.min(1, Math.max(0, l + delta / 100));
+    // HSL → RGB
+    const hue2rgb = (p, q, t) => {
+        if (t < 0) t += 1; if (t > 1) t -= 1;
+        if (t < 1 / 6) return p + (q - p) * 6 * t;
+        if (t < 1 / 2) return q;
+        if (t < 2 / 3) return p + (q - p) * (2 / 3 - t) * 6;
+        return p;
+    };
+    let rr, gg, bb;
+    if (s === 0) { rr = gg = bb = l; }
+    else {
+        const q = l < .5 ? l * (1 + s) : l + s - l * s;
+        const p = 2 * l - q;
+        rr = hue2rgb(p, q, h + 1 / 3);
+        gg = hue2rgb(p, q, h);
+        bb = hue2rgb(p, q, h - 1 / 3);
+    }
+    const toHex = v => Math.round(v * 255).toString(16).padStart(2, "0");
+    return "#" + toHex(rr) + toHex(gg) + toHex(bb);
+}
+
 function coverRoom(immediate) {
     if (!roomFade) return;
-    roomFade.style.background = volumeConfig(volume, world.floor)?.fog || 'var(--kf-sky)';
+    const fog = volumeConfig(volume, world.floor)?.fog || '#c9e6e4';
+    const night = !!volumeConfig(volume, world.floor)?.night;
+    const light = shadeFog(fog, night ? -12 : 12);
+    roomFade.style.background = "radial-gradient(ellipse at center, " + light + " 0%, " + fog + " 70%)";
     roomFade.classList.toggle('instant', immediate);
     roomFade.classList.add('on');
 }
@@ -1964,6 +2007,9 @@ async function attemptRoomLoad(load, retry = false) {
             roomFade.classList.remove('instant');
             getComputedStyle(roomFade).opacity; // Commit the opaque starting state before revealing.
             roomFade.classList.remove('on');
+            stage.classList.remove('room-settle');
+            void stage.offsetWidth; // reflow so the animation restarts
+            stage.classList.add('room-settle');
         }
         await waitForRoomFade(roomFade, 0);
         if (!current()) return;

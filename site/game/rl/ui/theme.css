@@ -507,6 +507,17 @@
     transition: opacity 0.15s ease-in;
 }
 #room-fade.instant { transition:none; }
+/* T29 精美细腻: the reveal "settle" — a 120 ms scale 1.015→1.0 ease-out on
+   the stage container. Transform-only (no layout reflow), skipped under
+   prefers-reduced-motion. spec/01 §1 MOTION_INTENSITY 4: restrained. */
+#stage.room-settle { animation: kf-room-settle 120ms var(--ui-ease) both; }
+@keyframes kf-room-settle {
+    from { transform: scale(1.015); }
+    to   { transform: scale(1); }
+}
+@media (prefers-reduced-motion:reduce) {
+    #stage.room-settle { animation: none; }
+}
 .room-loading :is(.hud-skillbar,.hud-gauge,.touch-zone,.touch-stick,.touch-knob,
     .touch-btn:not(.hud-pause),.battle-indicators,.damage-text-layer,.floor-shrine-marker) { visibility:hidden; pointer-events:none; }
 .room-loading #hud { z-index:30; }
