@@ -68,7 +68,7 @@ const TRACKS = ["bgm_town_1", "bgm_questselect", "bgm_battle_1", "bgm_battle_13"
 let localCount = 0;
 try {
     for (const cue of TRACKS) {
-        const p = join(__dirname, "../audio/bgm", cue + "_0.mp3");
+        const p = join(__dirname, "../site/audio/bgm", cue + "_0.mp3");
         const buf = readFileSync(p);
         const headerOk = buf[0] === 0xFF && [0xFB, 0xF3, 0xF2].includes(buf[1]);
         assert(headerOk && buf.length > 1024, `${cue}_0.mp3 present, MPEG header ok (${buf.length}B)`);
@@ -147,7 +147,7 @@ const trackURLs = [
 ];
 
 trackURLs.forEach(url => {
-    const local = join(__dirname, "../audio/bgm", url.split("/").pop());
+    const local = join(__dirname, "../site/audio/bgm", url.split("/").pop());
     assert(bgmSource.includes('BGM_BASE_URL = "../../audio/bgm/"') && url.startsWith("../../audio/bgm/"),
         `URL ${url.split('/').pop()} follows local pattern`);
     assert(url.endsWith("_0.mp3"), `URL ${url.split('/').pop()} has _0.mp3 suffix`);
@@ -185,7 +185,7 @@ assert(typeof bgmModule.bgmTrackFor === "function", "bgmTrackFor should be expor
     }
     let checked = 0;
     for (const cue of cues) {
-        const p = join(__dirname, "../audio/bgm", cue + "_0.mp3");
+        const p = join(__dirname, "../site/audio/bgm", cue + "_0.mp3");
         let buf;
         try {
             buf = readFileSync(p);

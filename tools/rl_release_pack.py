@@ -30,7 +30,7 @@ checks = []
 # file so the whitelist is reviewable line by line.
 CLOSURE = [
     ("site/game/roguelike.html", "site/game/roguelike.html", None),
-    ("game/rl", "game/rl", None),
+    ("site/game/rl", "site/game/rl", None),
     ("site/asset/rl", "site/asset/rl", ("_raw",)),
     ("site/asset/img", "site/asset/img", None),
     ("site/asset/models", "site/asset/models", ("_raw",)),
@@ -38,12 +38,12 @@ CLOSURE = [
     ("site/asset/gacha/cards.js", "site/asset/gacha/cards.js", None),
     ("site/asset/original-characters.js", "site/asset/original-characters.js", None),
     ("site/asset/battle", "site/asset/battle", None),
-    ("audio/voice", "audio/voice", None),
-    ("audio/bgm", "audio/bgm", None),
-    ("audio/gacha", "audio/gacha", None),
-    ("core", "core", None),
-    ("vendor", "vendor", None),
-    ("css/kirara-cursor.css", "css/kirara-cursor.css", None),
+    ("site/audio/voice", "site/audio/voice", None),
+    ("site/audio/bgm", "site/audio/bgm", None),
+    ("site/audio/gacha", "site/audio/gacha", None),
+    ("site/core", "site/core", None),
+    ("site/vendor", "site/vendor", None),
+    ("site/css/kirara-cursor.css", "site/css/kirara-cursor.css", None),
 ]
 TEXT_SUFFIXES = {".html", ".css", ".js", ".json"}
 
@@ -85,7 +85,7 @@ def _rl_texture_digests():
     """Texture digests embedded in the scene GLBs the roguelike loads."""
     digests = set()
     for scene_id in sorted(_rl_scene_ids()):
-        path = ROOT / "asset" / "uniqueskill" / "scene" / (scene_id + ".glb.gz")
+        path = ROOT / "site" / "asset" / "uniqueskill" / "scene" / (scene_id + ".glb.gz")
         if not path.exists():
             continue
         raw = gzip.decompress(path.read_bytes())
@@ -115,6 +115,10 @@ def _closure_include(rel_parts):
     roguelike's measured dependency closure. Only asset/uniqueskill and
     asset/models are filtered; every other whitelist entry copies whole."""
     parts = list(rel_parts)
+    # The site/ relocation prefixes every deployed dir; normalize so the
+    # closure rules below keep their root-level shape.
+    if parts[0] == "site" and parts[1] == "asset":
+        parts = parts[1:]
     if parts[0] == "asset" and parts[1] == "uniqueskill":
         rest = parts[2:]
         if not rest or not rest[0].endswith(".json"):

@@ -1,6 +1,8 @@
 # Browser check for the meta (T11) wiring in main.js:
-#   1. fresh save -> roster shows the authored 40 (T22l: selectable from
-#      the start; was "gated to the first twelve" before the widening)
+#   1. fresh save -> roster shows the authored 41 (the roster now carries the
+#      41 evolved identities of rosterids.js — the plan's first-version list;
+#      was "gated to the first twelve" before T22l, then "authored 40" before
+#      the evolved-identity switch)
 #   2. run start level = max(trained, volume baseline)
 #   3. player death settles equipment into 星彩石 and persists via save
 #   4. legacy 残片 save loads (migration path used by the module)
@@ -15,8 +17,6 @@ sys.path.insert(0, str(Path(__file__).resolve().parent))
 from playwright.sync_api import sync_playwright
 
 ROOT = Path(__file__).resolve().parent.parent
-FIRST12 = [10000000, 18000000, 14000000, 30001000, 23001000, 15000000,
-           35001000, 11010000, 38001000, 24001000, 20000000, 32002000]
 
 
 def boot(page, port, url):
@@ -52,7 +52,7 @@ def main() -> int:
             errors = []
             page.on("pageerror", lambda e: errors.append(str(e)))
 
-            # --- 1. fresh save: roster carries the authored 40 ---------------
+            # --- 1. fresh save: roster carries the authored 41 ---------------
             boot(page, port, url)
             page.wait_for_selector(".roster-card", timeout=20000)
             cards = page.evaluate("""(() => {
@@ -60,21 +60,33 @@ def main() -> int:
                     .map(el => el.textContent);
             })()""")
             # rows carry characterZh; a fresh save now sees every authored
-            # character (T22l widening — was <= 12 as the T11 unlock gate)
-            check("fresh roster shows the authored 40", len(cards) == 40,
+            # character — the 41 evolved identities of rosterids.js (plan
+            # 「首个完整版本按当前既定名单为 41 人」)
+            check("fresh roster shows the authored 41", len(cards) == 41,
                   "got %d" % len(cards))
             check("fresh roster is non-empty", len(cards) > 0)
 
             # T22l element-dot ring: 0=炎 1=水 2=土 3=風 4=月 5=陽. The old
             # ELEMENT_VAR was shifted one (1:fire…) and the old roster filter
-            # treated element 0 as "invalid", deleting every 炎 character
-            # (5 of the authored 40). Pin the computed dot colour of one 炎
-            # (ココア 30001000 → #e09a7a), one 水 (苺香 20000000 → #7ab8d9)
-            # and one 土 (唯 11010000 → #cbb27a).
-            dots = page.evaluate("""(() => {
+            # treated element 0 as "invalid", deleting every 炎 character.
+            # The roster now carries the evolved identities, and per the
+            # CharacterList truth table (site/asset/rl/_raw, spec/04 §1: the
+            # evolved form is its own m_CharaID row) those rows' m_Element
+            # differs from the base card: ココア 30002001=3(風), 苺香
+            # 20002001=5(陽), 唯 11012001=3(風). The dot must mirror the row
+            # the player actually plays, so pin those rows' colours from the
+            # official values (theme.css tokens), resolving legacy→current
+            # from the authored rosterids.js table itself.
+            dots = page.evaluate("""async () => {
+                const { PLAYABLE_ROSTER } = await
+                    import('/site/game/rl/rosterids.js');
+                const cur = {};
+                PLAYABLE_ROSTER.forEach(r => { cur[r.legacyId] = r.id; });
                 const out = {};
-                const want = { '30001000.webp': 'fire', '20000000.webp': 'water',
-                               '11010000.webp': 'earth' };
+                const want = {};
+                want[cur[30001000] + '.webp'] = 'wind';    // ココア 30002001 m_Element=3
+                want[cur[20000000] + '.webp'] = 'sun';     // 苺香 20002001 m_Element=5
+                want[cur[11010000] + '.webp'] = 'wind';    // 唯 11012001 m_Element=3
                 document.querySelectorAll('.roster-card').forEach(el => {
                     const art = el.querySelector('img.art');
                     if (!art) { return; }
@@ -84,25 +96,34 @@ def main() -> int:
                     if (dot) { out[want[key]] = getComputedStyle(dot).backgroundColor; }
                 });
                 return out;
-            })()""")
-            check("炎 (element 0) dot is fire #e09a7a",
-                  dots.get("fire") == "rgb(224, 154, 122)", dots)
-            check("水 (element 1) dot is water #7ab8d9",
-                  dots.get("water") == "rgb(122, 184, 217)", dots)
-            check("土 (element 2) dot is earth #cbb27a",
-                  dots.get("earth") == "rgb(203, 178, 122)", dots)
+            }""")
+            check("ココア evolved (element 3) dot is wind #9ecf8f",
+                  dots.get("wind") == "rgb(158, 207, 143)", dots)
+            check("苺香 evolved (element 5) dot is sun #e0c17a",
+                  dots.get("sun") == "rgb(224, 193, 122)", dots)
 
             # --- 2. start level = max(trained, baseline) -------------------
             # Fund the camp first (settle 320 legendaries = +5760 gems),
-            # train ゆの (10000000) to Lv 40 (cost 1950), reload, select her
-            # card, and check the spawned player's level.
-            page.evaluate("""import('/site/game/rl/meta.js').then(m => {
-                const meta = m.createMeta();
-                meta.read();
-                meta.settle({items: Array.from({length: 320},
-                    () => ({rarity: 'legendary'}))});
-                meta.train(10000000, 40);
-            })""")
+            # train ゆの to Lv 40 (cost 1950), reload, select her card, and
+            # check the spawned player's level. The camp trains the CURRENT
+            # identity id (rosterids.js); resolve ゆの's from her legacy id.
+            page.evaluate("""import('/site/game/rl/rosterids.js')
+                .then(({ PLAYABLE_ROSTER }) =>
+                    import('/site/game/rl/meta.js').then(m => {
+                        const meta = m.createMeta();
+                        meta.read();
+                        // Phase-8 first-run tutorial: it keeps the player
+                        // invulnerable while the walkthrough is up, which
+                        // would defeat this gate's deliberate death funnel —
+                        // the meta gate tests settlement, not the
+                        // walkthrough, so mark it seen and skip it here.
+                        meta.markTutorialSeen();
+                        meta.settle({items: Array.from({length: 320},
+                            () => ({rarity: 'legendary'}))});
+                        const yuno = PLAYABLE_ROSTER.find(
+                            r => r.legacyId === 10000000);
+                        return meta.train(yuno.id, 40);
+                    }))""")
             page.evaluate("window.location.reload()")
             boot(page, port, url)
             page.wait_for_selector(".roster-card", timeout=20000)

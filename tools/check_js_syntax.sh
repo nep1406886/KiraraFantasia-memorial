@@ -18,7 +18,8 @@ trap 'rm -rf "$work"' EXIT
 
 fail=0
 count=0
-for f in core/*.js game/*.js; do
+# 2026-09-11 起 core/ 与 game/ 落在 site/ 之下；rl 模块在 site/game/rl/{,ui/,view/}。
+for f in site/core/*.js site/game/rl/*.js site/game/rl/ui/*.js site/game/rl/view/*.js; do
     [ -e "$f" ] || continue
     cp "$f" "$work/$(printf '%s' "$f" | tr '/' '_' | sed 's/\.js$/.mjs/')"
 done

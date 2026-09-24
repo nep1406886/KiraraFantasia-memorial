@@ -1,0 +1,38 @@
+[
+  {
+    "resourceId": 10000,
+    "bundle": "anim/enemy/common_en_10000.muast",
+    "originalClips": [
+      "Common_EN_10000@abnormal",
+      "Common_EN_10000@damage",
+      "Common_EN_10000@dead",
+      "Common_EN_10000@idle",
+      "Common_EN_10000@skill_0",
+      "Common_EN_10000@skill_1"
+    ]
+  },
+  {
+    "resourceId": 10100,
+    "bundle": "anim/enemy/common_en_10100.muast",
+    "originalClips": [
+      "Common_EN_10100@abnormal",
+      "Common_EN_10100@damage",
+      "Common_EN_10100@dead",
+      "Common_EN_10100@idle",
+      "Common_EN_10100@skill_0",
+      "Common_EN_10100@skill_1"
+    ]
+  },
+  {
+    "resourceId": 10200,
+    "bundle": "anim/enemy/common_en_10200.muast",
+    "originalClips": [
+      "Common_EN_10200@abnormal",
+      "Common_EN_10200@damage",
+      "Common_EN_10200@dead",
+      "Common_EN_10200@idle",
+      "Common_EN_10200@skill_0",
+      "Common_EN_10200@skill_1"
+    ]
+  }
+]

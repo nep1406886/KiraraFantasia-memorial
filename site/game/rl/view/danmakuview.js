@@ -77,6 +77,10 @@ export function createDanmakuView(scene, THREE, options) {
             danmaku.forEach(function (bullet) {
                 if (bullet.delay > 0 || n + s >= capacity
                         || (cfg.projectileVisualReady && cfg.projectileVisualReady(bullet))) { return; }
+                // 用户反馈 2026-09-16：玩家弹不画代码兜底的圆形图案——原作
+                // 投射物特效就绪前（或该身份没有原作投射物时）宁可不可见，
+                // 也不显示一个假弹丸。敌方弹没有原作特效，仍由本视图绘制。
+                if (bullet.side === "player") { return; }
                 const at = position ? position(bullet) : bullet;
                 const radius = Number.isFinite(bullet.radius) && bullet.radius >= 0
                     ? bullet.radius : (cfg.size || .36) / 2;

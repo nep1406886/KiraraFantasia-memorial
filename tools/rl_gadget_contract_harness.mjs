@@ -71,8 +71,8 @@ function payload(equipment, roomClaims = []) { return { schemaVersion: 3, genera
 
 check('禁暴在伤害公式中压过布尔/数值暴击且不改其他乘区', () => {
     for (const crit of [true, 1.83]) near(resolveDamage({ atk: 100, def: 0, skill: .5,
-        crit, noCrit: true, tempo: TEMPO }), 130);
-    near(resolveDamage({ atk: 100, def: 0, skill: .5, crit: true, tempo: TEMPO }), 195);
+        crit, noCrit: true, tempo: TEMPO }), 208);
+    near(resolveDamage({ atk: 100, def: 0, skill: .5, crit: true, tempo: TEMPO }), 311);
 });
 check('无相只去掉优势及克制增幅：六属性、物魔伤害和耐性完整矩阵', () => {
     for (let a = 0; a < 6; a++) for (let d = 0; d < 6; d++) for (const magic of [false, true]) {
@@ -256,7 +256,7 @@ check('封印时按住技能，卸装后不偷偷补放；松开再按才施放'
 });
 check('定心真实近战多目标禁暴，仍恰好消费一次必暴', () => {
     const w = fixture('steady'); foe(w); foe(w, 5.7); grantNextCritical(w.player); swing(w);
-    assert.equal(hits(w).length, 2); assert.ok(hits(w).every(h => !h.crit && h.damage === 130));
+    assert.equal(hits(w).length, 2); assert.ok(hits(w).every(h => !h.crit && h.damage === 208));
     assert.equal(w.player.nextCritical, false); assert.equal(consumed(w).length, 1);
 });
 check('普攻开始时承诺契约：开窗前卸装仍禁暴，下一挥击恢复', () => {
@@ -276,18 +276,18 @@ for (const id of ['steady', 'prism']) for (const type of ['normal', 'skill']) ch
     assert.equal(emitted[0][id === 'steady' ? 'noCrit' : 'noAdvantage'], true);
     equip(w, plainArmor); step(w, .8); assert.ok(hits(w).length > 0);
     const hit = hits(w)[0]; assert.equal(hit.crit, id !== 'steady'); assert.equal(hit.hitFlag, id === 'prism' ? 0 : 1);
-    assert.equal(1000000 - e.hp, id === 'steady' ? 260 : 195); assert.equal(consumed(w).length, 1);
+    assert.equal(1000000 - e.hp, id === 'steady' ? 415 : 311); assert.equal(consumed(w).length, 1);
 });
 check('发出后才装备禁暴，不撤销旧弹体的暴击承诺', () => {
     const w = fixture(null, { cls: 1 }); foe(w, 7); grantNextCritical(w.player); cast(w);
-    equip(w, make('steady')); step(w, .8); assert.equal(hits(w)[0].crit, true); assert.equal(hits(w)[0].damage, 195);
+    equip(w, make('steady')); step(w, .8); assert.equal(hits(w)[0].crit, true); assert.equal(hits(w)[0].damage, 311);
 });
 for (const cls of [2, 4]) for (const id of ['steady', 'prism']) check(id + ' 贯穿/爆炸传播同一发射契约 ' + cls, () => {
     const w = fixture(id, { cls }); const a = foe(w, 6.3, 3), b = foe(w, cls === 2 ? 7.8 : 6.6, 3);
     if (cls === 4) b.y += .8;
     grantNextCritical(w.player); swing(w, PLAYER_TIMING.attackHitStart); equip(w, plainArmor); step(w, 1);
     assert.equal(hits(w).length, 2); assert.equal(consumed(w).length, 1);
-    for (const target of [a, b]) assert.equal(1000000 - target.hp, id === 'steady' ? 260 : 195);
+    for (const target of [a, b]) assert.equal(1000000 - target.hp, id === 'steady' ? 415 : 311);
     assert.ok(hits(w).every(h => h.crit === (id !== 'steady') && h.hitFlag === (id === 'steady' ? 1 : 0)));
 });
 check('禁暴下弹池拒绝不消耗必暴，技能冷却仍按原提交规则', () => {
@@ -299,7 +299,7 @@ check('禁暴下弹池拒绝不消耗必暴，技能冷却仍按原提交规则'
 for (const id of ['steady', 'prism']) check(id + '真实必杀保留原顺序和一次消费，所有目标同一契约', () => {
     const w = fixture(id); foe(w, 8, 3); foe(w, 9, 3); w.player.skills.addGauge(w.player.skills.gaugeMax);
     assert.ok(w.useUltimate()); assert.equal(hits(w).length, 2);
-    assert.ok(hits(w).every(h => h.crit === (id !== 'steady') && h.damage === (id === 'steady' ? 260 : 195)));
+    assert.ok(hits(w).every(h => h.crit === (id !== 'steady') && h.damage === (id === 'steady' ? 415 : 311)));
     assert.equal(consumed(w).length, 1); assert.equal(w.player.nextCritical, false);
 });
 check('自主卡按触发时契约，既不消费必暴也不因来源技能封印而停止', () => {
@@ -307,7 +307,7 @@ check('自主卡按触发时契约，既不消费必暴也不因来源技能封�
     const card = { id: 9999, name: '计时卡夹具', loadFactor: 1, effects: [{ damage: true, target: 1, coef: .5, magic: false }] };
     placeSkillCard(p, 1, 9001, { card, count: 3 }, .25); grantNextCritical(p);
     step(w, .26); assert.equal(hits(w)[0].crit, false); assert.equal(p.nextCritical, true);
-    equip(w, make('prism')); step(w, .25); assert.equal(hits(w)[1].hitFlag, 0); assert.equal(hits(w)[1].damage, 195);
+    equip(w, make('prism')); step(w, .25); assert.equal(hits(w)[1].hitFlag, 0); assert.equal(hits(w)[1].damage, 311);
     equip(w, make('binding')); assert.equal(p.skills.isSealed(1), true); step(w, .25);
     assert.equal(hits(w).length, 3); assert.equal(p.nextCritical, true); assert.equal(p.skillCards.length, 0);
 });

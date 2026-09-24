@@ -10,14 +10,8 @@
     <link rel="preconnect" href="https://bucket-b-asset.kirafan.cn" crossorigin>
     <link rel="preconnect" href="https://bucket-8-asset.kirafan.cn" crossorigin>
     <link rel="preconnect" href="https://bucket-c-asset.kirafan.cn" crossorigin>
-    <!-- 结算语音的两个 cue。claire-standard / claire-five-star 是同一份音频的旧
-         名（md5 相同），gacha.js 播的是 voice_gacha_003/004，预加载得跟着走，
-         不然第一次召唤时这两段仍要现拉。 -->
-    <link rel="preload" href="audio/gacha/voice_gacha_003.mp3" as="audio" type="audio/mpeg">
-    <link rel="preload" href="audio/gacha/voice_gacha_004.mp3" as="audio" type="audio/mpeg">
-    <link rel="preload" href="audio/gacha/bgm-gacha.mp3" as="audio" type="audio/mpeg">
-    <link rel="preload" href="audio/gacha/bgm-summon.mp3" as="audio" type="audio/mpeg">
-    <link rel="stylesheet" href="css/gacha.css?v=20260818-5">
+    <!-- Summon-only images and audio are prepared on intent, not during page load. -->
+    <link rel="stylesheet" href="css/gacha.css?v=20260924-1">
     <link rel="stylesheet" href="css/kirara-cursor.css">
     <link rel="icon" href="favicon.png">
 </head>
@@ -36,13 +30,13 @@
     <dialog id="summonStage" class="summon-stage" aria-label="召唤演出" aria-hidden="true" hidden>
         <button id="skipSummon" class="skip-summon" type="button"><span aria-hidden="true">»</span><span>跳过</span></button>
         <div class="summon-stage-sky" aria-hidden="true">
-            <img class="summon-line-texture summon-line-blue" src="imgs/gacha/gacha_line_blue_web.png" alt="">
-            <img class="summon-line-texture summon-line-gold" src="imgs/gacha/gacha_line_gold_web.png" alt="">
-            <img class="summon-lv3-particles" src="imgs/gacha/gacha_design_lv3_web.png" alt="">
+            <img class="summon-line-texture summon-line-blue" data-summon-src="imgs/gacha/gacha_line_blue_web.png" alt="">
+            <img class="summon-line-texture summon-line-gold" data-summon-src="imgs/gacha/gacha_line_gold_web.png" alt="">
+            <img class="summon-lv3-particles" data-summon-src="imgs/gacha/gacha_design_lv3_web.png" alt="">
             <img class="archive-kirakira archive-kirakira-a" src="https://bucket-f-asset.kirafan.cn/uiatlas/gachaplayuiatlas/GachKirakira.png" alt="">
             <img class="archive-kirakira archive-kirakira-b" src="https://bucket-f-asset.kirafan.cn/uiatlas/gachaplayuiatlas/GachKirakira.png" alt="">
             <div class="summon-sigil">
-                <img class="summon-magic-texture" src="imgs/gacha/gacha_magic_circle_lv2_web.png" alt="">
+                <img class="summon-magic-texture" data-summon-src="imgs/gacha/gacha_magic_circle_lv2_web.png" alt="">
                 <span class="sigil-orbit sigil-orbit-outer"></span>
                 <span class="sigil-orbit sigil-orbit-inner"></span>
                 <span class="summon-center-stack">
@@ -307,7 +301,8 @@
         </nav>
     </footer>
 
-    <script src="asset/gacha/cards.js?v=20260818-5"></script>
-    <script src="gacha.js?v=20260829-1"></script>
+    <script defer src="js/page-utils.js?v=20260924-1"></script>
+    <script defer src="asset/gacha/cards.js?v=20260818-5"></script>
+    <script defer src="gacha.js?v=20260924-1"></script>
 </body>
 </html>

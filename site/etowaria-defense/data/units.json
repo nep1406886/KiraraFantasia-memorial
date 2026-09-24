@@ -1,0 +1,3465 @@
+{
+  "version": 1,
+  "phase": "P0 visual study",
+  "defaultParty": [
+    "U01",
+    "U07",
+    "U11",
+    "U12",
+    "U15",
+    "U19"
+  ],
+  "units": [
+    {
+      "id": "U01",
+      "cardId": 16002001,
+      "resourceId": 160004,
+      "name": "本田珠辉",
+      "shortName": "珠辉",
+      "originalName": "本田 珠輝",
+      "work": "斯特拉的魔法",
+      "classId": 1,
+      "className": "魔法使",
+      "elementId": 2,
+      "elementName": "土",
+      "headId": 0,
+      "displayScale": 0.95,
+      "role": "同路输出",
+      "plannedCost": 100,
+      "icon": "asset/img/rl/icon/16002001.webp",
+      "card": "asset/img/rl/card/16002001.webp",
+      "skills": [
+        {
+          "id": 160020010,
+          "name": "Mr.あどべんちゃー",
+          "detail": "「敵全体」に土属性の特大ダメージ + \n「味方全体」の物理防御が一定ターン小アップ",
+          "graphics": "Empty",
+          "effects": [
+            {
+              "m_SkillLvCoef": 0,
+              "m_Target": 2,
+              "m_Type": 0,
+              "m_Args": [
+                2410,
+                1,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0
+              ]
+            },
+            {
+              "m_SkillLvCoef": 0,
+              "m_Target": 4,
+              "m_Type": 2,
+              "m_Args": [
+                1,
+                3,
+                0,
+                0,
+                20,
+                0,
+                0,
+                0
+              ]
+            }
+          ]
+        },
+        {
+          "id": 160020001,
+          "name": "いろんなあそびつくるんだ！",
+          "detail": "「敵全体」に土属性の大ダメージ",
+          "graphics": "Magician_cls2_grade2",
+          "effects": [
+            {
+              "m_SkillLvCoef": 0,
+              "m_Target": 2,
+              "m_Type": 0,
+              "m_Args": [
+                1060,
+                1,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0
+              ]
+            }
+          ]
+        },
+        {
+          "id": 160020002,
+          "name": "富田林田舎ちゃうもん…",
+          "detail": "「自身」の魔法攻撃が一定ターン大アップ",
+          "graphics": "Magician_cls3_grade0",
+          "effects": [
+            {
+              "m_SkillLvCoef": 0,
+              "m_Target": 0,
+              "m_Type": 2,
+              "m_Args": [
+                1,
+                3,
+                0,
+                30,
+                0,
+                0,
+                0,
+                0
+              ]
+            }
+          ]
+        }
+      ],
+      "voice": {
+        "sheet": "Voice_Stella_Tamaki_Magician5_A",
+        "cues": {
+          "voice_kirarajump_000": "Voice_Stella_Tamaki_Magician5_A/voice_kirarajump_000_0.mp3",
+          "voice_kirarajump_001": "Voice_Stella_Tamaki_Magician5_A/voice_kirarajump_001_0.mp3",
+          "voice_kirarajump_002": "Voice_Stella_Tamaki_Magician5_A/voice_kirarajump_002_0.mp3",
+          "voice_kirarajump_003": "Voice_Stella_Tamaki_Magician5_A/voice_kirarajump_003_0.mp3",
+          "voice_kirarajump_004": "Voice_Stella_Tamaki_Magician5_A/voice_kirarajump_004_0.mp3",
+          "voice_kirarajump_005": "Voice_Stella_Tamaki_Magician5_A/voice_kirarajump_005_0.mp3"
+        }
+      },
+      "ultimateScene": {
+        "file": "asset/uniqueskill/scene/160004.glb.gz",
+        "compression": "gzip",
+        "bytes": 120258,
+        "exporterVersion": 4,
+        "nodes": 196,
+        "meshes": 140,
+        "materials": 44,
+        "textures": 53,
+        "emitters": 6,
+        "cardsWithheld": 6,
+        "layeredMaterials": 22
+      }
+    },
+    {
+      "id": "U02",
+      "cardId": 23002001,
+      "resourceId": 230004,
+      "name": "志摩凛",
+      "shortName": "凛",
+      "originalName": "志摩 リン",
+      "work": "摇曳露营△",
+      "classId": 1,
+      "className": "魔法使",
+      "elementId": 1,
+      "elementName": "水",
+      "headId": 3,
+      "displayScale": 0.95,
+      "role": "水魔法加速",
+      "plannedCost": 175,
+      "icon": "asset/img/rl/icon/23002001.webp",
+      "card": "asset/img/rl/card/23002001.webp",
+      "skills": [
+        {
+          "id": 230020010,
+          "name": "湖の牛",
+          "detail": "「敵全体」に水属性の特大ダメージ + \n「自身」の行動速度が一定ターン大アップ",
+          "graphics": "Empty",
+          "effects": [
+            {
+              "m_SkillLvCoef": 0,
+              "m_Target": 2,
+              "m_Type": 0,
+              "m_Args": [
+                2410,
+                1,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0
+              ]
+            },
+            {
+              "m_SkillLvCoef": 0,
+              "m_Target": 0,
+              "m_Type": 2,
+              "m_Args": [
+                1,
+                3,
+                0,
+                0,
+                0,
+                0,
+                0.62,
+                0
+              ]
+            }
+          ]
+        },
+        {
+          "id": 230020001,
+          "name": "おいやめろ",
+          "detail": "「敵全体」に水属性の特大ダメージ",
+          "graphics": "Magician_cls2_grade3",
+          "effects": [
+            {
+              "m_SkillLvCoef": 0,
+              "m_Target": 2,
+              "m_Type": 0,
+              "m_Args": [
+                1220,
+                1,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0
+              ]
+            }
+          ]
+        },
+        {
+          "id": 230020002,
+          "name": "この一杯がたまらない…",
+          "detail": "「自身」の魔法攻撃が一度だけ大アップ",
+          "graphics": "Magician_cls3_grade0",
+          "effects": [
+            {
+              "m_SkillLvCoef": 0,
+              "m_Target": 0,
+              "m_Type": 11,
+              "m_Args": [
+                1,
+                60
+              ]
+            }
+          ]
+        }
+      ],
+      "voice": {
+        "sheet": "Voice_Yurukyan_Rin_Magician5_A",
+        "cues": {
+          "voice_kirarajump_000": "Voice_Yurukyan_Rin_Magician5_A/voice_kirarajump_000_0.mp3",
+          "voice_kirarajump_001": "Voice_Yurukyan_Rin_Magician5_A/voice_kirarajump_001_0.mp3",
+          "voice_kirarajump_002": "Voice_Yurukyan_Rin_Magician5_A/voice_kirarajump_002_0.mp3",
+          "voice_kirarajump_003": "Voice_Yurukyan_Rin_Magician5_A/voice_kirarajump_003_0.mp3"
+        }
+      },
+      "ultimateScene": {
+        "file": "asset/uniqueskill/scene/230004.glb.gz",
+        "compression": "gzip",
+        "bytes": 83508,
+        "exporterVersion": 4,
+        "nodes": 213,
+        "meshes": 131,
+        "materials": 56,
+        "textures": 45,
+        "emitters": 13,
+        "cardsWithheld": 13,
+        "layeredMaterials": 0
+      }
+    },
+    {
+      "id": "U03",
+      "cardId": 39002001,
+      "resourceId": 390004,
+      "name": "武田咏深",
+      "shortName": "咏深",
+      "originalName": "武田 詠深",
+      "work": "球咏",
+      "classId": 1,
+      "className": "魔法使",
+      "elementId": 3,
+      "elementName": "风",
+      "headId": 1,
+      "displayScale": 1,
+      "role": "越障抛投",
+      "plannedCost": 200,
+      "icon": "asset/img/rl/icon/39002001.webp",
+      "card": "asset/img/rl/card/39002001.webp",
+      "skills": [
+        {
+          "id": 390020010,
+          "name": "魔球デスサイズ",
+          "detail": "「敵全体」に風属性の特大ダメージ + \n「自身」のリキャストをかなり減らす",
+          "graphics": "Empty",
+          "effects": [
+            {
+              "m_SkillLvCoef": 0,
+              "m_Target": 2,
+              "m_Type": 0,
+              "m_Args": [
+                2410,
+                1,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0
+              ]
+            },
+            {
+              "m_SkillLvCoef": 0,
+              "m_Target": 0,
+              "m_Type": 14,
+              "m_Args": [
+                -0.35
+              ]
+            }
+          ]
+        },
+        {
+          "id": 390020001,
+          "name": "投げていいの？　捕れるの？",
+          "detail": "「敵全体」に風属性の特大ダメージ + \n「敵全体」に風属性の小ダメージを与える\nスキルカードを設置",
+          "graphics": "Magician_cls2_grade3",
+          "effects": [
+            {
+              "m_SkillLvCoef": 0,
+              "m_Target": 2,
+              "m_Type": 0,
+              "m_Args": [
+                1160,
+                1,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0
+              ]
+            },
+            {
+              "m_SkillLvCoef": 0,
+              "m_Target": 2,
+              "m_Type": 21,
+              "m_Args": [
+                3,
+                10050
+              ]
+            }
+          ]
+        },
+        {
+          "id": 390020002,
+          "name": "ついに味方にまで死神と呼ばれるようになったか…",
+          "detail": "「味方単体」の狙われやすさが\n一定ターン大アップ + \n「自身」のクリティカル率が一定ターン中アップ",
+          "graphics": "Magician_cls3_grade0",
+          "effects": [
+            {
+              "m_SkillLvCoef": 0,
+              "m_Target": 3,
+              "m_Type": 18,
+              "m_Args": [
+                1,
+                3,
+                60
+              ]
+            },
+            {
+              "m_SkillLvCoef": 0,
+              "m_Target": 0,
+              "m_Type": 2,
+              "m_Args": [
+                1,
+                3,
+                0,
+                0,
+                0,
+                0,
+                0,
+                110
+              ]
+            }
+          ]
+        }
+      ],
+      "voice": {
+        "sheet": "Voice_Tamayomi_Yomi_Magician5_A",
+        "cues": {
+          "voice_kirarajump_000": "Voice_Tamayomi_Yomi_Magician5_A/voice_kirarajump_000_0.mp3",
+          "voice_kirarajump_001": "Voice_Tamayomi_Yomi_Magician5_A/voice_kirarajump_001_0.mp3",
+          "voice_kirarajump_002": "Voice_Tamayomi_Yomi_Magician5_A/voice_kirarajump_002_0.mp3",
+          "voice_kirarajump_003": "Voice_Tamayomi_Yomi_Magician5_A/voice_kirarajump_003_0.mp3",
+          "voice_kirarajump_004": "Voice_Tamayomi_Yomi_Magician5_A/voice_kirarajump_004_0.mp3",
+          "voice_kirarajump_005": "Voice_Tamayomi_Yomi_Magician5_A/voice_kirarajump_005_0.mp3"
+        }
+      },
+      "ultimateScene": {
+        "file": "asset/uniqueskill/scene/390004.glb.gz",
+        "compression": "gzip",
+        "bytes": 83710,
+        "exporterVersion": 4,
+        "nodes": 466,
+        "meshes": 150,
+        "materials": 53,
+        "textures": 37,
+        "emitters": 9,
+        "cardsWithheld": 9,
+        "layeredMaterials": 1
+      }
+    },
+    {
+      "id": "U04",
+      "cardId": 30012001,
+      "resourceId": 300104,
+      "name": "香风智乃",
+      "shortName": "智乃",
+      "originalName": "チノ",
+      "work": "请问您今天要来点兔子吗？",
+      "classId": 1,
+      "className": "魔法使",
+      "elementId": 5,
+      "elementName": "阳",
+      "headId": 3,
+      "displayScale": 0.95,
+      "role": "蓄力会心",
+      "plannedCost": 250,
+      "icon": "asset/img/rl/icon/30012001.webp",
+      "card": null,
+      "skills": [
+        {
+          "id": 300120010,
+          "name": "お姉ちゃんのねぼすけ",
+          "detail": "「自身」の攻撃が一度だけクリティカルになる + \n「敵全体」に陽属性の特大ダメージ",
+          "graphics": "Empty",
+          "effects": [
+            {
+              "m_SkillLvCoef": 0,
+              "m_Target": 2,
+              "m_Type": 0,
+              "m_Args": [
+                2410,
+                1,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0
+              ]
+            },
+            {
+              "m_SkillLvCoef": 0,
+              "m_Target": 0,
+              "m_Type": 12,
+              "m_Args": []
+            }
+          ]
+        },
+        {
+          "id": 300120001,
+          "name": "いつまでもふもふしてる気ですか",
+          "detail": "「敵全体」に陽属性の中ダメージ",
+          "graphics": "Magician_cls1_grade1",
+          "effects": [
+            {
+              "m_SkillLvCoef": 0,
+              "m_Target": 2,
+              "m_Type": 0,
+              "m_Args": [
+                900,
+                1,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0
+              ]
+            }
+          ]
+        },
+        {
+          "id": 300120002,
+          "name": "いかに甘い考えか…証明して見せます！",
+          "detail": "「敵全体」に陽属性の特大ダメージ",
+          "graphics": "Magician_cls2_grade3",
+          "effects": [
+            {
+              "m_SkillLvCoef": 0,
+              "m_Target": 2,
+              "m_Type": 0,
+              "m_Args": [
+                1220,
+                1,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0
+              ]
+            }
+          ]
+        }
+      ],
+      "voice": null,
+      "ultimateScene": {
+        "file": "asset/uniqueskill/scene/300104.glb.gz",
+        "compression": "gzip",
+        "bytes": 164343,
+        "exporterVersion": 4,
+        "nodes": 446,
+        "meshes": 98,
+        "materials": 39,
+        "textures": 24,
+        "emitters": 8,
+        "cardsWithheld": 8,
+        "layeredMaterials": 0
+      }
+    },
+    {
+      "id": "U05",
+      "cardId": 20002001,
+      "resourceId": 200004,
+      "name": "樱之宫莓香",
+      "shortName": "莓香",
+      "originalName": "桜ノ宮 苺香",
+      "work": "Blend S",
+      "classId": 1,
+      "className": "魔法使",
+      "elementId": 5,
+      "elementName": "阳",
+      "headId": 3,
+      "displayScale": 1,
+      "role": "周期连发",
+      "plannedCost": 200,
+      "icon": "asset/img/rl/icon/20002001.webp",
+      "card": "asset/img/rl/card/20002001.webp",
+      "skills": [
+        {
+          "id": 200020010,
+          "name": "苺香の限定ドSパフェ",
+          "detail": "「敵全体」に陽属性の特大ダメージ + \n「自身」のリキャストをかなり減らす",
+          "graphics": "Empty",
+          "effects": [
+            {
+              "m_SkillLvCoef": 0,
+              "m_Target": 2,
+              "m_Type": 0,
+              "m_Args": [
+                2410,
+                1,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0
+              ]
+            },
+            {
+              "m_SkillLvCoef": 0,
+              "m_Target": 0,
+              "m_Type": 14,
+              "m_Args": [
+                -0.35
+              ]
+            }
+          ]
+        },
+        {
+          "id": 200020001,
+          "name": "無駄吠えうるさいですよ？駄犬",
+          "detail": "「敵全体」に陽属性の大ダメージ",
+          "graphics": "Magician_cls2_grade2",
+          "effects": [
+            {
+              "m_SkillLvCoef": 0,
+              "m_Target": 2,
+              "m_Type": 0,
+              "m_Args": [
+                1060,
+                1,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0
+              ]
+            }
+          ]
+        },
+        {
+          "id": 200020002,
+          "name": "冷めないうちにお持ちしなければ！",
+          "detail": "「自身」の魔法攻撃が一定ターン大アップ",
+          "graphics": "Magician_cls3_grade0",
+          "effects": [
+            {
+              "m_SkillLvCoef": 0,
+              "m_Target": 0,
+              "m_Type": 2,
+              "m_Args": [
+                1,
+                3,
+                0,
+                30,
+                0,
+                0,
+                0,
+                0
+              ]
+            }
+          ]
+        }
+      ],
+      "voice": {
+        "sheet": "Voice_Blends_Maika_Magician5_A",
+        "cues": {
+          "voice_kirarajump_000": "Voice_Blends_Maika_Magician5_A/voice_kirarajump_000_0.mp3",
+          "voice_kirarajump_001": "Voice_Blends_Maika_Magician5_A/voice_kirarajump_001_0.mp3",
+          "voice_kirarajump_002": "Voice_Blends_Maika_Magician5_A/voice_kirarajump_002_0.mp3"
+        }
+      },
+      "ultimateScene": {
+        "file": "asset/uniqueskill/scene/200004.glb.gz",
+        "compression": "gzip",
+        "bytes": 189980,
+        "exporterVersion": 4,
+        "nodes": 165,
+        "meshes": 128,
+        "materials": 33,
+        "textures": 25,
+        "emitters": 2,
+        "cardsWithheld": 2,
+        "layeredMaterials": 0
+      }
+    },
+    {
+      "id": "U06",
+      "cardId": 45002001,
+      "resourceId": 450002,
+      "name": "风色琴音",
+      "shortName": "琴音",
+      "originalName": "風色 琴音",
+      "work": "RPG不动产",
+      "classId": 1,
+      "className": "魔法使",
+      "elementId": 0,
+      "elementName": "炎",
+      "headId": 1,
+      "displayScale": 1,
+      "role": "炎魔法范围",
+      "plannedCost": 225,
+      "icon": "asset/img/rl/icon/45002001.webp",
+      "card": "asset/img/rl/card/45002001.webp",
+      "skills": [
+        {
+          "id": 450020010,
+          "name": "燃える物件紹介",
+          "detail": "「敵全体」に炎属性の特大ダメージ + \n「自身」の魔法攻撃が一定ターン中アップ",
+          "graphics": "Empty",
+          "effects": [
+            {
+              "m_SkillLvCoef": 0,
+              "m_Target": 2,
+              "m_Type": 0,
+              "m_Args": [
+                2410,
+                1,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0
+              ]
+            },
+            {
+              "m_SkillLvCoef": 0,
+              "m_Target": 0,
+              "m_Type": 2,
+              "m_Args": [
+                1,
+                3,
+                0,
+                23,
+                0,
+                0,
+                0,
+                0
+              ]
+            }
+          ]
+        },
+        {
+          "id": 450020001,
+          "name": "ファイア！",
+          "detail": "「敵全体」に炎属性の特大ダメージ",
+          "graphics": "Magician_cls2_grade3",
+          "effects": [
+            {
+              "m_SkillLvCoef": 0,
+              "m_Target": 2,
+              "m_Type": 0,
+              "m_Args": [
+                1220,
+                1,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0
+              ]
+            }
+          ]
+        },
+        {
+          "id": 450020002,
+          "name": "ララ～眠れ千年 ララ～栄える大地♪",
+          "detail": "「自身」のクリティカル率が一定ターン中アップ + \n「自身」の有利属性へのダメージが\n一定ターン大アップ",
+          "graphics": "Magician_cls3_grade0",
+          "effects": [
+            {
+              "m_SkillLvCoef": 0,
+              "m_Target": 0,
+              "m_Type": 2,
+              "m_Args": [
+                1,
+                3,
+                0,
+                0,
+                0,
+                0,
+                0,
+                110
+              ]
+            },
+            {
+              "m_SkillLvCoef": 0,
+              "m_Target": 0,
+              "m_Type": 10,
+              "m_Args": [
+                1,
+                3,
+                35
+              ]
+            }
+          ]
+        }
+      ],
+      "voice": {
+        "sheet": "Voice_Rpg_Kotone_Magician5_A",
+        "cues": {
+          "voice_kirarajump_000": "Voice_Rpg_Kotone_Magician5_A/voice_kirarajump_000_0.mp3",
+          "voice_kirarajump_001": "Voice_Rpg_Kotone_Magician5_A/voice_kirarajump_001_0.mp3",
+          "voice_kirarajump_002": "Voice_Rpg_Kotone_Magician5_A/voice_kirarajump_002_0.mp3",
+          "voice_kirarajump_003": "Voice_Rpg_Kotone_Magician5_A/voice_kirarajump_003_0.mp3",
+          "voice_kirarajump_004": "Voice_Rpg_Kotone_Magician5_A/voice_kirarajump_004_0.mp3",
+          "voice_kirarajump_005": "Voice_Rpg_Kotone_Magician5_A/voice_kirarajump_005_0.mp3",
+          "voice_kirarajump_006": "Voice_Rpg_Kotone_Magician5_A/voice_kirarajump_006_0.mp3",
+          "voice_kirarajump_007": "Voice_Rpg_Kotone_Magician5_A/voice_kirarajump_007_0.mp3",
+          "voice_kirarajump_008": "Voice_Rpg_Kotone_Magician5_A/voice_kirarajump_008_0.mp3"
+        }
+      },
+      "ultimateScene": {
+        "file": "asset/uniqueskill/scene/450002.glb.gz",
+        "compression": "gzip",
+        "bytes": 151175,
+        "exporterVersion": 4,
+        "nodes": 236,
+        "meshes": 150,
+        "materials": 32,
+        "textures": 24,
+        "emitters": 21,
+        "cardsWithheld": 21,
+        "layeredMaterials": 0
+      }
+    },
+    {
+      "id": "U07",
+      "cardId": 30002001,
+      "resourceId": 300004,
+      "name": "保登心爱",
+      "shortName": "心爱",
+      "originalName": "ココア",
+      "work": "请问您今天要来点兔子吗？",
+      "classId": 0,
+      "className": "战士",
+      "elementId": 3,
+      "elementName": "风",
+      "headId": 2,
+      "displayScale": 1,
+      "role": "近战破防",
+      "plannedCost": 75,
+      "icon": "asset/img/rl/icon/30002001.webp",
+      "card": "asset/img/rl/card/30002001.webp",
+      "skills": [
+        {
+          "id": 300020010,
+          "name": "お姉ちゃんにまかせなさい！",
+          "detail": "「敵単体」に風属性の特大ダメージ +\n「自身」のリキャストをかなり減らす",
+          "graphics": "Empty",
+          "effects": [
+            {
+              "m_SkillLvCoef": 0,
+              "m_Target": 1,
+              "m_Type": 0,
+              "m_Args": [
+                3010,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0
+              ]
+            },
+            {
+              "m_SkillLvCoef": 0,
+              "m_Target": 0,
+              "m_Type": 14,
+              "m_Args": [
+                -0.35
+              ]
+            }
+          ]
+        },
+        {
+          "id": 300020001,
+          "name": "お姉ちゃんは許しませんよー！",
+          "detail": "「敵単体」に風属性の中ダメージ +\n「自身」の物理攻撃が一定ターン中アップ",
+          "graphics": "Fighter_cls1_grade1",
+          "effects": [
+            {
+              "m_SkillLvCoef": 0,
+              "m_Target": 1,
+              "m_Type": 0,
+              "m_Args": [
+                1220,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0
+              ]
+            },
+            {
+              "m_SkillLvCoef": 0,
+              "m_Target": 0,
+              "m_Type": 2,
+              "m_Args": [
+                1,
+                3,
+                23,
+                0,
+                0,
+                0,
+                0,
+                0
+              ]
+            }
+          ]
+        },
+        {
+          "id": 300020002,
+          "name": "私の胸に飛び込んでおいで！",
+          "detail": "「敵単体」に風属性の大ダメージ + \n「敵単体」の物理防御を一定ターン小ダウン",
+          "graphics": "Fighter_cls2_grade2",
+          "effects": [
+            {
+              "m_SkillLvCoef": 0,
+              "m_Target": 1,
+              "m_Type": 0,
+              "m_Args": [
+                1430,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0
+              ]
+            },
+            {
+              "m_SkillLvCoef": 0,
+              "m_Target": 1,
+              "m_Type": 2,
+              "m_Args": [
+                1,
+                3,
+                0,
+                0,
+                -10,
+                0,
+                0,
+                0
+              ]
+            }
+          ]
+        }
+      ],
+      "voice": {
+        "sheet": "Voice_Gochiusa_Cocoa_Fighter5_A",
+        "cues": {
+          "voice_kirarajump_000": "Voice_Gochiusa_Cocoa_Fighter5_A/voice_kirarajump_000_0.mp3",
+          "voice_kirarajump_001": "Voice_Gochiusa_Cocoa_Fighter5_A/voice_kirarajump_001_0.mp3",
+          "voice_kirarajump_002": "Voice_Gochiusa_Cocoa_Fighter5_A/voice_kirarajump_002_0.mp3",
+          "voice_kirarajump_003": "Voice_Gochiusa_Cocoa_Fighter5_A/voice_kirarajump_003_0.mp3",
+          "voice_kirarajump_004": "Voice_Gochiusa_Cocoa_Fighter5_A/voice_kirarajump_004_0.mp3"
+        }
+      },
+      "ultimateScene": {
+        "file": "asset/uniqueskill/scene/300004.glb.gz",
+        "compression": "gzip",
+        "bytes": 528304,
+        "exporterVersion": 4,
+        "nodes": 501,
+        "meshes": 104,
+        "materials": 52,
+        "textures": 25,
+        "emitters": 11,
+        "cardsWithheld": 11,
+        "layeredMaterials": 0
+      }
+    },
+    {
+      "id": "U08",
+      "cardId": 13002001,
+      "resourceId": 130004,
+      "name": "一井透",
+      "shortName": "透",
+      "originalName": "トオル",
+      "work": "A Channel",
+      "classId": 0,
+      "className": "战士",
+      "elementId": 1,
+      "elementName": "水",
+      "headId": 0,
+      "displayScale": 0.95,
+      "role": "蓄力重击",
+      "plannedCost": 150,
+      "icon": "asset/img/rl/icon/13002001.webp",
+      "card": "asset/img/rl/card/13002001.webp",
+      "skills": [
+        {
+          "id": 130020010,
+          "name": "トロピカル・ビッグウェーブ",
+          "detail": "「敵単体」に水属性の超特大ダメージ + \n「味方全体」の物理防御が一定ターン小アップ",
+          "graphics": "Empty",
+          "effects": [
+            {
+              "m_SkillLvCoef": 0,
+              "m_Target": 1,
+              "m_Type": 0,
+              "m_Args": [
+                3610,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0
+              ]
+            },
+            {
+              "m_SkillLvCoef": 0,
+              "m_Target": 4,
+              "m_Type": 2,
+              "m_Args": [
+                1,
+                3,
+                0,
+                0,
+                20,
+                0,
+                0,
+                0
+              ]
+            }
+          ]
+        },
+        {
+          "id": 130020001,
+          "name": "怒ってないから（構わないでください）",
+          "detail": "「敵単体」に水属性の特大ダメージ",
+          "graphics": "Fighter_cls2_grade3",
+          "effects": [
+            {
+              "m_SkillLvCoef": 0,
+              "m_Target": 1,
+              "m_Type": 0,
+              "m_Args": [
+                1740,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0
+              ]
+            }
+          ]
+        },
+        {
+          "id": 130020002,
+          "name": "りんぴょうとっしゃああああああ!!!",
+          "detail": "「自身」の物理攻撃が一度だけ大アップ",
+          "graphics": "Fighter_cls3_grade0",
+          "effects": [
+            {
+              "m_SkillLvCoef": 0,
+              "m_Target": 0,
+              "m_Type": 11,
+              "m_Args": [
+                0,
+                60
+              ]
+            }
+          ]
+        }
+      ],
+      "voice": {
+        "sheet": "Voice_AChannel_Toru_Fighter5_A",
+        "cues": {
+          "voice_kirarajump_000": "Voice_AChannel_Toru_Fighter5_A/voice_kirarajump_000_0.mp3",
+          "voice_kirarajump_001": "Voice_AChannel_Toru_Fighter5_A/voice_kirarajump_001_0.mp3",
+          "voice_kirarajump_002": "Voice_AChannel_Toru_Fighter5_A/voice_kirarajump_002_0.mp3"
+        }
+      },
+      "ultimateScene": {
+        "file": "asset/uniqueskill/scene/130004.glb.gz",
+        "compression": "gzip",
+        "bytes": 172559,
+        "exporterVersion": 4,
+        "nodes": 208,
+        "meshes": 145,
+        "materials": 38,
+        "textures": 35,
+        "emitters": 10,
+        "cardsWithheld": 10,
+        "layeredMaterials": 0
+      }
+    },
+    {
+      "id": "U09",
+      "cardId": 14002001,
+      "resourceId": 140004,
+      "name": "九条可怜",
+      "shortName": "可怜",
+      "originalName": "九条 カレン",
+      "work": "黄金拼图",
+      "classId": 0,
+      "className": "战士",
+      "elementId": 4,
+      "elementName": "月",
+      "headId": 1,
+      "displayScale": 1,
+      "role": "会心支援",
+      "plannedCost": 175,
+      "icon": "asset/img/rl/icon/14002001.webp",
+      "card": "asset/img/rl/card/14002001.webp",
+      "skills": [
+        {
+          "id": 140020010,
+          "name": "月夜の鬼コーチ侍",
+          "detail": "「敵単体」に月属性の特大ダメージ + \n「味方全体」のクリティカル率が一定ターン小アップ",
+          "graphics": "Empty",
+          "effects": [
+            {
+              "m_SkillLvCoef": 0,
+              "m_Target": 1,
+              "m_Type": 0,
+              "m_Args": [
+                3010,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0
+              ]
+            },
+            {
+              "m_SkillLvCoef": 0,
+              "m_Target": 4,
+              "m_Type": 2,
+              "m_Args": [
+                1,
+                3,
+                0,
+                0,
+                0,
+                0,
+                0,
+                50
+              ]
+            }
+          ]
+        },
+        {
+          "id": 140020001,
+          "name": "おまちかねのプレゼントタイムデス！",
+          "detail": "「敵単体」に月属性の大ダメージ",
+          "graphics": "Fighter_cls2_grade2",
+          "effects": [
+            {
+              "m_SkillLvCoef": 0,
+              "m_Target": 1,
+              "m_Type": 0,
+              "m_Args": [
+                1510,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0
+              ]
+            }
+          ]
+        },
+        {
+          "id": 140020002,
+          "name": "名探偵カレンにまかせるデス",
+          "detail": "「自身」の物理攻撃が一定ターン小アップ",
+          "graphics": "Fighter_cls3_grade0",
+          "effects": [
+            {
+              "m_SkillLvCoef": 0,
+              "m_Target": 0,
+              "m_Type": 2,
+              "m_Args": [
+                1,
+                3,
+                15,
+                0,
+                0,
+                0,
+                0,
+                0
+              ]
+            }
+          ]
+        }
+      ],
+      "voice": {
+        "sheet": "Voice_KinMosa_Karen_Fighter5_A",
+        "cues": {
+          "voice_kirarajump_000": "Voice_KinMosa_Karen_Fighter5_A/voice_kirarajump_000_0.mp3",
+          "voice_kirarajump_001": "Voice_KinMosa_Karen_Fighter5_A/voice_kirarajump_001_0.mp3",
+          "voice_kirarajump_002": "Voice_KinMosa_Karen_Fighter5_A/voice_kirarajump_002_0.mp3",
+          "voice_kirarajump_003": "Voice_KinMosa_Karen_Fighter5_A/voice_kirarajump_003_0.mp3"
+        }
+      },
+      "ultimateScene": {
+        "file": "asset/uniqueskill/scene/140004.glb.gz",
+        "compression": "gzip",
+        "bytes": 148830,
+        "exporterVersion": 4,
+        "nodes": 171,
+        "meshes": 127,
+        "materials": 27,
+        "textures": 24,
+        "emitters": 6,
+        "cardsWithheld": 6,
+        "layeredMaterials": 1
+      }
+    },
+    {
+      "id": "U10",
+      "cardId": 26002001,
+      "resourceId": 260004,
+      "name": "玛莉·梦魔",
+      "shortName": "玛莉",
+      "originalName": "メリー・ナイトメア",
+      "work": "食梦者玛莉",
+      "classId": 0,
+      "className": "战士",
+      "elementId": 4,
+      "elementName": "月",
+      "headId": 0,
+      "displayScale": 0.95,
+      "role": "睡眠特攻",
+      "plannedCost": 175,
+      "icon": "asset/img/rl/icon/26002001.webp",
+      "card": "asset/img/rl/card/26002001.webp",
+      "skills": [
+        {
+          "id": 260020010,
+          "name": "ここから先は通行止めよ！！",
+          "detail": "「敵単体」にねむり状態に特効を持つ\n月属性の特大ダメージ + \n「自身」の状態異常を一定ターン無効化",
+          "graphics": "Empty",
+          "effects": [
+            {
+              "m_SkillLvCoef": 0,
+              "m_Target": 1,
+              "m_Type": 0,
+              "m_Args": [
+                3010,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                104,
+                3610
+              ]
+            },
+            {
+              "m_SkillLvCoef": 0,
+              "m_Target": 0,
+              "m_Type": 6,
+              "m_Args": [
+                1,
+                3
+              ]
+            }
+          ]
+        },
+        {
+          "id": 260020001,
+          "name": "やらなくちゃいけない事をやる！！",
+          "detail": "「敵単体」にねむり状態に特効を持つ\n月属性の中ダメージ + \n「自身」の物理攻撃が一定ターン小アップ",
+          "graphics": "Fighter_cls1_grade1",
+          "effects": [
+            {
+              "m_SkillLvCoef": 0,
+              "m_Target": 1,
+              "m_Type": 0,
+              "m_Args": [
+                1220,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                104,
+                1430
+              ]
+            },
+            {
+              "m_SkillLvCoef": 0,
+              "m_Target": 0,
+              "m_Type": 2,
+              "m_Args": [
+                1,
+                3,
+                15,
+                0,
+                0,
+                0,
+                0,
+                0
+              ]
+            }
+          ]
+        },
+        {
+          "id": 260020002,
+          "name": "アタシがお手本見せてあげるわよ",
+          "detail": "「敵単体」にねむり状態に特効を持つ\n月属性の特大ダメージ + \n「自身」のクリティカル率が一定ターン中アップ",
+          "graphics": "Fighter_cls2_grade3",
+          "effects": [
+            {
+              "m_SkillLvCoef": 0,
+              "m_Target": 1,
+              "m_Type": 0,
+              "m_Args": [
+                1650,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                104,
+                1980
+              ]
+            },
+            {
+              "m_SkillLvCoef": 0,
+              "m_Target": 0,
+              "m_Type": 2,
+              "m_Args": [
+                1,
+                3,
+                0,
+                0,
+                0,
+                0,
+                0,
+                110
+              ]
+            }
+          ]
+        }
+      ],
+      "voice": {
+        "sheet": "Voice_Yumekui_Merry_Fighter5_A",
+        "cues": {
+          "voice_kirarajump_000": "Voice_Yumekui_Merry_Fighter5_A/voice_kirarajump_000_0.mp3",
+          "voice_kirarajump_001": "Voice_Yumekui_Merry_Fighter5_A/voice_kirarajump_001_0.mp3",
+          "voice_kirarajump_002": "Voice_Yumekui_Merry_Fighter5_A/voice_kirarajump_002_0.mp3"
+        }
+      },
+      "ultimateScene": {
+        "file": "asset/uniqueskill/scene/260004.glb.gz",
+        "compression": "gzip",
+        "bytes": 78991,
+        "exporterVersion": 4,
+        "nodes": 153,
+        "meshes": 86,
+        "materials": 35,
+        "textures": 28,
+        "emitters": 11,
+        "cardsWithheld": 11,
+        "layeredMaterials": 0
+      }
+    },
+    {
+      "id": "U11",
+      "cardId": 17002001,
+      "resourceId": 170004,
+      "name": "千矢",
+      "shortName": "千矢",
+      "originalName": "千矢",
+      "work": "Urara 迷路帖",
+      "classId": 3,
+      "className": "骑士",
+      "elementId": 0,
+      "elementName": "炎",
+      "headId": 1,
+      "displayScale": 1,
+      "role": "低费挡线",
+      "plannedCost": 75,
+      "icon": "asset/img/rl/icon/17002001.webp",
+      "card": "asset/img/rl/card/17002001.webp",
+      "skills": [
+        {
+          "id": 170020010,
+          "name": "流れ星占いの珍事",
+          "detail": "「敵単体」に炎属性の特大ダメージ + \n「味方全体」の物理防御が一定ターン小アップ",
+          "graphics": "Empty",
+          "effects": [
+            {
+              "m_SkillLvCoef": 0,
+              "m_Target": 1,
+              "m_Type": 0,
+              "m_Args": [
+                3010,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0
+              ]
+            },
+            {
+              "m_SkillLvCoef": 0,
+              "m_Target": 4,
+              "m_Type": 2,
+              "m_Args": [
+                1,
+                3,
+                0,
+                0,
+                20,
+                0,
+                0,
+                0
+              ]
+            }
+          ]
+        },
+        {
+          "id": 170020001,
+          "name": "髪切るのだけは絶対やだからね",
+          "detail": "「敵単体」に炎属性の特大ダメージ",
+          "graphics": "Knight_cls2_grade3",
+          "effects": [
+            {
+              "m_SkillLvCoef": 0,
+              "m_Target": 1,
+              "m_Type": 0,
+              "m_Args": [
+                1740,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0
+              ]
+            }
+          ]
+        },
+        {
+          "id": 170020002,
+          "name": "一番占になるんだもん！",
+          "detail": "「自身」の物理防御が一定ターン中アップ + \n「自身」の狙われやすさが一定ターン大アップ",
+          "graphics": "Knight_cls3_grade0",
+          "effects": [
+            {
+              "m_SkillLvCoef": 0,
+              "m_Target": 0,
+              "m_Type": 2,
+              "m_Args": [
+                1,
+                3,
+                0,
+                0,
+                29,
+                0,
+                0,
+                0
+              ]
+            },
+            {
+              "m_SkillLvCoef": 0,
+              "m_Target": 0,
+              "m_Type": 18,
+              "m_Args": [
+                1,
+                3,
+                60
+              ]
+            }
+          ]
+        }
+      ],
+      "voice": {
+        "sheet": "Voice_Urara_Chiya_Knight5_A",
+        "cues": {
+          "voice_kirarajump_000": "Voice_Urara_Chiya_Knight5_A/voice_kirarajump_000_0.mp3",
+          "voice_kirarajump_001": "Voice_Urara_Chiya_Knight5_A/voice_kirarajump_001_0.mp3",
+          "voice_kirarajump_002": "Voice_Urara_Chiya_Knight5_A/voice_kirarajump_002_0.mp3",
+          "voice_kirarajump_003": "Voice_Urara_Chiya_Knight5_A/voice_kirarajump_003_0.mp3",
+          "voice_kirarajump_004": "Voice_Urara_Chiya_Knight5_A/voice_kirarajump_004_0.mp3"
+        }
+      },
+      "ultimateScene": {
+        "file": "asset/uniqueskill/scene/170004.glb.gz",
+        "compression": "gzip",
+        "bytes": 33438,
+        "exporterVersion": 4,
+        "nodes": 219,
+        "meshes": 155,
+        "materials": 30,
+        "textures": 29,
+        "emitters": 14,
+        "cardsWithheld": 14,
+        "layeredMaterials": 3
+      }
+    },
+    {
+      "id": "U12",
+      "cardId": 18002001,
+      "resourceId": 180004,
+      "name": "折部安奈",
+      "shortName": "安奈",
+      "originalName": "折部 やすな",
+      "work": "爱杀宝贝",
+      "classId": 3,
+      "className": "骑士",
+      "elementId": 2,
+      "elementName": "土",
+      "headId": 0,
+      "displayScale": 1,
+      "role": "持续承伤",
+      "plannedCost": 125,
+      "icon": "asset/img/rl/icon/18002001.webp",
+      "card": "asset/img/rl/card/18002001.webp",
+      "skills": [
+        {
+          "id": 180020010,
+          "name": "名（迷？）犬ちくわぶ",
+          "detail": "「敵単体」に土属性の特大ダメージ + \n「味方全体」の物理防御が一定ターン中アップ",
+          "graphics": "Empty",
+          "effects": [
+            {
+              "m_SkillLvCoef": 0,
+              "m_Target": 1,
+              "m_Type": 0,
+              "m_Args": [
+                3010,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0
+              ]
+            },
+            {
+              "m_SkillLvCoef": 0,
+              "m_Target": 4,
+              "m_Type": 2,
+              "m_Args": [
+                1,
+                3,
+                0,
+                0,
+                29,
+                0,
+                0,
+                0
+              ]
+            }
+          ]
+        },
+        {
+          "id": 180020001,
+          "name": "私の健康の糧になってもらう！",
+          "detail": "「敵単体」に土属性の大ダメージ + \n「自身」の物理防御が一定ターン小アップ",
+          "graphics": "Knight_cls2_grade2",
+          "effects": [
+            {
+              "m_SkillLvCoef": 0,
+              "m_Target": 1,
+              "m_Type": 0,
+              "m_Args": [
+                1430,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0
+              ]
+            },
+            {
+              "m_SkillLvCoef": 0,
+              "m_Target": 0,
+              "m_Type": 2,
+              "m_Args": [
+                1,
+                3,
+                0,
+                0,
+                20,
+                0,
+                0,
+                0
+              ]
+            }
+          ]
+        },
+        {
+          "id": 180020002,
+          "name": "軌道が読めたぜ",
+          "detail": "「自身」の物理防御が一定ターン中アップ + \n「自身」の狙われやすさが一定ターン大アップ",
+          "graphics": "Knight_cls3_grade0",
+          "effects": [
+            {
+              "m_SkillLvCoef": 0,
+              "m_Target": 0,
+              "m_Type": 2,
+              "m_Args": [
+                1,
+                3,
+                0,
+                0,
+                29,
+                0,
+                0,
+                0
+              ]
+            },
+            {
+              "m_SkillLvCoef": 0,
+              "m_Target": 0,
+              "m_Type": 18,
+              "m_Args": [
+                1,
+                3,
+                60
+              ]
+            }
+          ]
+        }
+      ],
+      "voice": {
+        "sheet": "Voice_Killme_Yasuna_Knight5_A",
+        "cues": {
+          "voice_kirarajump_000": "Voice_Killme_Yasuna_Knight5_A/voice_kirarajump_000_0.mp3",
+          "voice_kirarajump_001": "Voice_Killme_Yasuna_Knight5_A/voice_kirarajump_001_0.mp3",
+          "voice_kirarajump_002": "Voice_Killme_Yasuna_Knight5_A/voice_kirarajump_002_0.mp3",
+          "voice_kirarajump_003": "Voice_Killme_Yasuna_Knight5_A/voice_kirarajump_003_0.mp3"
+        }
+      },
+      "ultimateScene": {
+        "file": "asset/uniqueskill/scene/180004.glb.gz",
+        "compression": "gzip",
+        "bytes": 40438,
+        "exporterVersion": 4,
+        "nodes": 116,
+        "meshes": 67,
+        "materials": 25,
+        "textures": 25,
+        "emitters": 6,
+        "cardsWithheld": 6,
+        "layeredMaterials": 0
+      }
+    },
+    {
+      "id": "U13",
+      "cardId": 29002001,
+      "resourceId": 290004,
+      "name": "大空遥",
+      "shortName": "遥",
+      "originalName": "大空 遥",
+      "work": "遥的接球",
+      "classId": 3,
+      "className": "骑士",
+      "elementId": 0,
+      "elementName": "炎",
+      "headId": 0,
+      "displayScale": 1,
+      "role": "屏障拦截",
+      "plannedCost": 175,
+      "icon": "asset/img/rl/icon/29002001.webp",
+      "card": "asset/img/rl/card/29002001.webp",
+      "skills": [
+        {
+          "id": 290020010,
+          "name": "炎のカットショット",
+          "detail": "「自身」に三度だけ攻撃を完全にカットする\nバリアを張る + \n「自身」の狙われやすさが一定ターン大アップ",
+          "graphics": "Empty",
+          "effects": [
+            {
+              "m_SkillLvCoef": 0,
+              "m_Target": 0,
+              "m_Type": 13,
+              "m_Args": [
+                100,
+                3
+              ]
+            },
+            {
+              "m_SkillLvCoef": 0,
+              "m_Target": 0,
+              "m_Type": 18,
+              "m_Args": [
+                1,
+                3,
+                60
+              ]
+            }
+          ]
+        },
+        {
+          "id": 290020001,
+          "name": "甘く見てると痛い目みるよ？",
+          "detail": "「敵単体」に炎属性の特大ダメージ",
+          "graphics": "Knight_cls2_grade3",
+          "effects": [
+            {
+              "m_SkillLvCoef": 0,
+              "m_Target": 1,
+              "m_Type": 0,
+              "m_Args": [
+                1740,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0
+              ]
+            }
+          ]
+        },
+        {
+          "id": 290020002,
+          "name": "もう一本！バッチコーイ！！",
+          "detail": "「自身」の魔法防御が一定ターン中アップ + \n「自身」の狙われやすさが一定ターン大アップ",
+          "graphics": "Knight_cls3_grade0",
+          "effects": [
+            {
+              "m_SkillLvCoef": 0,
+              "m_Target": 0,
+              "m_Type": 2,
+              "m_Args": [
+                1,
+                3,
+                0,
+                0,
+                0,
+                29,
+                0,
+                0
+              ]
+            },
+            {
+              "m_SkillLvCoef": 0,
+              "m_Target": 0,
+              "m_Type": 18,
+              "m_Args": [
+                1,
+                3,
+                60
+              ]
+            }
+          ]
+        }
+      ],
+      "voice": {
+        "sheet": "Voice_Harukana_Haruka_Knight5_A",
+        "cues": {
+          "voice_kirarajump_000": "Voice_Harukana_Haruka_Knight5_A/voice_kirarajump_000_0.mp3",
+          "voice_kirarajump_001": "Voice_Harukana_Haruka_Knight5_A/voice_kirarajump_001_0.mp3",
+          "voice_kirarajump_002": "Voice_Harukana_Haruka_Knight5_A/voice_kirarajump_002_0.mp3"
+        }
+      },
+      "ultimateScene": {
+        "file": "asset/uniqueskill/scene/290004.glb.gz",
+        "compression": "gzip",
+        "bytes": 428741,
+        "exporterVersion": 4,
+        "nodes": 284,
+        "meshes": 171,
+        "materials": 55,
+        "textures": 36,
+        "emitters": 17,
+        "cardsWithheld": 17,
+        "layeredMaterials": 4
+      }
+    },
+    {
+      "id": "U14",
+      "cardId": 28002001,
+      "resourceId": 280004,
+      "name": "花小泉杏",
+      "shortName": "花小泉杏",
+      "originalName": "花小泉 杏",
+      "work": "Anne Happy♪",
+      "classId": 3,
+      "className": "骑士",
+      "elementId": 5,
+      "elementName": "阳",
+      "headId": 0,
+      "displayScale": 1,
+      "role": "净化承伤",
+      "plannedCost": 200,
+      "icon": "asset/img/rl/icon/28002001.webp",
+      "card": "asset/img/rl/card/28002001.webp",
+      "skills": [
+        {
+          "id": 280020010,
+          "name": "青天の霹靂",
+          "detail": "「自身」に三度だけ攻撃を完全にカットする\nバリアを張る + 「自身」の状態異常を回復 + \n「自身」を中回復",
+          "graphics": "Empty",
+          "effects": [
+            {
+              "m_SkillLvCoef": 0,
+              "m_Target": 0,
+              "m_Type": 13,
+              "m_Args": [
+                100,
+                3
+              ]
+            },
+            {
+              "m_SkillLvCoef": 0,
+              "m_Target": 0,
+              "m_Type": 5,
+              "m_Args": [
+                1,
+                1,
+                1,
+                1,
+                1,
+                1,
+                1,
+                1
+              ]
+            },
+            {
+              "m_SkillLvCoef": 0,
+              "m_Target": 0,
+              "m_Type": 1,
+              "m_Args": [
+                44
+              ]
+            }
+          ]
+        },
+        {
+          "id": 280020001,
+          "name": "しっかり受け止めてね！",
+          "detail": "「敵単体」に陽属性の大ダメージ + \n「自身」の物理防御が一定ターン大アップ",
+          "graphics": "Knight_cls2_grade2",
+          "effects": [
+            {
+              "m_SkillLvCoef": 0,
+              "m_Target": 1,
+              "m_Type": 0,
+              "m_Args": [
+                1430,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0
+              ]
+            },
+            {
+              "m_SkillLvCoef": 0,
+              "m_Target": 0,
+              "m_Type": 2,
+              "m_Args": [
+                1,
+                3,
+                0,
+                0,
+                35,
+                0,
+                0,
+                0
+              ]
+            }
+          ]
+        },
+        {
+          "id": 280020002,
+          "name": "よーし、私も頑張ろっ",
+          "detail": "「自身」にふこうを付与 + \n「自身」の状態異常を一定ターン無効化 + \n「自身」の狙われやすさが一定ターン大アップ",
+          "graphics": "Knight_cls3_grade0",
+          "effects": [
+            {
+              "m_SkillLvCoef": 0,
+              "m_Target": 0,
+              "m_Type": 4,
+              "m_Args": [
+                0,
+                0,
+                0,
+                0,
+                0,
+                100,
+                0,
+                0
+              ]
+            },
+            {
+              "m_SkillLvCoef": 0,
+              "m_Target": 0,
+              "m_Type": 6,
+              "m_Args": [
+                1,
+                3
+              ]
+            },
+            {
+              "m_SkillLvCoef": 0,
+              "m_Target": 0,
+              "m_Type": 18,
+              "m_Args": [
+                1,
+                3,
+                60
+              ]
+            }
+          ]
+        }
+      ],
+      "voice": {
+        "sheet": "Voice_Anhapi_Hanako_Knight5_A",
+        "cues": {
+          "voice_kirarajump_000": "Voice_Anhapi_Hanako_Knight5_A/voice_kirarajump_000_0.mp3",
+          "voice_kirarajump_001": "Voice_Anhapi_Hanako_Knight5_A/voice_kirarajump_001_0.mp3",
+          "voice_kirarajump_002": "Voice_Anhapi_Hanako_Knight5_A/voice_kirarajump_002_0.mp3"
+        }
+      },
+      "ultimateScene": {
+        "file": "asset/uniqueskill/scene/280004.glb.gz",
+        "compression": "gzip",
+        "bytes": 54998,
+        "exporterVersion": 4,
+        "nodes": 156,
+        "meshes": 106,
+        "materials": 40,
+        "textures": 32,
+        "emitters": 4,
+        "cardsWithheld": 4,
+        "layeredMaterials": 0
+      }
+    },
+    {
+      "id": "U15",
+      "cardId": 10002001,
+      "resourceId": 100004,
+      "name": "由乃",
+      "shortName": "由乃",
+      "originalName": "ゆの",
+      "work": "向阳素描",
+      "classId": 2,
+      "className": "僧侣",
+      "elementId": 5,
+      "elementName": "阳",
+      "headId": 0,
+      "displayScale": 0.95,
+      "role": "单体治疗",
+      "plannedCost": 125,
+      "icon": "asset/img/rl/icon/10002001.webp",
+      "card": "asset/img/rl/card/10002001.webp",
+      "skills": [
+        {
+          "id": 100020010,
+          "name": "ひだまりの使い",
+          "detail": "「味方全体」を大回復 + \n「味方全体」の物理防御が一定ターン小アップ",
+          "graphics": "Empty",
+          "effects": [
+            {
+              "m_SkillLvCoef": 0,
+              "m_Target": 4,
+              "m_Type": 1,
+              "m_Args": [
+                49
+              ]
+            },
+            {
+              "m_SkillLvCoef": 0,
+              "m_Target": 4,
+              "m_Type": 2,
+              "m_Args": [
+                1,
+                3,
+                0,
+                0,
+                20,
+                0,
+                0,
+                0
+              ]
+            }
+          ]
+        },
+        {
+          "id": 100020001,
+          "name": "この経験がきっと私を大きくしてくれると信じて",
+          "detail": "「味方単体」を大回復",
+          "graphics": "Priest_cls3_grade0",
+          "effects": [
+            {
+              "m_SkillLvCoef": 0,
+              "m_Target": 3,
+              "m_Type": 1,
+              "m_Args": [
+                60
+              ]
+            }
+          ]
+        },
+        {
+          "id": 100020002,
+          "name": "大切なものはもう私の近くに",
+          "detail": "「味方単体」にリカバリーを付与",
+          "graphics": "Priest_cls3_grade0",
+          "effects": [
+            {
+              "m_SkillLvCoef": 0,
+              "m_Target": 3,
+              "m_Type": 23,
+              "m_Args": [
+                3,
+                27
+              ]
+            }
+          ]
+        }
+      ],
+      "voice": {
+        "sheet": "Voice_Hidamari_Yuno_Priest5_A",
+        "cues": {
+          "voice_kirarajump_000": "Voice_Hidamari_Yuno_Priest5_A/voice_kirarajump_000_0.mp3",
+          "voice_kirarajump_001": "Voice_Hidamari_Yuno_Priest5_A/voice_kirarajump_001_0.mp3",
+          "voice_kirarajump_002": "Voice_Hidamari_Yuno_Priest5_A/voice_kirarajump_002_0.mp3",
+          "voice_kirarajump_003": "Voice_Hidamari_Yuno_Priest5_A/voice_kirarajump_003_0.mp3"
+        }
+      },
+      "ultimateScene": {
+        "file": "asset/uniqueskill/scene/100004.glb.gz",
+        "compression": "gzip",
+        "bytes": 24977,
+        "exporterVersion": 4,
+        "nodes": 138,
+        "meshes": 83,
+        "materials": 30,
+        "textures": 30,
+        "emitters": 8,
+        "cardsWithheld": 8,
+        "layeredMaterials": 1
+      }
+    },
+    {
+      "id": "U16",
+      "cardId": 12002001,
+      "resourceId": 120004,
+      "name": "丈枪由纪",
+      "shortName": "由纪",
+      "originalName": "丈槍 由紀",
+      "work": "学园孤岛",
+      "classId": 2,
+      "className": "僧侣",
+      "elementId": 1,
+      "elementName": "水",
+      "headId": 0,
+      "displayScale": 0.95,
+      "role": "周期治疗阵",
+      "plannedCost": 150,
+      "icon": "asset/img/rl/icon/12002001.webp",
+      "card": "asset/img/rl/card/12002001.webp",
+      "skills": [
+        {
+          "id": 120020010,
+          "name": "みずのあるくらし",
+          "detail": "「味方全体」を中回復するスキルカードを設置 + \n「味方全体」の物理攻撃が一定ターン小アップ",
+          "graphics": "Empty",
+          "effects": [
+            {
+              "m_SkillLvCoef": 0,
+              "m_Target": 4,
+              "m_Type": 21,
+              "m_Args": [
+                3,
+                10001
+              ]
+            },
+            {
+              "m_SkillLvCoef": 0,
+              "m_Target": 4,
+              "m_Type": 2,
+              "m_Args": [
+                1,
+                3,
+                15,
+                0,
+                0,
+                0,
+                0,
+                0
+              ]
+            }
+          ]
+        },
+        {
+          "id": 120020001,
+          "name": "わたしたちは元気です",
+          "detail": "「味方単体」を大回復",
+          "graphics": "Priest_cls3_grade0",
+          "effects": [
+            {
+              "m_SkillLvCoef": 0,
+              "m_Target": 3,
+              "m_Type": 1,
+              "m_Args": [
+                60
+              ]
+            }
+          ]
+        },
+        {
+          "id": 120020002,
+          "name": "みんなで体動かすと楽しくなるよ！",
+          "detail": "「味方単体」の物理防御と魔法防御が\n一定ターン大アップ",
+          "graphics": "Priest_cls3_grade0",
+          "effects": [
+            {
+              "m_SkillLvCoef": 0,
+              "m_Target": 3,
+              "m_Type": 2,
+              "m_Args": [
+                1,
+                3,
+                0,
+                0,
+                35,
+                35,
+                0,
+                0
+              ]
+            }
+          ]
+        }
+      ],
+      "voice": {
+        "sheet": "Voice_Gakkou_Yuki_Priest5_A",
+        "cues": {
+          "voice_kirarajump_000": "Voice_Gakkou_Yuki_Priest5_A/voice_kirarajump_000_0.mp3",
+          "voice_kirarajump_001": "Voice_Gakkou_Yuki_Priest5_A/voice_kirarajump_001_0.mp3",
+          "voice_kirarajump_002": "Voice_Gakkou_Yuki_Priest5_A/voice_kirarajump_002_0.mp3",
+          "voice_kirarajump_003": "Voice_Gakkou_Yuki_Priest5_A/voice_kirarajump_003_0.mp3"
+        }
+      },
+      "ultimateScene": {
+        "file": "asset/uniqueskill/scene/120004.glb.gz",
+        "compression": "gzip",
+        "bytes": 211627,
+        "exporterVersion": 4,
+        "nodes": 274,
+        "meshes": 217,
+        "materials": 23,
+        "textures": 22,
+        "emitters": 7,
+        "cardsWithheld": 7,
+        "layeredMaterials": 1
+      }
+    },
+    {
+      "id": "U17",
+      "cardId": 24002001,
+      "resourceId": 240004,
+      "name": "萌田薰子",
+      "shortName": "薰子",
+      "originalName": "萌田 薫子",
+      "work": "Comic Girls",
+      "classId": 2,
+      "className": "僧侣",
+      "elementId": 2,
+      "elementName": "土",
+      "headId": 3,
+      "displayScale": 0.95,
+      "role": "净化异常",
+      "plannedCost": 125,
+      "icon": "asset/img/rl/icon/24002001.webp",
+      "card": "asset/img/rl/card/24002001.webp",
+      "skills": [
+        {
+          "id": 240020010,
+          "name": "あの先生が大活躍！？",
+          "detail": "「味方全体」を中回復 + \n「味方全体」を中回復するスキルカードを設置",
+          "graphics": "Empty",
+          "effects": [
+            {
+              "m_SkillLvCoef": 0,
+              "m_Target": 4,
+              "m_Type": 1,
+              "m_Args": [
+                33
+              ]
+            },
+            {
+              "m_SkillLvCoef": 0,
+              "m_Target": 4,
+              "m_Type": 21,
+              "m_Args": [
+                3,
+                10005
+              ]
+            }
+          ]
+        },
+        {
+          "id": 240020001,
+          "name": "なんだか前向きになれました！",
+          "detail": "「味方単体」を大回復",
+          "graphics": "Priest_cls3_grade0",
+          "effects": [
+            {
+              "m_SkillLvCoef": 0,
+              "m_Target": 3,
+              "m_Type": 1,
+              "m_Args": [
+                60
+              ]
+            }
+          ]
+        },
+        {
+          "id": 240020002,
+          "name": "萌える体って大事なんです…",
+          "detail": "「味方単体」の状態異常を回復 + \n「味方単体」の状態異常を一定ターン無効化",
+          "graphics": "Priest_cls3_grade0",
+          "effects": [
+            {
+              "m_SkillLvCoef": 0,
+              "m_Target": 3,
+              "m_Type": 5,
+              "m_Args": [
+                1,
+                1,
+                1,
+                1,
+                1,
+                1,
+                1,
+                1
+              ]
+            },
+            {
+              "m_SkillLvCoef": 0,
+              "m_Target": 3,
+              "m_Type": 6,
+              "m_Args": [
+                1,
+                3
+              ]
+            }
+          ]
+        }
+      ],
+      "voice": {
+        "sheet": "Voice_Komiga_Kaoruko_Priest5_A",
+        "cues": {
+          "voice_kirarajump_000": "Voice_Komiga_Kaoruko_Priest5_A/voice_kirarajump_000_0.mp3",
+          "voice_kirarajump_001": "Voice_Komiga_Kaoruko_Priest5_A/voice_kirarajump_001_0.mp3",
+          "voice_kirarajump_002": "Voice_Komiga_Kaoruko_Priest5_A/voice_kirarajump_002_0.mp3",
+          "voice_kirarajump_003": "Voice_Komiga_Kaoruko_Priest5_A/voice_kirarajump_003_0.mp3"
+        }
+      },
+      "ultimateScene": {
+        "file": "asset/uniqueskill/scene/240004.glb.gz",
+        "compression": "gzip",
+        "bytes": 14926,
+        "exporterVersion": 4,
+        "nodes": 209,
+        "meshes": 121,
+        "materials": 47,
+        "textures": 43,
+        "emitters": 18,
+        "cardsWithheld": 18,
+        "layeredMaterials": 1
+      }
+    },
+    {
+      "id": "U18",
+      "cardId": 27002001,
+      "resourceId": 270004,
+      "name": "关谷鸣",
+      "shortName": "鸣",
+      "originalName": "関谷 なる",
+      "work": "花舞少女",
+      "classId": 2,
+      "className": "僧侣",
+      "elementId": 5,
+      "elementName": "阳",
+      "headId": 0,
+      "displayScale": 1,
+      "role": "节奏支援",
+      "plannedCost": 175,
+      "icon": "asset/img/rl/icon/27002001.webp",
+      "card": "asset/img/rl/card/27002001.webp",
+      "skills": [
+        {
+          "id": 270020010,
+          "name": "私のよさこい",
+          "detail": "「味方全体」を中回復 + \n「味方全体」の行動速度が一定ターン中アップ",
+          "graphics": "Empty",
+          "effects": [
+            {
+              "m_SkillLvCoef": 0,
+              "m_Target": 4,
+              "m_Type": 1,
+              "m_Args": [
+                33
+              ]
+            },
+            {
+              "m_SkillLvCoef": 0,
+              "m_Target": 4,
+              "m_Type": 2,
+              "m_Args": [
+                1,
+                3,
+                0,
+                0,
+                0,
+                0,
+                0.7,
+                0
+              ]
+            }
+          ]
+        },
+        {
+          "id": 270020001,
+          "name": "なんか優雅っ！",
+          "detail": "「味方単体」を中回復",
+          "graphics": "Priest_cls3_grade0",
+          "effects": [
+            {
+              "m_SkillLvCoef": 0,
+              "m_Target": 3,
+              "m_Type": 1,
+              "m_Args": [
+                44
+              ]
+            }
+          ]
+        },
+        {
+          "id": 270020002,
+          "name": "もしかしてちょっと元気ない？",
+          "detail": "「敵単体」に陽属性の大ダメージ + \n「敵単体」の行動速度を一定ターン小ダウン",
+          "graphics": "Priest_cls2_grade2",
+          "effects": [
+            {
+              "m_SkillLvCoef": 0,
+              "m_Target": 1,
+              "m_Type": 0,
+              "m_Args": [
+                1430,
+                1,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0
+              ]
+            },
+            {
+              "m_SkillLvCoef": 0,
+              "m_Target": 1,
+              "m_Type": 2,
+              "m_Args": [
+                1,
+                3,
+                0,
+                0,
+                0,
+                0,
+                1.18,
+                0
+              ]
+            }
+          ]
+        }
+      ],
+      "voice": {
+        "sheet": "Voice_Hanayamata_Naru_Priest5_A",
+        "cues": {
+          "voice_kirarajump_000": "Voice_Hanayamata_Naru_Priest5_A/voice_kirarajump_000_0.mp3",
+          "voice_kirarajump_001": "Voice_Hanayamata_Naru_Priest5_A/voice_kirarajump_001_0.mp3",
+          "voice_kirarajump_002": "Voice_Hanayamata_Naru_Priest5_A/voice_kirarajump_002_0.mp3",
+          "voice_kirarajump_003": "Voice_Hanayamata_Naru_Priest5_A/voice_kirarajump_003_0.mp3"
+        }
+      },
+      "ultimateScene": {
+        "file": "asset/uniqueskill/scene/270004.glb.gz",
+        "compression": "gzip",
+        "bytes": 18016,
+        "exporterVersion": 4,
+        "nodes": 233,
+        "meshes": 141,
+        "materials": 39,
+        "textures": 31,
+        "emitters": 33,
+        "cardsWithheld": 33,
+        "layeredMaterials": 0
+      }
+    },
+    {
+      "id": "U19",
+      "cardId": 43002001,
+      "resourceId": 430002,
+      "name": "小野坂小春",
+      "shortName": "小春",
+      "originalName": "小野坂 こはる",
+      "work": "こはる日和。",
+      "classId": 4,
+      "className": "炼金术士",
+      "elementId": 1,
+      "elementName": "水",
+      "headId": 0,
+      "displayScale": 0.95,
+      "role": "迟缓蓄力",
+      "plannedCost": 150,
+      "icon": "asset/img/rl/icon/43002001.webp",
+      "card": "asset/img/rl/card/43002001.webp",
+      "skills": [
+        {
+          "id": 430020010,
+          "name": "晴れのちフラグにより大雨",
+          "detail": "「敵全体」に水属性の特大ダメージ + \n「敵全体」の魔法防御を一定ターン中ダウン",
+          "graphics": "Empty",
+          "effects": [
+            {
+              "m_SkillLvCoef": 0,
+              "m_Target": 2,
+              "m_Type": 0,
+              "m_Args": [
+                2410,
+                1,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0
+              ]
+            },
+            {
+              "m_SkillLvCoef": 0,
+              "m_Target": 2,
+              "m_Type": 2,
+              "m_Args": [
+                1,
+                3,
+                0,
+                0,
+                0,
+                -17,
+                0,
+                0
+              ]
+            }
+          ]
+        },
+        {
+          "id": 430020001,
+          "name": "ちょっとだけ先回りしておかえりするねっ",
+          "detail": "「敵単体」に水属性の中ダメージ + \n「敵単体」の行動速度を一定ターン中ダウン + \n「敵単体」のチャージカウントを減らす",
+          "graphics": "Alchemist_cls1_grade1",
+          "effects": [
+            {
+              "m_SkillLvCoef": 0,
+              "m_Target": 1,
+              "m_Type": 0,
+              "m_Args": [
+                1150,
+                1,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0
+              ]
+            },
+            {
+              "m_SkillLvCoef": 0,
+              "m_Target": 1,
+              "m_Type": 2,
+              "m_Args": [
+                1,
+                3,
+                0,
+                0,
+                0,
+                0,
+                1.3,
+                0
+              ]
+            },
+            {
+              "m_SkillLvCoef": 0,
+              "m_Target": 1,
+              "m_Type": 19,
+              "m_Args": [
+                -1
+              ]
+            }
+          ]
+        },
+        {
+          "id": 430020002,
+          "name": "すぐに追い越すから！！",
+          "detail": "「敵単体」に水属性の中ダメージ + \n「敵単体」の物理攻撃と魔法攻撃を\n一定ターン中ダウン",
+          "graphics": "Alchemist_cls1_grade1",
+          "effects": [
+            {
+              "m_SkillLvCoef": 0,
+              "m_Target": 1,
+              "m_Type": 0,
+              "m_Args": [
+                1220,
+                1,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0
+              ]
+            },
+            {
+              "m_SkillLvCoef": 0,
+              "m_Target": 1,
+              "m_Type": 2,
+              "m_Args": [
+                1,
+                3,
+                -15,
+                -15,
+                0,
+                0,
+                0,
+                0
+              ]
+            }
+          ]
+        }
+      ],
+      "voice": {
+        "sheet": "Voice_Koharu_Koharu_Alchemist5_A",
+        "cues": {
+          "voice_kirarajump_000": "Voice_Koharu_Koharu_Alchemist5_A/voice_kirarajump_000_0.mp3",
+          "voice_kirarajump_001": "Voice_Koharu_Koharu_Alchemist5_A/voice_kirarajump_001_0.mp3",
+          "voice_kirarajump_002": "Voice_Koharu_Koharu_Alchemist5_A/voice_kirarajump_002_0.mp3",
+          "voice_kirarajump_003": "Voice_Koharu_Koharu_Alchemist5_A/voice_kirarajump_003_0.mp3",
+          "voice_kirarajump_004": "Voice_Koharu_Koharu_Alchemist5_A/voice_kirarajump_004_0.mp3",
+          "voice_kirarajump_005": "Voice_Koharu_Koharu_Alchemist5_A/voice_kirarajump_005_0.mp3",
+          "voice_kirarajump_006": "Voice_Koharu_Koharu_Alchemist5_A/voice_kirarajump_006_0.mp3",
+          "voice_kirarajump_007": "Voice_Koharu_Koharu_Alchemist5_A/voice_kirarajump_007_0.mp3",
+          "voice_kirarajump_008": "Voice_Koharu_Koharu_Alchemist5_A/voice_kirarajump_008_0.mp3",
+          "voice_kirarajump_009": "Voice_Koharu_Koharu_Alchemist5_A/voice_kirarajump_009_0.mp3",
+          "voice_kirarajump_010": "Voice_Koharu_Koharu_Alchemist5_A/voice_kirarajump_010_0.mp3"
+        }
+      },
+      "ultimateScene": {
+        "file": "asset/uniqueskill/scene/430002.glb.gz",
+        "compression": "gzip",
+        "bytes": 74086,
+        "exporterVersion": 4,
+        "nodes": 224,
+        "meshes": 135,
+        "materials": 30,
+        "textures": 26,
+        "emitters": 25,
+        "cardsWithheld": 25,
+        "layeredMaterials": 0
+      }
+    },
+    {
+      "id": "U20",
+      "cardId": 30042001,
+      "resourceId": 300404,
+      "name": "桐间纱路",
+      "shortName": "纱路",
+      "originalName": "シャロ",
+      "work": "请问您今天要来点兔子吗？",
+      "classId": 4,
+      "className": "炼金术士",
+      "elementId": 0,
+      "elementName": "炎",
+      "headId": 0,
+      "displayScale": 1,
+      "role": "削弱魔防",
+      "plannedCost": 175,
+      "icon": "asset/img/rl/icon/30042001.webp",
+      "card": null,
+      "skills": [
+        {
+          "id": 300420010,
+          "name": "カフェイン・テンションハイ",
+          "detail": "「敵全体」に炎属性の特大ダメージ + 「敵全体」の\n魔法防御を一定ターン小ダウン + 「敵全体」に\n炎属性の小ダメージを与えるスキルカードを設置",
+          "graphics": "Empty",
+          "effects": [
+            {
+              "m_SkillLvCoef": 0,
+              "m_Target": 2,
+              "m_Type": 0,
+              "m_Args": [
+                2410,
+                1,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0
+              ]
+            },
+            {
+              "m_SkillLvCoef": 0,
+              "m_Target": 2,
+              "m_Type": 2,
+              "m_Args": [
+                1,
+                3,
+                0,
+                0,
+                0,
+                -10,
+                0,
+                0
+              ]
+            },
+            {
+              "m_SkillLvCoef": 0,
+              "m_Target": 2,
+              "m_Type": 21,
+              "m_Args": [
+                3,
+                10010
+              ]
+            }
+          ]
+        },
+        {
+          "id": 300420001,
+          "name": "お腹いっぱいメロンパン！",
+          "detail": "「敵単体」に炎属性の中ダメージ + \n「敵単体」の魔法防御を一定ターン中ダウン",
+          "graphics": "Alchemist_cls1_grade1",
+          "effects": [
+            {
+              "m_SkillLvCoef": 0,
+              "m_Target": 1,
+              "m_Type": 0,
+              "m_Args": [
+                1220,
+                1,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0
+              ]
+            },
+            {
+              "m_SkillLvCoef": 0,
+              "m_Target": 1,
+              "m_Type": 2,
+              "m_Args": [
+                1,
+                3,
+                0,
+                0,
+                0,
+                -17,
+                0,
+                0
+              ]
+            }
+          ]
+        },
+        {
+          "id": 300420002,
+          "name": "こいつ等に誰が食物連鎖の頂点か教えてやるのぉ！",
+          "detail": "「敵単体」の物理攻撃を一定ターン大ダウン + \n「敵単体」のチャージカウントを減らす",
+          "graphics": "Alchemist_cls3_grade0",
+          "effects": [
+            {
+              "m_SkillLvCoef": 0,
+              "m_Target": 1,
+              "m_Type": 2,
+              "m_Args": [
+                1,
+                3,
+                -20,
+                0,
+                0,
+                0,
+                0,
+                0
+              ]
+            },
+            {
+              "m_SkillLvCoef": 0,
+              "m_Target": 1,
+              "m_Type": 19,
+              "m_Args": [
+                -1
+              ]
+            }
+          ]
+        }
+      ],
+      "voice": null,
+      "ultimateScene": {
+        "file": "asset/uniqueskill/scene/300404.glb.gz",
+        "compression": "gzip",
+        "bytes": 92712,
+        "exporterVersion": 4,
+        "nodes": 236,
+        "meshes": 111,
+        "materials": 44,
+        "textures": 31,
+        "emitters": 34,
+        "cardsWithheld": 34,
+        "layeredMaterials": 0
+      }
+    },
+    {
+      "id": "U21",
+      "cardId": 13032001,
+      "resourceId": 130304,
+      "name": "天王寺渚",
+      "shortName": "渚",
+      "originalName": "ナギ",
+      "work": "A Channel",
+      "classId": 4,
+      "className": "炼金术士",
+      "elementId": 2,
+      "elementName": "土",
+      "headId": 3,
+      "displayScale": 1,
+      "role": "破防与睡眠",
+      "plannedCost": 150,
+      "icon": "asset/img/rl/icon/13032001.webp",
+      "card": null,
+      "skills": [
+        {
+          "id": 130320010,
+          "name": "楽するスキル",
+          "detail": "「敵全体」に土属性の特大ダメージ + \n「敵全体」に中確率でねむりを付与",
+          "graphics": "Empty",
+          "effects": [
+            {
+              "m_SkillLvCoef": 0,
+              "m_Target": 2,
+              "m_Type": 0,
+              "m_Args": [
+                2410,
+                1,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0
+              ]
+            },
+            {
+              "m_SkillLvCoef": 0,
+              "m_Target": 2,
+              "m_Type": 4,
+              "m_Args": [
+                0,
+                0,
+                0,
+                0,
+                50,
+                0,
+                0,
+                0
+              ]
+            }
+          ]
+        },
+        {
+          "id": 130320001,
+          "name": "そーかよっじゃあ遠慮なく！！",
+          "detail": "「敵単体」に土属性の小ダメージ + \n「敵単体」の物理防御を一定ターン大ダウン",
+          "graphics": "Alchemist_cls1_grade0",
+          "effects": [
+            {
+              "m_SkillLvCoef": 0,
+              "m_Target": 1,
+              "m_Type": 0,
+              "m_Args": [
+                900,
+                1,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0
+              ]
+            },
+            {
+              "m_SkillLvCoef": 0,
+              "m_Target": 1,
+              "m_Type": 2,
+              "m_Args": [
+                1,
+                3,
+                0,
+                0,
+                -20,
+                0,
+                0,
+                0
+              ]
+            }
+          ]
+        },
+        {
+          "id": 130320002,
+          "name": "こんなにつっこむのは初めてだ…",
+          "detail": "「敵単体」に土属性の小ダメージ + \n「敵単体」の魔法防御を一定ターン大ダウン",
+          "graphics": "Alchemist_cls1_grade0",
+          "effects": [
+            {
+              "m_SkillLvCoef": 0,
+              "m_Target": 1,
+              "m_Type": 0,
+              "m_Args": [
+                900,
+                1,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0
+              ]
+            },
+            {
+              "m_SkillLvCoef": 0,
+              "m_Target": 1,
+              "m_Type": 2,
+              "m_Args": [
+                1,
+                3,
+                0,
+                0,
+                0,
+                -20,
+                0,
+                0
+              ]
+            }
+          ]
+        }
+      ],
+      "voice": null,
+      "ultimateScene": {
+        "file": "asset/uniqueskill/scene/130304.glb.gz",
+        "compression": "gzip",
+        "bytes": 43290,
+        "exporterVersion": 4,
+        "nodes": 334,
+        "meshes": 199,
+        "materials": 40,
+        "textures": 41,
+        "emitters": 35,
+        "cardsWithheld": 35,
+        "layeredMaterials": 1
+      }
+    },
+    {
+      "id": "U22",
+      "cardId": 38002001,
+      "resourceId": 380004,
+      "name": "木之幡米拉",
+      "shortName": "米拉",
+      "originalName": "木ノ幡 みら",
+      "work": "恋爱小行星",
+      "classId": 4,
+      "className": "炼金术士",
+      "elementId": 4,
+      "elementName": "月",
+      "headId": 0,
+      "displayScale": 1,
+      "role": "干扰蓄力",
+      "plannedCost": 175,
+      "icon": "asset/img/rl/icon/38002001.webp",
+      "card": "asset/img/rl/card/38002001.webp",
+      "skills": [
+        {
+          "id": 380020010,
+          "name": "月の観察と流星群",
+          "detail": "「敵全体」に月属性の大ダメージ + \n「敵全体」の魔法防御を一定ターン大ダウン",
+          "graphics": "Empty",
+          "effects": [
+            {
+              "m_SkillLvCoef": 0,
+              "m_Target": 2,
+              "m_Type": 0,
+              "m_Args": [
+                2090,
+                1,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0
+              ]
+            },
+            {
+              "m_SkillLvCoef": 0,
+              "m_Target": 2,
+              "m_Type": 2,
+              "m_Args": [
+                1,
+                3,
+                0,
+                0,
+                0,
+                -20,
+                0,
+                0
+              ]
+            }
+          ]
+        },
+        {
+          "id": 380020001,
+          "name": "視点が！ギャラクティック！",
+          "detail": "「敵単体」に月属性の中ダメージ + \n「敵単体」のチャージカウントを減らす",
+          "graphics": "Alchemist_cls1_grade1",
+          "effects": [
+            {
+              "m_SkillLvCoef": 0,
+              "m_Target": 1,
+              "m_Type": 0,
+              "m_Args": [
+                1150,
+                1,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0
+              ]
+            },
+            {
+              "m_SkillLvCoef": 0,
+              "m_Target": 1,
+              "m_Type": 19,
+              "m_Args": [
+                -1
+              ]
+            }
+          ]
+        },
+        {
+          "id": 380020002,
+          "name": "小さい星でも見つけられるように視力鍛えるっ！",
+          "detail": "「敵単体」に月属性の中ダメージ + \n「敵単体」の魔法防御を一定ターン中ダウン",
+          "graphics": "Alchemist_cls1_grade1",
+          "effects": [
+            {
+              "m_SkillLvCoef": 0,
+              "m_Target": 1,
+              "m_Type": 0,
+              "m_Args": [
+                1220,
+                1,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0
+              ]
+            },
+            {
+              "m_SkillLvCoef": 0,
+              "m_Target": 1,
+              "m_Type": 2,
+              "m_Args": [
+                1,
+                3,
+                0,
+                0,
+                0,
+                -17,
+                0,
+                0
+              ]
+            }
+          ]
+        }
+      ],
+      "voice": {
+        "sheet": "Voice_Koiasu_Mira_Alchemist5_A",
+        "cues": {
+          "voice_kirarajump_000": "Voice_Koiasu_Mira_Alchemist5_A/voice_kirarajump_000_0.mp3",
+          "voice_kirarajump_001": "Voice_Koiasu_Mira_Alchemist5_A/voice_kirarajump_001_0.mp3",
+          "voice_kirarajump_002": "Voice_Koiasu_Mira_Alchemist5_A/voice_kirarajump_002_0.mp3",
+          "voice_kirarajump_003": "Voice_Koiasu_Mira_Alchemist5_A/voice_kirarajump_003_0.mp3",
+          "voice_kirarajump_004": "Voice_Koiasu_Mira_Alchemist5_A/voice_kirarajump_004_0.mp3",
+          "voice_kirarajump_005": "Voice_Koiasu_Mira_Alchemist5_A/voice_kirarajump_005_0.mp3",
+          "voice_kirarajump_006": "Voice_Koiasu_Mira_Alchemist5_A/voice_kirarajump_006_0.mp3"
+        }
+      },
+      "ultimateScene": {
+        "file": "asset/uniqueskill/scene/380004.glb.gz",
+        "compression": "gzip",
+        "bytes": 35749,
+        "exporterVersion": 4,
+        "nodes": 406,
+        "meshes": 196,
+        "materials": 42,
+        "textures": 35,
+        "emitters": 67,
+        "cardsWithheld": 67,
+        "layeredMaterials": 0
+      }
+    },
+    {
+      "id": "U23",
+      "cardId": 37002001,
+      "resourceId": 370002,
+      "name": "町子凉",
+      "shortName": "町子凉",
+      "originalName": "町子 リョウ",
+      "work": "幸腹涂鸦",
+      "classId": 4,
+      "className": "炼金术士",
+      "elementId": 0,
+      "elementName": "炎",
+      "headId": 1,
+      "displayScale": 1,
+      "role": "饥饿与收割",
+      "plannedCost": 175,
+      "icon": "asset/img/rl/icon/37002001.webp",
+      "card": "asset/img/rl/card/37002001.webp",
+      "skills": [
+        {
+          "id": 370020010,
+          "name": "ふんわりジューシー炭火焼き",
+          "detail": "「敵全体」にはらぺこ状態に特効を持つ\n炎属性の特大ダメージ + \n「敵全体」のはらぺこを解除",
+          "graphics": "Empty",
+          "effects": [
+            {
+              "m_SkillLvCoef": 0,
+              "m_Target": 2,
+              "m_Type": 0,
+              "m_Args": [
+                2830,
+                1,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                102,
+                3400
+              ]
+            },
+            {
+              "m_SkillLvCoef": 0,
+              "m_Target": 2,
+              "m_Type": 5,
+              "m_Args": [
+                0,
+                0,
+                1,
+                0,
+                0,
+                0,
+                0,
+                0
+              ]
+            }
+          ]
+        },
+        {
+          "id": 370020001,
+          "name": "つやつやの鮭おにぎりですっ…！！",
+          "detail": "「味方単体」のはらぺこを解除 + \n「味方単体」の物理攻撃が一定ターン大アップ",
+          "graphics": "Alchemist_cls3_grade0",
+          "effects": [
+            {
+              "m_SkillLvCoef": 0,
+              "m_Target": 3,
+              "m_Type": 5,
+              "m_Args": [
+                0,
+                0,
+                1,
+                0,
+                0,
+                0,
+                0,
+                0
+              ]
+            },
+            {
+              "m_SkillLvCoef": 0,
+              "m_Target": 3,
+              "m_Type": 2,
+              "m_Args": [
+                1,
+                3,
+                30,
+                0,
+                0,
+                0,
+                0,
+                0
+              ]
+            }
+          ]
+        },
+        {
+          "id": 370020002,
+          "name": "お腹！！すいてませんか！！",
+          "detail": "「敵全体」の行動速度を一定ターン中アップ + \n「敵全体」の物理攻撃と魔法攻撃を\n一定ターン中ダウン + 「敵全体」にはらぺこを付与",
+          "graphics": "Alchemist_cls3_grade0",
+          "effects": [
+            {
+              "m_SkillLvCoef": -1,
+              "m_Target": 2,
+              "m_Type": 2,
+              "m_Args": [
+                1,
+                3,
+                0,
+                0,
+                0,
+                0,
+                0.7,
+                0
+              ]
+            },
+            {
+              "m_SkillLvCoef": 0,
+              "m_Target": 2,
+              "m_Type": 2,
+              "m_Args": [
+                1,
+                3,
+                -15,
+                -15,
+                0,
+                0,
+                0,
+                0
+              ]
+            },
+            {
+              "m_SkillLvCoef": 0,
+              "m_Target": 2,
+              "m_Type": 4,
+              "m_Args": [
+                0,
+                0,
+                100,
+                0,
+                0,
+                0,
+                0,
+                0
+              ]
+            }
+          ]
+        }
+      ],
+      "voice": {
+        "sheet": "Voice_Koufuku_Ryo_Alchemist5_A",
+        "cues": {
+          "voice_kirarajump_000": "Voice_Koufuku_Ryo_Alchemist5_A/voice_kirarajump_000_0.mp3",
+          "voice_kirarajump_001": "Voice_Koufuku_Ryo_Alchemist5_A/voice_kirarajump_001_0.mp3",
+          "voice_kirarajump_002": "Voice_Koufuku_Ryo_Alchemist5_A/voice_kirarajump_002_0.mp3",
+          "voice_kirarajump_003": "Voice_Koufuku_Ryo_Alchemist5_A/voice_kirarajump_003_0.mp3",
+          "voice_kirarajump_004": "Voice_Koufuku_Ryo_Alchemist5_A/voice_kirarajump_004_0.mp3",
+          "voice_kirarajump_005": "Voice_Koufuku_Ryo_Alchemist5_A/voice_kirarajump_005_0.mp3",
+          "voice_kirarajump_006": "Voice_Koufuku_Ryo_Alchemist5_A/voice_kirarajump_006_0.mp3"
+        }
+      },
+      "ultimateScene": {
+        "file": "asset/uniqueskill/scene/370002.glb.gz",
+        "compression": "gzip",
+        "bytes": 48001,
+        "exporterVersion": 4,
+        "nodes": 657,
+        "meshes": 84,
+        "materials": 41,
+        "textures": 35,
+        "emitters": 40,
+        "cardsWithheld": 40,
+        "layeredMaterials": 3
+      }
+    },
+    {
+      "id": "U24",
+      "cardId": 32012001,
+      "resourceId": 320102,
+      "name": "兰普",
+      "shortName": "兰普",
+      "originalName": "ランプ",
+      "work": "Kirara Fantasia",
+      "classId": 4,
+      "className": "炼金术士",
+      "elementId": 5,
+      "elementName": "阳",
+      "headId": 3,
+      "displayScale": 0.95,
+      "role": "关键目标束缚",
+      "plannedCost": 175,
+      "icon": "asset/img/rl/icon/32012001.webp",
+      "card": null,
+      "skills": [
+        {
+          "id": 320120010,
+          "name": "シャイニング・ダイアリー",
+          "detail": "「敵全体」に陽属性の特大ダメージ + \n「味方全体」の月属性耐性が一定ターン大アップ",
+          "graphics": "Empty",
+          "effects": [
+            {
+              "m_SkillLvCoef": 0,
+              "m_Target": 2,
+              "m_Type": 0,
+              "m_Args": [
+                2410,
+                1,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0
+              ]
+            },
+            {
+              "m_SkillLvCoef": 0,
+              "m_Target": 4,
+              "m_Type": 8,
+              "m_Args": [
+                1,
+                3,
+                0,
+                0,
+                0,
+                0,
+                30,
+                0
+              ]
+            }
+          ]
+        },
+        {
+          "id": 320120001,
+          "name": "シェルブレイク・ライト",
+          "detail": "「敵単体」に陽属性の中ダメージ + \n「敵単体」の物理防御を一定ターン中ダウン + \n「敵単体」の陽属性耐性を一定ターン中ダウン",
+          "graphics": "Alchemist_cls1_grade1",
+          "effects": [
+            {
+              "m_SkillLvCoef": 0,
+              "m_Target": 1,
+              "m_Type": 0,
+              "m_Args": [
+                1220,
+                1,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0
+              ]
+            },
+            {
+              "m_SkillLvCoef": 0,
+              "m_Target": 1,
+              "m_Type": 2,
+              "m_Args": [
+                1,
+                3,
+                0,
+                0,
+                -17,
+                0,
+                0,
+                0
+              ]
+            },
+            {
+              "m_SkillLvCoef": 0,
+              "m_Target": 1,
+              "m_Type": 8,
+              "m_Args": [
+                1,
+                3,
+                0,
+                0,
+                0,
+                0,
+                0,
+                -20
+              ]
+            }
+          ]
+        },
+        {
+          "id": 320120002,
+          "name": "パラライズ",
+          "detail": "「敵単体」に陽属性の小ダメージ + \n「敵単体」に中確率でかなしばりを付与",
+          "graphics": "Alchemist_cls1_grade0",
+          "effects": [
+            {
+              "m_SkillLvCoef": 0,
+              "m_Target": 1,
+              "m_Type": 0,
+              "m_Args": [
+                900,
+                1,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0
+              ]
+            },
+            {
+              "m_SkillLvCoef": 0,
+              "m_Target": 1,
+              "m_Type": 4,
+              "m_Args": [
+                0,
+                70,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0
+              ]
+            }
+          ]
+        }
+      ],
+      "voice": null,
+      "ultimateScene": {
+        "file": "asset/uniqueskill/scene/320102.glb.gz",
+        "compression": "gzip",
+        "bytes": 59551,
+        "exporterVersion": 4,
+        "nodes": 403,
+        "meshes": 234,
+        "materials": 39,
+        "textures": 36,
+        "emitters": 44,
+        "cardsWithheld": 44,
+        "layeredMaterials": 0
+      }
+    }
+  ]
+}

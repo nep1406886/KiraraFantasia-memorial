@@ -1,0 +1,659 @@
+{
+  "version": 2,
+  "models": {
+    "model/enemy/model_en_10000.muast": {
+      "file": "asset/models/model_en_10000/model.glb.gz?v=1788327305",
+      "label": "完整单骨架 · 6 个游戏动作",
+      "animations": true,
+      "expressions": false,
+      "depthWrite": true,
+      "compression": "gzip"
+    },
+    "model/enemy/model_en_10100.muast": {
+      "file": "asset/models/model_en_10100/model.glb.gz?v=1788327305",
+      "label": "完整单骨架 · 6 个游戏动作",
+      "animations": true,
+      "expressions": false,
+      "depthWrite": true,
+      "compression": "gzip"
+    },
+    "model/enemy/model_en_10200.muast": {
+      "file": "asset/models/model_en_10200/model.glb.gz?v=1788327306",
+      "label": "完整单骨架 · 6 个游戏动作",
+      "animations": true,
+      "expressions": false,
+      "depthWrite": true,
+      "compression": "gzip"
+    },
+    "model/player/model_pl_100004.muast": {
+      "facial": "asset/models/facial/hidamari_yuno.json?v=1787922670",
+      "file": "asset/models/model_pl_100004/model.glb.gz?v=1788326855",
+      "label": "完整蒙皮 · 5 个游戏动作 · 表情随动作并可细调",
+      "animations": true,
+      "expressions": true,
+      "depthWrite": true,
+      "compression": "gzip"
+    },
+    "model/player/model_pl_120004.muast": {
+      "facial": "asset/models/facial/gakkou_yuki.json?v=1787922670",
+      "file": "asset/models/model_pl_120004/model.glb.gz?v=1788326885",
+      "label": "完整蒙皮 · 5 个游戏动作 · 表情随动作并可细调",
+      "animations": true,
+      "expressions": true,
+      "depthWrite": true,
+      "compression": "gzip"
+    },
+    "model/player/model_pl_130004.muast": {
+      "facial": "asset/models/facial/achannel_toru.json?v=1787922670",
+      "file": "asset/models/model_pl_130004/model.glb.gz?v=1788326904",
+      "label": "完整蒙皮 · 5 个游戏动作 · 表情随动作并可细调",
+      "animations": true,
+      "expressions": true,
+      "depthWrite": true,
+      "compression": "gzip"
+    },
+    "model/player/model_pl_130304.muast": {
+      "facial": "asset/models/facial/achannel_nagi.json?v=1787922670",
+      "file": "asset/models/model_pl_130304/model.glb.gz?v=1788326916",
+      "label": "完整蒙皮 · 5 个游戏动作 · 表情随动作并可细调",
+      "animations": true,
+      "expressions": true,
+      "depthWrite": true,
+      "compression": "gzip"
+    },
+    "model/player/model_pl_140004.muast": {
+      "facial": "asset/models/facial/kinmosa_karen.json?v=1787922670",
+      "file": "asset/models/model_pl_140004/model.glb.gz?v=1788326920",
+      "label": "完整蒙皮 · 5 个游戏动作 · 表情随动作并可细调",
+      "animations": true,
+      "expressions": true,
+      "depthWrite": true,
+      "compression": "gzip"
+    },
+    "model/player/model_pl_160004.muast": {
+      "facial": "asset/models/facial/stella_tamaki.json?v=1787922670",
+      "file": "asset/models/model_pl_160004/model.glb.gz?v=1788326970",
+      "label": "完整蒙皮 · 5 个游戏动作 · 表情随动作并可细调",
+      "animations": true,
+      "expressions": true,
+      "depthWrite": true,
+      "compression": "gzip"
+    },
+    "model/player/model_pl_170004.muast": {
+      "facial": "asset/models/facial/urara_chiya.json?v=1787922670",
+      "file": "asset/models/model_pl_170004/model.glb.gz?v=1788326989",
+      "label": "完整蒙皮 · 5 个游戏动作 · 表情随动作并可细调",
+      "animations": true,
+      "expressions": true,
+      "depthWrite": true,
+      "compression": "gzip"
+    },
+    "model/player/model_pl_180004.muast": {
+      "facial": "asset/models/facial/killme_yasuna.json?v=1787922670",
+      "file": "asset/models/model_pl_180004/model.glb.gz?v=1788327010",
+      "label": "完整蒙皮 · 5 个游戏动作 · 表情随动作并可细调",
+      "animations": true,
+      "expressions": true,
+      "depthWrite": true,
+      "compression": "gzip"
+    },
+    "model/player/model_pl_200004.muast": {
+      "facial": "asset/models/facial/blends_maika.json?v=1787922670",
+      "file": "asset/models/model_pl_200004/model.glb.gz?v=1788327035",
+      "label": "完整蒙皮 · 5 个游戏动作 · 表情随动作并可细调",
+      "animations": true,
+      "expressions": true,
+      "depthWrite": true,
+      "compression": "gzip"
+    },
+    "model/player/model_pl_230004.muast": {
+      "facial": "asset/models/facial/yurukyan_rin.json?v=1787922670",
+      "file": "asset/models/model_pl_230004/model.glb.gz?v=1788327080",
+      "label": "完整蒙皮 · 5 个游戏动作 · 表情随动作并可细调",
+      "animations": true,
+      "expressions": true,
+      "depthWrite": true,
+      "compression": "gzip"
+    },
+    "model/player/model_pl_240004.muast": {
+      "facial": "asset/models/facial/komiga_kaoruko.json?v=1787922670",
+      "file": "asset/models/model_pl_240004/model.glb.gz?v=1788327094",
+      "label": "完整蒙皮 · 5 个游戏动作 · 表情随动作并可细调",
+      "animations": true,
+      "expressions": true,
+      "depthWrite": true,
+      "compression": "gzip"
+    },
+    "model/player/model_pl_260004.muast": {
+      "facial": "asset/models/facial/yumekui_merry.json?v=1787922670",
+      "file": "asset/models/model_pl_260004/model.glb.gz?v=1788327114",
+      "label": "完整蒙皮 · 5 个游戏动作 · 表情随动作并可细调",
+      "animations": true,
+      "expressions": true,
+      "depthWrite": true,
+      "compression": "gzip"
+    },
+    "model/player/model_pl_270004.muast": {
+      "facial": "asset/models/facial/hanayamata_naru.json?v=1787922670",
+      "file": "asset/models/model_pl_270004/model.glb.gz?v=1788327126",
+      "label": "完整蒙皮 · 5 个游戏动作 · 表情随动作并可细调",
+      "animations": true,
+      "expressions": true,
+      "depthWrite": true,
+      "compression": "gzip"
+    },
+    "model/player/model_pl_280004.muast": {
+      "facial": "asset/models/facial/anhapi_hanako.json?v=1787922670",
+      "file": "asset/models/model_pl_280004/model.glb.gz?v=1788327130",
+      "label": "完整蒙皮 · 5 个游戏动作 · 表情随动作并可细调",
+      "animations": true,
+      "expressions": true,
+      "depthWrite": true,
+      "compression": "gzip"
+    },
+    "model/player/model_pl_290004.muast": {
+      "facial": "asset/models/facial/harukana_haruka.json?v=1787922670",
+      "file": "asset/models/model_pl_290004/model.glb.gz?v=1788327142",
+      "label": "完整蒙皮 · 5 个游戏动作 · 表情随动作并可细调",
+      "animations": true,
+      "expressions": true,
+      "depthWrite": true,
+      "compression": "gzip"
+    },
+    "model/player/model_pl_300004.muast": {
+      "facial": "asset/models/facial/gochiusa_cocoa.json?v=1787922670",
+      "file": "asset/models/model_pl_300004/model.glb.gz?v=1788327152",
+      "label": "完整蒙皮 · 5 个游戏动作 · 表情随动作并可细调",
+      "animations": true,
+      "expressions": true,
+      "depthWrite": true,
+      "compression": "gzip"
+    },
+    "model/player/model_pl_300104.muast": {
+      "facial": "asset/models/facial/gochiusa_chino.json?v=1787922670",
+      "file": "asset/models/model_pl_300104/model.glb.gz?v=1788327157",
+      "label": "完整蒙皮 · 5 个游戏动作 · 表情随动作并可细调",
+      "animations": true,
+      "expressions": true,
+      "depthWrite": true,
+      "compression": "gzip"
+    },
+    "model/player/model_pl_300404.muast": {
+      "facial": "asset/models/facial/gochiusa_syaro.json?v=1787922670",
+      "file": "asset/models/model_pl_300404/model.glb.gz?v=1788327165",
+      "label": "完整蒙皮 · 5 个游戏动作 · 表情随动作并可细调",
+      "animations": true,
+      "expressions": true,
+      "depthWrite": true,
+      "compression": "gzip"
+    },
+    "model/player/model_pl_320102.muast": {
+      "facial": "asset/models/facial/kirara_lump.json?v=1787922670",
+      "file": "asset/models/model_pl_320102/model.glb.gz?v=1788327185",
+      "label": "完整蒙皮 · 5 个游戏动作 · 表情随动作并可细调",
+      "animations": true,
+      "expressions": true,
+      "depthWrite": true,
+      "compression": "gzip"
+    },
+    "model/player/model_pl_370002.muast": {
+      "facial": "asset/models/facial/koufuku_ryo.json?v=1787922670",
+      "file": "asset/models/model_pl_370002/model.glb.gz?v=1788327243",
+      "label": "完整蒙皮 · 5 个游戏动作 · 表情随动作并可细调",
+      "animations": true,
+      "expressions": true,
+      "depthWrite": true,
+      "compression": "gzip"
+    },
+    "model/player/model_pl_380004.muast": {
+      "facial": "asset/models/facial/koiasu_mira.json?v=1787922670",
+      "file": "asset/models/model_pl_380004/model.glb.gz?v=1788327250",
+      "label": "完整蒙皮 · 5 个游戏动作 · 表情随动作并可细调",
+      "animations": true,
+      "expressions": true,
+      "depthWrite": true,
+      "compression": "gzip"
+    },
+    "model/player/model_pl_390004.muast": {
+      "facial": "asset/models/facial/tamayomi_yomi.json?v=1787922670",
+      "file": "asset/models/model_pl_390004/model.glb.gz?v=1788327259",
+      "label": "完整蒙皮 · 5 个游戏动作 · 表情随动作并可细调",
+      "animations": true,
+      "expressions": true,
+      "depthWrite": true,
+      "compression": "gzip"
+    },
+    "model/player/model_pl_430002.muast": {
+      "facial": "asset/models/facial/koharu_koharu.json?v=1787922670",
+      "file": "asset/models/model_pl_430002/model.glb.gz?v=1788327275",
+      "label": "完整蒙皮 · 5 个游戏动作 · 表情随动作并可细调",
+      "animations": true,
+      "expressions": true,
+      "depthWrite": true,
+      "compression": "gzip"
+    },
+    "model/player/model_pl_450002.muast": {
+      "facial": "asset/models/facial/rpg_kotone.json?v=1787922670",
+      "file": "asset/models/model_pl_450002/model.glb.gz?v=1788327285",
+      "label": "完整蒙皮 · 5 个游戏动作 · 表情随动作并可细调",
+      "animations": true,
+      "expressions": true,
+      "depthWrite": true,
+      "compression": "gzip"
+    },
+    "model/weapon/wpn_1000.muast": {
+      "file": "asset/models/wpn_1000/model.glb.gz?v=1788327353",
+      "label": "完整静态网格",
+      "animations": false,
+      "expressions": false,
+      "depthWrite": true,
+      "compression": "gzip"
+    },
+    "model/weapon/wpn_1100.muast": {
+      "file": "asset/models/wpn_1100/model.glb.gz?v=1788327360",
+      "label": "完整静态网格",
+      "animations": false,
+      "expressions": false,
+      "depthWrite": true,
+      "compression": "gzip"
+    },
+    "model/weapon/wpn_1200.muast": {
+      "file": "asset/models/wpn_1200/model.glb.gz?v=1788327368",
+      "label": "完整静态网格",
+      "animations": false,
+      "expressions": false,
+      "depthWrite": true,
+      "compression": "gzip"
+    },
+    "model/weapon/wpn_1300.muast": {
+      "file": "asset/models/wpn_1300/model.glb.gz?v=1788327379",
+      "label": "完整静态网格",
+      "animations": false,
+      "expressions": false,
+      "depthWrite": true,
+      "compression": "gzip"
+    },
+    "model/weapon/wpn_1400.muast": {
+      "file": "asset/models/wpn_1400/model.glb.gz?v=1788327390",
+      "label": "完整静态网格",
+      "animations": false,
+      "expressions": false,
+      "depthWrite": true,
+      "compression": "gzip"
+    }
+  },
+  "classActions": {
+    "0:0": {
+      "file": "asset/models/class-actions/class-0/head-0.glb.gz?v=1787070361",
+      "compression": "gzip",
+      "meshopt": true,
+      "animations": [
+        "idle",
+        "attack",
+        "class_skill_1",
+        "class_skill_2",
+        "class_skill_3"
+      ]
+    },
+    "0:1": {
+      "file": "asset/models/class-actions/class-0/head-1.glb.gz?v=1787070363",
+      "compression": "gzip",
+      "meshopt": true,
+      "animations": [
+        "idle",
+        "attack",
+        "class_skill_1",
+        "class_skill_2",
+        "class_skill_3"
+      ]
+    },
+    "0:2": {
+      "file": "asset/models/class-actions/class-0/head-2.glb.gz?v=1787070507",
+      "compression": "gzip",
+      "meshopt": true,
+      "animations": [
+        "idle",
+        "attack",
+        "class_skill_1",
+        "class_skill_2",
+        "class_skill_3"
+      ]
+    },
+    "1:0": {
+      "file": "asset/models/class-actions/class-1/head-0.glb.gz?v=1787070515",
+      "compression": "gzip",
+      "meshopt": true,
+      "animations": [
+        "idle",
+        "attack",
+        "class_skill_1",
+        "class_skill_2",
+        "class_skill_3"
+      ]
+    },
+    "1:1": {
+      "file": "asset/models/class-actions/class-1/head-1.glb.gz?v=1787070519",
+      "compression": "gzip",
+      "meshopt": true,
+      "animations": [
+        "idle",
+        "attack",
+        "class_skill_1",
+        "class_skill_2",
+        "class_skill_3"
+      ]
+    },
+    "1:3": {
+      "file": "asset/models/class-actions/class-1/head-3.glb.gz?v=1787070524",
+      "compression": "gzip",
+      "meshopt": true,
+      "animations": [
+        "idle",
+        "attack",
+        "class_skill_1",
+        "class_skill_2",
+        "class_skill_3"
+      ]
+    },
+    "2:0": {
+      "file": "asset/models/class-actions/class-2/head-0.glb.gz?v=1787070528",
+      "compression": "gzip",
+      "meshopt": true,
+      "animations": [
+        "idle",
+        "attack",
+        "class_skill_1",
+        "class_skill_2",
+        "class_skill_3"
+      ]
+    },
+    "2:3": {
+      "file": "asset/models/class-actions/class-2/head-3.glb.gz?v=1787070536",
+      "compression": "gzip",
+      "meshopt": true,
+      "animations": [
+        "idle",
+        "attack",
+        "class_skill_1",
+        "class_skill_2",
+        "class_skill_3"
+      ]
+    },
+    "3:0": {
+      "file": "asset/models/class-actions/class-3/head-0.glb.gz?v=1787070540",
+      "compression": "gzip",
+      "meshopt": true,
+      "animations": [
+        "idle",
+        "attack",
+        "class_skill_1",
+        "class_skill_2",
+        "class_skill_3"
+      ]
+    },
+    "3:1": {
+      "file": "asset/models/class-actions/class-3/head-1.glb.gz?v=1787070543",
+      "compression": "gzip",
+      "meshopt": true,
+      "animations": [
+        "idle",
+        "attack",
+        "class_skill_1",
+        "class_skill_2",
+        "class_skill_3"
+      ]
+    },
+    "4:0": {
+      "file": "asset/models/class-actions/class-4/head-0.glb.gz?v=1787070550",
+      "compression": "gzip",
+      "meshopt": true,
+      "animations": [
+        "idle",
+        "attack",
+        "class_skill_1",
+        "class_skill_2",
+        "class_skill_3"
+      ]
+    },
+    "4:1": {
+      "file": "asset/models/class-actions/class-4/head-1.glb.gz?v=1787070553",
+      "compression": "gzip",
+      "meshopt": true,
+      "animations": [
+        "idle",
+        "attack",
+        "class_skill_1",
+        "class_skill_2",
+        "class_skill_3"
+      ]
+    },
+    "4:3": {
+      "file": "asset/models/class-actions/class-4/head-3.glb.gz?v=1787070558",
+      "compression": "gzip",
+      "meshopt": true,
+      "animations": [
+        "idle",
+        "attack",
+        "class_skill_1",
+        "class_skill_2",
+        "class_skill_3"
+      ]
+    }
+  },
+  "skillActions": {
+    "100004": {
+      "file": "asset/models/skill-actions/model_pl_100004/skill.glb.gz?v=1787924520",
+      "compression": "gzip",
+      "meshopt": false,
+      "animations": [
+        "skill",
+        "chara_skill_1"
+      ]
+    },
+    "120004": {
+      "file": "asset/models/skill-actions/model_pl_120004/skill.glb.gz?v=1787925326",
+      "compression": "gzip",
+      "meshopt": false,
+      "animations": [
+        "skill",
+        "chara_skill_1"
+      ]
+    },
+    "130004": {
+      "file": "asset/models/skill-actions/model_pl_130004/skill.glb.gz?v=1787925744",
+      "compression": "gzip",
+      "meshopt": false,
+      "animations": [
+        "skill",
+        "chara_skill_1"
+      ]
+    },
+    "130304": {
+      "file": "asset/models/skill-actions/model_pl_130304/skill.glb.gz?v=1787926017",
+      "compression": "gzip",
+      "meshopt": false,
+      "animations": [
+        "skill"
+      ]
+    },
+    "140004": {
+      "file": "asset/models/skill-actions/model_pl_140004/skill.glb.gz?v=1787926149",
+      "compression": "gzip",
+      "meshopt": false,
+      "animations": [
+        "skill",
+        "chara_skill_1"
+      ]
+    },
+    "160004": {
+      "file": "asset/models/skill-actions/model_pl_160004/skill.glb.gz?v=1787933186",
+      "compression": "gzip",
+      "meshopt": false,
+      "animations": [
+        "skill",
+        "chara_skill_1"
+      ]
+    },
+    "170004": {
+      "file": "asset/models/skill-actions/model_pl_170004/skill.glb.gz?v=1787933670",
+      "compression": "gzip",
+      "meshopt": false,
+      "animations": [
+        "skill",
+        "chara_skill_1"
+      ]
+    },
+    "180004": {
+      "file": "asset/models/skill-actions/model_pl_180004/skill.glb.gz?v=1787934186",
+      "compression": "gzip",
+      "meshopt": false,
+      "animations": [
+        "skill",
+        "chara_skill_1"
+      ]
+    },
+    "200004": {
+      "file": "asset/models/skill-actions/model_pl_200004/skill.glb.gz?v=1787934835",
+      "compression": "gzip",
+      "meshopt": false,
+      "animations": [
+        "skill",
+        "chara_skill_1"
+      ]
+    },
+    "230004": {
+      "file": "asset/models/skill-actions/model_pl_230004/skill.glb.gz?v=1787935946",
+      "compression": "gzip",
+      "meshopt": false,
+      "animations": [
+        "skill",
+        "chara_skill_1"
+      ]
+    },
+    "240004": {
+      "file": "asset/models/skill-actions/model_pl_240004/skill.glb.gz?v=1787936293",
+      "compression": "gzip",
+      "meshopt": false,
+      "animations": [
+        "skill",
+        "chara_skill_1"
+      ]
+    },
+    "260004": {
+      "file": "asset/models/skill-actions/model_pl_260004/skill.glb.gz?v=1787936811",
+      "compression": "gzip",
+      "meshopt": false,
+      "animations": [
+        "skill",
+        "chara_skill_1"
+      ]
+    },
+    "270004": {
+      "file": "asset/models/skill-actions/model_pl_270004/skill.glb.gz?v=1787937090",
+      "compression": "gzip",
+      "meshopt": false,
+      "animations": [
+        "skill",
+        "chara_skill_1"
+      ]
+    },
+    "280004": {
+      "file": "asset/models/skill-actions/model_pl_280004/skill.glb.gz?v=1787937222",
+      "compression": "gzip",
+      "meshopt": false,
+      "animations": [
+        "skill",
+        "chara_skill_1"
+      ]
+    },
+    "290004": {
+      "file": "asset/models/skill-actions/model_pl_290004/skill.glb.gz?v=1787937497",
+      "compression": "gzip",
+      "meshopt": false,
+      "animations": [
+        "skill",
+        "chara_skill_1"
+      ]
+    },
+    "300004": {
+      "file": "asset/models/skill-actions/model_pl_300004/skill.glb.gz?v=1787937797",
+      "compression": "gzip",
+      "meshopt": false,
+      "animations": [
+        "skill",
+        "chara_skill_1"
+      ]
+    },
+    "300104": {
+      "file": "asset/models/skill-actions/model_pl_300104/skill.glb.gz?v=1787937889",
+      "compression": "gzip",
+      "meshopt": false,
+      "animations": [
+        "skill",
+        "chara_skill_1"
+      ]
+    },
+    "300404": {
+      "file": "asset/models/skill-actions/model_pl_300404/skill.glb.gz?v=1787938052",
+      "compression": "gzip",
+      "meshopt": false,
+      "animations": [
+        "skill",
+        "chara_skill_1"
+      ]
+    },
+    "320102": {
+      "file": "asset/models/skill-actions/model_pl_320102/skill.glb.gz?v=1787938349",
+      "compression": "gzip",
+      "meshopt": false,
+      "animations": [
+        "skill",
+        "chara_skill_1"
+      ]
+    },
+    "370002": {
+      "file": "asset/models/skill-actions/model_pl_370002/skill.glb.gz?v=1787939149",
+      "compression": "gzip",
+      "meshopt": false,
+      "animations": [
+        "skill",
+        "chara_skill_1"
+      ]
+    },
+    "380004": {
+      "file": "asset/models/skill-actions/model_pl_380004/skill.glb.gz?v=1787939247",
+      "compression": "gzip",
+      "meshopt": false,
+      "animations": [
+        "skill",
+        "chara_skill_1"
+      ]
+    },
+    "390004": {
+      "file": "asset/models/skill-actions/model_pl_390004/skill.glb.gz?v=1787939335",
+      "compression": "gzip",
+      "meshopt": false,
+      "animations": [
+        "skill"
+      ]
+    },
+    "430002": {
+      "file": "asset/models/skill-actions/model_pl_430002/skill.glb.gz?v=1787939522",
+      "compression": "gzip",
+      "meshopt": false,
+      "animations": [
+        "skill"
+      ]
+    },
+    "450002": {
+      "file": "asset/models/skill-actions/model_pl_450002/skill.glb.gz?v=1787939659",
+      "compression": "gzip",
+      "meshopt": false,
+      "animations": [
+        "skill"
+      ]
+    }
+  },
+  "facialActions": "asset/models/facial/actions.json?v=1787922670",
+  "visibility": "asset/models/visibility.json?v=1787962325"
+}

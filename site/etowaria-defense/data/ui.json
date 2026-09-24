@@ -1,0 +1,314 @@
+{
+  "CMD_SkillSP": {
+    "atlas": "commonuiatlas",
+    "name": "CMD_SkillSP",
+    "pathId": "8131661405613614428",
+    "w": 108.0,
+    "h": 108.0,
+    "border": {
+      "left": 0.0,
+      "bottom": 0.0,
+      "right": 0.0,
+      "top": 0.0
+    }
+  },
+  "CharaIconFrame05": {
+    "atlas": "commonuiatlas",
+    "name": "CharaIconFrame05",
+    "pathId": "-8733281199643279844",
+    "w": 128.0,
+    "h": 128.0,
+    "border": {
+      "left": 0.0,
+      "bottom": 0.0,
+      "right": 0.0,
+      "top": 0.0
+    }
+  },
+  "ClassIconAlchemist": {
+    "atlas": "commonuiatlas",
+    "name": "ClassIconAlchemist",
+    "pathId": "-5040150846215961753",
+    "w": 64.0,
+    "h": 64.0,
+    "border": {
+      "left": 0.0,
+      "bottom": 0.0,
+      "right": 0.0,
+      "top": 0.0
+    }
+  },
+  "ClassIconFighter": {
+    "atlas": "commonuiatlas",
+    "name": "ClassIconFighter",
+    "pathId": "-9072860971540411336",
+    "w": 64.0,
+    "h": 64.0,
+    "border": {
+      "left": 0.0,
+      "bottom": 0.0,
+      "right": 0.0,
+      "top": 0.0
+    }
+  },
+  "ClassIconKnight": {
+    "atlas": "commonuiatlas",
+    "name": "ClassIconKnight",
+    "pathId": "2052729507363396289",
+    "w": 64.0,
+    "h": 64.0,
+    "border": {
+      "left": 0.0,
+      "bottom": 0.0,
+      "right": 0.0,
+      "top": 0.0
+    }
+  },
+  "ClassIconMagician": {
+    "atlas": "commonuiatlas",
+    "name": "ClassIconMagician",
+    "pathId": "-5857929544131892174",
+    "w": 64.0,
+    "h": 64.0,
+    "border": {
+      "left": 0.0,
+      "bottom": 0.0,
+      "right": 0.0,
+      "top": 0.0
+    }
+  },
+  "ClassIconPriest": {
+    "atlas": "commonuiatlas",
+    "name": "ClassIconPriest",
+    "pathId": "-8708216783770502591",
+    "w": 64.0,
+    "h": 64.0,
+    "border": {
+      "left": 0.0,
+      "bottom": 0.0,
+      "right": 0.0,
+      "top": 0.0
+    }
+  },
+  "CommonButton": {
+    "atlas": "commonuiatlas",
+    "name": "CommonButton",
+    "pathId": "-4086092312478895508",
+    "w": 70.0,
+    "h": 70.0,
+    "border": {
+      "left": 33.0,
+      "bottom": 33.0,
+      "right": 33.0,
+      "top": 33.0
+    }
+  },
+  "CommonButtonNoUse": {
+    "atlas": "commonuiatlas",
+    "name": "CommonButtonNoUse",
+    "pathId": "-2567900116339397627",
+    "w": 70.0,
+    "h": 70.0,
+    "border": {
+      "left": 33.0,
+      "bottom": 33.0,
+      "right": 33.0,
+      "top": 33.0
+    }
+  },
+  "CommonButtonPush": {
+    "atlas": "commonuiatlas",
+    "name": "CommonButtonPush",
+    "pathId": "3143687373771242771",
+    "w": 70.0,
+    "h": 70.0,
+    "border": {
+      "left": 33.0,
+      "bottom": 33.0,
+      "right": 33.0,
+      "top": 33.0
+    }
+  },
+  "CommonWindow": {
+    "atlas": "commonuiatlas",
+    "name": "CommonWindow",
+    "pathId": "5080748531528382796",
+    "w": 64.0,
+    "h": 64.0,
+    "border": {
+      "left": 28.0,
+      "bottom": 28.0,
+      "right": 28.0,
+      "top": 28.0
+    }
+  },
+  "ElementIconEarth": {
+    "atlas": "commonuiatlas",
+    "name": "ElementIconEarth",
+    "pathId": "3578615252793653498",
+    "w": 64.0,
+    "h": 64.0,
+    "border": {
+      "left": 0.0,
+      "bottom": 0.0,
+      "right": 0.0,
+      "top": 0.0
+    }
+  },
+  "ElementIconFire": {
+    "atlas": "commonuiatlas",
+    "name": "ElementIconFire",
+    "pathId": "1423072185215591543",
+    "w": 64.0,
+    "h": 64.0,
+    "border": {
+      "left": 0.0,
+      "bottom": 0.0,
+      "right": 0.0,
+      "top": 0.0
+    }
+  },
+  "ElementIconMoon": {
+    "atlas": "commonuiatlas",
+    "name": "ElementIconMoon",
+    "pathId": "1463730279701619137",
+    "w": 64.0,
+    "h": 64.0,
+    "border": {
+      "left": 0.0,
+      "bottom": 0.0,
+      "right": 0.0,
+      "top": 0.0
+    }
+  },
+  "ElementIconSun": {
+    "atlas": "commonuiatlas",
+    "name": "ElementIconSun",
+    "pathId": "7913521303339706298",
+    "w": 64.0,
+    "h": 64.0,
+    "border": {
+      "left": 0.0,
+      "bottom": 0.0,
+      "right": 0.0,
+      "top": 0.0
+    }
+  },
+  "ElementIconWater": {
+    "atlas": "commonuiatlas",
+    "name": "ElementIconWater",
+    "pathId": "-4626531962946025249",
+    "w": 64.0,
+    "h": 64.0,
+    "border": {
+      "left": 0.0,
+      "bottom": 0.0,
+      "right": 0.0,
+      "top": 0.0
+    }
+  },
+  "ElementIconWind": {
+    "atlas": "commonuiatlas",
+    "name": "ElementIconWind",
+    "pathId": "7816585996781814224",
+    "w": 64.0,
+    "h": 64.0,
+    "border": {
+      "left": 0.0,
+      "bottom": 0.0,
+      "right": 0.0,
+      "top": 0.0
+    }
+  },
+  "IconFrame": {
+    "atlas": "commonuiatlas",
+    "name": "IconFrame",
+    "pathId": "-5378377436865591131",
+    "w": 128.0,
+    "h": 128.0,
+    "border": {
+      "left": 0.0,
+      "bottom": 0.0,
+      "right": 0.0,
+      "top": 0.0
+    }
+  },
+  "LargeDecisionButton": {
+    "atlas": "commonuiatlas",
+    "name": "LargeDecisionButton",
+    "pathId": "7225518576514068783",
+    "w": 126.0,
+    "h": 106.0,
+    "border": {
+      "left": 62.0,
+      "bottom": 0.0,
+      "right": 62.0,
+      "top": 0.0
+    }
+  },
+  "LargeDecisionButtonYellow": {
+    "atlas": "commonuiatlas",
+    "name": "LargeDecisionButtonYellow",
+    "pathId": "-8125151091112226093",
+    "w": 126.0,
+    "h": 106.0,
+    "border": {
+      "left": 62.0,
+      "bottom": 0.0,
+      "right": 62.0,
+      "top": 0.0
+    }
+  },
+  "ScreenWindow": {
+    "atlas": "commonuiatlas",
+    "name": "ScreenWindow",
+    "pathId": "-3446325411492887363",
+    "w": 84.0,
+    "h": 84.0,
+    "border": {
+      "left": 40.0,
+      "bottom": 40.0,
+      "right": 40.0,
+      "top": 40.0
+    }
+  },
+  "WindowTab": {
+    "atlas": "commonuiatlas",
+    "name": "WindowTab",
+    "pathId": "2322183901758828664",
+    "w": 50.0,
+    "h": 54.0,
+    "border": {
+      "left": 23.0,
+      "bottom": 0.0,
+      "right": 23.0,
+      "top": 0.0
+    }
+  },
+  "WindowTabActive": {
+    "atlas": "commonuiatlas",
+    "name": "WindowTabActive",
+    "pathId": "8678615562987138169",
+    "w": 50.0,
+    "h": 54.0,
+    "border": {
+      "left": 23.0,
+      "bottom": 0.0,
+      "right": 23.0,
+      "top": 0.0
+    }
+  },
+  "WindowTitleBackground": {
+    "atlas": "commonuiatlas",
+    "name": "WindowTitleBackground",
+    "pathId": "-5355119055381883688",
+    "w": 48.0,
+    "h": 48.0,
+    "border": {
+      "left": 22.0,
+      "bottom": 22.0,
+      "right": 22.0,
+      "top": 22.0
+    }
+  }
+}

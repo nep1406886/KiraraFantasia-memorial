@@ -58,7 +58,7 @@ function check(label, ok, detail) {
 }
 
 function table(name) {
-    return JSON.parse(readFileSync(join(ROOT, "asset", "rl", name), "utf8"));
+    return JSON.parse(readFileSync(join(ROOT, "site", "asset", "rl", name), "utf8"));
 }
 const skillTable = table("skills-rl.json");
 const encounters = table("encounters.json").volumes;

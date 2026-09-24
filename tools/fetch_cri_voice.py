@@ -2,10 +2,12 @@
 """Fetch voice cues for the 40-character roster from the CRI GitLab Pages mirror.
 
 T04 语音落盘 (roguelike-plan.md 阶段 6): downloads とっておき voice mp3 from
-`kirafan.gitlab.io/cri/buckets/voice/<sheet>/<cue>.mp3` into `audio/voice/`,
-driven by the `voice.frames` arrays in `site/asset/battle/uniqueskill.js` for the
-39 playable roster rids (ひとり 46002000 has no uniqueskill scene and is the
-only exception in the 40-character roster).
+`kirafan.gitlab.io/cri/buckets/voice/<sheet>/<cue>.mp3` into `site/audio/voice/`,
+driven by the `voice.frames` arrays in `site/asset/battle/uniqueskill.js` for
+the 41 playable identities (2026-09-16: resolved through playable-roster ->
+cards-rl skillIds.chara -> skills-rl sceneId; both the evolved scene the stage
+keys on and the base scene the historic pass keyed on; ひとり 46002001 has no
+uniqueskill scene and stays the one documented gap).
 
 The `link` field in every index entry points at `cri-asset.kirafan.cn` (dead,
 404) — ignore it and build the Pages URL from bucket + sheet + cue instead.
@@ -13,8 +15,9 @@ File names carry a `_0` suffix: `voice_kirarajump_000` in frames becomes
 `voice_kirarajump_000_0.mp3` on disk.
 
 Self-check: every downloaded file must have the MPEG frame header `\xff\xfb`
-and size >1KB. Outputs `site/asset/rl/voices.json` keyed by rid-string:
-{<rid>: {sheet, cues: {<cue_name>: <rel_path_from_audio_voice>}}}.
+and size >1KB. Merges into `site/asset/rl/voices.json` keyed by scene-rid string:
+{<rid>: {sheet, cues: {<cue_name>: <rel_path_from_audio_voice>}}} — existing
+entries are kept, never dropped.
 """
 
 from __future__ import annotations
@@ -29,16 +32,36 @@ from pathlib import Path
 from urllib.request import Request, urlopen
 
 ROOT = Path(__file__).resolve().parent.parent
-UNIQUESKILL_JS = ROOT / "asset" / "battle" / "uniqueskill.js"
-OUT_DIR = ROOT / "audio" / "voice"
-INDEX_OUT = ROOT / "asset" / "rl" / "voices.json"
+UNIQUESKILL_JS = ROOT / "site" / "asset" / "battle" / "uniqueskill.js"
+OUT_DIR = ROOT / "site" / "audio" / "voice"
+INDEX_OUT = ROOT / "site" / "asset" / "rl" / "voices.json"
+PLAYABLE = ROOT / "site" / "asset" / "rl" / "playable-roster.json"
+CARDS = ROOT / "site" / "asset" / "rl" / "cards-rl.json"
+SKILLS = ROOT / "site" / "asset" / "rl" / "skills-rl.json"
 
-ROSTER_RIDS = [
-    100001, 180001, 140001, 300001, 230001, 150001, 350001, 110101, 380001, 240001,
-    200001, 320001, 290001, 470001, 280001, 310001, 210001, 190001, 370001, 340001,
-    390001, 250201, 260001, 360001, 140101, 120001, 270001, 410001, 430001, 420001,
-    330101, 170001, 160001, 450001, 400001, 130001, 220001, 230101, 321701,
-]
+def roster_scene_rids() -> dict[int, str]:
+    """The 41 playable identities' ultimate scene rids, resolved through the
+    authored chain: playable-roster row id -> cards-rl skillIds.chara ->
+    skills-rl player row sceneId. The evolved scene rid (e.g. ゆの 10002001 ->
+    100004) is what playUltimate hands the stage and what voices.json keys on.
+    """
+    roster = json.loads(PLAYABLE.read_text(encoding="utf-8"))["cards"]
+    cards = {row["id"]: row for row in json.loads(CARDS.read_text(encoding="utf-8"))["cards"]}
+    skills = json.loads(SKILLS.read_text(encoding="utf-8"))["player"]
+    out = {}
+    for row in roster:
+        # Both identities of the same character: the evolved scene (what
+        # playUltimate stages today) and the base scene (the historic keys the
+        # first fetch pass wrote; the base mp3s stay on disk for it).
+        for card_id in (row["id"], row.get("legacyId")):
+            card = cards.get(card_id)
+            if card is None:
+                continue
+            skill_id = card["skillIds"]["chara"]
+            scene_id = skills[str(skill_id)]["sceneId"]
+            if scene_id:
+                out[str(scene_id)] = card_id
+    return out
 
 PAGES_URL = "https://kirafan.gitlab.io/cri/buckets/voice/{sheet}/{cue}_0.mp3"
 ROUNDS = 5
@@ -84,22 +107,23 @@ def main() -> int:
     data = load_scenes()
     scenes = data["scenes"]
 
-    # Collect sheet → cues for all roster rids
-    roster_voices: dict[int, dict] = {}
-    for rid in ROSTER_RIDS:
+    # Collect sheet -> cues for the 41 playable identities' ultimate scenes
+    scene_rids = roster_scene_rids()
+    roster_voices: dict[str, dict] = {}
+    for rid, card_id in sorted(scene_rids.items()):
         key = f"PL_{rid}_0"
         if key not in scenes:
-            print(f"{rid}: scene {key} not in uniqueskill.js", flush=True)
+            print(f"{card_id}: scene {key} not in uniqueskill.js", flush=True)
             continue
         v = scenes[key].get("voice", {})
         if not v:
-            print(f"{rid}: no voice field in scene {key}", flush=True)
+            print(f"{card_id}: no voice field in scene {key}", flush=True)
             continue
         sheet = v["sheet"]
         frames = v.get("frames", [])
         cues = {cue for frame, cue in frames}
         roster_voices[rid] = {"sheet": sheet, "cues": list(sorted(cues))}
-        print(f"{rid}: {sheet} → {len(cues)} cues", flush=True)
+        print(f"{card_id} scene {rid}: {sheet} -> {len(cues)} cues", flush=True)
 
     if not roster_voices:
         print("No voice data found for roster", flush=True)
@@ -149,8 +173,13 @@ def main() -> int:
         index[str(rid)] = {"sheet": sheet, "cues": cue_map}
 
     if not args.dry_run:
-        INDEX_OUT.write_text(json.dumps(index, ensure_ascii=False, indent=1) + "\n",
+        merged = {}
+        if INDEX_OUT.exists():
+            merged = json.loads(INDEX_OUT.read_text(encoding="utf-8"))
+        merged.update(index)
+        INDEX_OUT.write_text(json.dumps(merged, ensure_ascii=False, indent=1) + "\n",
                              encoding="utf-8")
+        print(f"index merged: {len(merged)} entries ({len(index)} authored this pass)", flush=True)
 
     print(f"\n{len(index)} rids, {total_bytes / 1024 / 1024:.2f} MiB total", flush=True)
     if failed:

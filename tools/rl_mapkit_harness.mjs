@@ -28,8 +28,8 @@ import path from "node:path";
 import { gunzipSync, gzipSync } from "node:zlib";
 
 const ROOT = fileURLToPath(new URL("..", import.meta.url));
-const MAPKIT_DIR = path.join(ROOT, "asset", "img", "rl", "mapkit");
-const MANIFEST = path.join(ROOT, "asset", "rl", "mapkit.json");
+const MAPKIT_DIR = path.join(ROOT, "site", "asset", "img", "rl", "mapkit");
+const MANIFEST = path.join(ROOT, "site", "asset", "rl", "mapkit.json");
 const BUDGET_BYTES = 8 * 1024 * 1024;
 const CATEGORIES = new Set(["floor", "wall", "prop", "water", "animated"]);
 const HOTLINK_DOMAINS = [

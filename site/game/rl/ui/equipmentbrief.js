@@ -94,6 +94,8 @@ export function equipmentBrief(preview) {
     for (const [key, name] of STATS) delta(name, preview.current[key] || 0, preview.candidate[key] || 0);
     // No-crit already explains the loss without a second, misleading rate line.
     if (!gadgets?.candidate.noCrit) delta('暴击率', preview.current.critChance || 0, preview.candidate.critChance || 0, 100, '%');
-    const more = Math.max(0, benefits.length - 3);
-    return { benefits: benefits.slice(0, 3), costs, notes, more };
+    // Two lines of benefit, the rest behind the detail fold: a casual reader
+    // gets the headline change and nothing more (2026-09-22).
+    const more = Math.max(0, benefits.length - 2);
+    return { benefits: benefits.slice(0, 2), costs, notes, more };
 }

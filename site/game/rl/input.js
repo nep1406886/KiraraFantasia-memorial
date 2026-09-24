@@ -104,6 +104,17 @@ export function createInput() {
     // (a joystick drag must not also swing). A click on the play field also
     // arms the aim at the click spot — click-to-attack aims where it clicks
     // even if no pointermove ran first (cursor resting since page load).
+    // A quick click can land mousedown+mouseup inside one update gap; a pure
+    // level flag would then never be true during a world update and the click
+    // is swallowed (measured 2026-09-17: swing stayed 0). The pending latch
+    // holds the click until the next update has seen it (endStep clears it
+    // once, from main.js after world.update); holding the button keeps the
+    // level true, so held auto-fire is unchanged.
+    let mouseAttackPending = false;
+    function syncAttack() {
+        state.attack = [...heldKeys].some(key => KEYMAP[key] === "attack")
+            || mouseAttack || mouseAttackPending;
+    }
     function onMouseDown(event) {
         if (event.button !== 0
             || rendererCanvas && event.target !== rendererCanvas
@@ -112,7 +123,8 @@ export function createInput() {
             return;
         }
         mouseAttack = true;
-        state.attack = true;
+        mouseAttackPending = true;
+        syncAttack();
         if (event.target === rendererCanvas) {
             aimFrom(event.clientX, event.clientY);
         }
@@ -121,7 +133,19 @@ export function createInput() {
     function onMouseUp(event) {
         if (event.button === 0) {
             mouseAttack = false;
-            state.attack = [...heldKeys].some(key => KEYMAP[key] === "attack");
+            syncAttack();
+        }
+    }
+
+    // The click's latch stays armed until the world has actually swung with
+    // it — a click that lands DURING a swing must still queue the next one
+    // (the level is consumed by the first actionable frame after the swing
+    // ends). main.js passes seen = the player's swingId changed this update;
+    // holding the button keeps the level true regardless (auto-fire).
+    function endStep(seen) {
+        if (mouseAttackPending && seen) {
+            mouseAttackPending = false;
+            syncAttack();
         }
     }
 
@@ -222,6 +246,7 @@ export function createInput() {
         attach: attach,
         detach: detach,
         clear: onBlur,
+        endStep: endStep,
         get state() { return state; }
     };
 }

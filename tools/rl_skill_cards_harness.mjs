@@ -217,26 +217,26 @@ test("accepted ranged normal still places its card if the projectile pool reject
 test("card damage reads live offence/weakness and awards ordinary gauge without nextAtk", () => {
     const w = world(39002001), p = w.player, e = foe(w); p.nextAtkBonus = .6;
     install(w, 1, 39002001); step(w, 2.8);
-    assert.equal(e.hp, 99930); assert.equal(p.skills.gauge, 70); near(p.nextAtkBonus, .6);
+    assert.equal(e.hp, 99852); assert.equal(p.skills.gauge, 148); near(p.nextAtkBonus, .6);
     p.base.mgc = 200; step(w, 2.8);
-    assert.equal(e.hp, 99730); assert.equal(p.skills.gauge, 270); near(p.nextAtkBonus, .6);
+    assert.equal(e.hp, 99497); assert.equal(p.skills.gauge, 503); near(p.nextAtkBonus, .6);
     // Current magic100/200 at coef .5, TEMPO2.6, defence100: 70/200.
     // Only the third activation sees the new favourable element and +.35.
     p.element = 0; e.element = 3;
     p.skills.applySelf({ weakBonuses: [{ target: 0, turns: 3, pct: .35 }] });
-    step(w, 2.8); assert.equal(e.hp, 99179); assert.equal(p.skills.gauge, 821);
+    step(w, 2.8); assert.equal(e.hp, 98582); assert.equal(p.skills.gauge, 1400);
     near(p.nextAtkBonus, .6); assert.equal(p.skillCards.length, 0);
     assert.deepEqual(w.events.filter(ev => ev.type === "hit").map(ev => ev.skillCard), [10050, 10050, 10050]);
 });
 test("empty-room ticks are spent; a late target is only hit by remaining occurrences", () => {
     const w = world(39002001); install(w, 1, 39002001); step(w, 2.8);
     assert.equal(w.player.skillCards[0].remaining, 2); const e = foe(w);
-    step(w, 5.6); assert.equal(e.hp, 99860); assert.equal(w.player.skillCards.length, 0);
+    step(w, 5.6); assert.equal(e.hp, 99704); assert.equal(w.player.skillCards.length, 0);
 });
 test("all-target cards hit new living enemies, never a dead target or an iframe target", () => {
     const w = world(39002001), first = foe(w); install(w, 1, 39002001); step(w, 2.8);
     first.dead = true; const second = foe(w, 20), immune = foe(w, 21); immune.iframes = 100;
-    step(w, 2.8); assert.equal(first.hp, 99930); assert.equal(second.hp, 99930); assert.equal(immune.hp, 100000);
+    step(w, 2.8); assert.equal(first.hp, 99852); assert.equal(second.hp, 99852); assert.equal(immune.hp, 100000);
     assert.equal(w.player.skillCards[0].remaining, 1);
 });
 test("a card kill rewards once and its remaining empty ticks cannot replay the death", () => {
@@ -262,8 +262,8 @@ test("card heals honor current maxHP and an existing weapon overheal ceiling", (
 test("damage-card lifesteal follows the same healing lock without reducing damage", () => {
     const w = world(39002001), p = w.player, e = foe(w); p.hp = 400; p.passives.lifesteal = .1;
     install(w, 1, 39002001); applyHealingLock(p, 1, 5.6, () => 0);
-    step(w, 2.8); assert.equal(p.hp, 400); assert.equal(e.hp, 99930);
-    step(w, 2.8); assert.equal(p.hp, 407); assert.equal(e.hp, 99860);
+    step(w, 2.8); assert.equal(p.hp, 400); assert.equal(e.hp, 99852);
+    step(w, 2.8); assert.equal(p.hp, 415); assert.equal(e.hp, 99704);
 });
 test("CARD source mutation does not change an already compiled placement", () => {
     const altered = structuredClone(table), w = world(24002001, altered), p = w.player;
@@ -284,8 +284,8 @@ test("single-target card selects the nearest living target at each activation, n
     const w = world(39002001, modified), p = w.player, far = foe(w, 21), close = foe(w, 17);
     w.aim = {x:far.x,y:far.y};
     placeSkillCard(p, 1, 390020001, p.skills.slots[1].cardPlacements[0], 2.8);
-    step(w, 2.8); assert.equal(close.hp, 99930); assert.equal(far.hp, 100000);
-    close.dead = true; step(w, 2.8); assert.equal(far.hp, 99930);
+    step(w, 2.8); assert.equal(close.hp, 99852); assert.equal(far.hp, 100000);
+    close.dead = true; step(w, 2.8); assert.equal(far.hp, 99852);
 });
 test("real CARD10041 renews its authored20% one-hit shield every2.1s", () => {
     const row = { id: 123, target: 4, effects: [{ kind: 21, target: 4, args: [2, 10041] }] };

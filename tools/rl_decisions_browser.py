@@ -54,7 +54,7 @@ def enter(page, room_type):
 def drop(page, invalid=False):
     return page.evaluate("""async invalid => {
         const k=window.kirafanRL,w=k.world,p=w.player;
-        const data=await fetch('../site/asset/rl/weapons-rl.json').then(r=>r.json());
+        const data=await fetch('../asset/rl/weapons-rl.json').then(r=>r.json());
         const id=Object.keys(data.passives).find(id=>data.passives[id].effects.some(
             e=>e.type===0 && e.trigger===0 && e.args[0]>0));
         if(!id) throw new Error('no real attack affix');
@@ -357,7 +357,7 @@ def main():
             check("native weapon identity survives reload", page.evaluate("window.kirafanRL.world.player.equipment[0].catalogId") == saved["equipment"][0]["catalogId"])
             check("native weapon model follows the restored equipment", page.evaluate("""async () => {
                 const k=window.kirafanRL,v=k.views.player;await v.equipmentReady;
-                const data=await fetch('../site/asset/rl/weapons-rl.json').then(r=>r.json());
+                const data=await fetch('../asset/rl/weapons-rl.json').then(r=>r.json());
                 const row=data.catalog.find(w=>w.id===k.world.player.equipment[0].catalogId);
                 const ids=[...new Set([row.resourceIdL,row.resourceIdR].filter(id=>id>0))];
                 return v.equipment.status==='ready' && JSON.stringify(v.actor.weaponResourceIds)===JSON.stringify(ids);

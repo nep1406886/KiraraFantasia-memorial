@@ -38,8 +38,9 @@ import { enemyRole } from "./enemyroles.js";
 import { CHOREOGRAPHY_STATES, cancelEnemyAction } from "./enemyactions.js";
 import { createDanmaku } from "./danmaku.js";
 import { createSkills, decodeSkill, enemyMoveset, contactCoefOf } from "./skills.js";
-import { applyHealingLock, cleanseHealingLock, grantHealingLockImmunity,
-    healingLocked, updatePlayerStatus, clearPlayerStatus } from "./playerstatus.js";
+import { applyHealingLock, applyPoison, applyBearish, bearished,
+    cleanseAbnormals, grantAbnormalDisable, healingLocked, updatePlayerStatus,
+    clearPlayerStatus, HEALING_LOCK_TURNS, POISON_TURNS, BEARISH_TURNS } from "./playerstatus.js";
 import { placeSkillCard, updateSkillCards, clearSkillCards, NORMAL_CARD_SOURCE } from "./skillcards.js";
 import { resetStatChanges } from "./statreset.js";
 import { grantNextCritical, consumeNextCritical, clearNextCritical } from "./nextcritical.js";
@@ -333,6 +334,10 @@ export function createWorld(options) {
                 dead: false,
                 healingLock: 0,
                 healingLockImmunity: 0,
+                abnormalDisable: 0,      // kind 6 blanket (all registered ailments)
+                poison: 0,
+                poisonElapsed: 0,
+                bearish: 0,
                 skillCards: [],
                 // per-swing bookkeeping: a swing hits each enemy at most once
                 swingId: 0,
@@ -1705,16 +1710,125 @@ export function createWorld(options) {
         return false;
     }
 
+    // kind-4 self effects carry the decoded registered ailment; the chance
+    // comes from the row, the seconds from the adapter's per-ailment table.
+    function applySelfAilment(p, effect) {
+        const window = turnSeconds();
+        const seconds = effect.ailment === "poison" ? POISON_TURNS * window
+            : effect.ailment === "bearish" ? BEARISH_TURNS * window
+                : HEALING_LOCK_TURNS * window;
+        if (effect.ailment === "poison") { return applyPoison(p, effect.chance, seconds, world.rng); }
+        if (effect.ailment === "bearish") { return applyBearish(p, effect.chance, seconds, world.rng); }
+        return applyHealingLock(p, effect.chance, seconds, world.rng);
+    }
+
+    // The turn-based support command an enemy runs in place of an attack on
+    // its support clock (2026-09-18 敌人支援模组). Targets are the caster's
+    // perspective: 0 self, 3 ally-lowest-HP, 4 all allies, 1/2 the player.
+    // kind 1 heals, kind 2 applies a timed stat change on the debuff carrier
+    // (additive fractions, the same shape the weapon-14 debuff uses).
+    // kind 13 has no enemy barrier carrier yet and stays undispatched.
+    world.applyEnemySupport = function (unit, entry) {
+        if (!unit || unit.dead) { return null; }
+        const events = [];
+        for (const effect of entry.supportEffects || []) {
+            if (effect.kind === 1) {
+                let targets = [];
+                if (effect.target === 0) { targets = [unit]; }
+                else if (effect.target === 3) {
+                    let lowest = null;
+                    for (const ally of world.enemies) {
+                        if (ally.dead || ally.hp >= ally.maxHp) { continue; }
+                        if (!lowest || ally.hp / ally.maxHp < lowest.hp / lowest.maxHp) { lowest = ally; }
+                    }
+                    targets = lowest ? [lowest] : [];
+                } else if (effect.target === 4) {
+                    // Boss units are excluded from ally heals: on an action
+                    // game's clock a mob healer topping up the boss reads as
+                    // a wall, not a moment (the original's turn budget is a
+                    // handful of turns, ours is minutes).
+                    targets = world.enemies.filter(function (ally) {
+                        return !ally.dead && ally.kind !== "boss"
+                            && ally.hp < ally.maxHp / 2; });
+                } else if (effect.target === 1 || effect.target === 2) {
+                    targets = world.player && !world.player.dead ? [world.player] : [];
+                }
+                for (const target of targets) {
+                    // Heals only ever restore up to half the max: a comeback
+                    // from the brink, never a wall. Big self-heal rows (the
+                    // original's 50%/100% casts) read as one dramatic moment
+                    // and stay beatable on an action game's clock.
+                    const cap = Math.floor(target.maxHp / 2);
+                    if (!target || target.hp >= cap) { continue; }
+                    const amount = Math.min(Math.round(target.maxHp * effect.pct), cap - target.hp);
+                    if (amount <= 0) { continue; }
+                    target.hp = Math.min(target.maxHp, target.hp + amount);
+                    events.push({ type: "enemySupport", unit: target, kind: "heal",
+                        amount: amount, source: unit });
+                }
+            } else if (effect.kind === 2) {
+                // Stat change rides the same carrier the weapon-14 debuff
+                // uses (additive fractions of the live stat); refresh by tag.
+                const targets = effect.target === 2 || effect.target === 1
+                    ? (world.player && !world.player.dead ? [world.player] : [])
+                    : world.enemies.filter(function (ally) { return !ally.dead; });
+                const seconds = effect.turns * turnSeconds();
+                for (const target of targets) {
+                    if (!target) { continue; }
+                    if (!target.debuffs) { target.debuffs = []; }
+                    let carrier = null;
+                    for (const row of target.debuffs) {
+                        if (row.tag === "support" + entry.id) { carrier = row; break; }
+                    }
+                    if (!carrier) {
+                        carrier = { tag: "support" + entry.id, atk: 0, mgc: 0,
+                            def: 0, mdef: 0, spd: 0, luck: 0, remaining: 0 };
+                        target.debuffs.push(carrier);
+                    }
+                    carrier.atk = effect.atk; carrier.mgc = effect.mgc;
+                    carrier.def = effect.def; carrier.mdef = effect.mdef;
+                    carrier.spd = effect.spd; carrier.luck = effect.luck;
+                    carrier.remaining = seconds;
+                    events.push({ type: "enemySupport", unit: target, kind: "buff",
+                        entry: entry.id, seconds: seconds, source: unit });
+                }
+            }
+        }
+        return events.length ? events : null;
+    };
+
+    // Poison's per-turn tick owns HP, which lives here. dealDirectDamage
+    // routes through the same hit-event shape (so the terminal/death path
+    // and the gauge credit see it) as every other world damage source.
+    // Poison owns no attacker, so it goes through its own tryHit call and
+    // shares pushHit with every other world damage source (survival, death,
+    // gauge credit and the terminal settlement all see it). spec.rng stays
+    // the world's stream so a seed replays the damage exactly.
+    function poisonTick(p) {
+        return function (pct) {
+            const amount = Math.max(1, Math.round(p.maxHp * pct));
+            const result = tryHit(p, {
+                atk: amount, mgc: amount, def: 0, mdef: 0,
+                element: p.element, targetElement: p.element,
+                noCrit: true, noAdvantage: true,
+                skill: { coef: 1, magic: false, flat: amount },
+                rng: world.rng, tempo: 1
+            });
+            if (result.hit) { pushHit({ kind: "world" }, p, result, null, { source: "poison" }); }
+            return !p.dead;
+        };
+    }
+
     function applyPlayerStatuses(p, slot) {
         for (const effect of slot.statusEffects || []) {
             if (![0, 3, 4].includes(effect.target)) { continue; }
             let result = null;
             if (effect.kind === 4) {
-                result = applyHealingLock(p, effect.chance, effect.turns * turnSeconds(), world.rng);
+                result = applySelfAilment(p, effect);
             } else if (effect.kind === 5) {
-                result = cleanseHealingLock(p);
+                result = cleanseAbnormals(p, effect.mask);
             } else if (effect.kind === 6) {
-                result = grantHealingLockImmunity(p, effect.turns * turnSeconds());
+                result = grantAbnormalDisable(p, effect.turns * turnSeconds());
             }
             if (result && result.action !== "miss") {
                 world.events.push({ type: "playerStatus", unit: p, ...result });
@@ -2028,13 +2142,15 @@ export function createWorld(options) {
             }
         }
 
-        // Strafe only during a normal swing. Do not rotate a committed hit arc,
-        // turn a skill into a moving cast, or bypass hit/death/dodge states.
-        if (state === 'attack' && !p.castOnly && p.swingGadgets?.attackMove > 0) {
+        // Strafe during a normal swing: the strider charm allows manual
+        // movement, and auto-combat's spacing step (assisted.move) keeps the
+        // same right — backing off while swinging, never rotating the arc.
+        if (state === 'attack' && !p.castOnly && (p.swingGadgets?.attackMove > 0 || assisted?.move)) {
             const len = Math.hypot(move.x, move.y);
             if (len > 0) {
-                vx = move.x / len * p.speed * p.swingGadgets.attackMove;
-                vy = move.y / len * p.speed * p.swingGadgets.attackMove;
+                const scale = p.swingGadgets?.attackMove > 0 ? p.swingGadgets.attackMove : 1;
+                vx = move.x / len * p.speed * scale;
+                vy = move.y / len * p.speed * scale;
             }
         }
 
@@ -2402,10 +2518,13 @@ export function createWorld(options) {
             noCrit: b.noCrit, noAdvantage: b.noAdvantage,
             healingLockChance: b.side === "enemy" ? b.healingLockChance : 0,
             healingLockSeconds: b.healingLockSeconds,
+            statusRiders: b.side === "enemy" ? b.statusRiders : null,
             hitStatResets: b.side === "enemy" ? b.hitStatResets : null,
             rng: world.rng,
             skill: { coef: b.coef * bonus, magic: b.magic },
-            crit: rollCrit(flag === -1 ? 0 : b.critChance, world.rng, b.side === "player" && b.forceCritical, b.noCrit)
+            crit: rollCrit(flag === -1 ? 0 : b.critChance, world.rng,
+                (b.side === "player" && b.forceCritical)
+                    || (b.side === "enemy" && bearished(target)), b.noCrit)
                 ? CRIT_MULT + b.critDamage : false,
             tempo: b.side === "player" ? TEMPO : 1,
             // kind 8 resistance reads the LIVE entries, not a snapshot — the
@@ -2500,7 +2619,7 @@ export function createWorld(options) {
             const tr = world.transition;
             world.time += dt;
             const tp = world.player;
-            if (tp && !tp.dead) { updatePlayerStatus(tp, dt); }
+            if (tp && !tp.dead) { updatePlayerStatus(tp, dt, turnSeconds(), poisonTick(tp)); }
             if (tp && tp.skills) {
                 tp.skills.update(dt);
                 refreshPlayer(tp);
@@ -2528,7 +2647,7 @@ export function createWorld(options) {
 
         const p = world.player;
         if (p && p.dead) { clearPlayerEffects(p); }
-        if (p && !p.dead) { updatePlayerStatus(p, dt); }
+        if (p && !p.dead) { updatePlayerStatus(p, dt, turnSeconds(), poisonTick(p)); }
         if (p && !p.dead && p.skills) {
             // Cooldowns and buff timers first: a buff that expires this tick
             // must not still be multiplying the swing that happens in it.

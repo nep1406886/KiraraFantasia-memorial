@@ -29,7 +29,7 @@ for (const identity of PLAYABLE_ROSTER) {
     assert.ok(Number.isInteger(card.class) && card.class >= 0 && card.class <= 4);
     const model = models["model/player/model_pl_" + card.resourceId + ".muast"];
     assert.ok(model && model.animations, "模型与动作入口 " + card.id);
-    assert.ok(statSync(new URL(model.file.split("?")[0], root)).size > 100);
+    assert.ok(statSync(new URL("site/" + model.file.split("?")[0], root)).size > 100);
     const image = images.find(row => row.category === "card" && Number(row.id) === card.id);
     assert.ok(image && image.w > 1 && image.h > 1, "当前卡面必须存在，不能只保留旧常服卡面");
     for (const id of [card.skillIds.chara, ...card.skillIds.class]) {

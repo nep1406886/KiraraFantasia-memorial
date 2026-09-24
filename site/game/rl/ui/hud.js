@@ -444,6 +444,12 @@ export function createHud(options) {
             if (p.healingLock > 0) {
                 active.push("治疗封锁（技能/吸血回复无效） · " + Math.ceil(p.healingLock) + "秒");
             }
+            if (p.abnormalDisable > 0) {
+                active.push("异常免疫（全部异常无效） · " + Math.ceil(p.abnormalDisable) + "秒");
+            }
+            if (p.poison > 0) {
+                active.push("中毒（每回合损血） · " + Math.ceil(p.poison) + "秒");
+            }
             if (p.healingLockImmunity > 0) {
                 active.push("治疗封锁免疫 · " + Math.ceil(p.healingLockImmunity) + "秒");
             }

@@ -105,6 +105,10 @@ def main():
                                        polling=100, timeout=60000)
                 dismiss(page)
                 advance(page, 1 / 60)
+                # The roster pick starts the first floor load; the world stays
+                # frozen until it lands, and a frozen world never casts.
+                page.wait_for_function("!window.kirafanRL.roomLoading && !window.kirafanRL.world.frozen",
+                                       polling=100, timeout=30000)
                 check(str(card_id) + " 保留真实进化卡身份", page.evaluate("window.kirafanRL.world.player.card.id") == card_id)
                 page.evaluate("""() => {
                     const k=window.kirafanRL,w=k.world,p=w.player,art=w.encounter.mobs[0];
@@ -174,18 +178,26 @@ def main():
                 advance(page, 1 / 60)
 
             def hud_widths(page, stem):
-                page.touchscreen.tap(250, 400)
-                for width in WIDTHS:
-                    page.set_viewport_size({"width": width, "height": 812 if width < 500 else 840})
+                page.touchscreen.tap(406, 195)
+                # Touch context: portrait mobile is blocked by design
+                # (orientation.js 竖屏保护), so sweep landscape phone sizes.
+                # The pause key sits top-right now (T22k/T29 rework); the
+                # invariant is non-overlap plus everything on screen.
+                for width in (568, 640, 736, 812, 1024, 1280):
+                    page.set_viewport_size({"width": width, "height": max(320, width * 48 // 100)})
                     advance(page, 1 / 60)
                     page.wait_for_function("""() => {
-                        const h=document.querySelector('#hud').getBoundingClientRect(),m=document.querySelector('#minimap').getBoundingClientRect(),
-                            p=document.querySelector('.hud-pause').getBoundingClientRect(),e=document.querySelector('.hud-effects').getBoundingClientRect();
-                        return document.documentElement.scrollWidth<=innerWidth+1 && h.right+4<=m.left && p.top>=h.bottom+4
-                            && e.right<=h.right && p.bottom<innerHeight;
+                        const box=s=>{const n=document.querySelector(s);return n&&n.getBoundingClientRect();};
+                        const h=box('#hud'),m=box('#minimap'),p=box('.hud-pause'),e=box('.hud-effects');
+                        if(!h||!m||!p||!e) return false;
+                        const over=(a,b)=>a.left<b.right&&b.left<a.right&&a.top<b.bottom&&b.top<a.bottom;
+                        return document.documentElement.scrollWidth<=innerWidth+1
+                            && h.right+4<=m.left && e.right<=h.right+1
+                            && !over(h,p) && !over(h,m) && !over(e,p) && !over(e,m)
+                            && p.right<=innerWidth && p.bottom<=innerHeight;
                     }""", polling=100, timeout=5000)
                     check(stem + " 技能卡面板六宽度无重叠 " + str(width), True)
-                    if width in (390, 1280):
+                    if width in (568, 1280):
                         before = state(page)
                         page.evaluate("window.kirafanRL.renderOnce()")
                         page.screenshot(path=str(OUT / (stem + "-hud-%d.png" % width)))
@@ -293,16 +305,17 @@ def main():
                 }
                 throw new Error('ordinary parent projectile did not hit');
             }""")
-            damage_is(page, 100000, 242, "咏深原普通技能1.16系数仍独立造成242伤害")
+            damage_is(page, 100000, 421, "咏深原普通技能1.16系数仍独立造成421伤害 (TEMPO 4.15)")
             before_hp = state(page)["enemy"]
             next_trigger(page)
-            effect_or_control(lambda: damage_is(page, before_hp, 70, "咏深后续攻击卡0.5系数固定造成70伤害"),
+            effect_or_control(lambda: damage_is(page, before_hp, 148, "咏深后续攻击卡0.5系数固定造成148伤害 (TEMPO 4.15)"),
                               "相同伤害断言检出有攻击卡提示却无伤害")
             if args.probe:
                 check("攻击负面对照仍消费次数且没有伪造卡命中", state(page)["cards"][0]["remaining"] == 2
                       and not any(e.get("skillCard") for e in events(page, "hit")))
             else:
-                check("卡伤害获得70量能且不消费次攻", state(page)["gauge"] == 312 and near(state(page)["nextAtk"], .6))
+                check("卡伤害获得对应量能(421+148)且不消费次攻", state(page)["gauge"] == 569
+                      and near(state(page)["nextAtk"], .6), state(page)["gauge"])
                 advance(page, .45)
                 press(page, "Digit2")
                 check("冷却中重复输入不重复放置或发射", len(events(page, "skill")) == 1
@@ -312,8 +325,9 @@ def main():
                 check("攻击卡三次真实命中后耗尽", not state(page)["cards"]
                       and [e["damage"] for e in events(page, "hit") if e.get("skillCard")] == [70, 70, 70])
                 advance(page, state(page)["cooldowns"][1] + .5)
-                page.set_viewport_size({"width": 390, "height": 812})
-                page.touchscreen.tap(195, 400)
+                # Landscape: portrait mobile is blocked by design.
+                page.set_viewport_size({"width": 812, "height": 390})
+                page.touchscreen.tap(406, 195)
                 page.locator('.hud-skill[data-slot="1"]').tap()
                 advance(page, 1 / 30)
                 check("真实触控再次放置一次攻击卡", len(events(page, "skill")) == 2
@@ -382,8 +396,8 @@ def main():
                 for card_id, ref, amount in [(12002001, 10001, 200), (21002001, 10004, 200),
                                              (25002001, 10007, 130), (32002001, 10014, 130)]:
                     context, page = start_card(card_id)
-                    page.set_viewport_size({"width": 390, "height": 812})
-                    page.touchscreen.tap(195, 400)
+                    page.set_viewport_size({"width": 812, "height": 390})
+                    page.touchscreen.tap(406, 195)
                     ultimate(page, touch=True)
                     check(str(card_id) + " 触控必杀只放置对应原表卡一次", len(state(page)["cards"]) == 1
                           and state(page)["cards"][0]["card"] == ref and len(events(page, "ultimateSpent")) == 1)

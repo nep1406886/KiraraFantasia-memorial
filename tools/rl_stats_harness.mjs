@@ -229,7 +229,7 @@ function scanRuntime(dir) {
 // asset/gacha/cards.js and asset/town/ list CDN urls in meta provenance
 // blocks -- those are fetch-source records, not runtime hotlinks, and the
 // town data is a peer's; a hit inside those files is not ours to fail on.
-["game", "core", "site/asset/rl"].forEach(scanRuntime);
+["site/game", "site/core", "site/asset/rl"].forEach(scanRuntime);
 check("no runtime code hotlinks the CDNs", hotlinkHits.length === 0, hotlinkHits.join("; "));
 
 console.log(failures ? "\n" + failures + " FAILED" : "\nall stats checks passed");

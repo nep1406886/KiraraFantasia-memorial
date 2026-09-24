@@ -1,3 +1,5 @@
+var assetUrl = window.kirafanPage.assetUrl;
+
 var thumbnailMap = {
     "none": "imgs/kirara.png",
     "kirara": "imgs/kirara.png",
@@ -32,7 +34,7 @@ Vue.filter('addStars', function (str) {
     return str.replace(/3\*/g, "3★").replace(/4\*/g, "4★").replace(/5\*/g, "5★");
 });
 Vue.filter('elementImage', function (val) {
-    return elementsMap[val];
+    return assetUrl(elementsMap[val]);
 });
 
 Vue.directive('tooltip', {
@@ -109,6 +111,14 @@ var vm = new Vue({
         }
     },
     methods: {
+        artworkSrcset: function (artwork) {
+            var image = artwork.images[0];
+            var name = image.path.split("/").pop().replace(/\.[^.]+$/, "");
+            var small = Math.min(640, image.width);
+            var large = Math.min(960, image.width);
+            var full = assetUrl("imgs/optimized/" + name + "-960.webp") + " " + large + "w";
+            return small === large ? full : assetUrl("imgs/optimized/" + name + "-640.webp") + " " + small + "w, " + full;
+        },
         changeTimezone: function () {
             var c, t, e, col, ev, timer, data = this.timersData;
 
@@ -242,6 +252,11 @@ var vm = new Vue({
                 } else if (thumbnailMap.hasOwnProperty(ev.image.toLowerCase())) {
                     ev.image = thumbnailMap[ev.image.toLowerCase()];
                 }
+            }
+
+            ev.image = assetUrl(ev.image);
+            if (ev.imageList) {
+                ev.imageList = ev.imageList.map(assetUrl);
             }
 
             // How long the event will still be displayed after all of its timers are finished
@@ -399,8 +414,9 @@ var vm = new Vue({
         // UPDATE FUNCTIONS 切换时间 那里的显示数据
         updateClocks: function () {
             moment.locale("zh-cn");
-            this.japanTime = moment().tz('Asia/Tokyo').format("dddd, MMMM Do YYYY, h:mm:ss");
-            this.localTime = moment().format("dddd, MMMM Do YYYY, h:mm:ss");
+            var now = moment();
+            this.japanTime = now.clone().tz('Asia/Tokyo').format("YYYY年M月D日 ddd HH:mm:ss");
+            this.localTime = now.format("YYYY年M月D日 ddd HH:mm:ss");
             this.updateTimerData();
         },
         updateTimerData: function () {
@@ -428,7 +444,14 @@ var vm = new Vue({
 
                 }
 
-                col.sort(this.prioritySort);
+                // Vue observes sort() even when the order is unchanged. Avoid
+                // invalidating the whole page on every clock tick.
+                for (var index = 1; index < col.length; index++) {
+                    if (this.prioritySort(col[index - 1], col[index]) > 0) {
+                        col.sort(this.prioritySort);
+                        break;
+                    }
+                }
             }
         },
         updateDailyQuest: function (ev, now, nowMoment, localZone) {
@@ -643,15 +666,17 @@ var vm = new Vue({
             }
         }
     },
+    beforeDestroy: function () {
+        if (this._stopClock) {
+            this._stopClock();
+        }
+    },
     created: function () {
         this.loadQueryParams();
         this.buildTimerData(timerData);
-        this.updateTimerData();
         this.updateClocks();
         this.changeTimezone();
-        // 设置语言环境
-
-        setInterval(this.updateClocks, 1 * 1000);
+        this._stopClock = window.kirafanPage.visibleInterval(this.updateClocks, 1000);
 
         // Load artworks from static JS (pure static site, no fetch needed)
         this.shutdownArtworks = (window.kirafanShutdownArtworks && window.kirafanShutdownArtworks.items) || [];
@@ -672,10 +697,13 @@ var vm = new Vue({
         var autoplayTimer;
         var touchStartX = null;
         var autoplayDelay = 5200;
-        var transitionTimer;
         var slideCleanupTimer;
         var motionPreference = window.matchMedia("(prefers-reduced-motion: reduce)");
-        var interactionPaused = false;
+        var inView = !("IntersectionObserver" in window);
+        var hoverPaused = false;
+        var focusPaused = false;
+        var manualPaused = false;
+        var pauseButton = document.getElementById("officialHeroPause");
 
         if (slides.length < 2) {
             return;
@@ -697,6 +725,7 @@ var vm = new Vue({
                 return Promise.resolve(true);
             }
 
+            image.loading = "eager";
             Array.prototype.forEach.call(sources, function (source) {
                 source.srcset = source.dataset.srcset;
                 source.removeAttribute("data-srcset");
@@ -761,35 +790,31 @@ var vm = new Vue({
         }
 
         function canAutoplay() {
-            return !document.hidden && !motionPreference.matches && !interactionPaused;
+            return inView && !document.hidden && !motionPreference.matches && !hoverPaused && !focusPaused && !manualPaused;
+        }
+
+        function prefetchNext() {
+            if (canAutoplay() && !(navigator.connection && navigator.connection.saveData)) {
+                hydrateSlide(activeIndex + 1);
+            }
         }
 
         function resetAutoplay() {
             window.clearTimeout(autoplayTimer);
             var autoplayEnabled = canAutoplay();
             root.classList.toggle("is-autoplay-paused", !autoplayEnabled);
+            if (pauseButton) {
+                pauseButton.hidden = motionPreference.matches;
+                pauseButton.textContent = manualPaused ? "继续轮播" : "暂停轮播";
+                pauseButton.setAttribute("aria-pressed", String(manualPaused));
+            }
             if (!autoplayEnabled) {
                 return;
             }
-            var activeDot = dots[activeIndex];
-            if (activeDot) {
-                activeDot.classList.remove("is-active");
-                void activeDot.offsetWidth;
-                activeDot.classList.add("is-active");
-            }
+            prefetchNext();
             autoplayTimer = window.setTimeout(function () {
                 showSlide(activeIndex + 1);
             }, autoplayDelay);
-        }
-
-        function playHeroTransition() {
-            window.clearTimeout(transitionTimer);
-            root.classList.remove("is-transitioning");
-            void root.offsetWidth;
-            root.classList.add("is-transitioning");
-            transitionTimer = window.setTimeout(function () {
-                root.classList.remove("is-transitioning");
-            }, 1100);
         }
 
         function showSlide(index) {
@@ -823,7 +848,6 @@ var vm = new Vue({
                 slides[nextIndex].setAttribute("aria-hidden", "false");
                 activeIndex = nextIndex;
                 updateControls();
-                playHeroTransition();
 
                 slideCleanupTimer = window.setTimeout(function () {
                     slides.forEach(function (slide) {
@@ -831,7 +855,13 @@ var vm = new Vue({
                     });
                 }, 950);
 
-                hydrateSlide(activeIndex + 1);
+                resetAutoplay();
+            });
+        }
+
+        if (pauseButton) {
+            pauseButton.addEventListener("click", function () {
+                manualPaused = !manualPaused;
                 resetAutoplay();
             });
         }
@@ -858,20 +888,20 @@ var vm = new Vue({
             }
         }, { passive: true });
         root.addEventListener("mouseenter", function () {
-            interactionPaused = true;
+            hoverPaused = true;
             resetAutoplay();
         });
         root.addEventListener("mouseleave", function () {
-            interactionPaused = false;
+            hoverPaused = false;
             resetAutoplay();
         });
         root.addEventListener("focusin", function () {
-            interactionPaused = true;
+            focusPaused = true;
             resetAutoplay();
         });
         root.addEventListener("focusout", function (event) {
             if (!root.contains(event.relatedTarget)) {
-                interactionPaused = false;
+                focusPaused = false;
                 resetAutoplay();
             }
         });
@@ -880,58 +910,22 @@ var vm = new Vue({
             motionPreference.addEventListener("change", resetAutoplay);
         }
 
-        hydrateSlide(0).then(function () {
-            hydrateSlide(1);
-            resetAutoplay();
-        });
+        if ("IntersectionObserver" in window) {
+            var observer = new IntersectionObserver(function (entries) {
+                inView = entries[0].isIntersecting;
+                if (inView) {
+                    hydrateSlide(activeIndex).then(resetAutoplay);
+                }
+                resetAutoplay();
+            }, { threshold: 0.01 });
+            observer.observe(root);
+        } else {
+            hydrateSlide(0).then(resetAutoplay);
+        }
+        resetAutoplay();
     }
 
     document.addEventListener("DOMContentLoaded", initOfficialHeroCarousel);
-})();
-
-(function () {
-    function initScrollReveals() {
-        var items = Array.prototype.slice.call(document.querySelectorAll(
-            ".official-roster-copy, .official-hero-carousel, .section-heading, .memory-card, .comments-frame, .memorial-entry"
-        ));
-
-        if (!items.length) {
-            return;
-        }
-
-        items.forEach(function (item, index) {
-            item.classList.add("motion-reveal");
-            item.style.setProperty("--motion-delay", ((index % 6) * 70) + "ms");
-        });
-
-        if (!("IntersectionObserver" in window)) {
-            items.forEach(function (item) {
-                item.classList.add("is-in-view");
-            });
-            return;
-        }
-
-        var observer = new IntersectionObserver(function (entries) {
-            entries.forEach(function (entry) {
-                if (!entry.isIntersecting) {
-                    return;
-                }
-                entry.target.classList.add("is-in-view");
-                observer.unobserve(entry.target);
-            });
-        }, {
-            rootMargin: "0px 0px -8% 0px",
-            threshold: 0.08
-        });
-
-        items.forEach(function (item) {
-            observer.observe(item);
-        });
-    }
-
-    document.addEventListener("DOMContentLoaded", function () {
-        window.requestAnimationFrame(initScrollReveals);
-    });
 })();
 
 (function () {
@@ -991,7 +985,7 @@ var vm = new Vue({
 
             preloadedImage.addEventListener("load", finish, { once: true });
             preloadedImage.addEventListener("error", finish, { once: true });
-            preloadedImage.src = offering.image;
+            preloadedImage.src = assetUrl(offering.image);
             if (preloadedImage.complete) {
                 finish();
             }
@@ -1010,6 +1004,10 @@ var vm = new Vue({
     // 点击后先完成点燃与烟雾扩散，再揭示预加载好的角色。
     function playOfferingEffect(shrine) {
         if (!shrine) {
+            return;
+        }
+        if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+            if (activeSmokeCleanup) { activeSmokeCleanup(); }
             return;
         }
 
@@ -1275,6 +1273,7 @@ var vm = new Vue({
             modal.classList.remove("is-visible");
             window.setTimeout(function () {
                 modal.hidden = true;
+                button.focus({ preventScroll: true });
             }, 240);
         }
 
@@ -1315,7 +1314,7 @@ var vm = new Vue({
                 characterSeries.textContent = offering.series || "きららファンタジア";
                 messageName.textContent = offering.japanese;
                 image.alt = offering.japanese + (offering.chinese ? " / " + offering.chinese : "");
-                image.src = offering.image;
+                image.src = assetUrl(offering.image);
 
                 var imageReady = typeof image.decode === "function"
                     ? image.decode().catch(function () { return; })
@@ -1326,10 +1325,16 @@ var vm = new Vue({
                 modal.classList.remove("is-revealing");
                 void modal.offsetWidth;
                 modal.hidden = false;
-                window.requestAnimationFrame(function () {
+                function revealOffering() {
                     modal.classList.add("is-visible");
                     modal.classList.add("is-revealing");
-                });
+                    modal.querySelector(".offering-close").focus({ preventScroll: true });
+                }
+                if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+                    revealOffering();
+                } else {
+                    window.requestAnimationFrame(revealOffering);
+                }
                 button.disabled = false;
                 button.removeAttribute("aria-busy");
                 closeTimer = window.setTimeout(closeOffering, 8000);
@@ -1339,8 +1344,17 @@ var vm = new Vue({
         modal.querySelectorAll("[data-close-offering]").forEach(function (element) {
             element.addEventListener("click", closeOffering);
         });
-        modal.addEventListener("click", function (event) {
-            closeOffering();
+        modal.addEventListener("keydown", function (event) {
+            if (event.key !== "Tab") { return; }
+            var first = modal.querySelector(".offering-close");
+            var last = characterWiki;
+            if (event.shiftKey && document.activeElement === first) {
+                event.preventDefault();
+                last.focus();
+            } else if (!event.shiftKey && document.activeElement === last) {
+                event.preventDefault();
+                first.focus();
+            }
         });
         document.addEventListener("keydown", function (event) {
             if (event.key === "Escape" && !modal.hidden) {
@@ -1348,7 +1362,11 @@ var vm = new Vue({
             }
         });
         renderCount();
-        prepareNextOffering();
+        function warmOffering() {
+            if (!preparedOffering) { prepareNextOffering(); }
+        }
+        button.addEventListener("pointerenter", warmOffering);
+        button.addEventListener("focus", warmOffering);
     }
 
     function markCounterUnavailable() {
@@ -1374,30 +1392,69 @@ var vm = new Vue({
         var config = window.kirafanGiscus;
         var target = document.getElementById("giscusThread");
         var setupNotice = document.getElementById("giscusSetupNotice");
+        var status = document.getElementById("giscusStatus");
+        var retry = document.getElementById("giscusRetry");
         if (!config || !target || !setupNotice) {
             return;
         }
         if (!config.categoryId) {
             setupNotice.hidden = false;
+            if (status) { status.hidden = true; }
             return;
         }
 
-        var script = document.createElement("script");
-        script.src = "https://giscus.app/client.js";
-        script.async = true;
-        script.crossOrigin = "anonymous";
-        Object.keys(config).forEach(function (key) {
-            if (key === "categoryId") {
-                script.dataset.categoryId = config[key];
-                return;
+        var started = false;
+        function load() {
+            if (started) { return; }
+            started = true;
+            target.setAttribute("aria-busy", "true");
+            if (status) {
+                status.hidden = false;
+                status.textContent = "正在打开留言簿……";
             }
-            if (key === "theme") {
-                script.dataset.theme = giscusTheme(config[key]);
-                return;
-            }
-            script.dataset[key] = config[key];
-        });
-        target.appendChild(script);
+            if (retry) { retry.hidden = true; }
+            var script = document.createElement("script");
+            script.src = "https://giscus.app/client.js";
+            script.async = true;
+            script.crossOrigin = "anonymous";
+            Object.keys(config).forEach(function (key) {
+                script.dataset[key] = key === "theme" ? giscusTheme(config[key]) : config[key];
+            });
+            script.addEventListener("load", function () {
+                target.removeAttribute("aria-busy");
+                if (status) { status.hidden = true; }
+            }, { once: true });
+            script.addEventListener("error", function () {
+                started = false;
+                script.remove();
+                target.removeAttribute("aria-busy");
+                if (status) { status.textContent = "留言簿暂时无法连接，不影响浏览其他纪念内容。"; }
+                if (retry) { retry.hidden = false; }
+            }, { once: true });
+            target.appendChild(script);
+        }
+
+        if (retry) { retry.addEventListener("click", load); }
+        if ("IntersectionObserver" in window) {
+            var observer = new IntersectionObserver(function (entries) {
+                if (entries[0].isIntersecting) {
+                    observer.disconnect();
+                    load();
+                }
+            }, { rootMargin: "300px" });
+            observer.observe(target);
+        } else {
+            load();
+        }
+        var themePreference = window.matchMedia("(prefers-color-scheme: dark)");
+        if (themePreference.addEventListener) {
+            themePreference.addEventListener("change", function () {
+                var frame = target.querySelector("iframe.giscus-frame");
+                if (frame && frame.contentWindow) {
+                    frame.contentWindow.postMessage({ giscus: { setConfig: { theme: giscusTheme(config.theme) } } }, "https://giscus.app");
+                }
+            });
+        }
     }
 
     // giscus renders in an iframe on its own origin, so a custom theme has to be
@@ -1412,6 +1469,9 @@ var vm = new Vue({
     // reason, so ask for a built-in theme by name instead of a URL that is
     // guaranteed to fail. That is the case when serving the site locally.
     function giscusTheme(value) {
+        if (window.matchMedia("(prefers-color-scheme: dark)").matches) {
+            return "dark";
+        }
         var theme = String(value || "");
         if (!theme || !/\.css(\?|$)/.test(theme)) {
             return theme || "light";
@@ -1538,15 +1598,11 @@ var vm = new Vue({
             unique: "とっておき / 必杀技"
         };
         var activeGroup = "all";
-
-        buildBgmMenu();
+        var menuBuilt = false;
 
         if (enabled) {
-            loadTrack();
-            var request = audio.play();
-            if (request && typeof request.catch === "function") {
-                request.catch(function () { /* waits for the first user gesture */ });
-            }
+            // Wait for a gesture instead of downloading music that autoplay
+            // policy will refuse. The existing saved sound preference stays intact.
             document.addEventListener("pointerdown", unlockBgm);
             document.addEventListener("keydown", unlockBgm);
         }
@@ -1654,7 +1710,7 @@ var vm = new Vue({
         function loadTrack() {
             if (loadedIndex !== currentIndex) {
                 loadedIndex = currentIndex;
-                audio.src = bgmTracks[currentIndex].src;
+                audio.src = assetUrl(bgmTracks[currentIndex].src);
             }
         }
 
@@ -1675,9 +1731,12 @@ var vm = new Vue({
             syncBgmPlayer();
         }
 
-        function unlockBgm() {
+        function unlockBgm(event) {
             document.removeEventListener("pointerdown", unlockBgm);
             document.removeEventListener("keydown", unlockBgm);
+            if (event.target.closest && event.target.closest("#bgmToggle, .bgm-track")) {
+                return;
+            }
             if (enabled) {
                 playBgm();
                 syncBgmPlayer();
@@ -1688,7 +1747,12 @@ var vm = new Vue({
             menu.hidden = !open;
             menuToggle.setAttribute("aria-expanded", open ? "true" : "false");
             if (open) {
-                renderList();
+                if (!menuBuilt) {
+                    buildBgmMenu();
+                    menuBuilt = true;
+                } else {
+                    renderList();
+                }
             }
         }
 

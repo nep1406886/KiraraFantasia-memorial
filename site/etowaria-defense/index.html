@@ -1,0 +1,137 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#fffde4">
+  <meta name="description" content="芳文幻想：里之守望。使用原生角色、场景与特效的非官方同人防卫企划。">
+  <meta name="referrer" content="no-referrer">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self' blob: data:; script-src 'self' 'unsafe-inline' 'wasm-unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; media-src 'self' blob:; connect-src 'self' blob:; object-src 'none'; base-uri 'self'">
+  <title>里之守望 · 芳文幻想</title>
+  <link rel="icon" href="../favicon.png">
+  <link rel="stylesheet" href="./styles/shell.css">
+  <link rel="stylesheet" href="./styles/campaign.css">
+  <script type="importmap">{"imports":{"three":"../vendor/three/three.module.min.js"}}</script>
+</head>
+<body>
+  <main id="app">
+    <section id="title-screen" class="screen title-screen" aria-labelledby="game-title">
+      <div class="title-art" aria-hidden="true"></div>
+      <div class="title-wordmark">
+        <p class="franchise-name">芳文幻想</p>
+        <h1 id="game-title">里之守望</h1>
+        <p class="title-promise">今天也，一起守好这片日常。</p>
+        <p class="title-phase">里口花径开放前三关</p>
+      </div>
+      <nav class="panel title-menu" aria-label="主菜单">
+        <h2>新的巡守，从这里开始</h2>
+        <p>选择伙伴，照顾每一条道路。</p>
+        <button class="native-button primary" id="start-campaign" disabled>准备资料中…</button>
+        <button class="native-button" id="open-roster">角色与招式</button>
+        <div class="menu-tools"><button class="native-button compact" id="enter-scene" disabled>演出观察</button><button class="native-button compact" data-open-settings>声音设置</button></div>
+        <button class="text-button" id="open-about">素材与制作说明</button>
+        <p class="menu-note">音乐将在首次操作后开始播放</p>
+      </nav>
+      <div class="panel chapter-intro">
+        <div><h2>第一章　里口花径</h2><p>先画好布阵图，再迎接第一位来客。</p></div>
+        <div class="chapter-faces" aria-label="本田珠辉、千矢、由乃">
+          <img src="../asset/img/rl/icon/16002001.webp" alt="本田珠辉" width="84" height="84">
+          <img src="../asset/img/rl/icon/17002001.webp" alt="千矢" width="84" height="84">
+          <img src="../asset/img/rl/icon/10002001.webp" alt="由乃" width="84" height="84">
+        </div>
+      </div>
+      <footer class="title-footer"><span>非官方同人企划</span><span>前三关试玩，后续章节制作中</span></footer>
+    </section>
+
+    <section id="roster-screen" class="screen roster-screen" aria-labelledby="roster-heading" hidden>
+      <header class="panel screen-header">
+        <button class="native-button compact" id="roster-back">返回</button>
+        <h2 id="roster-heading">角色与招式</h2>
+        <p>观察模式可带入六位伙伴，不改变巡守解锁</p>
+        <button class="native-button primary compact" id="roster-enter">进入场景</button>
+      </header>
+      <div class="roster-layout">
+        <aside class="panel roster-detail" aria-live="polite">
+          <div class="portrait-wrap"><img id="detail-card" alt=""><p id="card-gap" hidden>该卡全身图尚待核验，当前显示精确头像</p></div>
+          <h3 id="detail-name"></h3>
+          <p id="detail-work" class="muted"></p>
+          <div id="detail-identity" class="identity-row"></div>
+          <p id="detail-role" class="detail-role"></p>
+          <p id="detail-cost" class="muted"></p>
+          <details class="original-skills"><summary>原卡技能与身份</summary><div id="detail-skills"></div></details>
+          <button id="toggle-party" class="native-button compact">加入场景</button>
+        </aside>
+        <div class="panel roster-catalogue">
+          <div class="tab-row" role="tablist" aria-label="职业筛选" id="roster-tabs"></div>
+          <div id="roster-grid" class="roster-grid" aria-label="角色目录"></div>
+          <footer class="party-footer">
+            <div class="party-heading"><h3>本次伙伴</h3><p id="party-count"></p><button id="restore-party" class="text-button">恢复推荐</button></div>
+            <div id="party-slots" class="party-slots"></div>
+            <p class="muted roster-disclosure">此阶段用于检查模型与招式；费用为规划值，不消耗资源。</p>
+          </footer>
+        </div>
+      </div>
+    </section>
+
+    <section id="campaign-screen" class="screen campaign-screen" aria-label="里口花径巡守" hidden></section>
+
+    <section id="stage-screen" class="screen stage-screen" aria-labelledby="stage-heading" hidden>
+      <header class="stage-header panel">
+        <button class="native-button compact" id="stage-back">返回编队</button>
+        <div class="stage-title"><h2 id="stage-heading">里口花径</h2><p id="stage-subtitle">原生角色与场地试演</p></div>
+        <label class="scene-select-label">场景<select id="scene-theme"><option value="day">里口花径</option><option value="camp">星灯营地</option><option value="water">浅湾合宿</option></select></label>
+        <button class="native-button compact" id="toggle-grid" aria-pressed="false">显示格位</button>
+        <button class="native-button compact" data-open-settings>声音</button>
+      </header>
+      <div id="stage-loadout" class="stage-loadout" aria-label="选择场上的伙伴"></div>
+      <div id="stage-viewport" class="stage-viewport" role="group" aria-label="原生模型战场；点选伙伴后可在空格试摆">
+        <div id="stage-canvas"></div>
+        <div class="stage-location"><span id="scene-caption">里外的花径</span><span>场景样机</span></div>
+        <div class="scene-directions" aria-hidden="true"><span>里入口</span><span>来袭方向</span></div>
+        <p class="viewport-hint" id="viewport-hint">点选伙伴，再点空格调整位置</p>
+        <div id="stage-labels" class="stage-labels" aria-hidden="true"></div>
+        <div id="stage-loading" class="stage-loading" role="status" hidden><div class="panel loading-card"><h3>把大家的身影准备好</h3><p id="loading-progress">读取原生模型与表情…</p><progress id="loading-progress-bar" max="1" value="0"></progress></div></div>
+        <div id="portrait-notice" class="portrait-notice" hidden><div class="panel"><h3>横过手机，看清完整防线</h3><p>编队和图鉴可在竖屏浏览。场景试演请使用横屏。</p><button id="portrait-back" class="native-button compact">返回编队</button></div></div>
+      </div>
+      <footer class="panel stage-controls">
+        <div class="selected-unit-info"><strong id="selected-unit-name">本田珠辉</strong><span id="selected-unit-role">同路输出</span></div>
+        <div class="action-buttons" role="group" aria-label="原生动作试演">
+          <button class="native-button compact" id="play-attack">普通攻击</button>
+          <button class="native-button compact" id="play-skill">职业技</button>
+          <button class="native-button compact" id="play-ultimate">とっておき</button>
+          <button class="native-button compact" id="play-damage">受击</button>
+          <button class="native-button compact" id="play-win">胜利动作</button>
+        </div>
+        <div class="demo-buttons"><button class="native-button primary compact" id="play-demo">试演攻防</button><button class="native-button compact" id="stage-pause" aria-pressed="false">暂停</button><button class="text-button" id="reset-stage">重置站位</button></div>
+      </footer>
+      <p id="stage-status" class="stage-status" role="status">选择一位伙伴，查看真实动作与特效。</p>
+    </section>
+  </main>
+
+  <dialog id="settings-dialog" class="panel app-dialog" aria-labelledby="settings-title">
+    <form method="dialog"><header><h2 id="settings-title">声音与显示</h2><button class="native-button compact" value="close">关闭</button></header></form>
+    <label class="setting-row"><span>原作背景音乐</span><input id="music-enabled" type="checkbox" checked></label>
+    <label class="setting-row"><span>音乐音量</span><input id="music-volume" type="range" min="0" max="100" value="35"><output id="music-value">35%</output></label>
+    <label class="setting-row"><span>原作必杀语音</span><input id="voice-enabled" type="checkbox" checked></label>
+    <label class="setting-row"><span>减少装饰动效</span><input id="reduce-motion" type="checkbox"></label>
+    <p class="muted">当前使用本地原作 BGM 与已核验的必杀语音。普通 SE 尚未接入，不以合成音冒充原声。</p>
+  </dialog>
+
+  <dialog id="about-dialog" class="panel app-dialog" aria-labelledby="about-title">
+    <form method="dialog"><header><h2 id="about-title">素材与制作说明</h2><button class="native-button compact" value="close">关闭</button></header></form>
+    <p>《里之守望》是使用《きららファンタジア》原作素材的非官方同人防卫企划，不是原作官方续篇。</p>
+    <p>当前开放前三关巡守：资源生产与拾取、部署、挡线、治疗、波次与通关记录。角色与招式页另保留原模型观察模式，完整三十关和其余部署内容仍在制作。</p>
+    <ul><li>角色由精确卡号绑定职业、属性、表情与模型。</li><li>界面使用原 CommonUIAtlas 的窗体、按钮和图标。</li><li>场景使用独立提取的原 Room 背景、地板和家具。</li><li>魔物行进是按原骨架制作的同人补充动作，不冒称原作行走动画。</li><li>新地图、布局与防卫故事属于本作改编。</li></ul>
+    <p class="muted">所有权归原权利方。本地研究版本未经公开发布许可审查。</p>
+  </dialog>
+
+  <dialog id="error-dialog" class="panel app-dialog" aria-labelledby="error-title">
+    <h2 id="error-title">有一份素材还没有准备好</h2><p id="error-message"></p>
+    <div class="dialog-actions"><button id="retry-stage" class="native-button primary compact">重新准备</button><button id="error-back" class="native-button compact">返回标题</button></div>
+  </dialog>
+  <div id="cinematic-controls" class="cinematic-controls panel" hidden><span id="cinematic-title">原作とっておき</span><button id="close-cinematic" class="native-button compact">返回场景</button></div>
+  <div id="toast" role="status" class="toast" hidden></div>
+  <noscript>请启用 JavaScript 以浏览角色和原生场景。</noscript>
+  <script type="module" src="./app/main.js"></script>
+</body>
+</html>

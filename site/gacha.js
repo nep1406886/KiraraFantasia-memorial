@@ -12,6 +12,9 @@
         ? data.meta.originalTitleType
         : 22;
     var pageSize = 24;
+    var catalogSearch = null;
+    var cardSearchText = new WeakMap();
+    var summonArtworkReady = null;
     var classIconFiles = {
         0: "gacha/ui/ClassIconFighter.png",
         1: "gacha/ui/ClassIconMagician.png",
@@ -79,6 +82,17 @@
         while (element.firstChild) {
             element.removeChild(element.firstChild);
         }
+    }
+
+    function warmSummonArtwork() {
+        if (!summonArtworkReady) {
+            summonArtworkReady = Promise.all(Array.from(document.querySelectorAll("[data-summon-src]")).map(function (image) {
+                image.src = image.dataset.summonSrc;
+                image.removeAttribute("data-summon-src");
+                return typeof image.decode === "function" ? image.decode().catch(function () {}) : Promise.resolve();
+            }));
+        }
+        return summonArtworkReady;
     }
 
     function loadGachaKeyRenderer() {
@@ -219,7 +233,7 @@
         }
         var parameters = new URLSearchParams(window.location.search);
         var rarity = Number(parameters.get("debugRarity"));
-        var classType = Number(parameters.get("debugClass"));
+        var classType = parameters.has("debugClass") ? Number(parameters.get("debugClass")) : NaN;
         var fiveStarCount = Number(parameters.get("debugFive"));
         return {
             rarity: [3, 4, 5].indexOf(rarity) !== -1 ? rarity : null,
@@ -963,7 +977,7 @@
         characterStand.hidden = true;
         byId("summonResultOverlay").hidden = true;
         document.body.classList.add("summon-playing");
-        var keyRendererReady = loadGachaKeyRenderer();
+        var keyRendererReady = Promise.all([loadGachaKeyRenderer(), warmSummonArtwork()]);
         playSummonBgm();
 
         function isActive() {
@@ -1484,17 +1498,21 @@
             if (!query) {
                 return true;
             }
-            var haystack = normalizeSearch([
-                card.name,
-                card.nameZh,
-                card.nameEn,
-                card.character,
-                card.characterZh,
-                card.characterEn,
-                card.title,
-                card.titleZh,
-                card.titleEn
-            ].join(" "));
+            var haystack = cardSearchText.get(card);
+            if (haystack === undefined) {
+                haystack = normalizeSearch([
+                    card.name,
+                    card.nameZh,
+                    card.nameEn,
+                    card.character,
+                    card.characterZh,
+                    card.characterEn,
+                    card.title,
+                    card.titleZh,
+                    card.titleEn
+                ].join(" "));
+                cardSearchText.set(card, haystack);
+            }
             return haystack.indexOf(query) !== -1;
         });
     }
@@ -1529,7 +1547,10 @@
             button.addEventListener("click", function () {
                 state.catalogPage = page;
                 renderCatalog();
-                byId("catalogTitle").scrollIntoView({ behavior: "smooth", block: "start" });
+                byId("catalogTitle").scrollIntoView({
+                    behavior: window.matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth",
+                    block: "start"
+                });
             });
             navigation.appendChild(button);
         }
@@ -1548,6 +1569,7 @@
     }
 
     function renderCatalog() {
+        if (catalogSearch) { catalogSearch.sync(); }
         var cards = filteredCards();
         var totalPages = Math.max(1, Math.ceil(cards.length / pageSize));
         state.catalogPage = Math.min(state.catalogPage, totalPages);
@@ -1608,31 +1630,25 @@
         updateSoundButton();
         byId("languageFilter").value = state.language;
         rebuildActivePool();
-        Promise.all([playGachaBgm(), playRoomGreeting()]).then(function (started) {
-            var bgmStarted = started[0];
-            var greetingStarted = started[1];
-            if ((bgmStarted && greetingStarted) || !state.soundEnabled) {
+        function unlockRoomAudio(event) {
+            document.removeEventListener("pointerdown", unlockRoomAudio);
+            document.removeEventListener("keydown", unlockRoomAudio);
+            var target = event.target;
+            var handlesAudioDirectly = target && target.closest
+                && target.closest("#drawOne, #drawTen, #drawAgain, #soundToggle");
+            if (!state.soundEnabled || state.summonInProgress || handlesAudioDirectly) {
                 return;
             }
-
-            var unlockRoomAudio = function (event) {
-                document.removeEventListener("pointerdown", unlockRoomAudio);
-                document.removeEventListener("keydown", unlockRoomAudio);
-                var target = event.target;
-                var handlesAudioDirectly = target && target.closest
-                    && target.closest("#drawOne, #drawTen, #drawAgain, #soundToggle");
-                if (!state.soundEnabled || state.summonInProgress || handlesAudioDirectly) {
-                    return;
-                }
-                if (!bgmStarted) {
-                    playGachaBgm();
-                }
-                if (!greetingStarted && !state.roomGreetingPlayed) {
-                    playRoomGreeting();
-                }
-            };
-            document.addEventListener("pointerdown", unlockRoomAudio);
-            document.addEventListener("keydown", unlockRoomAudio);
+            playGachaBgm();
+            if (!state.roomGreetingPlayed) {
+                playRoomGreeting();
+            }
+        }
+        document.addEventListener("pointerdown", unlockRoomAudio);
+        document.addEventListener("keydown", unlockRoomAudio);
+        ["drawOne", "drawTen"].forEach(function (id) {
+            byId(id).addEventListener("pointerenter", warmSummonArtwork, { once: true });
+            byId(id).addEventListener("focus", warmSummonArtwork, { once: true });
         });
 
         byId("drawOne").addEventListener("click", function () { performSummon(1); });
@@ -1738,9 +1754,12 @@
                 updateViewer();
             }
         });
-        ["searchInput", "titleFilter", "rarityFilter"].forEach(function (id) {
-            var eventName = id === "searchInput" ? "input" : "change";
-            byId(id).addEventListener(eventName, function () {
+        catalogSearch = window.kirafanPage.bindSearch(byId("searchInput"), function () {
+            state.catalogPage = 1;
+            renderCatalog();
+        });
+        ["titleFilter", "rarityFilter"].forEach(function (id) {
+            byId(id).addEventListener("change", function () {
                 state.catalogPage = 1;
                 renderCatalog();
             });

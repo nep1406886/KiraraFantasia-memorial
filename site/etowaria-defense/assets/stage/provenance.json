@@ -1,0 +1,103 @@
+[
+  {
+    "output": "day.webp",
+    "source": "site/etowaria-defense/assets/room/background_1006_0/Background_1006_0.png",
+    "sha256": "99a17189ee7bf4e1da53b50c3b33fd9dda8ddbe542df99f971253cbe4e8c8270",
+    "crop": [
+      36,
+      232,
+      992,
+      872
+    ]
+  },
+  {
+    "output": "camp.webp",
+    "source": "site/etowaria-defense/assets/room/background_1013_1/Background_1013_1.png",
+    "sha256": "59256272fff87978f27dd3dfaa692f9e2bcbaf4756e592e6d1156f523a5ebe66",
+    "crop": [
+      36,
+      152,
+      992,
+      872
+    ]
+  },
+  {
+    "output": "water.webp",
+    "source": "site/etowaria-defense/assets/room/background_1013_0/Background_1013_0.png",
+    "sha256": "88071761365cf3e01a6fa2aafc028b2d676e9b941ca490ad6729f7c712e331d7",
+    "crop": [
+      36,
+      152,
+      992,
+      872
+    ]
+  },
+  {
+    "output": "day-field.webp",
+    "source": "site/etowaria-defense/assets/room/background_1006_0/Background_1006_0.png",
+    "sha256": "99a17189ee7bf4e1da53b50c3b33fd9dda8ddbe542df99f971253cbe4e8c8270",
+    "sourceCrop": [
+      260,
+      754,
+      930,
+      850
+    ],
+    "adaptation": "Continuous lane ground made from original Room grass; subtle brightness bands and feathered edge are new layout"
+  },
+  {
+    "output": "camp-field.webp",
+    "source": "site/etowaria-defense/assets/room/background_1013_1/Background_1013_1.png",
+    "sha256": "59256272fff87978f27dd3dfaa692f9e2bcbaf4756e592e6d1156f523a5ebe66",
+    "sourceCrop": [
+      160,
+      772,
+      860,
+      868
+    ],
+    "adaptation": "Continuous lane ground made from original Room grass; subtle brightness bands and feathered edge are new layout"
+  },
+  {
+    "output": "water-field.webp",
+    "source": "site/etowaria-defense/assets/room/background_1013_0/Background_1013_0.png",
+    "sha256": "88071761365cf3e01a6fa2aafc028b2d676e9b941ca490ad6729f7c712e331d7",
+    "sourceCrop": [
+      160,
+      772,
+      860,
+      868
+    ],
+    "adaptation": "Continuous lane ground made from original Room grass; subtle brightness bands and feathered edge are new layout"
+  },
+  {
+    "output": "water-surface.webp",
+    "source": "site/etowaria-defense/assets/room/floor_1012_m_0/Floor_1012_M_0_rgb.png",
+    "sha256": "ea849ec6ab0eb537019819c59746081eb302734acf5710da820ac6b59051a303",
+    "sourceQuad": [
+      512,
+      308,
+      124,
+      502,
+      512,
+      694,
+      900,
+      502
+    ],
+    "adaptation": "Unproject original Room floor surface; no new pattern or colorization"
+  },
+  {
+    "output": "sand-surface.webp",
+    "source": "site/etowaria-defense/assets/room/floor_1013_m/Floor_1013_M_rgb.png",
+    "sha256": "d1fb829189a28bbdb99fcca9e5934d5e2db5c2e7dabfa31a97c1f13308ee09fd",
+    "sourceQuad": [
+      512,
+      308,
+      124,
+      502,
+      512,
+      694,
+      900,
+      502
+    ],
+    "adaptation": "Unproject original Room floor surface; no new pattern or colorization"
+  }
+]

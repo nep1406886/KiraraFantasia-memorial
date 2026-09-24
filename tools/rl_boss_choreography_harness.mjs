@@ -12,7 +12,7 @@ import { stopCircle, circleOverlapsRect } from "../site/game/rl/geometry.js";
 import { loadMeasurementData, createMeasurementWorld } from "./rl_world_balance.mjs";
 
 const DT = 1 / 60, data = loadMeasurementData();
-const facts = JSON.parse(readFileSync(new URL("../docs/enemy-choreography-source.json", import.meta.url), "utf8"));
+const facts = JSON.parse(readFileSync(new URL("../docs/data/enemy-choreography-source.json", import.meta.url), "utf8"));
 const specs = new Map(data.encounters.flatMap(v => [v.boss, ...v.elites, ...v.mobs]).map(s => [s.id, s]));
 let passed = 0, failed = 0;
 function test(name, fn) {

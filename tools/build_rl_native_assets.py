@@ -19,7 +19,7 @@ from extract_uniqueskill_timeline import extract, read_scripts
 
 ROOT = Path(__file__).resolve().parent.parent
 CACHE = ROOT / ".codex-tmp" / "native-rl-bundles"
-OUT = ROOT / "asset" / "rl" / "native"
+OUT = ROOT / "site" / "asset" / "rl" / "native"
 CLASSES = ["fighter", "magician", "priest", "knight", "alchemist"]
 ELEMENTS = ["fire", "water", "earth", "wind", "moon", "sun"]
 BUILDINGS = ["100000", "110200", "110500", "110700", "111800", "112100",
@@ -152,12 +152,12 @@ def save_scene(key, exporter, timeline, source):
     dest = OUT / "scene" / (key + ".glb.gz")
     dest.parent.mkdir(parents=True, exist_ok=True)
     dest.write_bytes(gzip.compress(blob, mtime=0))
-    entry = {"file": dest.relative_to(ROOT).as_posix(), "compression": "gzip",
+    entry = {"file": dest.relative_to(ROOT / "site").as_posix(), "compression": "gzip",
              "bytes": dest.stat().st_size, "source": source, **stats}
     if timeline:
         path = OUT / "timeline" / (key + ".json")
         write(path, timeline)
-        entry["timeline"] = path.relative_to(ROOT).as_posix()
+        entry["timeline"] = path.relative_to(ROOT / "site").as_posix()
         entry["duration"] = timeline["duration"]
     return entry
 
@@ -240,14 +240,74 @@ def retain_furniture(manifest, destination):
     return manifest
 
 
+# eDmgEffectType (game-source Star/eDmgEffectType.cs) folded by
+# SkillActionUtility.ConvertDmgEffectID: an enemy solve event with a damage
+# effect plays ef_btl_dmg_enemy_attack_<kind>_<grade>.
+ENEMY_DMG_KINDS = {0: "slash", 1: "blow", 2: "bite", 3: "claw"}
+
+
+def export_enemy_attacks(assets):
+    """The enemy attack visuals: 4 kinds x 3 grades, plus the skill->effect map.
+
+    SkillActionPlan rows (database.muast) name the effect per enemy skill; the
+    bundles are the original's ef_btl_dmg_enemy_attack_* scenes. Both are
+    authored data, nothing is invented here.
+    """
+    db = database()
+    wanted = {f"ef_btl_dmg_enemy_attack_{kind}_{grade:02d}"
+              for kind in ENEMY_DMG_KINDS.values() for grade in range(3)}
+    packs = {}
+    for effect in sorted(wanted):
+        name = "effect/" + effect + ".muast"
+        if name not in assets:
+            raise SystemExit("enemy attack bundle absent from the index: " + name)
+        packs[name] = {effect}
+    print(f"Enemy attack plan: {len(packs)} bundles", flush=True)
+    with ThreadPoolExecutor(max_workers=6) as pool:
+        paths = dict(zip(packs, pool.map(download, [assets[name] for name in packs])))
+    effects = {}
+    for index, (name, ids) in enumerate(packs.items()):
+        effects.update(export_effects(paths[name], assets[name], ids))
+        print(f"enemy effects {index + 1}/{len(packs)} {name}", flush=True)
+    missing = wanted - effects.keys()
+    if missing:
+        raise SystemExit("enemy attack effects not found in their bundles: " + ", ".join(sorted(missing)))
+    skills = {}
+    for plan in db["SkillActionPlan"]:
+        if not str(plan["m_ID"]).startswith("EN_"):
+            continue
+        for event in plan["m_evSolve"]:
+            if not event["m_IsEnableDamageEffect"]:
+                continue
+            spec = event["m_DamageEffect"]
+            kind = ENEMY_DMG_KINDS.get(spec["m_EffectType"])
+            if not kind:
+                continue
+            grade = min(int(spec["m_Grade"]), 2)
+            skills[plan["m_ID"]] = {"effect": f"ef_btl_dmg_enemy_attack_{kind}_{grade:02d}",
+                                    "frame": event["m_Frame"]}
+            break
+    destination = OUT / "enemy-attacks.json"
+    write(destination, {"version": 1,
+                        "source": "SkillActionPlan m_evSolve / eDmgEffectType / ef_btl_dmg_enemy_attack_*",
+                        "effects": effects, "skills": skills})
+    print(f"Enemy attacks: {len(effects)} effects, {len(skills)} skills -> {destination}", flush=True)
+    return 0
+
+
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("--sample", action="store_true", help="Only export the five initially inspected bundles")
+    parser.add_argument("--enemy-attacks", action="store_true",
+                        help="Export the enemy damage effects (slash/blow/bite/claw, 3 grades) and the skill->effect map")
     parser.add_argument("--building-affiliations-only", action="store_true",
                         help="Verify and attach original town ownership to existing prefabs; no downloads or scene rebuild")
     parser.add_argument("--town-table", type=Path,
                         help="Explicit original TownObjectList JSON; its byte hash is recorded in the manifest")
     args = parser.parse_args()
+    if args.enemy_attacks:
+        CACHE.mkdir(parents=True, exist_ok=True)
+        assets = {row["name"]: row for row in read(ROOT / ".codex-tmp" / "assetBundle.json")}
+        return export_enemy_attacks(assets)
     affiliation = building_affiliations(args.town_table)
     if args.building_affiliations_only:
         destination = OUT / ("sample-index.json" if args.sample else "index.json")

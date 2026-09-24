@@ -36,7 +36,7 @@ function foe(w, x = 18, hp = 10000) {
     const a = foe(w), b = foe(w, 22);
     p.nextAtkBonus = .35;
     assert.equal(w.useUltimate().id, 150000000);
-    assert.equal(a.hp, 10000 - 619, "original 2.38 coefficient at 100 attack, tempo 2.6");
+    assert.equal(a.hp, 9012, "original 2.38 coefficient at 100 attack, tempo 4.15");
     assert.equal(b.hp, 10000, "single enemy is the nearest target");
     assert.equal(p.nextAtkBonus, .35, "ultimate preserves next normal swing bonus");
     assert.equal(p.skills.gauge, 0);
@@ -49,8 +49,8 @@ function foe(w, x = 18, hp = 10000) {
     p.nextAtkBonus = .5;
     const used = w.useUltimate();
     assert.equal(used.sceneId, "230001");
-    assert.equal(a.hp, 10000 - 988);
-    assert.equal(b.hp, 10000 - 988);
+    assert.equal(a.hp, 8423);
+    assert.equal(b.hp, 8423);
     assert.equal(p.nextAtkBonus, .5);
     assert.equal(w.danmaku.active, 0, "ultimate does not emit generic ring bullets");
     console.log("PASS all-target original magical payload");

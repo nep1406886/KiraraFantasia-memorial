@@ -228,7 +228,7 @@ function injectRosterStyles() {
  * @returns {HTMLElement} The roster overlay element
  */
 export function createRosterUI(options) {
-    const { cards, onSelect, onCancel, onCodex, onContinue, onTrain, onStorage, skillsTable } = options;
+    const { cards, onSelect, onCancel, onCodex, onAchievements, onContinue, onTrain, onStorage, skillsTable } = options;
 
     // The caller owns the playable roster and unlock filtering. Preserve its
     // order and same-name deduplication without a second, UI-local size cap.
@@ -335,6 +335,18 @@ export function createRosterUI(options) {
         actions.appendChild(codexBtn);
     }
 
+    // 成就 (plan 阶段 8): same camp-peek contract as the codex — the overlay
+    // stacks over the roster and dismissing it returns here.
+    if (onAchievements) {
+        const achvBtn = document.createElement("button");
+        achvBtn.id = "roster-achv";
+        achvBtn.textContent = "成就";
+        achvBtn.addEventListener("click", () => {
+            onAchievements();
+        });
+        actions.appendChild(achvBtn);
+    }
+
     // 局内续档: a saved run in flight resumes from here. The roster overlay
     // comes down with the resume (unlike the codex peek, which stacks), so
     // the button owns its removal — the showRoster promise stays pending,
@@ -434,6 +446,7 @@ export function showRoster(cards, options) {
             onSelect: (cardId) => resolve(cardId),
             onCancel: () => reject(new Error("Roster selection cancelled")),
             onCodex: opts.onCodex || null,
+            onAchievements: opts.onAchievements || null,
             onTrain: opts.onTrain || null,
             onStorage: opts.onStorage || null,
             onContinue: opts.onContinue || null,

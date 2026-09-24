@@ -1,0 +1,401 @@
+{
+  "background_1006_0": {
+    "bundle": "prefab/room/background/background_1006_0.muast",
+    "sha256": "79a91ed63ac4fe9697277486552362dac2d26df4262172a4ab896b9dbee5bf06",
+    "objects": {
+      "GameObject": 1,
+      "Shader": 1,
+      "Mesh": 1,
+      "MeshFilter": 1,
+      "Transform": 1,
+      "MeshRenderer": 1,
+      "AssetBundle": 1,
+      "Material": 1,
+      "Texture2D": 1
+    },
+    "images": [
+      {
+        "name": "Background_1006_0",
+        "file": "etowaria-defense/assets/room/background_1006_0/Background_1006_0.png",
+        "width": 1024,
+        "height": 1024,
+        "type": "Texture2D"
+      }
+    ],
+    "file": "etowaria-defense/assets/native/background_1006_0.glb.gz",
+    "compression": "gzip",
+    "stats": {
+      "nodes": 1,
+      "meshes": 1,
+      "materials": 1,
+      "textures": 1,
+      "emitters": 0,
+      "cardsWithheld": 0,
+      "layeredMaterials": 0
+    }
+  },
+  "background_1013_0": {
+    "bundle": "prefab/room/background/background_1013_0.muast",
+    "sha256": "1794b9825af8b52998b3aa9102e5b3d0b98dfa5729ad2697b657ba6be5dd293e",
+    "objects": {
+      "Shader": 1,
+      "MeshFilter": 1,
+      "AssetBundle": 1,
+      "GameObject": 1,
+      "Texture2D": 1,
+      "MeshRenderer": 1,
+      "Material": 1,
+      "Mesh": 1,
+      "Transform": 1
+    },
+    "images": [
+      {
+        "name": "Background_1013_0",
+        "file": "etowaria-defense/assets/room/background_1013_0/Background_1013_0.png",
+        "width": 1024,
+        "height": 1024,
+        "type": "Texture2D"
+      }
+    ],
+    "file": "etowaria-defense/assets/native/background_1013_0.glb.gz",
+    "compression": "gzip",
+    "stats": {
+      "nodes": 1,
+      "meshes": 1,
+      "materials": 1,
+      "textures": 1,
+      "emitters": 0,
+      "cardsWithheld": 0,
+      "layeredMaterials": 0
+    }
+  },
+  "background_1013_1": {
+    "bundle": "prefab/room/background/background_1013_1.muast",
+    "sha256": "fb01e6e25ddd0b8eb70e0236fbc252908a3201dc6bb91c2871fff6ee3e55964d",
+    "objects": {
+      "Shader": 1,
+      "Mesh": 1,
+      "MeshFilter": 1,
+      "Material": 1,
+      "GameObject": 1,
+      "Transform": 1,
+      "AssetBundle": 1,
+      "Texture2D": 1,
+      "MeshRenderer": 1
+    },
+    "images": [
+      {
+        "name": "Background_1013_1",
+        "file": "etowaria-defense/assets/room/background_1013_1/Background_1013_1.png",
+        "width": 1024,
+        "height": 1024,
+        "type": "Texture2D"
+      }
+    ],
+    "file": "etowaria-defense/assets/native/background_1013_1.glb.gz",
+    "compression": "gzip",
+    "stats": {
+      "nodes": 1,
+      "meshes": 1,
+      "materials": 1,
+      "textures": 1,
+      "emitters": 0,
+      "cardsWithheld": 0,
+      "layeredMaterials": 0
+    }
+  },
+  "floor_1010_m": {
+    "bundle": "prefab/room/floor/floor_1010_m.muast",
+    "sha256": "e97f89bbd141526a24c39747da18e6d0029014b18c0fa28df0fef249fede594f",
+    "objects": {
+      "Texture2D": 2,
+      "Mesh": 1,
+      "GameObject": 1,
+      "Shader": 1,
+      "MeshFilter": 1,
+      "AssetBundle": 1,
+      "Transform": 1,
+      "Material": 1,
+      "MeshRenderer": 1
+    },
+    "images": [
+      {
+        "name": "Floor_1010_M_rgb",
+        "file": "etowaria-defense/assets/room/floor_1010_m/Floor_1010_M_rgb.png",
+        "width": 1024,
+        "height": 1024,
+        "type": "Texture2D"
+      },
+      {
+        "name": "Floor_1010_M_compa",
+        "file": "etowaria-defense/assets/room/floor_1010_m/Floor_1010_M_compa.png",
+        "width": 1024,
+        "height": 1024,
+        "type": "Texture2D"
+      }
+    ],
+    "file": "etowaria-defense/assets/native/floor_1010_m.glb.gz",
+    "compression": "gzip",
+    "stats": {
+      "nodes": 1,
+      "meshes": 1,
+      "materials": 1,
+      "textures": 1,
+      "emitters": 0,
+      "cardsWithheld": 0,
+      "layeredMaterials": 0
+    }
+  },
+  "floor_1012_m_0": {
+    "bundle": "prefab/room/floor/floor_1012_m_0.muast",
+    "sha256": "bc0551eda9a2cb87d796a793ac9bec8cbe7ab241fef040187ed3265e74b63afe",
+    "objects": {
+      "Transform": 1,
+      "Material": 1,
+      "GameObject": 1,
+      "Texture2D": 2,
+      "Shader": 1,
+      "AssetBundle": 1,
+      "MeshRenderer": 1,
+      "MeshFilter": 1,
+      "Mesh": 1
+    },
+    "images": [
+      {
+        "name": "Floor_1012_M_0_compa",
+        "file": "etowaria-defense/assets/room/floor_1012_m_0/Floor_1012_M_0_compa.png",
+        "width": 1024,
+        "height": 1024,
+        "type": "Texture2D"
+      },
+      {
+        "name": "Floor_1012_M_0_rgb",
+        "file": "etowaria-defense/assets/room/floor_1012_m_0/Floor_1012_M_0_rgb.png",
+        "width": 1024,
+        "height": 1024,
+        "type": "Texture2D"
+      }
+    ],
+    "file": "etowaria-defense/assets/native/floor_1012_m_0.glb.gz",
+    "compression": "gzip",
+    "stats": {
+      "nodes": 1,
+      "meshes": 1,
+      "materials": 1,
+      "textures": 1,
+      "emitters": 0,
+      "cardsWithheld": 0,
+      "layeredMaterials": 0
+    }
+  },
+  "floor_1013_m": {
+    "bundle": "prefab/room/floor/floor_1013_m.muast",
+    "sha256": "4d4c12a6e9d0446803901d918906020a4abf543f4cb9f0272dab9fa17557ed31",
+    "objects": {
+      "GameObject": 1,
+      "Texture2D": 2,
+      "Material": 1,
+      "Mesh": 1,
+      "Shader": 1,
+      "MeshRenderer": 1,
+      "AssetBundle": 1,
+      "MeshFilter": 1,
+      "Transform": 1
+    },
+    "images": [
+      {
+        "name": "Floor_1013_M_compa",
+        "file": "etowaria-defense/assets/room/floor_1013_m/Floor_1013_M_compa.png",
+        "width": 1024,
+        "height": 1024,
+        "type": "Texture2D"
+      },
+      {
+        "name": "Floor_1013_M_rgb",
+        "file": "etowaria-defense/assets/room/floor_1013_m/Floor_1013_M_rgb.png",
+        "width": 1024,
+        "height": 1024,
+        "type": "Texture2D"
+      }
+    ],
+    "file": "etowaria-defense/assets/native/floor_1013_m.glb.gz",
+    "compression": "gzip",
+    "stats": {
+      "nodes": 1,
+      "meshes": 1,
+      "materials": 1,
+      "textures": 1,
+      "emitters": 0,
+      "cardsWithheld": 0,
+      "layeredMaterials": 0
+    }
+  },
+  "desk_1001": {
+    "bundle": "prefab/room/desk/desk_1001.muast",
+    "sha256": "4270c816da4f6ea39191c35e48e08f506fd095f625babde9bb89f05051fa043d",
+    "objects": {
+      "MonoBehaviour": 4,
+      "Transform": 4,
+      "MonoScript": 4,
+      "Mesh": 1,
+      "MeshRenderer": 1,
+      "AssetBundle": 1,
+      "MeshCollider": 1,
+      "Texture2D": 1,
+      "Animation": 1,
+      "MeshFilter": 1,
+      "GameObject": 4,
+      "Material": 1
+    },
+    "images": [
+      {
+        "name": "Desk_1001",
+        "file": "etowaria-defense/assets/room/desk_1001/Desk_1001.png",
+        "width": 256,
+        "height": 256,
+        "type": "Texture2D"
+      }
+    ],
+    "file": "etowaria-defense/assets/native/desk_1001.glb.gz",
+    "compression": "gzip",
+    "stats": {
+      "nodes": 4,
+      "meshes": 1,
+      "materials": 1,
+      "textures": 1,
+      "emitters": 0,
+      "cardsWithheld": 0,
+      "layeredMaterials": 0
+    }
+  },
+  "goods_1001": {
+    "bundle": "prefab/room/goods/goods_1001.muast",
+    "sha256": "5452a984c1eb62b415686c35235a89dcbd9a6d38b224e6f82c27648fd16940fe",
+    "objects": {
+      "MonoBehaviour": 10,
+      "GameObject": 9,
+      "Transform": 9,
+      "Material": 2,
+      "MeshRenderer": 3,
+      "Mesh": 3,
+      "MonoScript": 6,
+      "AssetBundle": 1,
+      "Animation": 1,
+      "MeshFilter": 3,
+      "MeshCollider": 1,
+      "Texture2D": 1
+    },
+    "images": [
+      {
+        "name": "Goods_1001",
+        "file": "etowaria-defense/assets/room/goods_1001/Goods_1001.png",
+        "width": 256,
+        "height": 256,
+        "type": "Texture2D"
+      }
+    ],
+    "file": "etowaria-defense/assets/native/goods_1001.glb.gz",
+    "compression": "gzip",
+    "stats": {
+      "nodes": 9,
+      "meshes": 3,
+      "materials": 2,
+      "textures": 1,
+      "emitters": 0,
+      "cardsWithheld": 0,
+      "layeredMaterials": 0
+    }
+  },
+  "goods_1043": {
+    "bundle": "prefab/room/goods/goods_1043.muast",
+    "sha256": "4098051736550ee54faf9eae3c6506636f3f97698bdd4ff3979bfcc4ff4203ec",
+    "objects": {
+      "GameObject": 4,
+      "Transform": 4,
+      "Texture2D": 2,
+      "MeshCollider": 1,
+      "MonoBehaviour": 4,
+      "Material": 1,
+      "MeshFilter": 1,
+      "MonoScript": 4,
+      "Shader": 1,
+      "MeshRenderer": 1,
+      "Mesh": 1,
+      "AssetBundle": 1,
+      "Animation": 1
+    },
+    "images": [
+      {
+        "name": "Goods_1043_rgb",
+        "file": "etowaria-defense/assets/room/goods_1043/Goods_1043_rgb.png",
+        "width": 256,
+        "height": 256,
+        "type": "Texture2D"
+      },
+      {
+        "name": "Goods_1043_compa",
+        "file": "etowaria-defense/assets/room/goods_1043/Goods_1043_compa.png",
+        "width": 256,
+        "height": 256,
+        "type": "Texture2D"
+      }
+    ],
+    "file": "etowaria-defense/assets/native/goods_1043.glb.gz",
+    "compression": "gzip",
+    "stats": {
+      "nodes": 4,
+      "meshes": 1,
+      "materials": 1,
+      "textures": 1,
+      "emitters": 0,
+      "cardsWithheld": 0,
+      "layeredMaterials": 0
+    }
+  },
+  "hobby_1014": {
+    "bundle": "prefab/room/hobby/hobby_1014.muast",
+    "sha256": "1c1ef528bed3fb020e95379cb06db6cdfc5c87e65ee94a637357fffcde0a2891",
+    "objects": {
+      "GameObject": 4,
+      "MonoBehaviour": 4,
+      "Texture2D": 2,
+      "Transform": 4,
+      "MeshRenderer": 1,
+      "MonoScript": 4,
+      "Material": 1,
+      "Shader": 1,
+      "MeshFilter": 1,
+      "Mesh": 1,
+      "MeshCollider": 1,
+      "AssetBundle": 1,
+      "Animation": 1
+    },
+    "images": [
+      {
+        "name": "Hobby_1014_compa",
+        "file": "etowaria-defense/assets/room/hobby_1014/Hobby_1014_compa.png",
+        "width": 256,
+        "height": 256,
+        "type": "Texture2D"
+      },
+      {
+        "name": "Hobby_1014_rgb",
+        "file": "etowaria-defense/assets/room/hobby_1014/Hobby_1014_rgb.png",
+        "width": 256,
+        "height": 256,
+        "type": "Texture2D"
+      }
+    ],
+    "file": "etowaria-defense/assets/native/hobby_1014.glb.gz",
+    "compression": "gzip",
+    "stats": {
+      "nodes": 4,
+      "meshes": 1,
+      "materials": 1,
+      "textures": 1,
+      "emitters": 0,
+      "cardsWithheld": 0,
+      "layeredMaterials": 0
+    }
+  }
+}

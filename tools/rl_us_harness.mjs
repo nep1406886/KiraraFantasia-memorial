@@ -51,7 +51,7 @@ for (const entry of roster) {
     cinematic++;
     const rid = String(skill.sceneId);
     assert.ok(scenes[rid] && timelines[rid] && manifest.skillActions[rid], "scene/timeline/motion " + rid);
-    assert.ok(existsSync(new URL(scenes[rid].file, root)), "scene file " + rid);
+    assert.ok(existsSync(new URL("site/" + scenes[rid].file, root)), "scene file " + rid);
     const voice = cues["PL_" + rid + "_0"]?.voice;
     const local = voice && Object.values(voices).find(row => row.sheet === voice.sheet);
     if (!voice || !local) {
@@ -59,7 +59,7 @@ for (const entry of roster) {
     } else {
         for (const [,cue] of voice.frames || []) {
             assert.ok(local.cues[cue], "missing cue " + rid + ":" + cue);
-            assert.ok(existsSync(new URL("audio/voice/" + local.cues[cue], root)), "voice file " + cue);
+            assert.ok(existsSync(new URL("site/audio/voice/" + local.cues[cue], root)), "voice file " + cue);
         }
         voiced++;
     }

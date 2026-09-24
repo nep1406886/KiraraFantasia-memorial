@@ -366,6 +366,26 @@ export function createMeta() {
             return true;
         },
 
+        // unlockAchievements(ids) — batch form so a whole sweep lands in ONE
+        // storage transaction. The terminal gate (rl_terminal_browser.py)
+        // counts commits in the victory window; per-id unlockAchievement there
+        // fans one write per row out. Returns the number genuinely new.
+        unlockAchievements: function (ids) {
+            let fresh = 0;
+            (ids || []).forEach(function (id) {
+                const key = String(id);
+                if (state.achievements.some(function (a) { return String(a) === key; })) {
+                    return;
+                }
+                state.achievements.push(key);
+                fresh += 1;
+            });
+            if (fresh) {
+                write();
+            }
+            return fresh;
+        },
+
         // 教学: the guided first-run walkthrough plays once per save, like
         // the prologue.
         seenTutorial: function () { return !!state.tutorialSeen; },

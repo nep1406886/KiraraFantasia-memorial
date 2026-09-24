@@ -87,7 +87,30 @@ export function createAssistance() {
             const visible = living.find(e => canFire(world, p, e));
             // Aim-only never steals a held movement direction or an explicit aim.
             if (!auto) { clear(); return tier === 1 && !world.aim && !moved && visible ? { target: visible, attack: false } : null; }
-            if (visible) { clear(); status.targetId = visible.id; status.state = '自动普攻'; return { target: visible, attack: true }; }
+            if (visible) {
+                clear(); status.targetId = visible.id; status.state = '自动普攻';
+                // Strafe while firing instead of planting: enemy shots are aimed
+                // at where you stand, and a sideways step makes them miss while
+                // the swing keeps landing. The direction flips each second so
+                // the player circles rather than walking into a wall and
+                // stopping. A blocked step tries the other way.
+                const dist = length(p, visible);
+                let move = null;
+                // Only the pathfinding tier strafes; the sentry (tier 2) is
+                // contracted to stand still and fire in place.
+                if (tier >= 3 && dist > .0001) {
+                    const sign = Math.floor(world.time || 0) % 2 === 0 ? 1 : -1;
+                    const tryDir = (s) => {
+                        const dx = -(visible.y - p.y) / dist * s, dy = (visible.x - p.x) / dist * s;
+                        const end = stopCircle({ x: p.x, y: p.y, radius: p.radius },
+                            dx * p.speed * dt, dy * p.speed * dt,
+                            world.roomColliders, bounds(world, p.radius));
+                        return length(end, p) > .001 ? { x: dx, y: dy } : null;
+                    };
+                    move = tryDir(sign) || tryDir(-sign);
+                }
+                return { target: visible, attack: true, move: move };
+            }
             if (tier < 3 || !living.length) { clear(); return null; }
             let target = living.find(e => e.id === targetId) || living[0];
             untilPath -= dt;

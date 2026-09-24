@@ -31,8 +31,8 @@ sys.path.insert(0, str(Path(__file__).resolve().parent))
 from playwright.sync_api import sync_playwright
 
 ROOT = Path(__file__).resolve().parent.parent
-AUDIO_SRC = ROOT / "core" / "audio.js"
-MAIN_SRC = ROOT / "game" / "rl" / "main.js"
+AUDIO_SRC = ROOT / "site" / "core" / "audio.js"
+MAIN_SRC = ROOT / "site" / "game" / "rl" / "main.js"
 
 NEW_CUES = ["dodge", "crit", "pickup", "door", "death", "levelup", "guard"]
 
@@ -170,7 +170,7 @@ def unlock_module(page):
     # instance the consumeEvents branches play through. Kept on window so
     # the per-cue evaluates can call se() directly.
     return page.evaluate("""async () => {
-        const m = await import("../site/core/audio.js");
+        const m = await import("../core/audio.js");
         window.__audio = m;
         m.unlock();
         m.setSeVolume(1);

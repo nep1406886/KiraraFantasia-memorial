@@ -1,118 +1,417 @@
 {
- "100001": {
-  "sheet": "Voice_Hidamari_Yuno_Priest4_A",
+ "100004": {
+  "sheet": "Voice_Hidamari_Yuno_Priest5_A",
   "cues": {
-   "voice_kirarajump_000": "Voice_Hidamari_Yuno_Priest4_A/voice_kirarajump_000_0.mp3",
-   "voice_kirarajump_001": "Voice_Hidamari_Yuno_Priest4_A/voice_kirarajump_001_0.mp3",
-   "voice_kirarajump_002": "Voice_Hidamari_Yuno_Priest4_A/voice_kirarajump_002_0.mp3"
+   "voice_kirarajump_000": "Voice_Hidamari_Yuno_Priest5_A/voice_kirarajump_000_0.mp3",
+   "voice_kirarajump_001": "Voice_Hidamari_Yuno_Priest5_A/voice_kirarajump_001_0.mp3",
+   "voice_kirarajump_002": "Voice_Hidamari_Yuno_Priest5_A/voice_kirarajump_002_0.mp3",
+   "voice_kirarajump_003": "Voice_Hidamari_Yuno_Priest5_A/voice_kirarajump_003_0.mp3"
   }
  },
- "110101": {
-  "sheet": "Voice_YuyuShiki_Yui_Knight4_A",
+ "110104": {
+  "sheet": "Voice_YuyuShiki_Yui_Knight5_A",
   "cues": {
-   "voice_kirarajump_000": "Voice_YuyuShiki_Yui_Knight4_A/voice_kirarajump_000_0.mp3",
-   "voice_kirarajump_001": "Voice_YuyuShiki_Yui_Knight4_A/voice_kirarajump_001_0.mp3",
-   "voice_kirarajump_002": "Voice_YuyuShiki_Yui_Knight4_A/voice_kirarajump_002_0.mp3"
+   "voice_kirarajump_000": "Voice_YuyuShiki_Yui_Knight5_A/voice_kirarajump_000_0.mp3",
+   "voice_kirarajump_001": "Voice_YuyuShiki_Yui_Knight5_A/voice_kirarajump_001_0.mp3",
+   "voice_kirarajump_002": "Voice_YuyuShiki_Yui_Knight5_A/voice_kirarajump_002_0.mp3",
+   "voice_kirarajump_003": "Voice_YuyuShiki_Yui_Knight5_A/voice_kirarajump_003_0.mp3",
+   "voice_kirarajump_004": "Voice_YuyuShiki_Yui_Knight5_A/voice_kirarajump_004_0.mp3",
+   "voice_kirarajump_005": "Voice_YuyuShiki_Yui_Knight5_A/voice_kirarajump_005_0.mp3"
   }
  },
- "120001": {
-  "sheet": "Voice_Gakkou_Yuki_Priest4_A",
+ "120004": {
+  "sheet": "Voice_Gakkou_Yuki_Priest5_A",
   "cues": {
-   "voice_kirarajump_000": "Voice_Gakkou_Yuki_Priest4_A/voice_kirarajump_000_0.mp3",
-   "voice_kirarajump_001": "Voice_Gakkou_Yuki_Priest4_A/voice_kirarajump_001_0.mp3",
-   "voice_kirarajump_002": "Voice_Gakkou_Yuki_Priest4_A/voice_kirarajump_002_0.mp3"
+   "voice_kirarajump_000": "Voice_Gakkou_Yuki_Priest5_A/voice_kirarajump_000_0.mp3",
+   "voice_kirarajump_001": "Voice_Gakkou_Yuki_Priest5_A/voice_kirarajump_001_0.mp3",
+   "voice_kirarajump_002": "Voice_Gakkou_Yuki_Priest5_A/voice_kirarajump_002_0.mp3",
+   "voice_kirarajump_003": "Voice_Gakkou_Yuki_Priest5_A/voice_kirarajump_003_0.mp3"
   }
  },
- "130001": {
-  "sheet": "Voice_AChannel_Toru_Fighter4_A",
+ "130004": {
+  "sheet": "Voice_AChannel_Toru_Fighter5_A",
   "cues": {
-   "voice_kirarajump_000": "Voice_AChannel_Toru_Fighter4_A/voice_kirarajump_000_0.mp3",
-   "voice_kirarajump_001": "Voice_AChannel_Toru_Fighter4_A/voice_kirarajump_001_0.mp3",
-   "voice_kirarajump_002": "Voice_AChannel_Toru_Fighter4_A/voice_kirarajump_002_0.mp3"
+   "voice_kirarajump_000": "Voice_AChannel_Toru_Fighter5_A/voice_kirarajump_000_0.mp3",
+   "voice_kirarajump_001": "Voice_AChannel_Toru_Fighter5_A/voice_kirarajump_001_0.mp3",
+   "voice_kirarajump_002": "Voice_AChannel_Toru_Fighter5_A/voice_kirarajump_002_0.mp3"
   }
  },
- "140001": {
-  "sheet": "Voice_KinMosa_Karen_Fighter4_A",
+ "140004": {
+  "sheet": "Voice_KinMosa_Karen_Fighter5_A",
   "cues": {
-   "voice_kirarajump_000": "Voice_KinMosa_Karen_Fighter4_A/voice_kirarajump_000_0.mp3",
-   "voice_kirarajump_001": "Voice_KinMosa_Karen_Fighter4_A/voice_kirarajump_001_0.mp3",
-   "voice_kirarajump_002": "Voice_KinMosa_Karen_Fighter4_A/voice_kirarajump_002_0.mp3"
+   "voice_kirarajump_000": "Voice_KinMosa_Karen_Fighter5_A/voice_kirarajump_000_0.mp3",
+   "voice_kirarajump_001": "Voice_KinMosa_Karen_Fighter5_A/voice_kirarajump_001_0.mp3",
+   "voice_kirarajump_002": "Voice_KinMosa_Karen_Fighter5_A/voice_kirarajump_002_0.mp3",
+   "voice_kirarajump_003": "Voice_KinMosa_Karen_Fighter5_A/voice_kirarajump_003_0.mp3"
   }
  },
- "140101": {
-  "sheet": "Voice_KinMosa_Alice_Alchemist4_A",
+ "140104": {
+  "sheet": "Voice_KinMosa_Alice_Magician5_A",
   "cues": {
-   "voice_kirarajump_000": "Voice_KinMosa_Alice_Alchemist4_A/voice_kirarajump_000_0.mp3",
-   "voice_kirarajump_001": "Voice_KinMosa_Alice_Alchemist4_A/voice_kirarajump_001_0.mp3",
-   "voice_kirarajump_002": "Voice_KinMosa_Alice_Alchemist4_A/voice_kirarajump_002_0.mp3"
+   "voice_kirarajump_000": "Voice_KinMosa_Alice_Magician5_A/voice_kirarajump_000_0.mp3",
+   "voice_kirarajump_001": "Voice_KinMosa_Alice_Magician5_A/voice_kirarajump_001_0.mp3",
+   "voice_kirarajump_002": "Voice_KinMosa_Alice_Magician5_A/voice_kirarajump_002_0.mp3",
+   "voice_kirarajump_003": "Voice_KinMosa_Alice_Magician5_A/voice_kirarajump_003_0.mp3",
+   "voice_kirarajump_004": "Voice_KinMosa_Alice_Magician5_A/voice_kirarajump_004_0.mp3"
   }
  },
- "150001": {
-  "sheet": "Voice_NewGame_Aoba_Magician4_A",
+ "150004": {
+  "sheet": "Voice_NewGame_Aoba_Magician5_A",
   "cues": {
-   "voice_kirarajump_000": "Voice_NewGame_Aoba_Magician4_A/voice_kirarajump_000_0.mp3",
-   "voice_kirarajump_001": "Voice_NewGame_Aoba_Magician4_A/voice_kirarajump_001_0.mp3",
-   "voice_kirarajump_002": "Voice_NewGame_Aoba_Magician4_A/voice_kirarajump_002_0.mp3"
+   "voice_kirarajump_000": "Voice_NewGame_Aoba_Magician5_A/voice_kirarajump_000_0.mp3",
+   "voice_kirarajump_001": "Voice_NewGame_Aoba_Magician5_A/voice_kirarajump_001_0.mp3",
+   "voice_kirarajump_002": "Voice_NewGame_Aoba_Magician5_A/voice_kirarajump_002_0.mp3",
+   "voice_kirarajump_003": "Voice_NewGame_Aoba_Magician5_A/voice_kirarajump_003_0.mp3"
   }
  },
- "160001": {
-  "sheet": "Voice_Stella_Tamaki_Magician4_A",
+ "160004": {
+  "sheet": "Voice_Stella_Tamaki_Magician5_A",
   "cues": {
-   "voice_kirarajump_000": "Voice_Stella_Tamaki_Magician4_A/voice_kirarajump_000_0.mp3",
-   "voice_kirarajump_001": "Voice_Stella_Tamaki_Magician4_A/voice_kirarajump_001_0.mp3",
-   "voice_kirarajump_002": "Voice_Stella_Tamaki_Magician4_A/voice_kirarajump_002_0.mp3"
+   "voice_kirarajump_000": "Voice_Stella_Tamaki_Magician5_A/voice_kirarajump_000_0.mp3",
+   "voice_kirarajump_001": "Voice_Stella_Tamaki_Magician5_A/voice_kirarajump_001_0.mp3",
+   "voice_kirarajump_002": "Voice_Stella_Tamaki_Magician5_A/voice_kirarajump_002_0.mp3",
+   "voice_kirarajump_003": "Voice_Stella_Tamaki_Magician5_A/voice_kirarajump_003_0.mp3",
+   "voice_kirarajump_004": "Voice_Stella_Tamaki_Magician5_A/voice_kirarajump_004_0.mp3",
+   "voice_kirarajump_005": "Voice_Stella_Tamaki_Magician5_A/voice_kirarajump_005_0.mp3"
   }
  },
- "170001": {
-  "sheet": "Voice_Urara_Chiya_Knight4_A",
+ "170004": {
+  "sheet": "Voice_Urara_Chiya_Knight5_A",
   "cues": {
-   "voice_kirarajump_000": "Voice_Urara_Chiya_Knight4_A/voice_kirarajump_000_0.mp3",
-   "voice_kirarajump_001": "Voice_Urara_Chiya_Knight4_A/voice_kirarajump_001_0.mp3",
-   "voice_kirarajump_002": "Voice_Urara_Chiya_Knight4_A/voice_kirarajump_002_0.mp3"
+   "voice_kirarajump_000": "Voice_Urara_Chiya_Knight5_A/voice_kirarajump_000_0.mp3",
+   "voice_kirarajump_001": "Voice_Urara_Chiya_Knight5_A/voice_kirarajump_001_0.mp3",
+   "voice_kirarajump_002": "Voice_Urara_Chiya_Knight5_A/voice_kirarajump_002_0.mp3",
+   "voice_kirarajump_003": "Voice_Urara_Chiya_Knight5_A/voice_kirarajump_003_0.mp3",
+   "voice_kirarajump_004": "Voice_Urara_Chiya_Knight5_A/voice_kirarajump_004_0.mp3"
   }
  },
- "180001": {
-  "sheet": "Voice_Killme_Yasuna_Knight4_A",
+ "180004": {
+  "sheet": "Voice_Killme_Yasuna_Knight5_A",
   "cues": {
-   "voice_kirarajump_000": "Voice_Killme_Yasuna_Knight4_A/voice_kirarajump_000_0.mp3",
-   "voice_kirarajump_001": "Voice_Killme_Yasuna_Knight4_A/voice_kirarajump_001_0.mp3",
-   "voice_kirarajump_002": "Voice_Killme_Yasuna_Knight4_A/voice_kirarajump_002_0.mp3"
+   "voice_kirarajump_000": "Voice_Killme_Yasuna_Knight5_A/voice_kirarajump_000_0.mp3",
+   "voice_kirarajump_001": "Voice_Killme_Yasuna_Knight5_A/voice_kirarajump_001_0.mp3",
+   "voice_kirarajump_002": "Voice_Killme_Yasuna_Knight5_A/voice_kirarajump_002_0.mp3",
+   "voice_kirarajump_003": "Voice_Killme_Yasuna_Knight5_A/voice_kirarajump_003_0.mp3"
   }
  },
- "190001": {
-  "sheet": "Voice_Sakura_Haruka_Priest4_A",
+ "190004": {
+  "sheet": "Voice_Sakura_Haruka_Priest5_A",
   "cues": {
-   "voice_kirarajump_000": "Voice_Sakura_Haruka_Priest4_A/voice_kirarajump_000_0.mp3",
-   "voice_kirarajump_001": "Voice_Sakura_Haruka_Priest4_A/voice_kirarajump_001_0.mp3",
-   "voice_kirarajump_002": "Voice_Sakura_Haruka_Priest4_A/voice_kirarajump_002_0.mp3"
+   "voice_kirarajump_000": "Voice_Sakura_Haruka_Priest5_A/voice_kirarajump_000_0.mp3",
+   "voice_kirarajump_001": "Voice_Sakura_Haruka_Priest5_A/voice_kirarajump_001_0.mp3",
+   "voice_kirarajump_002": "Voice_Sakura_Haruka_Priest5_A/voice_kirarajump_002_0.mp3"
   }
  },
- "200001": {
-  "sheet": "Voice_Blends_Maika_Magician4_A",
+ "200004": {
+  "sheet": "Voice_Blends_Maika_Magician5_A",
   "cues": {
-   "voice_kirarajump_000": "Voice_Blends_Maika_Magician4_A/voice_kirarajump_000_0.mp3",
-   "voice_kirarajump_001": "Voice_Blends_Maika_Magician4_A/voice_kirarajump_001_0.mp3",
-   "voice_kirarajump_002": "Voice_Blends_Maika_Magician4_A/voice_kirarajump_002_0.mp3"
+   "voice_kirarajump_000": "Voice_Blends_Maika_Magician5_A/voice_kirarajump_000_0.mp3",
+   "voice_kirarajump_001": "Voice_Blends_Maika_Magician5_A/voice_kirarajump_001_0.mp3",
+   "voice_kirarajump_002": "Voice_Blends_Maika_Magician5_A/voice_kirarajump_002_0.mp3"
   }
  },
- "210001": {
-  "sheet": "Voice_SlowStart_Hana_Priest4_A",
+ "210004": {
+  "sheet": "Voice_SlowStart_Hana_Priest5_A",
   "cues": {
-   "voice_kirarajump_000": "Voice_SlowStart_Hana_Priest4_A/voice_kirarajump_000_0.mp3",
-   "voice_kirarajump_001": "Voice_SlowStart_Hana_Priest4_A/voice_kirarajump_001_0.mp3",
-   "voice_kirarajump_002": "Voice_SlowStart_Hana_Priest4_A/voice_kirarajump_002_0.mp3"
+   "voice_kirarajump_000": "Voice_SlowStart_Hana_Priest5_A/voice_kirarajump_000_0.mp3",
+   "voice_kirarajump_001": "Voice_SlowStart_Hana_Priest5_A/voice_kirarajump_001_0.mp3",
+   "voice_kirarajump_002": "Voice_SlowStart_Hana_Priest5_A/voice_kirarajump_002_0.mp3",
+   "voice_kirarajump_003": "Voice_SlowStart_Hana_Priest5_A/voice_kirarajump_003_0.mp3",
+   "voice_kirarajump_004": "Voice_SlowStart_Hana_Priest5_A/voice_kirarajump_004_0.mp3",
+   "voice_kirarajump_005": "Voice_SlowStart_Hana_Priest5_A/voice_kirarajump_005_0.mp3",
+   "voice_kirarajump_006": "Voice_SlowStart_Hana_Priest5_A/voice_kirarajump_006_0.mp3"
   }
  },
- "220001": {
-  "sheet": "Voice_Keion_Yui_Fighter4_A",
+ "220004": {
+  "sheet": "Voice_Keion_Yui_Fighter5_A",
   "cues": {
-   "voice_kirarajump_000": "Voice_Keion_Yui_Fighter4_A/voice_kirarajump_000_0.mp3",
-   "voice_kirarajump_001": "Voice_Keion_Yui_Fighter4_A/voice_kirarajump_001_0.mp3",
-   "voice_kirarajump_002": "Voice_Keion_Yui_Fighter4_A/voice_kirarajump_002_0.mp3",
-   "voice_kirarajump_003": "Voice_Keion_Yui_Fighter4_A/voice_kirarajump_003_0.mp3",
-   "voice_kirarajump_004": "Voice_Keion_Yui_Fighter4_A/voice_kirarajump_004_0.mp3",
-   "voice_kirarajump_005": "Voice_Keion_Yui_Fighter4_A/voice_kirarajump_005_0.mp3",
-   "voice_kirarajump_006": "Voice_Keion_Yui_Fighter4_A/voice_kirarajump_006_0.mp3"
+   "voice_kirarajump_000": "Voice_Keion_Yui_Fighter5_A/voice_kirarajump_000_0.mp3",
+   "voice_kirarajump_001": "Voice_Keion_Yui_Fighter5_A/voice_kirarajump_001_0.mp3",
+   "voice_kirarajump_002": "Voice_Keion_Yui_Fighter5_A/voice_kirarajump_002_0.mp3"
+  }
+ },
+ "230004": {
+  "sheet": "Voice_Yurukyan_Rin_Magician5_A",
+  "cues": {
+   "voice_kirarajump_000": "Voice_Yurukyan_Rin_Magician5_A/voice_kirarajump_000_0.mp3",
+   "voice_kirarajump_001": "Voice_Yurukyan_Rin_Magician5_A/voice_kirarajump_001_0.mp3",
+   "voice_kirarajump_002": "Voice_Yurukyan_Rin_Magician5_A/voice_kirarajump_002_0.mp3",
+   "voice_kirarajump_003": "Voice_Yurukyan_Rin_Magician5_A/voice_kirarajump_003_0.mp3"
+  }
+ },
+ "230104": {
+  "sheet": "Voice_Yurukyan_Nadesiko_Knight5_A",
+  "cues": {
+   "voice_kirarajump_000": "Voice_Yurukyan_Nadesiko_Knight5_A/voice_kirarajump_000_0.mp3",
+   "voice_kirarajump_001": "Voice_Yurukyan_Nadesiko_Knight5_A/voice_kirarajump_001_0.mp3",
+   "voice_kirarajump_002": "Voice_Yurukyan_Nadesiko_Knight5_A/voice_kirarajump_002_0.mp3"
+  }
+ },
+ "240004": {
+  "sheet": "Voice_Komiga_Kaoruko_Priest5_A",
+  "cues": {
+   "voice_kirarajump_000": "Voice_Komiga_Kaoruko_Priest5_A/voice_kirarajump_000_0.mp3",
+   "voice_kirarajump_001": "Voice_Komiga_Kaoruko_Priest5_A/voice_kirarajump_001_0.mp3",
+   "voice_kirarajump_002": "Voice_Komiga_Kaoruko_Priest5_A/voice_kirarajump_002_0.mp3",
+   "voice_kirarajump_003": "Voice_Komiga_Kaoruko_Priest5_A/voice_kirarajump_003_0.mp3"
+  }
+ },
+ "250004": {
+  "sheet": "Voice_GA_Kisaragi_Priest5_A",
+  "cues": {
+   "voice_kirarajump_000": "Voice_GA_Kisaragi_Priest5_A/voice_kirarajump_000_0.mp3",
+   "voice_kirarajump_001": "Voice_GA_Kisaragi_Priest5_A/voice_kirarajump_001_0.mp3",
+   "voice_kirarajump_002": "Voice_GA_Kisaragi_Priest5_A/voice_kirarajump_002_0.mp3",
+   "voice_kirarajump_003": "Voice_GA_Kisaragi_Priest5_A/voice_kirarajump_003_0.mp3",
+   "voice_kirarajump_004": "Voice_GA_Kisaragi_Priest5_A/voice_kirarajump_004_0.mp3",
+   "voice_kirarajump_005": "Voice_GA_Kisaragi_Priest5_A/voice_kirarajump_005_0.mp3",
+   "voice_kirarajump_006": "Voice_GA_Kisaragi_Priest5_A/voice_kirarajump_006_0.mp3"
+  }
+ },
+ "260004": {
+  "sheet": "Voice_Yumekui_Merry_Fighter5_A",
+  "cues": {
+   "voice_kirarajump_000": "Voice_Yumekui_Merry_Fighter5_A/voice_kirarajump_000_0.mp3",
+   "voice_kirarajump_001": "Voice_Yumekui_Merry_Fighter5_A/voice_kirarajump_001_0.mp3",
+   "voice_kirarajump_002": "Voice_Yumekui_Merry_Fighter5_A/voice_kirarajump_002_0.mp3"
+  }
+ },
+ "270004": {
+  "sheet": "Voice_Hanayamata_Naru_Priest5_A",
+  "cues": {
+   "voice_kirarajump_000": "Voice_Hanayamata_Naru_Priest5_A/voice_kirarajump_000_0.mp3",
+   "voice_kirarajump_001": "Voice_Hanayamata_Naru_Priest5_A/voice_kirarajump_001_0.mp3",
+   "voice_kirarajump_002": "Voice_Hanayamata_Naru_Priest5_A/voice_kirarajump_002_0.mp3",
+   "voice_kirarajump_003": "Voice_Hanayamata_Naru_Priest5_A/voice_kirarajump_003_0.mp3"
+  }
+ },
+ "280004": {
+  "sheet": "Voice_Anhapi_Hanako_Knight5_A",
+  "cues": {
+   "voice_kirarajump_000": "Voice_Anhapi_Hanako_Knight5_A/voice_kirarajump_000_0.mp3",
+   "voice_kirarajump_001": "Voice_Anhapi_Hanako_Knight5_A/voice_kirarajump_001_0.mp3",
+   "voice_kirarajump_002": "Voice_Anhapi_Hanako_Knight5_A/voice_kirarajump_002_0.mp3"
+  }
+ },
+ "290004": {
+  "sheet": "Voice_Harukana_Haruka_Knight5_A",
+  "cues": {
+   "voice_kirarajump_000": "Voice_Harukana_Haruka_Knight5_A/voice_kirarajump_000_0.mp3",
+   "voice_kirarajump_001": "Voice_Harukana_Haruka_Knight5_A/voice_kirarajump_001_0.mp3",
+   "voice_kirarajump_002": "Voice_Harukana_Haruka_Knight5_A/voice_kirarajump_002_0.mp3"
+  }
+ },
+ "300004": {
+  "sheet": "Voice_Gochiusa_Cocoa_Fighter5_A",
+  "cues": {
+   "voice_kirarajump_000": "Voice_Gochiusa_Cocoa_Fighter5_A/voice_kirarajump_000_0.mp3",
+   "voice_kirarajump_001": "Voice_Gochiusa_Cocoa_Fighter5_A/voice_kirarajump_001_0.mp3",
+   "voice_kirarajump_002": "Voice_Gochiusa_Cocoa_Fighter5_A/voice_kirarajump_002_0.mp3",
+   "voice_kirarajump_003": "Voice_Gochiusa_Cocoa_Fighter5_A/voice_kirarajump_003_0.mp3",
+   "voice_kirarajump_004": "Voice_Gochiusa_Cocoa_Fighter5_A/voice_kirarajump_004_0.mp3"
+  }
+ },
+ "310004": {
+  "sheet": "Voice_Anima_Kohane_Magician5_A",
+  "cues": {
+   "voice_kirarajump_000": "Voice_Anima_Kohane_Magician5_A/voice_kirarajump_000_0.mp3",
+   "voice_kirarajump_001": "Voice_Anima_Kohane_Magician5_A/voice_kirarajump_001_0.mp3",
+   "voice_kirarajump_002": "Voice_Anima_Kohane_Magician5_A/voice_kirarajump_002_0.mp3",
+   "voice_kirarajump_003": "Voice_Anima_Kohane_Magician5_A/voice_kirarajump_003_0.mp3",
+   "voice_kirarajump_004": "Voice_Anima_Kohane_Magician5_A/voice_kirarajump_004_0.mp3",
+   "voice_kirarajump_005": "Voice_Anima_Kohane_Magician5_A/voice_kirarajump_005_0.mp3",
+   "voice_kirarajump_006": "Voice_Anima_Kohane_Magician5_A/voice_kirarajump_006_0.mp3",
+   "voice_kirarajump_007": "Voice_Anima_Kohane_Magician5_A/voice_kirarajump_007_0.mp3",
+   "voice_kirarajump_008": "Voice_Anima_Kohane_Magician5_A/voice_kirarajump_008_0.mp3"
+  }
+ },
+ "320002": {
+  "sheet": "Voice_Kirara_Kirara_Priest5_A",
+  "cues": {
+   "voice_kirarajump_000": "Voice_Kirara_Kirara_Priest5_A/voice_kirarajump_000_0.mp3",
+   "voice_kirarajump_001": "Voice_Kirara_Kirara_Priest5_A/voice_kirarajump_001_0.mp3",
+   "voice_kirarajump_002": "Voice_Kirara_Kirara_Priest5_A/voice_kirarajump_002_0.mp3",
+   "voice_kirarajump_003": "Voice_Kirara_Kirara_Priest5_A/voice_kirarajump_003_0.mp3",
+   "voice_kirarajump_004": "Voice_Kirara_Kirara_Priest5_A/voice_kirarajump_004_0.mp3"
+  }
+ },
+ "320204": {
+  "sheet": "Voice_Kirara_Claire_Magician5_A",
+  "cues": {
+   "voice_kirarajump_000": "Voice_Kirara_Claire_Magician5_A/voice_kirarajump_000_0.mp3",
+   "voice_kirarajump_001": "Voice_Kirara_Claire_Magician5_A/voice_kirarajump_001_0.mp3",
+   "voice_kirarajump_002": "Voice_Kirara_Claire_Magician5_A/voice_kirarajump_002_0.mp3",
+   "voice_kirarajump_003": "Voice_Kirara_Claire_Magician5_A/voice_kirarajump_003_0.mp3",
+   "voice_kirarajump_004": "Voice_Kirara_Claire_Magician5_A/voice_kirarajump_004_0.mp3",
+   "voice_kirarajump_005": "Voice_Kirara_Claire_Magician5_A/voice_kirarajump_005_0.mp3",
+   "voice_kirarajump_006": "Voice_Kirara_Claire_Magician5_A/voice_kirarajump_006_0.mp3"
+  }
+ },
+ "321702": {
+  "sheet": "Voice_Kirara_Ututu_Alchemist5_A",
+  "cues": {
+   "voice_kirarajump_000": "Voice_Kirara_Ututu_Alchemist5_A/voice_kirarajump_000_0.mp3",
+   "voice_kirarajump_001": "Voice_Kirara_Ututu_Alchemist5_A/voice_kirarajump_001_0.mp3",
+   "voice_kirarajump_002": "Voice_Kirara_Ututu_Alchemist5_A/voice_kirarajump_002_0.mp3",
+   "voice_kirarajump_003": "Voice_Kirara_Ututu_Alchemist5_A/voice_kirarajump_003_0.mp3",
+   "voice_kirarajump_004": "Voice_Kirara_Ututu_Alchemist5_A/voice_kirarajump_004_0.mp3",
+   "voice_kirarajump_005": "Voice_Kirara_Ututu_Alchemist5_A/voice_kirarajump_005_0.mp3",
+   "voice_kirarajump_006": "Voice_Kirara_Ututu_Alchemist5_A/voice_kirarajump_006_0.mp3"
+  }
+ },
+ "330106": {
+  "sheet": "Voice_Sansha_Futaba_Priest5_A",
+  "cues": {
+   "voice_kirarajump_000": "Voice_Sansha_Futaba_Priest5_A/voice_kirarajump_000_0.mp3",
+   "voice_kirarajump_001": "Voice_Sansha_Futaba_Priest5_A/voice_kirarajump_001_0.mp3",
+   "voice_kirarajump_002": "Voice_Sansha_Futaba_Priest5_A/voice_kirarajump_002_0.mp3",
+   "voice_kirarajump_003": "Voice_Sansha_Futaba_Priest5_A/voice_kirarajump_003_0.mp3",
+   "voice_kirarajump_004": "Voice_Sansha_Futaba_Priest5_A/voice_kirarajump_004_0.mp3",
+   "voice_kirarajump_005": "Voice_Sansha_Futaba_Priest5_A/voice_kirarajump_005_0.mp3",
+   "voice_kirarajump_006": "Voice_Sansha_Futaba_Priest5_A/voice_kirarajump_006_0.mp3",
+   "voice_kirarajump_007": "Voice_Sansha_Futaba_Priest5_A/voice_kirarajump_007_0.mp3",
+   "voice_kirarajump_008": "Voice_Sansha_Futaba_Priest5_A/voice_kirarajump_008_0.mp3"
+  }
+ },
+ "340004": {
+  "sheet": "Voice_Hitugi_Kuro_Alchemist5_A",
+  "cues": {
+   "voice_kirarajump_000": "Voice_Hitugi_Kuro_Alchemist5_A/voice_kirarajump_000_0.mp3",
+   "voice_kirarajump_001": "Voice_Hitugi_Kuro_Alchemist5_A/voice_kirarajump_001_0.mp3",
+   "voice_kirarajump_002": "Voice_Hitugi_Kuro_Alchemist5_A/voice_kirarajump_002_0.mp3",
+   "voice_kirarajump_003": "Voice_Hitugi_Kuro_Alchemist5_A/voice_kirarajump_003_0.mp3"
+  }
+ },
+ "350004": {
+  "sheet": "Voice_Matikado_Yuko_Priest5_A",
+  "cues": {
+   "voice_kirarajump_000": "Voice_Matikado_Yuko_Priest5_A/voice_kirarajump_000_0.mp3",
+   "voice_kirarajump_001": "Voice_Matikado_Yuko_Priest5_A/voice_kirarajump_001_0.mp3",
+   "voice_kirarajump_002": "Voice_Matikado_Yuko_Priest5_A/voice_kirarajump_002_0.mp3",
+   "voice_kirarajump_003": "Voice_Matikado_Yuko_Priest5_A/voice_kirarajump_003_0.mp3",
+   "voice_kirarajump_004": "Voice_Matikado_Yuko_Priest5_A/voice_kirarajump_004_0.mp3",
+   "voice_kirarajump_005": "Voice_Matikado_Yuko_Priest5_A/voice_kirarajump_005_0.mp3"
+  }
+ },
+ "360002": {
+  "sheet": "Voice_Harumination_Harumi_Fighter5_A",
+  "cues": {
+   "voice_kirarajump_000": "Voice_Harumination_Harumi_Fighter5_A/voice_kirarajump_000_0.mp3",
+   "voice_kirarajump_001": "Voice_Harumination_Harumi_Fighter5_A/voice_kirarajump_001_0.mp3",
+   "voice_kirarajump_002": "Voice_Harumination_Harumi_Fighter5_A/voice_kirarajump_002_0.mp3",
+   "voice_kirarajump_003": "Voice_Harumination_Harumi_Fighter5_A/voice_kirarajump_003_0.mp3",
+   "voice_kirarajump_004": "Voice_Harumination_Harumi_Fighter5_A/voice_kirarajump_004_0.mp3",
+   "voice_kirarajump_005": "Voice_Harumination_Harumi_Fighter5_A/voice_kirarajump_005_0.mp3",
+   "voice_kirarajump_006": "Voice_Harumination_Harumi_Fighter5_A/voice_kirarajump_006_0.mp3",
+   "voice_kirarajump_007": "Voice_Harumination_Harumi_Fighter5_A/voice_kirarajump_007_0.mp3",
+   "voice_kirarajump_008": "Voice_Harumination_Harumi_Fighter5_A/voice_kirarajump_008_0.mp3"
+  }
+ },
+ "370002": {
+  "sheet": "Voice_Koufuku_Ryo_Alchemist5_A",
+  "cues": {
+   "voice_kirarajump_000": "Voice_Koufuku_Ryo_Alchemist5_A/voice_kirarajump_000_0.mp3",
+   "voice_kirarajump_001": "Voice_Koufuku_Ryo_Alchemist5_A/voice_kirarajump_001_0.mp3",
+   "voice_kirarajump_002": "Voice_Koufuku_Ryo_Alchemist5_A/voice_kirarajump_002_0.mp3",
+   "voice_kirarajump_003": "Voice_Koufuku_Ryo_Alchemist5_A/voice_kirarajump_003_0.mp3",
+   "voice_kirarajump_004": "Voice_Koufuku_Ryo_Alchemist5_A/voice_kirarajump_004_0.mp3",
+   "voice_kirarajump_005": "Voice_Koufuku_Ryo_Alchemist5_A/voice_kirarajump_005_0.mp3",
+   "voice_kirarajump_006": "Voice_Koufuku_Ryo_Alchemist5_A/voice_kirarajump_006_0.mp3"
+  }
+ },
+ "380004": {
+  "sheet": "Voice_Koiasu_Mira_Alchemist5_A",
+  "cues": {
+   "voice_kirarajump_000": "Voice_Koiasu_Mira_Alchemist5_A/voice_kirarajump_000_0.mp3",
+   "voice_kirarajump_001": "Voice_Koiasu_Mira_Alchemist5_A/voice_kirarajump_001_0.mp3",
+   "voice_kirarajump_002": "Voice_Koiasu_Mira_Alchemist5_A/voice_kirarajump_002_0.mp3",
+   "voice_kirarajump_003": "Voice_Koiasu_Mira_Alchemist5_A/voice_kirarajump_003_0.mp3",
+   "voice_kirarajump_004": "Voice_Koiasu_Mira_Alchemist5_A/voice_kirarajump_004_0.mp3",
+   "voice_kirarajump_005": "Voice_Koiasu_Mira_Alchemist5_A/voice_kirarajump_005_0.mp3",
+   "voice_kirarajump_006": "Voice_Koiasu_Mira_Alchemist5_A/voice_kirarajump_006_0.mp3"
+  }
+ },
+ "390004": {
+  "sheet": "Voice_Tamayomi_Yomi_Magician5_A",
+  "cues": {
+   "voice_kirarajump_000": "Voice_Tamayomi_Yomi_Magician5_A/voice_kirarajump_000_0.mp3",
+   "voice_kirarajump_001": "Voice_Tamayomi_Yomi_Magician5_A/voice_kirarajump_001_0.mp3",
+   "voice_kirarajump_002": "Voice_Tamayomi_Yomi_Magician5_A/voice_kirarajump_002_0.mp3",
+   "voice_kirarajump_003": "Voice_Tamayomi_Yomi_Magician5_A/voice_kirarajump_003_0.mp3",
+   "voice_kirarajump_004": "Voice_Tamayomi_Yomi_Magician5_A/voice_kirarajump_004_0.mp3",
+   "voice_kirarajump_005": "Voice_Tamayomi_Yomi_Magician5_A/voice_kirarajump_005_0.mp3"
+  }
+ },
+ "400002": {
+  "sheet": "Voice_Ochifuru_Ino_Knight5_A",
+  "cues": {
+   "voice_kirarajump_000": "Voice_Ochifuru_Ino_Knight5_A/voice_kirarajump_000_0.mp3",
+   "voice_kirarajump_001": "Voice_Ochifuru_Ino_Knight5_A/voice_kirarajump_001_0.mp3",
+   "voice_kirarajump_002": "Voice_Ochifuru_Ino_Knight5_A/voice_kirarajump_002_0.mp3",
+   "voice_kirarajump_003": "Voice_Ochifuru_Ino_Knight5_A/voice_kirarajump_003_0.mp3",
+   "voice_kirarajump_004": "Voice_Ochifuru_Ino_Knight5_A/voice_kirarajump_004_0.mp3",
+   "voice_kirarajump_005": "Voice_Ochifuru_Ino_Knight5_A/voice_kirarajump_005_0.mp3"
+  }
+ },
+ "410002": {
+  "sheet": "Voice_Acchikocchi_Tumiki_Fighter5_A",
+  "cues": {
+   "voice_kirarajump_000": "Voice_Acchikocchi_Tumiki_Fighter5_A/voice_kirarajump_000_0.mp3",
+   "voice_kirarajump_001": "Voice_Acchikocchi_Tumiki_Fighter5_A/voice_kirarajump_001_0.mp3"
+  }
+ },
+ "420002": {
+  "sheet": "Voice_Pawasuma_Mayu_Knight5_A",
+  "cues": {
+   "voice_kirarajump_000": "Voice_Pawasuma_Mayu_Knight5_A/voice_kirarajump_000_0.mp3",
+   "voice_kirarajump_001": "Voice_Pawasuma_Mayu_Knight5_A/voice_kirarajump_001_0.mp3",
+   "voice_kirarajump_002": "Voice_Pawasuma_Mayu_Knight5_A/voice_kirarajump_002_0.mp3",
+   "voice_kirarajump_003": "Voice_Pawasuma_Mayu_Knight5_A/voice_kirarajump_003_0.mp3",
+   "voice_kirarajump_004": "Voice_Pawasuma_Mayu_Knight5_A/voice_kirarajump_004_0.mp3",
+   "voice_kirarajump_005": "Voice_Pawasuma_Mayu_Knight5_A/voice_kirarajump_005_0.mp3",
+   "voice_kirarajump_006": "Voice_Pawasuma_Mayu_Knight5_A/voice_kirarajump_006_0.mp3",
+   "voice_kirarajump_007": "Voice_Pawasuma_Mayu_Knight5_A/voice_kirarajump_007_0.mp3",
+   "voice_kirarajump_008": "Voice_Pawasuma_Mayu_Knight5_A/voice_kirarajump_008_0.mp3",
+   "voice_kirarajump_009": "Voice_Pawasuma_Mayu_Knight5_A/voice_kirarajump_009_0.mp3"
+  }
+ },
+ "430002": {
+  "sheet": "Voice_Koharu_Koharu_Alchemist5_A",
+  "cues": {
+   "voice_kirarajump_000": "Voice_Koharu_Koharu_Alchemist5_A/voice_kirarajump_000_0.mp3",
+   "voice_kirarajump_001": "Voice_Koharu_Koharu_Alchemist5_A/voice_kirarajump_001_0.mp3",
+   "voice_kirarajump_002": "Voice_Koharu_Koharu_Alchemist5_A/voice_kirarajump_002_0.mp3",
+   "voice_kirarajump_003": "Voice_Koharu_Koharu_Alchemist5_A/voice_kirarajump_003_0.mp3",
+   "voice_kirarajump_004": "Voice_Koharu_Koharu_Alchemist5_A/voice_kirarajump_004_0.mp3",
+   "voice_kirarajump_005": "Voice_Koharu_Koharu_Alchemist5_A/voice_kirarajump_005_0.mp3",
+   "voice_kirarajump_006": "Voice_Koharu_Koharu_Alchemist5_A/voice_kirarajump_006_0.mp3",
+   "voice_kirarajump_007": "Voice_Koharu_Koharu_Alchemist5_A/voice_kirarajump_007_0.mp3",
+   "voice_kirarajump_008": "Voice_Koharu_Koharu_Alchemist5_A/voice_kirarajump_008_0.mp3",
+   "voice_kirarajump_009": "Voice_Koharu_Koharu_Alchemist5_A/voice_kirarajump_009_0.mp3",
+   "voice_kirarajump_010": "Voice_Koharu_Koharu_Alchemist5_A/voice_kirarajump_010_0.mp3"
+  }
+ },
+ "450002": {
+  "sheet": "Voice_Rpg_Kotone_Magician5_A",
+  "cues": {
+   "voice_kirarajump_000": "Voice_Rpg_Kotone_Magician5_A/voice_kirarajump_000_0.mp3",
+   "voice_kirarajump_001": "Voice_Rpg_Kotone_Magician5_A/voice_kirarajump_001_0.mp3",
+   "voice_kirarajump_002": "Voice_Rpg_Kotone_Magician5_A/voice_kirarajump_002_0.mp3",
+   "voice_kirarajump_003": "Voice_Rpg_Kotone_Magician5_A/voice_kirarajump_003_0.mp3",
+   "voice_kirarajump_004": "Voice_Rpg_Kotone_Magician5_A/voice_kirarajump_004_0.mp3",
+   "voice_kirarajump_005": "Voice_Rpg_Kotone_Magician5_A/voice_kirarajump_005_0.mp3",
+   "voice_kirarajump_006": "Voice_Rpg_Kotone_Magician5_A/voice_kirarajump_006_0.mp3",
+   "voice_kirarajump_007": "Voice_Rpg_Kotone_Magician5_A/voice_kirarajump_007_0.mp3",
+   "voice_kirarajump_008": "Voice_Rpg_Kotone_Magician5_A/voice_kirarajump_008_0.mp3"
+  }
+ },
+ "470002": {
+  "sheet": "Voice_SlowLoop_Hiyori_Knight5_A",
+  "cues": {
+   "voice_kirarajump_000": "Voice_SlowLoop_Hiyori_Knight5_A/voice_kirarajump_000_0.mp3",
+   "voice_kirarajump_001": "Voice_SlowLoop_Hiyori_Knight5_A/voice_kirarajump_001_0.mp3",
+   "voice_kirarajump_002": "Voice_SlowLoop_Hiyori_Knight5_A/voice_kirarajump_002_0.mp3",
+   "voice_kirarajump_003": "Voice_SlowLoop_Hiyori_Knight5_A/voice_kirarajump_003_0.mp3"
   }
  },
  "230001": {
@@ -146,14 +445,6 @@
    "voice_kirarajump_001": "Voice_GA_Tomokane_Fighter4_A/voice_kirarajump_001_0.mp3",
    "voice_kirarajump_002": "Voice_GA_Tomokane_Fighter4_A/voice_kirarajump_002_0.mp3",
    "voice_kirarajump_003": "Voice_GA_Tomokane_Fighter4_A/voice_kirarajump_003_0.mp3"
-  }
- },
- "260001": {
-  "sheet": "Voice_Yumekui_Merry_Fighter4_A",
-  "cues": {
-   "voice_kirarajump_000": "Voice_Yumekui_Merry_Fighter4_A/voice_kirarajump_000_0.mp3",
-   "voice_kirarajump_001": "Voice_Yumekui_Merry_Fighter4_A/voice_kirarajump_001_0.mp3",
-   "voice_kirarajump_002": "Voice_Yumekui_Merry_Fighter4_A/voice_kirarajump_002_0.mp3"
   }
  },
  "270001": {
@@ -213,6 +504,18 @@
    "voice_kirarajump_004": "Voice_Kirara_Kirara_Priest5_A/voice_kirarajump_004_0.mp3"
   }
  },
+ "320203": {
+  "sheet": "Voice_Kirara_Claire_Magician5_A",
+  "cues": {
+   "voice_kirarajump_000": "Voice_Kirara_Claire_Magician5_A/voice_kirarajump_000_0.mp3",
+   "voice_kirarajump_001": "Voice_Kirara_Claire_Magician5_A/voice_kirarajump_001_0.mp3",
+   "voice_kirarajump_002": "Voice_Kirara_Claire_Magician5_A/voice_kirarajump_002_0.mp3",
+   "voice_kirarajump_003": "Voice_Kirara_Claire_Magician5_A/voice_kirarajump_003_0.mp3",
+   "voice_kirarajump_004": "Voice_Kirara_Claire_Magician5_A/voice_kirarajump_004_0.mp3",
+   "voice_kirarajump_005": "Voice_Kirara_Claire_Magician5_A/voice_kirarajump_005_0.mp3",
+   "voice_kirarajump_006": "Voice_Kirara_Claire_Magician5_A/voice_kirarajump_006_0.mp3"
+  }
+ },
  "321701": {
   "sheet": "Voice_Kirara_Ututu_Alchemist5_A",
   "cues": {
@@ -257,18 +560,12 @@
    "voice_kirarajump_006": "Voice_Matikado_Yuko_Priest4_A/voice_kirarajump_006_0.mp3"
   }
  },
- "360001": {
-  "sheet": "Voice_Harumination_Harumi_Fighter5_A",
+ "360003": {
+  "sheet": "Voice_Harumination_Harumi_Priest4_A",
   "cues": {
-   "voice_kirarajump_000": "Voice_Harumination_Harumi_Fighter5_A/voice_kirarajump_000_0.mp3",
-   "voice_kirarajump_001": "Voice_Harumination_Harumi_Fighter5_A/voice_kirarajump_001_0.mp3",
-   "voice_kirarajump_002": "Voice_Harumination_Harumi_Fighter5_A/voice_kirarajump_002_0.mp3",
-   "voice_kirarajump_003": "Voice_Harumination_Harumi_Fighter5_A/voice_kirarajump_003_0.mp3",
-   "voice_kirarajump_004": "Voice_Harumination_Harumi_Fighter5_A/voice_kirarajump_004_0.mp3",
-   "voice_kirarajump_005": "Voice_Harumination_Harumi_Fighter5_A/voice_kirarajump_005_0.mp3",
-   "voice_kirarajump_006": "Voice_Harumination_Harumi_Fighter5_A/voice_kirarajump_006_0.mp3",
-   "voice_kirarajump_007": "Voice_Harumination_Harumi_Fighter5_A/voice_kirarajump_007_0.mp3",
-   "voice_kirarajump_008": "Voice_Harumination_Harumi_Fighter5_A/voice_kirarajump_008_0.mp3"
+   "voice_kirarajump_000": "Voice_Harumination_Harumi_Priest4_A/voice_kirarajump_000_0.mp3",
+   "voice_kirarajump_001": "Voice_Harumination_Harumi_Priest4_A/voice_kirarajump_001_0.mp3",
+   "voice_kirarajump_002": "Voice_Harumination_Harumi_Priest4_A/voice_kirarajump_002_0.mp3"
   }
  },
  "370001": {
@@ -316,42 +613,41 @@
    "voice_kirarajump_005": "Voice_Ochifuru_Ino_Knight5_A/voice_kirarajump_005_0.mp3"
   }
  },
- "410001": {
-  "sheet": "Voice_Acchikocchi_Tumiki_Fighter5_A",
+ "410003": {
+  "sheet": "Voice_Acchikocchi_Tumiki_Priest4_A",
   "cues": {
-   "voice_kirarajump_000": "Voice_Acchikocchi_Tumiki_Fighter5_A/voice_kirarajump_000_0.mp3",
-   "voice_kirarajump_001": "Voice_Acchikocchi_Tumiki_Fighter5_A/voice_kirarajump_001_0.mp3"
+   "voice_kirarajump_000": "Voice_Acchikocchi_Tumiki_Priest4_A/voice_kirarajump_000_0.mp3",
+   "voice_kirarajump_001": "Voice_Acchikocchi_Tumiki_Priest4_A/voice_kirarajump_001_0.mp3",
+   "voice_kirarajump_002": "Voice_Acchikocchi_Tumiki_Priest4_A/voice_kirarajump_002_0.mp3",
+   "voice_kirarajump_003": "Voice_Acchikocchi_Tumiki_Priest4_A/voice_kirarajump_003_0.mp3",
+   "voice_kirarajump_004": "Voice_Acchikocchi_Tumiki_Priest4_A/voice_kirarajump_004_0.mp3"
   }
  },
- "420001": {
-  "sheet": "Voice_Pawasuma_Mayu_Knight5_A",
+ "420003": {
+  "sheet": "Voice_Pawasuma_Mayu_Alchemist4_A",
   "cues": {
-   "voice_kirarajump_000": "Voice_Pawasuma_Mayu_Knight5_A/voice_kirarajump_000_0.mp3",
-   "voice_kirarajump_001": "Voice_Pawasuma_Mayu_Knight5_A/voice_kirarajump_001_0.mp3",
-   "voice_kirarajump_002": "Voice_Pawasuma_Mayu_Knight5_A/voice_kirarajump_002_0.mp3",
-   "voice_kirarajump_003": "Voice_Pawasuma_Mayu_Knight5_A/voice_kirarajump_003_0.mp3",
-   "voice_kirarajump_004": "Voice_Pawasuma_Mayu_Knight5_A/voice_kirarajump_004_0.mp3",
-   "voice_kirarajump_005": "Voice_Pawasuma_Mayu_Knight5_A/voice_kirarajump_005_0.mp3",
-   "voice_kirarajump_006": "Voice_Pawasuma_Mayu_Knight5_A/voice_kirarajump_006_0.mp3",
-   "voice_kirarajump_007": "Voice_Pawasuma_Mayu_Knight5_A/voice_kirarajump_007_0.mp3",
-   "voice_kirarajump_008": "Voice_Pawasuma_Mayu_Knight5_A/voice_kirarajump_008_0.mp3",
-   "voice_kirarajump_009": "Voice_Pawasuma_Mayu_Knight5_A/voice_kirarajump_009_0.mp3"
+   "voice_kirarajump_000": "Voice_Pawasuma_Mayu_Alchemist4_A/voice_kirarajump_000_0.mp3",
+   "voice_kirarajump_001": "Voice_Pawasuma_Mayu_Alchemist4_A/voice_kirarajump_001_0.mp3",
+   "voice_kirarajump_002": "Voice_Pawasuma_Mayu_Alchemist4_A/voice_kirarajump_002_0.mp3",
+   "voice_kirarajump_003": "Voice_Pawasuma_Mayu_Alchemist4_A/voice_kirarajump_003_0.mp3",
+   "voice_kirarajump_004": "Voice_Pawasuma_Mayu_Alchemist4_A/voice_kirarajump_004_0.mp3",
+   "voice_kirarajump_005": "Voice_Pawasuma_Mayu_Alchemist4_A/voice_kirarajump_005_0.mp3"
   }
  },
- "430001": {
-  "sheet": "Voice_Koharu_Koharu_Alchemist5_A",
+ "430003": {
+  "sheet": "Voice_Koharu_Koharu_Knight4_A",
   "cues": {
-   "voice_kirarajump_000": "Voice_Koharu_Koharu_Alchemist5_A/voice_kirarajump_000_0.mp3",
-   "voice_kirarajump_001": "Voice_Koharu_Koharu_Alchemist5_A/voice_kirarajump_001_0.mp3",
-   "voice_kirarajump_002": "Voice_Koharu_Koharu_Alchemist5_A/voice_kirarajump_002_0.mp3",
-   "voice_kirarajump_003": "Voice_Koharu_Koharu_Alchemist5_A/voice_kirarajump_003_0.mp3",
-   "voice_kirarajump_004": "Voice_Koharu_Koharu_Alchemist5_A/voice_kirarajump_004_0.mp3",
-   "voice_kirarajump_005": "Voice_Koharu_Koharu_Alchemist5_A/voice_kirarajump_005_0.mp3",
-   "voice_kirarajump_006": "Voice_Koharu_Koharu_Alchemist5_A/voice_kirarajump_006_0.mp3",
-   "voice_kirarajump_007": "Voice_Koharu_Koharu_Alchemist5_A/voice_kirarajump_007_0.mp3",
-   "voice_kirarajump_008": "Voice_Koharu_Koharu_Alchemist5_A/voice_kirarajump_008_0.mp3",
-   "voice_kirarajump_009": "Voice_Koharu_Koharu_Alchemist5_A/voice_kirarajump_009_0.mp3",
-   "voice_kirarajump_010": "Voice_Koharu_Koharu_Alchemist5_A/voice_kirarajump_010_0.mp3"
+   "voice_kirarajump_000": "Voice_Koharu_Koharu_Knight4_A/voice_kirarajump_000_0.mp3",
+   "voice_kirarajump_001": "Voice_Koharu_Koharu_Knight4_A/voice_kirarajump_001_0.mp3",
+   "voice_kirarajump_002": "Voice_Koharu_Koharu_Knight4_A/voice_kirarajump_002_0.mp3",
+   "voice_kirarajump_003": "Voice_Koharu_Koharu_Knight4_A/voice_kirarajump_003_0.mp3",
+   "voice_kirarajump_004": "Voice_Koharu_Koharu_Knight4_A/voice_kirarajump_004_0.mp3",
+   "voice_kirarajump_005": "Voice_Koharu_Koharu_Knight4_A/voice_kirarajump_005_0.mp3",
+   "voice_kirarajump_006": "Voice_Koharu_Koharu_Knight4_A/voice_kirarajump_006_0.mp3",
+   "voice_kirarajump_007": "Voice_Koharu_Koharu_Knight4_A/voice_kirarajump_007_0.mp3",
+   "voice_kirarajump_008": "Voice_Koharu_Koharu_Knight4_A/voice_kirarajump_008_0.mp3",
+   "voice_kirarajump_009": "Voice_Koharu_Koharu_Knight4_A/voice_kirarajump_009_0.mp3",
+   "voice_kirarajump_010": "Voice_Koharu_Koharu_Knight4_A/voice_kirarajump_010_0.mp3"
   }
  },
  "450001": {

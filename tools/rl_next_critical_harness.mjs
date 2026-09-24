@@ -126,9 +126,9 @@ for (let a = 0; a < 6; a++) for (let d = 0; d < 6; d++) test("forced-crit elemen
     for (const magic of [false, true]) {
         const force = attackFrom(attacker, target, { coef: 1, magic }, { forceCritical: true, rng: () => { throw Error("no forced RNG"); } });
         assert.equal(force.crit, true);
-        assert.equal(resolveDamage(force), Math.max(1, Math.round(100 * ring * 2.6 * 1.83 * .8 - 60)));
+        assert.equal(resolveDamage(force), Math.max(1, Math.round(100 * ring * 4.15 * 1.83 * .8 - 60)));
         const normal = attackFrom(attacker, target, { coef: 1, magic }, { rng: () => .99 });
-        assert.equal(normal.crit, false); assert.equal(resolveDamage(normal), Math.max(1, Math.round(100 * ring * 2.6 * .8 - 60)));
+        assert.equal(normal.crit, false); assert.equal(resolveDamage(normal), Math.max(1, Math.round(100 * ring * 4.15 * .8 - 60)));
     }
 });
 test("real confirmed type-8 item grants once without changing base stats or cooldown", () => {
@@ -144,16 +144,16 @@ test("real confirmed type-8 item grants once without changing base stats or cool
 test("real slash shares one 243 damage critical with every target, then returns to 90", () => {
     const w = makeWorld(), p = w.player; arm(w);
     const a = foe(w, { x: 16.6 }), b = foe(w, { x: 16.7, y: 12.25 });
-    w.aim = a; swing(w); assert.equal(100000 - a.hp, 243); assert.equal(100000 - b.hp, 243);
+    w.aim = a; swing(w); assert.equal(100000 - a.hp, 423); assert.equal(100000 - b.hp, 423);
     assert.ok(hits(w).every(e => e.crit)); assert.equal(p.nextCritical, false);
-    assert.equal(p.nextAtkBonus, 0); assert.equal(used(w).length, 1); assert.equal(p.skills.gauge, 486);
-    step(w, .3); a.x = 16.6; b.x = 23; swing(w); assert.equal(hits(w).at(-1).damage, 90);
+    assert.equal(p.nextAtkBonus, 0); assert.equal(used(w).length, 1); assert.equal(p.skills.gauge, 846);
+    step(w, .3); a.x = 16.6; b.x = 23; swing(w); assert.equal(hits(w).at(-1).damage, 179);
     assert.equal(hits(w).at(-1).crit, false);
 });
 test("real knight thrust uses the same committed critical rather than a melee-only branch", () => {
     const w = makeWorld({ card: cards.find(c => c.id === 29002001) }); arm(w);
     const e = foe(w, { x: 17.4 }); w.aim = e; swing(w);
-    assert.equal(hits(w)[0].damage, 243); assert.equal(hits(w)[0].crit, true); assert.equal(used(w).length, 1);
+    assert.equal(hits(w)[0].damage, 423); assert.equal(hits(w)[0].crit, true); assert.equal(used(w).length, 1);
 });
 test("melee whiff spends critical at the active window but preserves hit-owned kind 11", () => {
     const w = makeWorld(); arm(w); swing(w);
@@ -177,7 +177,7 @@ test("damage skill spends critical, snapshots force and does not consume the nor
     const w = makeWorld(); arm(w); const p = w.player, e = foe(w); w.aim = e; cast(w, 1);
     assert.equal(p.nextCritical, false); near(p.nextAtkBonus, .35);
     assert.equal(bullets(w)[0].forceCritical, true); near(p.skills.slots[1].remaining, 10.5 - stepSize);
-    step(w, 1); assert.equal(100000 - e.hp, 498); assert.equal(hits(w)[0].crit, true);
+    step(w, 1); assert.equal(100000 - e.hp, 830); assert.equal(hits(w)[0].crit, true);
     near(p.nextAtkBonus, .35); assert.equal(used(w).length, 1);
 });
 for (const kind of ["skill", "normal"]) test("a rejected whole projectile group preserves pending critical: " + kind, () => {
@@ -194,49 +194,49 @@ test("normal explosion uses a launch snapshot and cannot consume a newly granted
     w.aim = a; swing(w); assert.equal(p.nextCritical, false);
     assert.equal(bullets(w)[0].forceCritical, true); grantNextCritical(p);
     equip(w, 0); step(w, .7);
-    assert.equal(100000 - a.hp, 243); assert.equal(100000 - b.hp, 243);
+    assert.equal(100000 - a.hp, 423); assert.equal(100000 - b.hp, 423);
     assert.equal(p.nextCritical, true); assert.equal(used(w).length, 1);
 });
 test("priest piercing bullets retain one forced snapshot for all touched targets", () => {
     const w = makeWorld({ card: cards.find(c => c.id === 10002001) }); arm(w);
     const a = foe(w, { x: 19 }), b = foe(w, { x: 21 }); w.aim = a; swing(w); step(w, .8);
-    assert.equal(100000 - a.hp, 243); assert.equal(100000 - b.hp, 243); assert.equal(used(w).length, 1);
+    assert.equal(100000 - a.hp, 423); assert.equal(100000 - b.hp, 423); assert.equal(used(w).length, 1);
 });
 test("alchemist delivery keeps its own blast and slow while using the shared critical", () => {
     const w = makeWorld({ card: cards.find(c => c.id === 38002001) }); arm(w);
     const a = foe(w, { x: 19 }), b = foe(w, { x: 19.5, y: 12.5 });
     w.aim = a; swing(w); step(w, .8);
-    assert.equal(100000 - a.hp, 243); assert.equal(100000 - b.hp, 243);
+    assert.equal(100000 - a.hp, 423); assert.equal(100000 - b.hp, 423);
     assert.ok(a.slow && b.slow); assert.equal(used(w).length, 1);
 });
 test("later critical grant never retroactively changes an already launched ordinary shot", () => {
     const w = makeWorld({ card: cards.find(c => c.id === 15002001) });
     const e = foe(w, { x: 20 }); w.aim = e; swing(w);
     assert.equal(bullets(w)[0].forceCritical, false); grantNextCritical(w.player); step(w, .7);
-    assert.equal(hits(w)[0].crit, false); assert.equal(100000 - e.hp, 70); assert.equal(w.player.nextCritical, true);
+    assert.equal(hits(w)[0].crit, false); assert.equal(100000 - e.hp, 148); assert.equal(w.player.nextCritical, true);
 });
 test("all-target magical skill consumes once and forces every emitted arm", () => {
     const card = cards.find(c => c.id === 15002001), w = makeWorld({ card });
     arm(w); equip(w, 0); const a = foe(w, { x: 20 }), b = foe(w, { x: 10 });
     w.aim = a; cast(w, 1); assert.equal(bullets(w).length, 12); assert.ok(bullets(w).every(b => b.forceCritical));
     assert.equal(w.player.nextCritical, false); step(w, 1);
-    assert.equal(hits(w).length, 2); assert.equal(100000 - a.hp, 416); assert.equal(100000 - b.hp, 416);
+    assert.equal(hits(w).length, 2); assert.equal(100000 - a.hp, 699); assert.equal(100000 - b.hp, 699);
     near(w.player.nextAtkBonus, .35); assert.equal(used(w).length, 1);
 });
 test("committed forced projectile survives source death and pool reuse resets the flag", () => {
     const w = makeWorld(); arm(w); const p = w.player, e = foe(w, { x: 20 }); w.aim = e; cast(w, 1);
     p.dead = true; p.sm.force("dead"); step(w, 1);
-    assert.equal(100000 - e.hp, 498); assert.equal(p.nextCritical, false);
+    assert.equal(100000 - e.hp, 830); assert.equal(p.nextCritical, false);
     const pool = createDanmaku({ capacity: 1 });
     pool.emit("aimed", { x: 1, y: 1 }, { side: "player", forceCritical: true });
     let first; pool.forEach(b => first = b); assert.equal(first.forceCritical, true);
     pool.clear(); pool.emit("aimed", { x: 1, y: 1 }, { side: "enemy" });
     pool.forEach(b => { assert.equal(b, first); assert.equal(b.forceCritical, false); });
 });
-test("real ultimate consumes once, deals 1114, and retains normal-only 35 percent", () => {
+test("real ultimate consumes once, deals 1814, and retains normal-only 35 percent", () => {
     const w = makeWorld(); arm(w); const p = w.player, e = foe(w); p.skills.addGauge(p.skills.gaugeMax);
     assert.ok(w.useUltimate()); assert.equal(w.useUltimate(), false);
-    assert.equal(100000 - e.hp, 1114); assert.equal(hits(w)[0].crit, true);
+    assert.equal(100000 - e.hp, 1814); assert.equal(hits(w)[0].crit, true);
     assert.equal(p.skills.gauge, 0); assert.equal(p.nextCritical, false); near(p.nextAtkBonus, .35);
     assert.equal(used(w).length, 1);
 });
@@ -244,19 +244,19 @@ for (const first of [true, false]) test("ordinary grant order relative to its si
     const effects = first ? [grant(), damage()] : [damage(), grant()];
     const w = makeWorld({ table: fixture(effects) }), e = foe(w); w.aim = e; cast(w, 1);
     assert.equal(bullets(w)[0].forceCritical, first); assert.equal(w.player.nextCritical, !first);
-    step(w, 1); assert.equal(100000 - e.hp, first ? 330 : 200);
+    step(w, 1); assert.equal(100000 - e.hp, first ? 563 : 355);
 });
 for (const first of [true, false]) test("ultimate grant order stays atomic instead of multiplying an earlier hit: " + first, () => {
     const effects = first ? [grant(), damage()] : [damage(), grant()];
     const w = makeWorld({ table: fixture(effects, true) }), e = foe(w);
     w.player.skills.addGauge(w.player.skills.gaugeMax); assert.ok(w.useUltimate());
-    assert.equal(100000 - e.hp, first ? 330 : 200); assert.equal(w.player.nextCritical, !first);
+    assert.equal(100000 - e.hp, first ? 563 : 355); assert.equal(w.player.nextCritical, !first);
 });
 test("one ultimate critical is shared across live targets and segments, with later grants consumed in order", () => {
     const effects = [damage(2), grant(), damage(2), grant()];
     const w = makeWorld({ table: fixture(effects, true) }), a = foe(w), b = foe(w, { x: 21 });
     const p = w.player; grantNextCritical(p); p.skills.addGauge(p.skills.gaugeMax); assert.ok(w.useUltimate());
-    assert.equal(100000 - a.hp, 660); assert.equal(100000 - b.hp, 660);
+    assert.equal(100000 - a.hp, 1126); assert.equal(100000 - b.hp, 1126);
     assert.equal(hits(w).length, 4); assert.ok(hits(w).every(e => e.crit));
     assert.equal(p.nextCritical, true); assert.equal(used(w).length, 2); assert.equal(p.skills.gauge, 0);
 });
@@ -280,7 +280,7 @@ test("autonomous real CARD neither uses nor consumes a pending critical", () => 
     w.aim = e; cast(w, 1); assert.ok(w.player.skillCards?.length);
     grantNextCritical(w.player); step(w, 3);
     const cardHits = hits(w).filter(e => e.skillCard);
-    assert.equal(cardHits.length, 1); assert.equal(cardHits[0].damage, 70); assert.equal(cardHits[0].crit, false);
+    assert.equal(cardHits.length, 1); assert.equal(cardHits[0].damage, 148); assert.equal(cardHits[0].crit, false);
     assert.equal(w.player.nextCritical, true); assert.equal(used(w).length, 0);
 });
 test("six-stat reset, elapsed time, equip and non-damage skill do not clear pending critical", () => {

@@ -7,43 +7,45 @@
     <meta name="description" content="闪耀幻想曲停服纪念与时间记录页面">
     <meta name="viewport" content="width=device-width, initial-scale=1">
 
-    <!-- Vendored locally: the CDN copies added ~10s of blocking round trips
-         (momentjs.com alone was 2.9s for 632 KB) and made the page depend on
-         five third parties. Load order is unchanged. -->
-    <script src="site/js/moment-with-locales.js"></script>
-    <script src="site/js/moment-timezone-with-data-10-year-range.min.js"></script>
+    <!-- Deferred in dependency order; the local Moment build keeps en + zh-cn. -->
+    <script defer src="site/js/moment-zh-cn.js?v=20260924-1"></script>
+    <script defer src="site/js/moment-timezone-with-data-10-year-range.min.js"></script>
+    <script defer src="site/js/jquery-3.3.1.slim.min.js"></script>
+    <script defer src="site/js/popper.min.js"></script>
+    <script defer src="site/js/page-utils.js?v=20260924-1"></script>
+    <script defer src="site/data.js?v=20260813-5"></script>
+    <script defer src="site/asset/shutdown-artworks/artworks.js?v=20260813-5"></script>
+    <script defer src="site/asset/original-characters.js?v=20260813-7"></script>
+    <script defer src="site/js/vue.min.js"></script>
+    <script defer src="site/components.js?v=20260924-1"></script>
 
-    <script src="site/js/jquery-3.3.1.slim.min.js"></script>
-    <script src="site/js/popper.min.js"></script>
-
-    <script type="text/javascript" src="site/data.js?v=20260813-5"></script>
-    <script type="text/javascript" src="site/asset/shutdown-artworks/artworks.js?v=20260813-5"></script>
-    <script type="text/javascript" src="site/asset/original-characters.js?v=20260813-7"></script>
-    <script src="site/js/vue.min.js"></script>
-    <script type="text/javascript" src="site/components.js?v=20260813-5"></script>
-
-    <link rel="preload" as="image" href="site/imgs/op1900.jpg">
+    <link rel="preload" as="image" type="image/jpeg" href="site/imgs/op1900.jpg" media="(min-width: 1024px)">
+    <link rel="preload" as="image" type="image/webp" href="site/imgs/optimized/op1900-960.webp" media="(max-width: 1023px)">
     <link rel="stylesheet" href="site/css/bootstrap.min.css">
-    <script src="site/js/bootstrap.min.js"></script>
+    <script defer src="site/js/bootstrap.min.js"></script>
 
     <link rel="stylesheet" type="text/css" href="site/style.css?v=20260826-1">
     <link rel="stylesheet" type="text/css" href="site/css/memorial.css?v=20260814-27">
-    <link rel="stylesheet" type="text/css" href="site/css/official-theme.css?v=20260826-4">
+    <link rel="stylesheet" type="text/css" href="site/css/official-theme.css?v=20260924-1">
     <link rel="stylesheet" href="site/css/kirara-cursor.css">
 
     <link rel="icon" href="site/favicon.png">
 </head>
 
 <body>
+    <a class="skip-link" href="#timer-and-action">跳到纪念计时</a>
     <div class="container-fluid" id="app">
         <div class="memorial-stage">
-        <div class="hero-ambient" aria-hidden="true">
-            <span></span><span></span><span></span><span></span><span></span><span></span>
-        </div>
         <div id="header" v-show="showHeader">
+            <nav class="memorial-nav" aria-label="站点导航">
+                <a href="site/gacha.html">前往抽卡界面</a>
+                <a href="site/models.html">前往模型观察室</a>
+                <a href="site/game/roguelike.html">进入百物語の残页</a>
+                <a href="site/etowaria-defense/">进入里之守望</a>
+            </nav>
             <div class="hero-copy">
-                <img class="hero-main-logo" src="site/imgs/official-site/kirarafantasia-logo.svg" alt="きららファンタジア">
-                <span class="hero-kicker">MEMORIAL TIMER / 2017—2023</span>
+                <img class="hero-main-logo" src="site/imgs/official-site/kirarafantasia-logo.svg" alt="きららファンタジア" width="292" height="96">
+                <span class="hero-kicker">MEMORIAL TIMER / 2017-2023</span>
                 <h1>闪耀幻想曲<span>纪念计时器</span></h1>
                 <p>故事已经停在那一天，留下的时间仍在继续。</p>
                 <span class="hero-color-bars" aria-hidden="true"></span>
@@ -68,7 +70,12 @@
         </div>
 
         <main class="stage-main">
-        <div id="timer-and-action">
+        <div id="timer-and-action" tabindex="-1">
+            <div class="row" id="columns-holder" v-cloak>
+                <div v-for="(col, colIndex) in visibleTimerColumns" :key="colIndex" class="col-12">
+                    <event-group v-for="(t, index) in col" v-bind:ev="t" :key="index"></event-group>
+                </div>
+            </div>
             <div id="action-and-counter-holder">
                 <div class="incense-scene">
                     <div class="shrine-stars" aria-hidden="true">
@@ -94,11 +101,6 @@
                     </div>
                 </div>
             </div>
-            <div class="row" id="columns-holder">
-                <div v-for="(col, colIndex) in visibleTimerColumns" :key="colIndex" class="col-12">
-                    <event-group v-for="(t, index) in col" v-bind:ev="t" :key='index'></event-group>
-                </div>
-            </div>
         </div>
         </main>
         </div>
@@ -107,53 +109,58 @@
             <div class="official-roster-inner">
                 <div class="official-roster-copy">
                     <img class="official-roster-logo" src="site/imgs/official-site/kirarafantasia-logo.svg" alt="きららファンタジア">
-                    <span>OFFICIAL VISUAL ARCHIVE / 2021—2023</span>
                     <h2 id="officialRosterTitle">官网留下的星光，仍在轮转。</h2>
-                    <p>收录停服前官网留下的原创角色群像与历年主视觉，让那些曾经照亮艾特瓦利亚的相遇继续留在这里。</p>
+                    <p>收录 2021-2023 年官网留下的原创角色群像与主视觉，让那些曾经照亮艾特瓦利亚的相遇继续留在这里。</p>
                 </div>
                 <section class="official-hero-carousel" id="officialHeroCarousel" aria-label="官网主视觉轮播" aria-roledescription="轮播">
                     <div class="official-hero-slides" aria-live="off">
                         <figure class="official-hero-slide is-active" data-slide-index="0" aria-hidden="false">
                             <picture>
-                                <img src="site/imgs/official-site/official-original-cast.png" alt="闪耀幻想曲原创角色群像" width="1646" height="904" loading="eager" decoding="async">
+                                <source type="image/webp" srcset="site/imgs/optimized/official-original-cast-800.webp 800w, site/imgs/optimized/official-original-cast-1646.webp 1646w" sizes="(min-width: 1024px) 62vw, 94vw">
+                                <img src="site/imgs/official-site/official-original-cast.png" alt="闪耀幻想曲原创角色群像" width="1646" height="904" loading="lazy" decoding="async">
                             </picture>
                         </figure>
                         <figure class="official-hero-slide" data-slide-index="1" aria-hidden="true">
                             <picture>
+                                <source type="image/webp" data-srcset="site/imgs/optimized/hero-01-pc-800.webp 800w, site/imgs/optimized/hero-01-pc-1646.webp 1646w" sizes="(min-width: 1024px) 62vw, 94vw">
                                 <img data-src="site/imgs/official-site/hero/hero-01-pc.png" alt="官网主视觉：在艾特瓦利亚相遇的角色们" width="1646" height="904" decoding="async">
                             </picture>
                         </figure>
                         <figure class="official-hero-slide" data-slide-index="2" aria-hidden="true">
                             <picture>
+                                <source type="image/webp" data-srcset="site/imgs/optimized/hero-02-pc-800.webp 800w, site/imgs/optimized/hero-02-pc-1646.webp 1646w" sizes="(min-width: 1024px) 62vw, 94vw">
                                 <img data-src="site/imgs/official-site/hero/hero-02-pc.png" alt="官网主视觉：夏日装束的角色们" width="1646" height="904" decoding="async">
                             </picture>
                         </figure>
                         <figure class="official-hero-slide" data-slide-index="3" aria-hidden="true">
                             <picture>
+                                <source type="image/webp" data-srcset="site/imgs/optimized/hero-03-pc-800.webp 800w, site/imgs/optimized/hero-03-pc-1646.webp 1646w" sizes="(min-width: 1024px) 62vw, 94vw">
                                 <img data-src="site/imgs/official-site/hero/hero-03-pc.png" alt="官网主视觉：冒险装束的角色们" width="1646" height="904" decoding="async">
                             </picture>
                         </figure>
                         <figure class="official-hero-slide" data-slide-index="4" aria-hidden="true">
                             <picture>
+                                <source type="image/webp" data-srcset="site/imgs/optimized/hero-04-pc-800.webp 800w, site/imgs/optimized/hero-04-pc-1646.webp 1646w" sizes="(min-width: 1024px) 62vw, 94vw">
                                 <img data-src="site/imgs/official-site/hero/hero-04-pc.png" alt="官网主视觉：创作者与原创角色们" width="1646" height="904" decoding="async">
                             </picture>
                         </figure>
                     </div>
-                    <span class="official-hero-sweep" aria-hidden="true"></span>
-                    <div class="official-hero-dots" role="group" aria-label="选择主视觉">
-                        <button class="is-active" type="button" data-hero-slide="0" aria-label="显示第 1 张主视觉" aria-current="true"></button>
-                        <button type="button" data-hero-slide="1" aria-label="显示第 2 张主视觉"></button>
-                        <button type="button" data-hero-slide="2" aria-label="显示第 3 张主视觉"></button>
-                        <button type="button" data-hero-slide="3" aria-label="显示第 4 张主视觉"></button>
-                        <button type="button" data-hero-slide="4" aria-label="显示第 5 张主视觉"></button>
+                    <div class="official-hero-controls">
+                        <div class="official-hero-dots" role="group" aria-label="选择主视觉">
+                            <button class="is-active" type="button" data-hero-slide="0" aria-label="显示第 1 张主视觉" aria-current="true"></button>
+                            <button type="button" data-hero-slide="1" aria-label="显示第 2 张主视觉"></button>
+                            <button type="button" data-hero-slide="2" aria-label="显示第 3 张主视觉"></button>
+                            <button type="button" data-hero-slide="3" aria-label="显示第 4 张主视觉"></button>
+                            <button type="button" data-hero-slide="4" aria-label="显示第 5 张主视觉"></button>
+                        </div>
+                        <button id="officialHeroPause" class="carousel-pause" type="button" aria-pressed="false">暂停轮播</button>
                     </div>
-                    <span class="official-hero-source">OFFICIAL VISUAL / WEB ARCHIVE</span>
                 </section>
             </div>
         </section>
 
         <main class="archive-main">
-        <section class="memory-section" aria-labelledby="memoryTitle">
+        <section class="memory-section" aria-labelledby="memoryTitle" v-once v-cloak>
             <div class="section-heading memory-heading">
                 <span class="section-kicker">ARCHIVE / 2023.02.28</span>
                 <h2 id="memoryTitle">留下来的星光</h2>
@@ -162,7 +169,10 @@
             <div class="memory-grid memory-grid-featured">
                 <article class="memory-card" v-for="artwork in featuredArtworks" :key="artwork.id">
                     <a :href="artwork.postUrl" target="_blank" rel="noopener noreferrer">
-                        <img :src="'site/asset/shutdown-artworks/' + artwork.images[0].path" :alt="artwork.mediaNote" loading="lazy">
+                        <picture>
+                            <source type="image/webp" :srcset="artworkSrcset(artwork)" sizes="(min-width: 1024px) 32vw, (min-width: 640px) 48vw, 94vw">
+                            <img :src="'site/asset/shutdown-artworks/' + artwork.images[0].path" :alt="artwork.mediaNote" :width="artwork.images[0].width" :height="artwork.images[0].height" loading="lazy" decoding="async">
+                        </picture>
                     </a>
                     <div class="memory-card-body">
                         <span>{{ artwork.author.name }} · {{ artwork.work }}</span>
@@ -173,7 +183,10 @@
             <div class="memory-grid memory-grid-archive">
                 <article class="memory-card" v-for="artwork in archiveArtworks" :key="artwork.id">
                     <a :href="artwork.postUrl" target="_blank" rel="noopener noreferrer">
-                        <img :src="'site/asset/shutdown-artworks/' + artwork.images[0].path" :alt="artwork.mediaNote" loading="lazy">
+                        <picture>
+                            <source type="image/webp" :srcset="artworkSrcset(artwork)" sizes="(min-width: 1024px) 32vw, (min-width: 640px) 48vw, 94vw">
+                            <img :src="'site/asset/shutdown-artworks/' + artwork.images[0].path" :alt="artwork.mediaNote" :width="artwork.images[0].width" :height="artwork.images[0].height" loading="lazy" decoding="async">
+                        </picture>
                     </a>
                     <div class="memory-card-body">
                         <span>{{ artwork.author.name }} · {{ artwork.work }}</span>
@@ -186,11 +199,12 @@
 
         <section class="comments-section" aria-labelledby="commentsTitle">
             <div class="section-heading">
-                <span class="section-kicker">MESSAGE BOARD / GITHUB DISCUSSIONS</span>
                 <h2 id="commentsTitle">留言簿</h2>
                 <p>留下你与艾特瓦利亚相遇的记忆。</p>
             </div>
-            <div class="comments-frame">
+            <div class="comments-frame" v-once>
+                <p id="giscusStatus" class="comments-status" role="status">接近此处时加载留言簿。</p>
+                <button id="giscusRetry" class="comments-retry" type="button" hidden>重新连接</button>
                 <div id="giscusThread" class="giscus"></div>
                 <div id="giscusSetupNotice" class="giscus-setup-notice" hidden>
                     <strong>留言簿尚未启用</strong>
@@ -235,10 +249,11 @@
         </footer>
 
         <div id="offeringModal" class="offering-modal" role="dialog" aria-modal="true" aria-labelledby="offeringMessage" hidden>
-            <button class="offering-backdrop" type="button" data-close-offering aria-label="关闭"></button>
+            <button class="offering-backdrop" type="button" data-close-offering aria-label="关闭" tabindex="-1"></button>
             <div class="offering-dialog">
+                <button class="offering-close" type="button" data-close-offering aria-label="关闭角色纪念">关闭</button>
                 <div class="offering-visual">
-                    <img id="offeringImage" src="" alt="">
+                    <img id="offeringImage" alt="" decoding="async">
                 </div>
                 <div class="offering-copy">
                     <span id="offeringGroup" class="offering-group"></span>
@@ -274,7 +289,7 @@
         </div>
     </div>
 
-    <script type="text/javascript" src="site/app.js?v=20260826-7"></script>
+    <script defer src="site/app.js?v=20260924-1"></script>
     <!-- async, not defer: a deferred script still runs before
          DOMContentLoaded, and this counter took 1.2s — which delayed every
          DOMContentLoaded handler, including the BGM player's init. -->

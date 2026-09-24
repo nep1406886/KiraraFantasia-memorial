@@ -31,7 +31,13 @@ const RARITY_WEIGHTS = {
 
 // Affix count per rarity (legendary's own passive rides on weaponId, so it
 // rolls the same 3 generic affixes as epic on top of the guaranteed one).
-const AFFIX_COUNT = { common: 1, rare: 2, epic: 3, legendary: 3 };
+// One affix per item at every rarity (2026-09-22): the pool is mostly skill
+// rewrites, and stacking two or three of them on one drop made a single item
+// replace the normal attack plus both skills at once — unreadable for anyone
+// not studying the sheet. Rarity now says how strong the one effect is, not
+// how many effects are crammed together. The native weapon passive rides on
+// top of this one roll, exactly as before.
+const AFFIX_COUNT = { common: 1, rare: 1, epic: 1, legendary: 1 };
 
 const BASE_DROP_CHANCE = 0.25;
 const DROP_CHANCE_PER_FLOOR = 0.05;

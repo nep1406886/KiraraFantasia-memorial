@@ -34,8 +34,8 @@ def select_backup(page, data, name="backup.json"):
 
 def fixture(page):
     return page.evaluate("""async () => {
-        const data=await fetch('../site/asset/rl/weapons-rl.json').then(r=>r.json());
-        const cards=await fetch('../site/asset/rl/cards-rl.json').then(r=>r.json());
+        const data=await fetch('../asset/rl/weapons-rl.json').then(r=>r.json());
+        const cards=await fetch('../asset/rl/cards-rl.json').then(r=>r.json());
         const card=cards.cards.find(c=>c.id===10000000);
         const weapon=data.catalog.find(w=>w.class===card.class && w.charaId<0 && w.rare===3);
         const {generateDungeon}=await import('./rl/dungeon.js');

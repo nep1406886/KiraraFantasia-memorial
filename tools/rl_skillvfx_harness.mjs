@@ -32,8 +32,8 @@ for (let job = 0; job < 5; job++) {
         for (const event of expected.events.filter(row => row.kind.startsWith("Effect"))) {
             const asset = index.effects[event.effect];
             assert.ok(asset && asset.source.bundle && asset.source.sha256, "来源可追溯 " + event.effect);
-            assert.equal(statSync(new URL(asset.file, root)).size, asset.bytes);
-            assert.ok(statSync(new URL(asset.timeline, root)).size > 20);
+            assert.equal(statSync(new URL("site/" + asset.file, root)).size, asset.bytes);
+            assert.ok(statSync(new URL("site/" + asset.timeline, root)).size > 20);
         }
         checks++;
     }

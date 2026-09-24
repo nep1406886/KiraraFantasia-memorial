@@ -6,9 +6,11 @@
 //
 // check(state) receives meta.state (the merged save shape from meta.js) and
 // answers "is this earned now?". evaluateAchievements(meta) runs every check,
-// persists the fresh ones through meta.unlockAchievement (idempotent — the
-// second call is a no-op) and returns the newly earned entries so the caller
-// toasts exactly once per achievement.
+// persists the fresh ones through meta.unlockAchievements — one batch storage
+// transaction per sweep, so the terminal gate's single-commit contract holds —
+// and returns the newly earned entries so the caller toasts exactly once per
+// achievement. meta.unlockAchievement stays as the per-row fallback for node
+// fixtures without the batched API.
 //
 // The list only uses counters that real systems already write: volumes
 // (clearVolume), pages (collectPage), enemies (encounterEnemies), gems
@@ -53,20 +55,29 @@ export const ACHIEVEMENTS = [
 ];
 
 // evaluateAchievements(meta) → newly earned entries (and only those). The
-// check runs first (a pure read) and only a passing check persists through
-// meta.unlockAchievement — the reverse order would mark every entry unlocked
-// just by evaluating. unlockAchievement is idempotent, so the second
-// evaluate returns an empty list and the caller toasts exactly once.
+// check runs first (a pure read against meta.state, fresh = not yet owned AND
+// passing) and only a passing check persists — through meta.unlockAchievements
+// as ONE storage transaction so a whole sweep toasts N rows but writes once
+// (the terminal gate counts commits during the victory window, so per-row
+// writes would break its single-transaction contract). The batched API is
+// idempotent, so the second evaluate returns an empty list and the caller
+// toasts exactly once. meta.unlockAchievement is kept as the fallback for
+// node fixtures without the batched API.
 export function evaluateAchievements(meta) {
     if (!meta || !meta.state) {
         return [];
     }
     const state = meta.state;
-    const fresh = [];
-    ACHIEVEMENTS.forEach(function (entry) {
-        if (entry.check(state) && meta.unlockAchievement(entry.id)) {
-            fresh.push(entry);
-        }
+    const owned = new Set((state.achievements || []).map(function (a) { return String(a); }));
+    const fresh = ACHIEVEMENTS.filter(function (entry) {
+        return !owned.has(String(entry.id)) && entry.check(state);
     });
+    if (fresh.length) {
+        if (typeof meta.unlockAchievements === "function") {
+            meta.unlockAchievements(fresh.map(function (entry) { return entry.id; }));
+        } else {
+            fresh.forEach(function (entry) { meta.unlockAchievement(entry.id); });
+        }
+    }
     return fresh;
 }

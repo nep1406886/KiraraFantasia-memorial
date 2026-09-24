@@ -91,6 +91,13 @@ def main() -> int:
             page = browser.new_page(viewport={"width": 1280, "height": 800})
             errors = []
             page.on("pageerror", lambda e: errors.append(str(e)))
+            # Phase-8 first-run tutorial: it keeps the player invulnerable
+            # while the walkthrough is up, which defeats this gate's deliberate
+            # death funnel (rl_meta_browser.py opts out the same way). Seed the
+            # legacy meta slot so the run under test never enters it.
+            page.add_init_script(
+                "localStorage.setItem('kirafan-rl:meta',"
+                " JSON.stringify({tutorialSeen:true}));")
 
             # --- A. progress + autosave -----------------------------------
             boot(page, port, url)   # new browser context is already an empty save
@@ -177,14 +184,23 @@ def main() -> int:
                   len(resumed["eq"]) == 1 and resumed["eq"][0]["slot"] == "charm"
                   and len(resumed["eq"][0]["affixes"]) == 1,
                   resumed["eq"])
-            # The volume opening belongs to the first boot only: after the
-            # prologue (seen in meta from phase A) nothing may queue.
+            # The volume opening belongs to the first boot only. A resume
+            # does queue the run's DUE conditional segment story (T27: the
+            # turn scenes ride selectStory on the resume path — jumping
+            # straight to floor 7 makes v1_turn_5 due), but the opening,
+            # the finale intro and the first-run tutorial must never return.
             page.wait_for_timeout(800)
+            reopened = page.evaluate("""(() => {
+                const b = document.getElementById('dialogue-box');
+                return (b && b.style.display !== 'none')
+                    ? (b.innerText || '') : '';
+            })()""")
             check("resume does not replay the volume opening",
-                  page.evaluate("""(() => {
-                      const b = document.getElementById('dialogue-box');
-                      return !(b && b.style.display !== 'none');
-                  })()"""))
+                  "听，是潮声" not in reopened          # v1_open
+                  and "空白的中央" not in reopened       # finale_intro
+                  and "欢迎来到司书的修行现场" not in reopened,  # tutorial
+                  reopened[:60])
+            dismiss_dialogue(page)
             check("no pageerrors after resume", not errors, errors[:3])
 
             # --- C. a normal pick abandons the snapshot -------------------

@@ -48,7 +48,7 @@ for (const row of GADGETS) {
     test(row.id + '使用实际机制参数，强力代价不折叠', () => {
         const view = worldWith().previewEquipment(makeGadget(row.id, undefined, row.sealSkill ? 2 : undefined));
         const brief = equipmentBrief(view), text = words(brief);
-        assert(text.length > 0); assert(brief.benefits.length <= 3);
+        assert(text.length > 0); assert(brief.benefits.length <= 2);
         if (row.rate) assert(text.includes('普攻速度 +20%'));
         if (row.attackMove) assert(text.includes('55%移速'));
         if (row.range) assert(text.includes('普攻距离 +25%'));
@@ -101,12 +101,12 @@ test('净差值来自完整配装，而不是候选装备的裸加成', () => {
     // rhythm's calibrated normalDamage is .75; adding wide gives .75 * .88,\n    // so the complete-loadout net is 12% below the current rhythm loadout.\n    assert(brief.costs.includes('普攻伤害 −12%'));\n    assert(!brief.costs.some(word => word.includes('普攻速度')));
     assert(brief.benefits.includes('普攻宽度 +30%'));
 });
-test('收益最多三项并计数，所有负向面板变化始终保留', () => {
+test('收益最多两项并计数，所有负向面板变化始终保留', () => {
     const view = worldWith().previewEquipment(item('armor'));
     // Deliberately synthetic large summary; this does not change live combat.
     for (const key of Object.keys(truth)) view.candidate[key] = view.current[key] + 10;
     const positive = equipmentBrief(view);
-    assert.equal(positive.benefits.length, 3); assert.equal(positive.more, 4);
+    assert.equal(positive.benefits.length, 2); assert.equal(positive.more, 5);
     for (const key of Object.keys(truth)) view.candidate[key] = view.current[key] - 10;
     const negative = equipmentBrief(view);
     assert.equal(negative.costs.length, 7); assert.equal(negative.more, 0);
@@ -116,7 +116,7 @@ test('全原作词条简述有界、不改预览、不输出未定义值', () =>
     for (const id of Object.keys(weapons.passives)) {
         const view = world.previewEquipment(item('amulet', id));
         assert(view, id); const before = JSON.stringify(view), brief = equipmentBrief(view);
-        assert(brief.benefits.length <= 3, id); assert.equal(JSON.stringify(view), before, id);
+        assert(brief.benefits.length <= 2, id); assert.equal(JSON.stringify(view), before, id);
         assert(!/undefined|NaN|Infinity/.test(words(brief)), id);
     }
 });

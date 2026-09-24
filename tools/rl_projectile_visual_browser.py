@@ -84,7 +84,18 @@ NATIVE_GEOMETRY = r"""() => {
         const aim=new T.Vector3(b.x+b.vx,1,b.y+b.vy).project(a.camera).sub(p).setZ(0).normalize();
         const drawn=new T.Vector3(-1,0,0).applyMatrix4(root.matrixWorld).project(a.camera)
             .sub(root.position.clone().project(a.camera)).setZ(0).normalize();
-        return {ready:!!a.fx.projectileVisualReady?.(b),centreError:root.position.distanceTo(origin),
+        // 2026-09-17: the projectile root is deliberately centre-compensated
+        // (root.position == bullet - centre*k*scale, rotated) so the art's
+        // visual mass rides the bullet. Measure the COMPENSATED position
+        // against the bullet using the product's own parameters.
+        const centre=a.fx.visualCentreOf(root);
+        const comp=centre.clone().multiplyScalar(a.fx.projectileCentreK)
+            .multiply(new T.Vector3(root.scale.x,root.scale.y,root.scale.z))
+            .applyQuaternion(root.quaternion);
+        // root.position = bullet - comp, so the visual centre (root+comp)
+        // must land exactly on the bullet.
+        const placed=root.position.clone().add(comp);
+        return {ready:!!a.fx.projectileVisualReady?.(b),centreError:placed.distanceTo(origin),
             alignment:drawn.dot(aim),element:b.element};
     });
 }"""
@@ -206,7 +217,7 @@ def main():
                 page.wait_for_function("audit.fx.stats.loaded>0",timeout=30000)
                 page.evaluate('audit.render(0)')
                 state=page.evaluate('audit.state()')
-                check('仅加载完成但尚未推进有效帧时保留回退',state['generic']==1 and state['native']==0)
+                check('仅加载完成但尚未推进有效帧时玩家弹不画兜底圆(2026-09-16 用户反馈)',state['generic']==0 and state['native']==0)
                 page.evaluate("audit.render(.1)")
                 state=page.evaluate("audit.state()");report["scenarios"]["ready"]=state
                 check("原作弹体就绪后不再叠画通用弹",state["native"]==1 and state["generic"]==0)
@@ -251,7 +262,9 @@ def main():
                     page.wait_for_function('audit.fx.stats.loaded===8',timeout=30000)
                     page.evaluate('audit.render(.1)')
                     report['nativeGeometry'].extend(page.evaluate(NATIVE_GEOMETRY))
-                check('六属性原作效果在八方向中跟随实际弹体和相机投影',all(r['ready'] and r['centreError']<1e-6 and r['alignment']>.99999 for r in report['nativeGeometry']))
+                bad=[r for r in report['nativeGeometry'] if not (r['ready'] and r['centreError']<1e-6 and r['alignment']>.99999)]
+                if bad: report['nativeGeometryBad']=bad[:3]
+                check('六属性原作效果在八方向中跟随实际弹体和相机投影',not bad)
                 page.evaluate('audit.fx.clear();audit.bullets.clear();audit.fire();audit.render(0)')
                 page.wait_for_function('audit.fx.stats.loaded===1',timeout=30000)
                 page.evaluate('audit.render(.1);window.oldBullet=audit.list()[0];audit.bullets.clear();audit.fire(Math.PI/2)')
@@ -287,7 +300,7 @@ def main():
                 page.wait_for_function("audit.fx.stats.loaded>0",timeout=30000)
                 page.evaluate("audit.render(.1)")
                 state=page.evaluate("audit.state()");report["scenarios"]["capacity"]=state
-                check("原作特效达到上限时未接管弹保留回退图形",state["native"]==1 and state["generic"]==1)
+                check("原作特效达到上限时未接管弹也不画兜底圆",state["native"]==1 and state["generic"]==0)
                 page.close()
 
                 page=make_page(fail=True)
@@ -295,14 +308,14 @@ def main():
                 page.wait_for_function("audit.fx.stats.errors.some(x=>x.includes('ef_btl_magician_attack_fire_01'))",timeout=30000)
                 page.evaluate("audit.render(.1)")
                 state=page.evaluate("audit.state()");report["scenarios"]["missing"]=state
-                check("原作资源失败时弹体仍可见且不虚报接管",state["generic"]==1 and state["native"]==0)
+                check("原作资源失败时弹体不可见且不虚报接管",state["generic"]==0 and state["native"]==0)
                 page.close()
 
                 held=[];page=make_page(preload=False,held=held)
                 page.evaluate("audit.fire();audit.render(.02)")
                 page.wait_for_timeout(100)
                 state=page.evaluate("audit.state()");report["scenarios"]["pending"]=state
-                check("原作资源尚未就绪时保留回退",bool(held) and state["generic"]==1 and state["native"]==0)
+                check("原作资源尚未就绪时玩家弹不画兜底圆",bool(held) and state["generic"]==0 and state["native"]==0)
                 page.evaluate("audit.fx.clear();audit.bullets.clear();audit.fire(Math.PI);audit.render(.02)")
                 for route in held:route.continue_()
                 page.wait_for_function("audit.fx.stats.loaded>0",timeout=30000)

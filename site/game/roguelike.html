@@ -91,8 +91,11 @@
         text-overflow: ellipsis;
         white-space: nowrap;
     }
-    /* Keyboard hints are noise once the touch controls are up. */
+    /* Keyboard hints are noise once the touch controls are up — EXCEPT the
+       first-run walkthrough's own guidance, which teaches the touch binds and
+       must stay visible on mobile (the tutorial set marks the box). */
     body.touch-on #hint { display: none; }
+    body.touch-on #hint.tutorial-active { display: block; }
 
     /* The real HUD (spec/01 §4): clamp() sizing only, no breakpoints — the
        375/1280-green, 390/412/430-broken lesson. Every touch target >=44px. */
@@ -755,6 +758,122 @@
         transform: translateX(-50%) translateY(0);
     }
     #achv-toast .achv-toast-star { color: var(--kf-gold); }
+
+    /* 操作说明 (plan 阶段 8「菜单、教学、成就」): same overlay grammar as the
+       codex/成就 — full-screen --kf-sky page, clamp()/minmax() only, no fixed
+       widths anywhere. Rows are plain divs; the interactive surface is the
+       footer (重新教学 + 关闭), and Esc also dismisses. */
+    .howto-overlay {
+        position: fixed;
+        inset: 0;
+        z-index: 1100;
+        background: var(--kf-sky);
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        padding: clamp(8px, 2vmin, 20px);
+        color: var(--kf-ink);
+    }
+    .howto-head h3 {
+        margin: 0 0 10px;
+        font-size: clamp(1.1rem, 3.5vw, 1.6rem);
+        font-family: var(--font-serif);
+        color: var(--kf-ink);
+        letter-spacing: -0.02em;
+    }
+    .howto-scroll {
+        flex: 1 1 auto;
+        min-height: 0;
+        width: min(100% - 8px, 900px);
+        overflow-y: auto;
+        padding: 0 4px;
+    }
+    .howto-card {
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+        padding: 10px 16px;
+        margin-bottom: 10px;
+        min-width: 0;
+        background: var(--kf-paper);
+        border: 1.5px solid var(--kf-ink-soft);
+        border-radius: 12px;
+        box-shadow: 0 2px 0 var(--kf-shadow);
+    }
+    .howto-card-title {
+        margin: 0;
+        font-size: clamp(0.9rem, 2.6vw, 1.05rem);
+        color: var(--kf-ink);
+    }
+    .howto-row {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        padding: 5px 0;
+        min-width: 0;
+    }
+    .howto-row.touch {
+        align-items: flex-start;
+    }
+    .howto-keys {
+        flex: 0 0 auto;
+        display: flex;
+        flex-wrap: wrap;
+        gap: 6px;
+        min-width: 0;
+    }
+    .howto-key {
+        min-width: calc(2ch + 10px);
+        min-height: 34px;
+        padding: 2px 8px;
+        background: var(--kf-paper);
+        color: var(--kf-ink);
+        border: 1.5px solid var(--kf-ink-soft);
+        border-radius: 8px;
+        font: 600 0.9rem/1.4 var(--kf-ff-sans, "Segoe UI");
+        box-shadow: 0 2px 0 var(--kf-shadow);
+        text-align: center;
+    }
+    .howto-label {
+        flex: 1 1 auto;
+        min-width: 0;
+        font-size: clamp(0.76rem, 2.1vw, 0.9rem);
+        color: var(--kf-ink);
+        line-height: 1.5;
+    }
+    .howto-desc {
+        font-size: clamp(0.74rem, 2vw, 0.85rem);
+        color: var(--kf-ink-soft);
+        line-height: 1.5;
+    }
+    .howto-footer {
+        flex: 0 0 auto;
+        display: flex;
+        gap: 10px;
+        margin-top: 8px;
+    }
+    .howto-again,
+    .howto-close {
+        padding: 6px 18px;
+        background: var(--kf-paper);
+        color: var(--kf-ink);
+        border: 1.5px solid var(--kf-ink-soft);
+        border-radius: 999px;
+        cursor: pointer;
+        font: inherit;
+        box-shadow: 0 2px 0 var(--kf-shadow);
+    }
+    .howto-again {
+        border-color: var(--kf-gold);
+        color: var(--kf-gold);
+    }
+    .howto-again:hover,
+    .howto-close:hover { border-color: var(--kf-gold); }
+    .howto-again:focus-visible,
+    .howto-close:focus-visible {
+        outline: 2px solid var(--kf-gold);
+        outline-offset: 2px;
+    }
 
 </style>
 <link rel="stylesheet" href="./rl/ui/theme.css">

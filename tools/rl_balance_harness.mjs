@@ -119,7 +119,11 @@ const RATIO_BAND = [1.8, 2.2];      // 「满练 vs lv50 敌人: DPS/承伤比 1
 // within 0.1 of each other. The old rung (elv 25, pinned under rotation)
 // reads ~1.6 under representative sampling; the re-pin below puts the
 // band's centre (2.00) back under the anchor under the new statistic.
-const RATIO_ELV = 22;
+// 2026-09-18: re-pinned from 22 after the TEMPO retune (2.6 → 4.15) —
+// player kill seconds dropped ~1.6x, which read 1.50 at the old rung. The
+// policy above (keep statistic and band, move only the reference rung)
+// applies; --search prints the curve: elv 20 now centres the band (1.82).
+const RATIO_ELV = 20;
 
 // --- the model's own assumptions (nothing else in this file is a guess) -----
 const MODEL = {
@@ -141,7 +145,7 @@ const DODGE_SWEEP = [0.20, 0.30, 0.40];
 
 // --- tables ----------------------------------------------------------------
 function table(name) {
-    return JSON.parse(readFileSync(join(ROOT, "asset", "rl", name), "utf8"));
+    return JSON.parse(readFileSync(join(ROOT, "site", "asset", "rl", name), "utf8"));
 }
 const cardsFile = table("cards-rl.json");
 const growthFile = table("growth.json");
@@ -358,6 +362,7 @@ function firstAlive(enemies) {
 // and every action that falls inside the elapsed window resolves. The 0.60 s
 // hitInvuln after a hit is why one landed hit per volley is enough.
 function fight(P, enemies, rng, hitChance, reinforce) {
+    const hpTrace = [];
     for (let i = 0; i < enemies.length; i++) {
         // Stagger the opening volley so a pack does not fire in lockstep.
         enemies[i].next = actionInterval(enemies[i]) * (0.3 + 0.7 * rng());
@@ -388,6 +393,10 @@ function fight(P, enemies, rng, hitChance, reinforce) {
         }
         t += STEP;
         P.skills.update(STEP);
+        if (t - (hpTrace.length ? hpTrace[hpTrace.length - 1][0] : -1) >= 30) {
+            hpTrace.push([Math.round(t), Math.round(P.hp)].concat(
+                enemies.map(x => Math.round(x.hp))));
+        }
         // A boss phase flip pulls in reinforcements (world.js requestSummon,
         // SUMMON_PER_PHASE / SUMMON_MAX). The model spawns them at the same
         // thresholds, at the *front* of the list: a player clears the adds
@@ -421,7 +430,48 @@ function fight(P, enemies, rng, hitChance, reinforce) {
             if (e.hp <= 0) {
                 continue;
             }
+            // Enemy support casts (2026-09-18 敌人支援模组): a row with a
+            // decoded heal spends every SUPPORT_PERIOD-th action healing all
+            // living allies instead of attacking — same schedule as
+            // enemyai.js (init 2 intervals, then every 4).
+            // A support row that also carries a turn-charge effect (kind 19)
+            // is the original's charged big move — the game's fold has no
+            // charge gauge (spec/06: kind 19 structurally N/A), so such a row
+            // is NOT a support cast here and its heal must not ride along.
+            const heal = (e.moveset.support || [])
+                .filter(s => !s.hasCharge)
+                .flatMap(s => (s.supportEffects || []))
+                .find(fx => fx.kind === 1);
             while (e.next <= t) {
+                // Mirror of enemyai.js: a support cast replaces that action
+                // slot and its own absolute cooldown (init 2 intervals, then
+                // (2 + pct*40) intervals — big heals are rare moments).
+                if (heal) {
+                    const wounded = x => x.hp > 0 && x.hp < x.maxHp / 2;
+                    if (e.supportAt === undefined) {
+                        e.supportAt = actionInterval(e) * 2;
+                    }
+                    if (t >= e.supportAt && (enemies.some(wounded) || wounded(P))) {
+                        e.supportAt = t + actionInterval(e) * (2 + heal.pct * 40);
+                        // 0 self, 3 lowest ally, 4 all allies, 1/2 the player.
+                        const healTo = (u) => {
+                            const cap = Math.floor(u.maxHp / 2);
+                            const amount = Math.min(Math.round(u.maxHp * heal.pct), cap - u.hp);
+                            if (amount > 0) { u.hp += amount; }
+                        };
+                        if (heal.target === 1 || heal.target === 2) {
+                            if (wounded(P)) { healTo(P); }
+                        } else {
+                            // Same exclusion as world.applyEnemySupport: mob
+                            // healers never top up the boss.
+                            for (const x of enemies) {
+                                if (wounded(x) && x.kind !== "boss") { healTo(x); }
+                            }
+                        }
+                        e.next += actionInterval(e);
+                        continue;
+                    }
+                }
                 enemyHit(e, P, rng, hitChance);
                 e.next += actionInterval(e);
                 if (P.hp <= 0) {
@@ -429,6 +479,12 @@ function fight(P, enemies, rng, hitChance, reinforce) {
                 }
             }
         }
+    }
+    if (t >= MODEL.roomTimeout && process.env.BALANCE_DEBUG) {
+        console.log("  timeout:", enemies.filter(x => x.hp > 0).map(x =>
+            x.name + " hp " + Math.round(x.hp) + "/" + x.maxHp
+            + (x.moveset.support && x.moveset.support.length ? " (support)" : "")).join("; "));
+        console.log("  hpTrace:", JSON.stringify(hpTrace));
     }
     return { won: false, seconds: t, timeout: true };
 }

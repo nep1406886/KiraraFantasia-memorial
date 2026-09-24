@@ -42,7 +42,7 @@ function check(label, ok, detail) {
 // core/cards.js is an ES module in a directory node reads as CommonJS. A data:
 // URL has no package.json above it, so node parses it as ESM -- and cards.js
 // imports nothing, so it needs no base to resolve against.
-const cardsSource = readFileSync(join(ROOT, "core", "cards.js"), "utf8");
+const cardsSource = readFileSync(join(ROOT, "site", "core", "cards.js"), "utf8");
 const cards = await import(
     "data:text/javascript;base64," + Buffer.from(cardsSource, "utf8").toString("base64")
 );

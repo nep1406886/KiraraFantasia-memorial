@@ -1,0 +1,506 @@
+{
+  "16002001": {
+    "cardId": 16002001,
+    "ultimate": {
+      "id": 160020010,
+      "sceneId": "160004",
+      "action": "skill"
+    },
+    "skills": [
+      {
+        "id": 160020001,
+        "sceneId": null,
+        "action": "class_skill_2"
+      },
+      {
+        "id": 160020002,
+        "sceneId": null,
+        "action": "class_skill_3"
+      }
+    ],
+    "resourceId": 160004
+  },
+  "23002001": {
+    "cardId": 23002001,
+    "ultimate": {
+      "id": 230020010,
+      "sceneId": "230004",
+      "action": "skill"
+    },
+    "skills": [
+      {
+        "id": 230020001,
+        "sceneId": null,
+        "action": "class_skill_2"
+      },
+      {
+        "id": 230020002,
+        "sceneId": null,
+        "action": "class_skill_3"
+      }
+    ],
+    "resourceId": 230004
+  },
+  "39002001": {
+    "cardId": 39002001,
+    "ultimate": {
+      "id": 390020010,
+      "sceneId": "390004",
+      "action": "skill"
+    },
+    "skills": [
+      {
+        "id": 390020001,
+        "sceneId": null,
+        "action": "class_skill_2"
+      },
+      {
+        "id": 390020002,
+        "sceneId": null,
+        "action": "class_skill_3"
+      }
+    ],
+    "resourceId": 390004
+  },
+  "30012001": {
+    "cardId": 30012001,
+    "ultimate": {
+      "id": 300120010,
+      "sceneId": "300104",
+      "action": "skill"
+    },
+    "skills": [
+      {
+        "id": 300120001,
+        "sceneId": null,
+        "action": "class_skill_1"
+      },
+      {
+        "id": 300120002,
+        "sceneId": null,
+        "action": "class_skill_2"
+      }
+    ],
+    "resourceId": 300104
+  },
+  "20002001": {
+    "cardId": 20002001,
+    "ultimate": {
+      "id": 200020010,
+      "sceneId": "200004",
+      "action": "skill"
+    },
+    "skills": [
+      {
+        "id": 200020001,
+        "sceneId": null,
+        "action": "class_skill_2"
+      },
+      {
+        "id": 200020002,
+        "sceneId": null,
+        "action": "class_skill_3"
+      }
+    ],
+    "resourceId": 200004
+  },
+  "45002001": {
+    "cardId": 45002001,
+    "ultimate": {
+      "id": 450020010,
+      "sceneId": "450002",
+      "action": "skill"
+    },
+    "skills": [
+      {
+        "id": 450020001,
+        "sceneId": null,
+        "action": "class_skill_2"
+      },
+      {
+        "id": 450020002,
+        "sceneId": null,
+        "action": "class_skill_3"
+      }
+    ],
+    "resourceId": 450002
+  },
+  "30002001": {
+    "cardId": 30002001,
+    "ultimate": {
+      "id": 300020010,
+      "sceneId": "300004",
+      "action": "skill"
+    },
+    "skills": [
+      {
+        "id": 300020001,
+        "sceneId": null,
+        "action": "class_skill_1"
+      },
+      {
+        "id": 300020002,
+        "sceneId": null,
+        "action": "class_skill_2"
+      }
+    ],
+    "resourceId": 300004
+  },
+  "13002001": {
+    "cardId": 13002001,
+    "ultimate": {
+      "id": 130020010,
+      "sceneId": "130004",
+      "action": "skill"
+    },
+    "skills": [
+      {
+        "id": 130020001,
+        "sceneId": null,
+        "action": "class_skill_2"
+      },
+      {
+        "id": 130020002,
+        "sceneId": null,
+        "action": "class_skill_3"
+      }
+    ],
+    "resourceId": 130004
+  },
+  "14002001": {
+    "cardId": 14002001,
+    "ultimate": {
+      "id": 140020010,
+      "sceneId": "140004",
+      "action": "skill"
+    },
+    "skills": [
+      {
+        "id": 140020001,
+        "sceneId": null,
+        "action": "class_skill_2"
+      },
+      {
+        "id": 140020002,
+        "sceneId": null,
+        "action": "class_skill_3"
+      }
+    ],
+    "resourceId": 140004
+  },
+  "26002001": {
+    "cardId": 26002001,
+    "ultimate": {
+      "id": 260020010,
+      "sceneId": "260004",
+      "action": "skill"
+    },
+    "skills": [
+      {
+        "id": 260020001,
+        "sceneId": null,
+        "action": "class_skill_1"
+      },
+      {
+        "id": 260020002,
+        "sceneId": null,
+        "action": "class_skill_2"
+      }
+    ],
+    "resourceId": 260004
+  },
+  "17002001": {
+    "cardId": 17002001,
+    "ultimate": {
+      "id": 170020010,
+      "sceneId": "170004",
+      "action": "skill"
+    },
+    "skills": [
+      {
+        "id": 170020001,
+        "sceneId": null,
+        "action": "class_skill_2"
+      },
+      {
+        "id": 170020002,
+        "sceneId": null,
+        "action": "class_skill_3"
+      }
+    ],
+    "resourceId": 170004
+  },
+  "18002001": {
+    "cardId": 18002001,
+    "ultimate": {
+      "id": 180020010,
+      "sceneId": "180004",
+      "action": "skill"
+    },
+    "skills": [
+      {
+        "id": 180020001,
+        "sceneId": null,
+        "action": "class_skill_2"
+      },
+      {
+        "id": 180020002,
+        "sceneId": null,
+        "action": "class_skill_3"
+      }
+    ],
+    "resourceId": 180004
+  },
+  "29002001": {
+    "cardId": 29002001,
+    "ultimate": {
+      "id": 290020010,
+      "sceneId": "290004",
+      "action": "skill"
+    },
+    "skills": [
+      {
+        "id": 290020001,
+        "sceneId": null,
+        "action": "class_skill_2"
+      },
+      {
+        "id": 290020002,
+        "sceneId": null,
+        "action": "class_skill_3"
+      }
+    ],
+    "resourceId": 290004
+  },
+  "28002001": {
+    "cardId": 28002001,
+    "ultimate": {
+      "id": 280020010,
+      "sceneId": "280004",
+      "action": "skill"
+    },
+    "skills": [
+      {
+        "id": 280020001,
+        "sceneId": null,
+        "action": "class_skill_2"
+      },
+      {
+        "id": 280020002,
+        "sceneId": null,
+        "action": "class_skill_3"
+      }
+    ],
+    "resourceId": 280004
+  },
+  "10002001": {
+    "cardId": 10002001,
+    "ultimate": {
+      "id": 100020010,
+      "sceneId": "100004",
+      "action": "skill"
+    },
+    "skills": [
+      {
+        "id": 100020001,
+        "sceneId": null,
+        "action": "class_skill_3"
+      },
+      {
+        "id": 100020002,
+        "sceneId": null,
+        "action": "class_skill_3"
+      }
+    ],
+    "resourceId": 100004
+  },
+  "12002001": {
+    "cardId": 12002001,
+    "ultimate": {
+      "id": 120020010,
+      "sceneId": "120004",
+      "action": "skill"
+    },
+    "skills": [
+      {
+        "id": 120020001,
+        "sceneId": null,
+        "action": "class_skill_3"
+      },
+      {
+        "id": 120020002,
+        "sceneId": null,
+        "action": "class_skill_3"
+      }
+    ],
+    "resourceId": 120004
+  },
+  "24002001": {
+    "cardId": 24002001,
+    "ultimate": {
+      "id": 240020010,
+      "sceneId": "240004",
+      "action": "skill"
+    },
+    "skills": [
+      {
+        "id": 240020001,
+        "sceneId": null,
+        "action": "class_skill_3"
+      },
+      {
+        "id": 240020002,
+        "sceneId": null,
+        "action": "class_skill_3"
+      }
+    ],
+    "resourceId": 240004
+  },
+  "27002001": {
+    "cardId": 27002001,
+    "ultimate": {
+      "id": 270020010,
+      "sceneId": "270004",
+      "action": "skill"
+    },
+    "skills": [
+      {
+        "id": 270020001,
+        "sceneId": null,
+        "action": "class_skill_3"
+      },
+      {
+        "id": 270020002,
+        "sceneId": null,
+        "action": "class_skill_2"
+      }
+    ],
+    "resourceId": 270004
+  },
+  "43002001": {
+    "cardId": 43002001,
+    "ultimate": {
+      "id": 430020010,
+      "sceneId": "430002",
+      "action": "skill"
+    },
+    "skills": [
+      {
+        "id": 430020001,
+        "sceneId": null,
+        "action": "class_skill_1"
+      },
+      {
+        "id": 430020002,
+        "sceneId": null,
+        "action": "class_skill_1"
+      }
+    ],
+    "resourceId": 430002
+  },
+  "30042001": {
+    "cardId": 30042001,
+    "ultimate": {
+      "id": 300420010,
+      "sceneId": "300404",
+      "action": "skill"
+    },
+    "skills": [
+      {
+        "id": 300420001,
+        "sceneId": null,
+        "action": "class_skill_1"
+      },
+      {
+        "id": 300420002,
+        "sceneId": null,
+        "action": "class_skill_3"
+      }
+    ],
+    "resourceId": 300404
+  },
+  "13032001": {
+    "cardId": 13032001,
+    "ultimate": {
+      "id": 130320010,
+      "sceneId": "130304",
+      "action": "skill"
+    },
+    "skills": [
+      {
+        "id": 130320001,
+        "sceneId": null,
+        "action": "class_skill_1"
+      },
+      {
+        "id": 130320002,
+        "sceneId": null,
+        "action": "class_skill_1"
+      }
+    ],
+    "resourceId": 130304
+  },
+  "38002001": {
+    "cardId": 38002001,
+    "ultimate": {
+      "id": 380020010,
+      "sceneId": "380004",
+      "action": "skill"
+    },
+    "skills": [
+      {
+        "id": 380020001,
+        "sceneId": null,
+        "action": "class_skill_1"
+      },
+      {
+        "id": 380020002,
+        "sceneId": null,
+        "action": "class_skill_1"
+      }
+    ],
+    "resourceId": 380004
+  },
+  "37002001": {
+    "cardId": 37002001,
+    "ultimate": {
+      "id": 370020010,
+      "sceneId": "370002",
+      "action": "skill"
+    },
+    "skills": [
+      {
+        "id": 370020001,
+        "sceneId": null,
+        "action": "class_skill_3"
+      },
+      {
+        "id": 370020002,
+        "sceneId": null,
+        "action": "class_skill_3"
+      }
+    ],
+    "resourceId": 370002
+  },
+  "32012001": {
+    "cardId": 32012001,
+    "ultimate": {
+      "id": 320120010,
+      "sceneId": "320102",
+      "action": "skill"
+    },
+    "skills": [
+      {
+        "id": 320120001,
+        "sceneId": null,
+        "action": "class_skill_1"
+      },
+      {
+        "id": 320120002,
+        "sceneId": null,
+        "action": "class_skill_1"
+      }
+    ],
+    "resourceId": 320102
+  }
+}

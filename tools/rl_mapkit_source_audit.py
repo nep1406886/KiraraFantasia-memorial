@@ -16,7 +16,7 @@ import numpy as np
 
 from build_mapkit import Bundle, CACHE, OUT_DIR, OUT_JSON, ROOT, pptr_id, vec3
 
-EVIDENCE = ROOT / "docs/original-map-tree-data.json"
+EVIDENCE = ROOT / "docs/data/original-map-tree-data.json"
 
 
 def read_glb(path):

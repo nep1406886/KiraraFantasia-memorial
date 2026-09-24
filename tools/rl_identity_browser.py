@@ -13,7 +13,7 @@ from rl_result_browser import dismiss_dialogue
 
 ROOT = Path(__file__).resolve().parent.parent
 OUT = ROOT / ".codex-tmp" / "t25"
-PROFILES = json.loads((ROOT / "docs/combat-identities.json").read_text(encoding="utf-8"))["profiles"]
+PROFILES = json.loads((ROOT / "docs/data/combat-identities.json").read_text(encoding="utf-8"))["profiles"]
 WIDTHS = (375, 390, 412, 430, 768, 1280)
 # The hand-written evidence file keeps historical IDs; the shipped roster
 # uses current evolution IDs. Map them explicitly instead of editing evidence.

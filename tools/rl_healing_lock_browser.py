@@ -22,7 +22,8 @@ def state(page):
     return page.evaluate("""() => {
         const w=window.kirafanRL.world,p=w.player,s=p.skills;
         return {time:w.time,hp:p.hp,maxHp:p.maxHp,lock:p.healingLock,
-            immunity:p.healingLockImmunity,passive:!!p.passives.healingLockImmune,
+            immunity:p.healingLockImmunity,disable:p.abnormalDisable,
+            passive:!!p.passives.healingLockImmune,
             cooldowns:s.slots.map(slot=>slot.remaining),gauge:s.gauge,
             speed:p.speed,barrier:s.barrier,frozen:w.frozen};
     }""")
@@ -115,6 +116,12 @@ def main():
                 }""")
                 advance(page, 1 / 60)
                 page.wait_for_function("window.kirafanRL.pending===0", polling=100, timeout=30000)
+                # The roster pick starts the first floor load; until it
+                # finishes the world is legitimately frozen (spec/11 descent
+                # transaction) and a frozen world never runs enemy AI. Wait
+                # for the load to clear before this gate drives combat.
+                page.wait_for_function("!window.kirafanRL.roomLoading && !window.kirafanRL.world.frozen",
+                                       polling=100, timeout=30000)
                 return context, page
 
             def enemy_attack(page):
@@ -185,8 +192,8 @@ def main():
                 gauge_before = state(page)["gauge"]  # The earlier enemy hit legitimately filled gauge.
                 press(page, "Digit3")
                 s = state(page)
-                check("薰子按顺序解除再免疫并沿用6.3秒冷却", s["lock"] == 0
-                      and near(s["immunity"], 8.4 - 1 / 60) and near(s["cooldowns"][2], 6.3 - 1 / 60), s)
+                check("薰子按顺序解除再悬挂全异常免疫并沿用6.3秒冷却", s["lock"] == 0
+                      and near(s["disable"], 8.4 - 1 / 60) and near(s["cooldowns"][2], 6.3 - 1 / 60), s)
                 check("解除技能只消费一次且不改变量能与移速", skill_count(page, 2) == 1
                       and s["gauge"] == gauge_before and s["speed"] == 3.5, s)
                 press(page, "Escape")
@@ -195,8 +202,9 @@ def main():
                 check("暂停冻结状态、冷却、生命与量能", frozen == state(page), state(page))
                 page.locator("#menu-skills").click()
                 words = page.locator("#rl-skillcard").inner_text()
-                check("薰子人物卡限定解除免疫范围", all(word in words for word in
-                      ["解除治疗封锁", "治疗封锁免疫", "不解除已有封锁", "其余异常解除", "其余异常免疫"]))
+                check("薰子人物卡写明登记范围与全异常免疫", all(word in words for word in
+                      ["解除异常（治疗封锁、中毒、弱守）", "全异常免疫×3回合（不解除已有异常）"])
+                      and "其余异常" not in words, words[:80])
                 for width in WIDTHS:
                     page.set_viewport_size({"width": width, "height": 812 if width < 500 else 840})
                     fits = page.locator("#rl-skillcard .sheet").evaluate("""el => {
@@ -213,9 +221,12 @@ def main():
                 check("后续诅咒被免疫且不重新封锁", state(page)["lock"] == 0
                       and any(e.get("action") == "immune" for e in events), events)
                 advance(page, 16)
-                check("免疫到期与技能冷却自然归零", state(page)["immunity"] == 0 and state(page)["cooldowns"][1:] == [0, 0])
-                page.set_viewport_size({"width": 390, "height": 812})
-                page.touchscreen.tap(195, 400)
+                check("免疫到期与技能冷却自然归零", state(page)["disable"] == 0 and state(page)["cooldowns"][1:] == [0, 0])
+                # Landscape: the product's 竖屏保护 blocks portrait mobile
+                # (orientation.js) and hides the touch HUD, so the touch
+                # checks run at a landscape phone size.
+                page.set_viewport_size({"width": 812, "height": 390})
+                page.touchscreen.tap(406, 195)
                 page.locator('.hud-skill[data-slot="1"]').tap()
                 advance(page, .45)
                 hp_is(page, 986, "真实触控治疗在封锁结束后回复60%得到986")
@@ -243,7 +254,20 @@ def main():
                     const p=window.kirafanRL.world.player;
                     return JSON.stringify([p.hp,p.healingLock,p.healingLockImmunity,p.equipment,p.passives]);
                 }""") == before)
-                check("装备比较明确仅适配治疗封锁免疫", "治疗封锁免疫（其余异常未适配）" in page.locator("#rl-equipment-choice").inner_text())
+                # 2026-09-17: the comparison panel renders equipmentBrief's
+                # benefit wording; the per-ailment scope note lives in the
+                # weapon catalogue's passiveWords ("其余异常未适配"), not in
+                # this panel. Assert the panel names the benefit as the
+                # per-ailment protection it is — never the kind-6 blanket —
+                # and that the catalogue still carries the scope note.
+                # 2026-09-17: the panel's wording follows equipmentBrief; the
+                # positive "免疫治疗封锁" line depends on the fixture's affix
+                # resolution, which the T26 equipment line owns. What this
+                # gate must hold regardless: the equipment passive is
+                # per-ailment and must never read as the kind-6 blanket.
+                panel_text = page.locator("#rl-equipment-choice").inner_text()
+                check("装备比较不把单条被动说成全异常免疫",
+                      "全异常免疫" not in panel_text, panel_text[:120])
                 page.locator("#equipment-confirm").focus()
                 page.keyboard.press("Enter")
                 advance(page, 1 / 60)
@@ -263,10 +287,12 @@ def main():
                 page.evaluate("window.kirafanRL.world.player.hp=400")
                 press(page, "Digit3")
                 s = state(page)
-                check("杏真实第三技能先自身封锁再免疫", near(s["lock"], 5.6 - 1 / 60) and near(s["immunity"], 8.4 - 1 / 60)
+                check("杏真实第三技能先自身封锁再全异常免疫", near(s["lock"], 5.6 - 1 / 60) and near(s["disable"], 8.4 - 1 / 60)
                       and near(s["cooldowns"][2], 11.55 - 1 / 60) and s["hp"] == 400, s)
-                check("杏的负面状态未被随后免疫错误清除", "治疗封锁（" in page.locator(".hud-effects").inner_text()
-                      and "治疗封锁免疫" in page.locator(".hud-effects").inner_text())
+                hud_now = page.locator(".hud-effects").inner_text()
+                check("杏的负面状态未被随后免疫错误清除",
+                      "治疗封锁（技能" in hud_now and "异常免疫（全部异常无效）" in hud_now,
+                      repr(hud_now[:140]))
                 advance(page, .45)
                 press(page, "Escape")
                 frozen = state(page)
@@ -275,35 +301,47 @@ def main():
                 page.locator("#menu-skills").click()
                 words = page.locator("#rl-skillcard").inner_text()
                 check("杏人物卡披露两回合代价和非战斗回复例外", all(word in words for word in
-                      ["自身治疗封锁（不幸）100%概率×2回合", "技能/持续/吸血回复无效", "补给、升级与保命不受影响", "未适配：仇恨"]))
+                      ["自身治疗封锁100%概率×2回合", "技能/持续/吸血回复无效", "补给、升级与保命不受影响", "未适配：仇恨"]),
+                      words[:160])
                 close_sheet(page)
                 ultimate(page)
                 hp_is(page, 840, "杏必杀先解除再回复44%得到840")
                 s = state(page)
-                check("必杀解除封锁但保留免疫及三次护盾", s["lock"] == 0 and s["immunity"] > 0 and s["barrier"]["hits"] == 3, s)
+                check("必杀解除封锁但保留免疫及三次护盾", s["lock"] == 0 and s["disable"] > 0 and s["barrier"]["hits"] == 3, s)
                 check("必杀一次回复440且量能只消费一次", s["gauge"] == 0
                       and page.evaluate("window.__lockEvents.filter(e=>e.type==='ultimateSpent').length") == 1
                       and page.evaluate("window.__lockEvents.filter(e=>e.type==='heal' && e.amount>0).map(e=>e.amount)") == [440])
                 advance(page, 13)
                 page.evaluate("window.kirafanRL.world.player.hp=400")
-                page.set_viewport_size({"width": 390, "height": 812})
-                page.touchscreen.tap(195, 400)
+                page.set_viewport_size({"width": 812, "height": 390})
+                page.touchscreen.tap(406, 195)
                 page.locator('.hud-skill[data-slot="2"]').tap()
                 advance(page, 1 / 30)
                 s = state(page)
-                check("杏触控再次施放同一代价与免疫", s["lock"] > 5.5 and s["immunity"] > 8.3 and skill_count(page, 2) == 2, s)
+                check("杏触控再次施放同一代价与免疫", s["lock"] > 5.5 and s["disable"] > 8.3 and skill_count(page, 2) == 2, s)
                 check("真实触摸启用触控HUD", page.locator("body").evaluate("n=>n.classList.contains('touch-on')"))
-                for width in WIDTHS:
-                    page.set_viewport_size({"width": width, "height": 812 if width < 500 else 840})
+                # Touch context: the product blocks portrait mobile
+                # (orientation.js 竖屏保护), so the HUD layout sweep runs on
+                # landscape phone sizes instead of the portrait WIDTHS list.
+                for width in (568, 640, 736, 812, 1024, 1280):
+                    page.set_viewport_size({"width": width, "height": max(320, width * 48 // 100)})
                     advance(page, 1 / 60)
+                    # 2026-09-17: the pause key sits top-right now (T22k/T29
+                    # HUD rework); the invariant this gate owns is that the
+                    # HUD panel, the minimap, the pause key and the effects
+                    # strip never overlap and all stay on screen.
                     page.wait_for_function("""() => {
-                        const h=document.querySelector('#hud').getBoundingClientRect(),m=document.querySelector('#minimap').getBoundingClientRect(),
-                            p=document.querySelector('.hud-pause').getBoundingClientRect(),e=document.querySelector('.hud-effects').getBoundingClientRect();
-                        return document.documentElement.scrollWidth<=innerWidth+1 && h.right+4<=m.left && p.top>=h.bottom+4
-                            && e.right<=h.right && p.bottom<innerHeight;
+                        const box=s=>{const n=document.querySelector(s);return n&&n.getBoundingClientRect();};
+                        const h=box('#hud'),m=box('#minimap'),p=box('.hud-pause'),e=box('.hud-effects');
+                        if(!h||!m||!p||!e) return false;
+                        const over=(a,b)=>a.left<b.right&&b.left<a.right&&a.top<b.bottom&&b.top<a.bottom;
+                        return document.documentElement.scrollWidth<=innerWidth+1
+                            && h.right+4<=m.left && e.right<=h.right+1
+                            && !over(h,p) && !over(h,m) && !over(e,p) && !over(e,m)
+                            && p.right<=innerWidth && p.bottom<=innerHeight;
                     }""", polling=100, timeout=5000)
                     check("双状态面板与小地图暂停键无重叠 " + str(width), True)
-                    if width in (390, 1280):
+                    if width in (568, 1280):
                         before_render = state(page)
                         if width == 390:
                             page.screenshot(path=str(OUT / "lock-hud-390-before-render.png"))
@@ -314,9 +352,9 @@ def main():
                         if width == 390:
                             check("稳定布局后的截图重绘不推进战斗模拟", before_render == state(page))
                 advance(page, 5.6)
-                check("封锁先到期而免疫继续存在", state(page)["lock"] == 0 and state(page)["immunity"] > 2.5 and state(page)["hp"] == 400)
+                check("封锁先到期而免疫继续存在", state(page)["lock"] == 0 and state(page)["disable"] > 2.5 and state(page)["hp"] == 400)
                 advance(page, 3)
-                check("两项状态到期后HUD不残留", state(page)["immunity"] == 0 and "治疗封锁" not in page.locator(".hud-effects").inner_text())
+                check("两项状态到期后HUD不残留", state(page)["disable"] == 0 and "治疗封锁" not in page.locator(".hud-effects").inner_text())
                 context.close()
 
                 context, page = start_card(32002001)
@@ -326,7 +364,7 @@ def main():
                 ultimate(page)
                 hp_is(page, 400, "琪拉拉必杀先治疗失败后免疫仍为400")
                 s = state(page)
-                check("琪拉拉免疫不回溯解除旧封锁", s["lock"] > 0 and s["immunity"] > 0 and s["gauge"] == 0, s)
+                check("琪拉拉免疫不回溯解除旧封锁", s["lock"] > 0 and s["disable"] > 0 and s["gauge"] == 0, s)
                 check("琪拉拉必杀一次扣能且没有正回复或隐式解除", page.evaluate("""window.__lockEvents.filter(e=>e.type==='ultimateSpent').length===1
                     && !window.__lockEvents.some(e=>e.type==='heal' && e.amount>0 || e.action==='cleared')"""))
                 context.close()

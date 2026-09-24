@@ -19,6 +19,9 @@ export function createAchievementsUI(options) {
     const overlay = document.createElement("div");
     overlay.id = "achv-overlay";
     overlay.className = "achv-overlay";
+    overlay.setAttribute("role", "dialog");
+    overlay.setAttribute("aria-modal", "true");
+    overlay.setAttribute("aria-label", "成就");
 
     const doneCount = entries.filter(function (e) { return e.done; }).length;
 

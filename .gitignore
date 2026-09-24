@@ -31,3 +31,10 @@ __shots/
 *.muast
 site/asset/models/class-actions/*/actions.glb.gz
 site/asset/rl/_raw/
+
+# ---- 本轮提交按用户要求排除 ----
+site/game/star/
+site/asset/game/
+.zcode/
+*.lnk
+desktop.ini

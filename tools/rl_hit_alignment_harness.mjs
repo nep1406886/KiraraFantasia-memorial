@@ -85,7 +85,7 @@ test("世界弹体命中事件保存接触值，后续移动不改变它", () =>
     const event = world.drainEvents().find(row => row.type === "hit" && row.target === e);
     assert.ok(event?.impact); near(event.impact.x, 9.5); near(event.impact.y, 10);
     const before = JSON.stringify(event.impact); e.x += 3; e.y += 4;
-    assert.equal(JSON.stringify(event.impact), before); assert.equal(event.damage, 3);
+    assert.equal(JSON.stringify(event.impact), before); assert.equal(event.damage, 4);
 });
 test("非弹体受击同样快照位置，不改变伤害与冻结约束", () => {
     const world = createWorld({ width: 30, height: 30, rng: () => .99 });
@@ -111,6 +111,6 @@ test("爆炸溅射仍触发一次并使用各目标中心，接触参数不误�
     assert.equal(hits.length, 2); assert.equal(events.filter(e => e.type === "blast").length, 1);
     near(hits.find(e => e.target === first).impact.x, 9.5);
     assert.deepEqual(hits.find(e => e.target === splash).impact, { x: 10, y: 11.2 });
-    assert.ok(hits.every(e => e.damage === 3));
+    assert.ok(hits.every(e => e.damage === 4));
 });
 console.log("\n" + count + " 项命中位置逻辑检查通过。");

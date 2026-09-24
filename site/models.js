@@ -5821,13 +5821,18 @@
     }
 
     function bindControls() {
-        elements.search.addEventListener("input", function () {
-            state.query = elements.search.value;
+        var search = window.kirafanPage.bindSearch(elements.search, function (value) {
+            state.query = value;
             state.page = 1;
             applyFilter();
         });
+        function syncSearch() {
+            search.sync();
+            state.query = elements.search.value;
+        }
         if (elements.titleFilter) {
             elements.titleFilter.addEventListener("change", function () {
+                syncSearch();
                 state.titleId = elements.titleFilter.value;
                 state.page = 1;
                 if (state.titleId !== "all") {
@@ -5841,6 +5846,7 @@
         }
         document.querySelectorAll(".models-filter").forEach(function (button) {
             button.addEventListener("click", function () {
+                syncSearch();
                 document.querySelectorAll(".models-filter").forEach(function (item) { item.classList.remove("is-active"); });
                 button.classList.add("is-active");
                 state.kind = button.dataset.kind;
@@ -5929,12 +5935,26 @@
             toggle.setAttribute("aria-expanded", String(open));
             if (open && close) {
                 close.focus();
+            } else if (!open) {
+                toggle.focus();
             }
         }
         toggle.addEventListener("click", function () { setOpen(drawer.hidden); });
         if (close) {
             close.addEventListener("click", function () { setOpen(false); });
         }
+        drawer.addEventListener("keydown", function (event) {
+            if (event.key !== "Tab") { return; }
+            var controls = Array.from(drawer.querySelectorAll("button, a[href]"));
+            var first = controls[0], last = controls[controls.length - 1];
+            if (event.shiftKey && document.activeElement === first) {
+                event.preventDefault();
+                last.focus();
+            } else if (!event.shiftKey && document.activeElement === last) {
+                event.preventDefault();
+                first.focus();
+            }
+        });
         // 点遮罩关闭；面板自己的点击不算。
         drawer.addEventListener("click", function (event) {
             if (event.target === drawer) {
@@ -6114,11 +6134,13 @@
     }
 
     function loadDatabase() {
-        fetch(DATABASE_URL, { mode: "cors" }).then(function (response) {
+        return fetch(DATABASE_URL, { mode: "cors" }).then(function (response) {
             if (!response.ok) {
                 throw new Error("HTTP " + response.status);
             }
             return response.json();
+        }).then(function (entries) {
+            return previewReady.then(function () { return entries; });
         }).then(function (entries) {
             state.allModels = entries.filter(function (entry) {
                 return entry && typeof entry.name === "string" && MODEL_PATH.test(entry.name);
@@ -6162,10 +6184,10 @@
 
     buildPlayerMetadata();
     bindControls();
-    // The rarity table's URL can be overridden by the manifest, so it is fetched
-    // after the manifest resolves and before the database populates the grid.
-    loadPreviewManifest().then(function () {
-        // Both are small and independent; neither blocks the other.
+    // The remote index and local metadata are independent downloads. Rendering
+    // still waits for both, including manifest overrides for the table URLs.
+    var previewReady = loadPreviewManifest().then(function () {
         return Promise.all([loadRarityTable(), loadVisibilityTable()]);
-    }).then(loadDatabase);
+    });
+    loadDatabase();
 })();

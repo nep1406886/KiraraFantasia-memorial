@@ -25,8 +25,8 @@ import path from "node:path";
 import { PLAYABLE_IDS } from "../site/game/rl/rosterids.js";
 
 const ROOT = fileURLToPath(new URL("..", import.meta.url));
-const IMG_ROOT = path.join(ROOT, "asset", "img", "rl");
-const MANIFEST = path.join(ROOT, "asset", "rl", "images.json");
+const IMG_ROOT = path.join(ROOT, "site", "asset", "img", "rl");
+const MANIFEST = path.join(ROOT, "site", "asset", "rl", "images.json");
 const CATEGORIES = ["card", "illust", "bust", "icon", "weapon", "item", "orig", "ui"];
 const HOTLINK_DOMAINS = [
     "asset.kirafan.cn", "voice-cri.kirafan.cn", "kirafan.gitlab.io",
@@ -214,8 +214,8 @@ const hotInManifest = HOTLINK_DOMAINS.filter((d) => manifestText.includes(d));
 check(hotInManifest.length === 0, "no hotlink domains in images.json",
     hotInManifest.join(", "));
 
-const runtimeFiles = walkJs(path.join(ROOT, "game"), [])
-    .concat(walkJs(path.join(ROOT, "core"), []));
+const runtimeFiles = walkJs(path.join(ROOT, "site", "game"), [])
+    .concat(walkJs(path.join(ROOT, "site", "core"), []));
 const hotHits = [];
 for (const file of runtimeFiles) {
     const text = readFileSync(file, "utf8");

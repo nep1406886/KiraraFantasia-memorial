@@ -39,7 +39,7 @@ import { createMeta, pagesForVolume, FINALE_PAGES } from "../site/game/rl/meta.j
 import { isStoryId } from "../site/game/rl/story.js";
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), "..");
-const DIALOGUE_DIR = join(ROOT, "asset", "rl", "dialogue");
+const DIALOGUE_DIR = join(ROOT, "site", "asset", "rl", "dialogue");
 
 let failures = 0;
 function check(label, ok, detail) {
@@ -52,7 +52,7 @@ function check(label, ok, detail) {
 // --- 1. DIALOGUE_FACES drift ---------------------------------------------------
 
 {
-    const actorSrc = readFileSync(join(ROOT, "core", "actor.js"), "utf8");
+    const actorSrc = readFileSync(join(ROOT, "site", "core", "actor.js"), "utf8");
     const m = actorSrc.match(/GAME_EXPRESSIONS\s*=\s*\[([^\]]*)\]/);
     const real = m ? m[1].split(",").map(function (s) {
         return s.trim().replace(/^["']|["']$/g, "");
@@ -66,7 +66,7 @@ function check(label, ok, detail) {
 // --- cards: the gacha table, parsed the same way core/cards.js reads it -------
 
 {
-    const src = readFileSync(join(ROOT, "asset", "gacha", "cards.js"), "utf8");
+    const src = readFileSync(join(ROOT, "site", "asset", "gacha", "cards.js"), "utf8");
     const data = JSON.parse(src.slice(src.indexOf("=") + 2).trim()
         .replace(/;\s*$/, ""));
     var CARDS = data.cards;
@@ -75,7 +75,7 @@ const cardById = new Map(CARDS.map(function (c) { return [c.id, c]; }));
 
 // original-characters.js declares `var kirafanOriginalCharacters = [...]` at
 // script scope, so the array literal is read out of the source directly.
-const originalSrc = readFileSync(join(ROOT, "asset", "original-characters.js"), "utf8");
+const originalSrc = readFileSync(join(ROOT, "site", "asset", "original-characters.js"), "utf8");
 const originalNames = new Set();
 {
     const m = originalSrc.match(/var\s+kirafanOriginalCharacters\s*=\s*(\[([\s\S]*?)\]);/);
@@ -298,12 +298,12 @@ setCharacterResolver(resolveWho);
     const pieces = [];
     function push(s) { if (typeof s === "string" && s.length >= 6) { pieces.push(s); } }
 
-    const skillSrc = readFileSync(join(ROOT, "asset", "battle", "skills.js"), "utf8");
+    const skillSrc = readFileSync(join(ROOT, "site", "asset", "battle", "skills.js"), "utf8");
     const skills = JSON.parse(skillSrc.slice(skillSrc.indexOf("=") + 2).trim()
         .replace(/;\s*$/, "")).skills;
     Object.values(skills).forEach(function (s) { push(s.name); push(s.detail); });
 
-    const usSrc = readFileSync(join(ROOT, "asset", "battle", "uniqueskill.js"), "utf8");
+    const usSrc = readFileSync(join(ROOT, "site", "asset", "battle", "uniqueskill.js"), "utf8");
     const scenes = JSON.parse(usSrc.slice(usSrc.indexOf("=") + 2).trim()
         .replace(/;\s*$/, "")).scenes;
     Object.values(scenes).forEach(function (s) { push(s.name); push(s.detail); });
@@ -413,7 +413,7 @@ setCharacterResolver(resolveWho);
 // --- 9. wiring ------------------------------------------------------------------------
 
 {
-    const html = readFileSync(join(ROOT, "game", "roguelike.html"), "utf8");
+    const html = readFileSync(join(ROOT, "site", "game", "roguelike.html"), "utf8");
     const missingTags = files.filter(function (f) {
         return html.indexOf("dialogue/" + f) < 0;
     });
@@ -423,7 +423,7 @@ setCharacterResolver(resolveWho);
     check("roguelike.html loads original-characters.js for the originals",
         html.indexOf("original-characters.js") >= 0);
 
-    const mainSrc = readFileSync(join(ROOT, "game", "rl", "main.js"), "utf8");
+    const mainSrc = readFileSync(join(ROOT, "site", "game", "rl", "main.js"), "utf8");
     const wired = ["dialogue.js", "ui/dialogue.js", "initDialogue",
         "queueDialogue", "restChatterNode", "finale_pre", "prologue"]
         .every(function (token) { return mainSrc.indexOf(token) >= 0; });

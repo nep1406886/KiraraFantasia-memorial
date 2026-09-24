@@ -14,7 +14,7 @@ const cards = Array.isArray(cardsData) ? cardsData : cardsData.cards;
 const table = read("site/asset/rl/skills-rl.json");
 const sceneIndex = read("site/asset/uniqueskill/scene-index.json").scenes;
 const weapons = read("site/asset/rl/weapons-rl.json");
-const design = read("docs/combat-identities.json");
+const design = read("docs/data/combat-identities.json");
 const roster = PLAYABLE_ROSTER;
 assert.ok(roster.length > 0, "playable roster is not empty");
 assert.equal(new Set(roster.map(row => row.id)).size, roster.length, "roster IDs are unique");
@@ -24,8 +24,8 @@ const classes = ["战士", "魔法使", "僧侣", "骑士", "炼金术士"];
 const elements = ["火", "水", "土", "风", "月", "阳"];
 const reasons = {
     3: "该能力解除的目标或掩码未适配；合法六位清正负变化，七位末项0/1分别仅清降低/提高。",
-    4: "自身异常仅支持不幸（治疗封锁）；其余异常未适配，不转嫁给敌人。",
-    5: "仅支持玩家治疗封锁解除；其余异常掩码或敌方目标尚未适配。",
+    4: "自身异常按登记表落地（治疗封锁／中毒／弱守）；孤立（槽7）只挡原作的好友加入与换人，本作两者皆无，结构上不适用；其余未登记槽（混乱／麻痹／睡眠／沉默）未适配，不转嫁给敌人。",
+    5: "按登记表清除玩家异常；目标是敌方时结构上不适用（本作敌方无异常槽），掩码只标未登记槽时亦不改写。",
     6: "当前仅免疫治疗封锁，不清除已有封锁；其余原作异常免疫未适配。",
     7: "异常概率修正没有对应的概率结算管线。",
     9: "战斗中属性变更尚未接入。",
@@ -33,12 +33,12 @@ const reasons = {
     12: "该必暴的目标或参数未适配；仅支持玩家目标0/3/4的空参数授予，敌方支援脚本仍待调度。",
     16: "技能来源的必杀槽获取倍率尚未接入。",
     17: "实时战斗没有原作行动队列。",
-    18: "单人模式敌人始终瞄准玩家，仇恨变化无作用。",
-    19: "没有原作回合蓄力槽。",
+    18: "结构上不适用：单人模式敌人恒定锁定玩家，原作仇恨值无对象可改（反编译 SolveSkillContent_HateChange）。",
+    19: "结构上不适用：本作无原著回合蓄力条（反编译 SolveSkillContent_ChargeChange 改的是 m_ChargeCount）。",
     20: "没有多人连携倍率。",
     21: "该技能卡引用、目标或子效果尚未适配；不创建无载荷的计时器。",
     22: "玩家没有原作眩晕槽。",
-    24: "后续版本效果，现存旧版枚举不足以确认其参数含义。"
+    24: "后续版本效果，现存旧版枚举不足以确认其参数含义（不得猜）。"
 };
 const passiveNotes = {
     0: "常驻或受击/击杀叠层属性", 1: "单人仇恨，无实际作用",
@@ -184,8 +184,8 @@ lines.push("", "原作技能中存在明确未适配项的槽位：" + report.to
     "距离与主要资源、普攻／必杀和武器逐行证据均在 JSON 中；账本再生成不运行浏览器，验收状态只引用手写设计文件中的已记录结果。", "");
 
 for (const [path, content] of [
-    ["docs/skill-coverage.json", JSON.stringify(report, null, 2) + "\n"],
-    ["docs/skill-coverage.md", lines.join("\n")]
+    ["docs/data/skill-coverage.json", JSON.stringify(report, null, 2) + "\n"],
+    ["docs/data/skill-coverage.md", lines.join("\n")]
 ]) {
     if (process.argv.includes("--check")) {
         assert.equal(readFileSync(new URL(path, root), "utf8"), content, "stale generated ledger: " + path);

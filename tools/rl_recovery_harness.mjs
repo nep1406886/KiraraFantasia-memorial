@@ -36,7 +36,9 @@ test("Harumi's authored second skill is usable, not an empty charged slot", () =
     assert.equal(s.use(2).id, 360020002);
     near(s.slots[2].remaining, 8.75);
     near(s.cooldownRate, 23 / 17);
-    assert.deepEqual(s.slots[2].unhandled, [5], "unsupported cleansing stays disclosed");
+    assert.deepEqual(s.slots[2].unhandled, [], "registered-ailment cleansing is executable now");
+    assert.deepEqual(s.slots[2].statusEffects.map(effect => effect.kind), [5],
+        "and it shows up as a real status effect");
 });
 for (const [id, ratio] of [[320220002, .85], [410020001, .7], [230020010, .62]]) {
     test("true-table speed ratio " + ratio, () => {
@@ -170,7 +172,7 @@ test("Rin's original ultimate speed reaches the same cooldown owner once", () =>
 test("skill chips describe recovery, limits and unchanged movement", () => {
     const words = skillWords(decode(360020002)).join("；");
     assert.ok(words.includes("技能恢复速度")); assert.ok(words.includes("0.5–2倍"));
-    assert.ok(words.includes("不改变移动")); assert.ok(words.includes("异常解除"));
+    assert.ok(words.includes("不改变移动")); assert.ok(words.includes("解除异常（治疗封锁、中毒、弱守）"));
     assert.equal(words.includes("自身行动速度：未适配"), false);
 });
 console.log("Recovery: " + (checks - failures) + "/" + checks + " checks passed.");

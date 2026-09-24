@@ -1,20 +1,23 @@
 Vue.component("ev-charicon", {
     props: ["data"],
     template: `<div class='char-icon' data-toggle='tooltip' v-tooltip:top='tip'>
-        <img class='char-icon-img' :src='data.img'>
-        <img class='char-icon-rarity' :src='charFrame'>
-        <img class='char-icon-element' :src='charElement'>
-        <img class='char-icon-job' :src='charJob'>
+        <img class='char-icon-img' :src='imageUrl' :alt='data.name' decoding='async'>
+        <img class='char-icon-rarity' :src='charFrame' alt=''>
+        <img class='char-icon-element' :src='charElement' alt=''>
+        <img class='char-icon-job' :src='charJob' alt=''>
     </div>`,
     computed: {
+        imageUrl: function() {
+            return window.kirafanPage.assetUrl(this.data.img);
+        },
         charFrame: function() {
-            return "imgs/frame" + this.data.rarity + ".png";
+            return window.kirafanPage.assetUrl("imgs/frame" + this.data.rarity + ".png");
         },
         charJob: function() {
-            return "imgs/Class_" + this.cap(this.data.job) + ".png";
+            return window.kirafanPage.assetUrl("imgs/Class_" + this.cap(this.data.job) + ".png");
         },
         charElement: function() {
-            return "imgs/Attribute_" + this.cap(this.data.element) + ".png";
+            return window.kirafanPage.assetUrl("imgs/Attribute_" + this.cap(this.data.element) + ".png");
         },
         tip: function() {
             return `${this.data.rarity}★ ${this.data.name}<br>
@@ -228,7 +231,7 @@ Vue.component("bar-mark", {
     computed: {
         markImg: function() {
             let color = this.mark.started ? "green" : "red";
-            return "imgs/marker-" + this.mark.type + "-" + color + ".png";
+            return window.kirafanPage.assetUrl("imgs/marker-" + this.mark.type + "-" + color + ".png");
         }
     }
 });
@@ -238,7 +241,7 @@ Vue.component("ev-thumb", {
     props: ["ev"],
     template: `<div class='thumb'>
         <transition name='thumb-change'>
-            <img :src='ev.image' :key='ev.image' class='img-fluid'>
+            <img :src='ev.image' :key='ev.image' class='img-fluid' alt='' width='112' height='112' decoding='async'>
         </transition>
         <div class='type'>
             <span>{{ ev.type | typeName }}</span>

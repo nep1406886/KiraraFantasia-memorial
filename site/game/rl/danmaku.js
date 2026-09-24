@@ -67,6 +67,7 @@ function bulletFactory() {
         noAdvantage: false,
         weakElementBonus: 0,
         healingLockChance: 0,
+        statusRiders: null,
         healingLockSeconds: 0,
         hitStatResets: null,
         srcId: 0,
@@ -127,6 +128,9 @@ export function createDanmaku(options) {
             ? Math.min(1, Math.max(0, mods.healingLockChance)) : 0;
         b.healingLockSeconds = Number.isFinite(mods.healingLockSeconds)
             ? Math.max(0, mods.healingLockSeconds) : 0;
+        // Registered-ailment riders (immutable emission snapshot, like the
+        // reset list above).
+        b.statusRiders = Array.isArray(mods.statusRiders) ? mods.statusRiders : null;
         // Reset definitions are immutable; the list is an emission snapshot.
         b.hitStatResets = mods.hitStatResets && mods.hitStatResets.length
             ? mods.hitStatResets.slice() : null;

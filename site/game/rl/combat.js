@@ -21,13 +21,13 @@
 import { elementMultiplier, elementHit } from "./elements.js";
 import { PLAYER_TIMING, ENEMY_TIMING } from "./actorstate.js";
 import { segmentDistanceSquared } from "./geometry.js";
-import { applyHealingLock } from "./playerstatus.js";
+import { applyHealingLock, applyPoison, applyBearish, bearished } from "./playerstatus.js";
 
 // spec/04 §6: the only self-set balance constant in the game. Player damage
 // only -- the enemy side resolves at tempo 1. Everything else that needs
 // balancing goes through the affix pool, the loot table, or the enemy
 // composition. Measured by tools/rl_balance_harness.mjs.
-export const TEMPO = 2.6;
+export const TEMPO = 4.15;
 
 // Crit multiplier and the defence factor from the same formula.
 export const CRIT_MULT = 1.5;
@@ -222,7 +222,14 @@ export function attackFrom(attacker, target, skill, extra) {
     const hit = elementFlag(attacker.element, target.element, noAdvantage);
     const chance = e.crit !== undefined ? 0
         : critChanceFor(attacker.luck, attacker.critBonus, hit);
-    const crit = noCrit ? false : e.crit !== undefined ? e.crit : rollCrit(chance, e.rng, e.forceCritical);
+    // CalcCritical returns true for a Bearish target before any other rule
+    // (the original's isEnableStateAbnormalBearish branch), so it outranks an
+    // explicit crit:false from the enemy-no-crit contract. The player's own
+    // noCrit passive still wins.
+    const crit = noCrit === true ? false
+        : bearished(target) === true ? true
+            : e.crit !== undefined ? e.crit
+                : rollCrit(chance, e.rng, e.forceCritical);
     // weapon passives (spec/04 §4.2): the crit-damage rows (type 7, e.g.
     // +0.33) ride on the attacker; the type-14 debuff rows live on enemies
     // as timed atk/mgc multipliers. Both are inert when absent — every
@@ -287,8 +294,27 @@ export function tryHit(target, attack) {
     } else {
         target.sm.set("damage");
     }
-    const playerStatus = !died ? applyHealingLock(target, spec.healingLockChance,
-        spec.healingLockSeconds, spec.rng) : null;
+    // Registered ailments ride the hit: healing lock keeps its historic
+    // fields, Poison rides the generic rider list. At most one playerStatus
+    // event per hit (the first ailment that landed) keeps the existing
+    // single-hook gates stable.
+    let playerStatus = null;
+    if (!died && spec.statusRiders && spec.statusRiders.length && target.kind === "player") {
+        for (const rider of spec.statusRiders) {
+            const applied = rider.key === "healingLock"
+                ? applyHealingLock(target, rider.chance, rider.seconds, spec.rng)
+                : rider.key === "poison"
+                    ? applyPoison(target, rider.chance, rider.seconds, spec.rng)
+                    : rider.key === "bearish"
+                        ? applyBearish(target, rider.chance, rider.seconds, spec.rng)
+                        : null;
+            if (!playerStatus) { playerStatus = applied; }
+            if (applied && applied.action === "applied") { break; }
+        }
+    } else {
+        playerStatus = !died ? applyHealingLock(target, spec.healingLockChance,
+            spec.healingLockSeconds, spec.rng) : null;
+    }
     let statResets = null;
     if (!died && spec.hitStatResets && spec.hitStatResets.length
             && target.kind === "player" && target.skills && target.skills.resetStats) {

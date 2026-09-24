@@ -74,7 +74,7 @@ OUTLINE="""({background,dt})=>{
 
 def main():
     OUT.mkdir(parents=True,exist_ok=True);report={'props':[],'outlines':[],'errors':[]}
-    evidence=json.loads((ROOT/'docs/original-room-prop-data.json').read_text(encoding='utf8'))
+    evidence=json.loads((ROOT/'docs/data/original-room-prop-data.json').read_text(encoding='utf8'))
     index=json.loads((ROOT/'site/asset/rl/native/index.json').read_text(encoding='utf8'))
     for entry in evidence['entries']:
         asset=index['furniture'][entry['key']]

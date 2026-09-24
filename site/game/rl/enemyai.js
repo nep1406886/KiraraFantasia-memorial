@@ -83,6 +83,68 @@ function faceToward(unit, target, dt, rate) {
 // Picks an attack the unit can actually perform. A charge-pattern skill is a
 // lunge, so only a charger may roll one; anything else fires it as an aimed
 // shot rather than dropping the skill from the rotation.
+// Support cast cooldown scales with the heal's size (2026-09-18): the rows
+// carry no recast, so the fold sets it — a 3% top-up can come every couple of
+// turns, but a 50% self-heal is a once-a-minute boss moment, and 100%
+// 「ひきこもる」 reads as a room-length event, not a wall.
+const SUPPORT_BASE = 2;        // intervals between small supports
+const SUPPORT_HEAL_SCALE = 40; // extra intervals per 100% healed
+function supportCooldown(unit, entry) {
+    const heals = (entry.supportEffects || []).filter(function (fx) { return fx.kind === 1; });
+    const maxPct = heals.length
+        ? Math.max.apply(null, heals.map(function (fx) { return fx.pct; })) : 0;
+    return actionInterval(unit) * (SUPPORT_BASE + maxPct * SUPPORT_HEAL_SCALE);
+}
+
+// 2026-09-18 敌人支援模组: pick one decoded support row whose cast would do
+// something — a heal needs a wounded ally (or self), a buff needs its tag not
+// already running. The first eligible row in authored order wins; kind 13
+// shields stay undispatched (no enemy barrier carrier yet, spec/06).
+function pickSupport(unit, world) {
+    const support = (unit.moveset && unit.moveset.support) || [];
+    for (const entry of support) {
+        // Skip rows that also carry a turn-charge effect (kind 19): the
+        // original's charged big move has no charge gauge here, so the row
+        // stays undispatched rather than firing its heal half for free.
+        if (entry.hasCharge) {
+            continue;
+        }
+        const effects = entry.supportEffects || [];
+        let usable = false;
+        for (const effect of effects) {
+            if (effect.kind === 1) {
+                if (effect.target === 0) {
+                    if (unit.hp < unit.maxHp / 2) { usable = true; }
+                } else if (effect.target === 3 || effect.target === 4) {
+                    for (const ally of world.enemies) {
+                        if (!ally.dead && ally.hp < ally.maxHp / 2) { usable = true; break; }
+                    }
+                } else if (effect.target === 1 || effect.target === 2) {
+                    // The row heals the player: authored as-is (boss mercy
+                    // beat); cast it only when the player is not full.
+                    const p = world.player;
+                    if (p && !p.dead && p.hp < p.maxHp / 2) { usable = true; }
+                }
+            } else if (effect.kind === 2) {
+                const targets = (effect.target === 1 || effect.target === 2)
+                    ? (world.player && !world.player.dead ? [world.player] : [])
+                    : [unit];
+                for (const target of targets) {
+                    const rows = target.debuffs || [];
+                    const tag = "support" + entry.id;
+                    let active = false;
+                    for (const row of rows) {
+                        if (row.tag === tag && row.remaining > 0) { active = true; break; }
+                    }
+                    if (!active) { usable = true; break; }
+                }
+            }
+        }
+        if (usable) { return entry; }
+    }
+    return null;
+}
+
 function pickAttack(unit, rng) {
     const attacks = (unit.moveset && unit.moveset.attacks) || [];
     if (!attacks.length) {
@@ -140,6 +202,7 @@ function fire(unit, world, attack) {
         skillId: attack.id,
         healingLockChance: attack.healingLockChance,
         healingLockSeconds: attack.healingLockSeconds,
+        statusRiders: attack.statusRiders,
         hitStatResets: attack.hitStatResets
     });
     if (mods.speed) {
@@ -278,6 +341,10 @@ export function enemyai(unit, world, dt) {
     // A unit fast enough for its interval to fall inside its own animation
     // simply acts as fast as the animation allows.
     unit.actionTimer = (unit.actionTimer || 0) - dt;
+    // The support clock shares the action cadence (same per-frame decrement);
+    // it only decides when the unit is actually free to act, below.
+    if (unit.supportTimer === undefined) { unit.supportTimer = actionInterval(unit) * 2; }
+    unit.supportTimer -= dt;
 
     // Aim tracks the player except while committed: once the telegraph starts
     // the direction is locked, which is what makes the tell honest.
@@ -294,7 +361,16 @@ export function enemyai(unit, world, dt) {
         if (unit.pending) {
             const attack = unit.pending;
             unit.pending = null;
-            if (attack.pattern === "charge" && unit.aiType === "charger") {
+            if (attack.supportEffects) {
+                // 2026-09-18 敌人支援模组: a support row casts its decoded
+                // effects (heal/buff) through the world's dispatcher instead
+                // of firing danmaku. No bullet, no charge.
+                const events = world.applyEnemySupport
+                    ? world.applyEnemySupport(unit, attack) : null;
+                if (events) {
+                    for (const ev of events) { world.events.push(ev); }
+                }
+            } else if (attack.pattern === "charge" && unit.aiType === "charger") {
                 startDash(unit, world, attack);
             } else {
                 fire(unit, world, attack);
@@ -308,6 +384,27 @@ export function enemyai(unit, world, dt) {
 
     if (unit.actionTimer > 0 || !alive) {
         return;
+    }
+
+    // 2026-09-18 敌人支援模组: the support clock runs on its own timer and,
+    // when ready and a decoded support row exists with an eligible target,
+    // this cycle casts support INSTEAD of attacking (one action slot used).
+    if (unit.supportTimer <= 0) {
+        const support = pickSupport(unit, world);
+        if (support) {
+            unit.supportTimer = supportCooldown(unit, support);
+            unit.pending = support;
+            unit.actionTimer = actionInterval(unit);
+            if (unit.sm.set("telegraph")) {
+                world.events.push({ type: "telegraph", unit: unit, skill: support,
+                    pattern: support.pattern || "buff", support: true,
+                    duration: ENEMY_TIMING.telegraph });
+            } else {
+                unit.pending = null;
+            }
+            return;
+        }
+        unit.supportTimer = actionInterval(unit) * 2;  // nothing eligible; retry soon
     }
 
     const attack = pickAttack(unit, world.rng);

@@ -354,7 +354,7 @@ function eventsOf(world, type) {
     return world.drainEvents().filter(function (e) { return e.type === type; });
 }
 
-// 4a. Gauge multiplier: player bullet power 100 × tempo 2.6 = 260 damage;
+// 4a. Gauge multiplier: player bullet power 100 × tempo 4.15 = 415 damage;
 //     type 6 [1] doubles the credit.
 {
     const plain = makeWorld([]);
@@ -366,10 +366,10 @@ function eventsOf(world, type) {
     firePlayerBullet(buffed, fb, 100);
     step(plain, 60); step(buffed, 60);
     plain.drainEvents(); buffed.drainEvents();
-    check(plain.player.skills.gauge === 260,
-        "gauge baseline: 260 damage credits 260 gauge",
+    check(plain.player.skills.gauge === 415,
+        "gauge baseline: 415 damage credits 415 gauge",
         plain.player.skills.gauge);
-    check(buffed.player.skills.gauge === 520,
+    check(buffed.player.skills.gauge === 830,
         "type 6 大アップ [1] doubles gauge credit",
         buffed.player.skills.gauge);
 }
@@ -412,7 +412,7 @@ function eventsOf(world, type) {
         "type 4 [0.25] fills the stun gauge 1.25×");
 }
 
-// 4d. Lifesteal: 260 damage × 2.5% = 6.5 → 7 HP back (max(1, round)).
+// 4d. Lifesteal: 415 damage × 2.5% = 10.4 → 10 HP back (max(1, round)).
 {
     const world = makeWorld([{ slot: "weapon", affixes: [ID.lifesteal] }]);
     const foe = quietFoe(world, 11, 6);
@@ -425,10 +425,10 @@ function eventsOf(world, type) {
     firePlayerBullet(world, foe, 100);
     step(world, 60);
     const heals = eventsOf(world, "heal");
-    check(heals.length === 1 && heals[0].amount === 7,
-        "lifesteal heals round(260 × 2.5%) = 7",
+    check(heals.length === 1 && heals[0].amount === 10,
+        "lifesteal heals round(415 × 2.5%) = 10",
         JSON.stringify(heals.map(function (h) { return h.amount; })));
-    check(world.player.hp === 1000 - 194 + 7, "heal landed on the unit",
+    check(world.player.hp === 1000 - 194 + 10, "heal landed on the unit",
         world.player.hp);
 }
 

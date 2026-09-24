@@ -31,7 +31,7 @@ function assert(cond, msg) {
 console.log("\nGate 1: encounters.json mobSegments is a 4-way partition of mobs");
 {
     const volumes = JSON.parse(
-        readFileSync(join(ROOT, "asset", "rl", "encounters.json"), "utf8")).volumes;
+        readFileSync(join(ROOT, "site", "asset", "rl", "encounters.json"), "utf8")).volumes;
     assert(volumes.length === 5, "five volumes present");
     volumes.forEach(function (vol) {
         const segs = vol.mobSegments;

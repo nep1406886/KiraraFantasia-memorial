@@ -3,8 +3,14 @@
 Per card: real roster selection, real keyboard casts of skill 2/3 and the
 ultimate (gauge is staged like T25), a real normal attack hit on a prepared
 high-HP target, then a real segment flow slice: two battle rooms of the
-volume-1 first segment driven through the same inputState entry the page
+volume's first segment driven through the same inputState entry the page
 reads, cleared with fixed-step updates. This is not a five-floor claim.
+
+The five-volume identity regression (T25's pending range) runs this per
+volume: `python -X utf8 tools/rl_identity_segments_browser.py --volume N`.
+Optional name/id filters still narrow the roster; the report lands at
+.codex-tmp/identity-segments/report-v{N}.json (volume 1 defaults to the
+historic report.json name).
 """
 import functools
 import json
@@ -96,18 +102,23 @@ def enter_room(page, room_id):
     page.wait_for_function("window.kirafanRL.pending === 0 && !window.kirafanRL.roomLoading", timeout=30000)
 
 
-def run_card(page, url, card, errors):
+def run_card(page, url, card, errors, index=0):
     checks = []
     def check(label, ok, detail=None):
         checks.append({"label": label, "ok": bool(ok), "detail": detail})
         return bool(ok)
+    def stage(text):
+        print("    [%02d] %s" % (index, text), flush=True)
 
+    stage("goto")
     page.goto(url, wait_until="load", timeout=60000)
     page.wait_for_selector(".roster-card", timeout=40000)
     page.locator(".roster-card").filter(has_text=card["displayNameZh"]).first.click()
+    stage("selected; waiting for player view")
     page.wait_for_function(
         "window.kirafanRL?.world?.player && window.kirafanRL.views?.player", timeout=40000)
     dismiss_dialogue(page)
+    stage("dialogue dismissed")
     page.evaluate("window.kirafanRL.world.frozen = true")
     if not check(card["displayNameZh"] + " selected",
                  page.evaluate("window.kirafanRL.world.player.card.id") == card["id"]):
@@ -123,8 +134,8 @@ def run_card(page, url, card, errors):
         w.enemies.forEach(e => { if (e !== window.t25Foe) e.actionTimer = 1e9; });
         k.step(1/60);
     }""")
+    stage("probe target staged")
     page.wait_for_function("window.kirafanRL.pending === 0", timeout=30000)
-
     # Real keyboard: normal attack on the prepared target.
     before = page.evaluate("window.t25Foe.hp")
     page.evaluate("window.kirafanRL.world.frozen = false")
@@ -136,7 +147,9 @@ def run_card(page, url, card, errors):
     check(card["displayNameZh"] + " real-key normal attack lands", after < before,
           {"before": before, "after": after})
     # Real keyboard: skill 2 and skill 3 (effects verified as state changes).
+    stage("probes: skill slots")
     for slot, key in ((1, "Digit2"), (2, "Digit3")):
+        stage("skill slot %d: read state" % slot)
         state = page.evaluate("""slot => {
             const p = window.kirafanRL.world.player, s = p.skills.slots[slot];
             return { remaining: s.remaining, buffs: p.skills.buffs.length,
@@ -144,11 +157,15 @@ def run_card(page, url, card, errors):
                 foeHp: window.t25Foe.hp };
         }""", slot)
         page.evaluate("window.kirafanRL.world.frozen = false")
+        stage("skill slot %d: key down" % slot)
         page.keyboard.down(key)
+        stage("skill slot %d: cast step" % slot)
         page.evaluate("window.kirafanRL.step(1/60)")
         page.keyboard.up(key)
+        stage("skill slot %d: settle 60 steps" % slot)
         page.evaluate("""() => { const k = window.kirafanRL;
             for (let i = 0; i < 60; i++) k.step(1/60); k.world.frozen = true; }""")
+        stage("skill slot %d: read result" % slot)
         result = page.evaluate("""slot => {
             const p = window.kirafanRL.world.player, s = p.skills.slots[slot];
             return { remaining: s.remaining, buffs: p.skills.buffs.length,
@@ -162,6 +179,7 @@ def run_card(page, url, card, errors):
         check(card["displayNameZh"] + " real-key skill slot " + str(slot + 1), changed, {"before": state, "after": result})
         page.evaluate("window.t25Foe.hp = 1000000")
     # Real keyboard: ultimate, staged gauge like T25.
+    stage("probes: ultimate")
     page.evaluate("""() => { const p = window.kirafanRL.world.player;
         p.skills.addGauge(p.skills.gaugeMax); }""")
     page.evaluate("window.kirafanRL.world.frozen = false")
@@ -185,10 +203,14 @@ def run_card(page, url, card, errors):
           spent["gauge"] < spent["gaugeMax"], spent)
     # Segment flow slice: two real battle rooms, cleared through inputState.
     rooms = battle_rooms(page)
-    for index, room_id in enumerate(rooms):
+    for room_index, room_id in enumerate(rooms):
+        stage("battle room %d enter" % (room_index + 1))
         enter_room(page, room_id)
         result = drive_and_clear(page)
-        check(card["displayNameZh"] + " segment room " + str(index + 1) + " cleared",
+        stage("battle room %d done (steps=%d cleared=%s dead=%s)"
+              % (room_index + 1, result["steps"], result["cleared"],
+                 result["dead"]))
+        check(card["displayNameZh"] + " segment room " + str(room_index + 1) + " cleared",
               result["cleared"] and not result["dead"],
               {"steps": result["steps"], "hp": result["hp"], "maxHp": result["maxHp"],
                "foes": result["foes"], "player": [result["px"], result["py"]],
@@ -203,7 +225,16 @@ def main():
     end = tail.find("]);")
     payload = tail[:end + 1]
     roster = json.loads(payload)
+    flags = [a for a in sys.argv[1:] if a.startswith("-")]
     filters = [a for a in sys.argv[1:] if not a.startswith("-")]
+    volume = 1
+    for flag in flags:
+        if flag.startswith("--volume="):
+            volume = int(flag.split("=", 1)[1])
+        elif flag == "--volume" and filters:
+            volume = int(filters.pop(0))
+    if volume not in range(1, 6):
+        raise SystemExit("--volume must be 1..5")
     if filters:
         roster = [c for c in roster
                   if any(f in c["nameZh"] or str(c["id"]) == f for f in filters)]
@@ -218,19 +249,20 @@ def main():
     handler = functools.partial(NoCacheHandler, directory=str(ROOT))
     server = Server(("127.0.0.1", 0), handler)
     threading.Thread(target=server.serve_forever, daemon=True).start()
-    url = "http://127.0.0.1:%d/site/game/roguelike.html?volume=1&seed=17" % server.server_address[1]
+    url = ("http://127.0.0.1:%d/site/game/roguelike.html?volume=%d&seed=17"
+           % (server.server_address[1], volume))
     errors, results = [], []
     try:
         with sync_playwright() as pw:
             browser = pw.chromium.launch(args=["--use-gl=angle", "--enable-unsafe-swiftshader"])
-            for card in roster:
+            for card_index, card in enumerate(roster):
                 context = browser.new_context(viewport={"width": 1280, "height": 800})
                 page = context.new_page()
                 name = card["displayNameZh"]
                 page.on("pageerror", lambda e, n=name: errors.append(n + ": " + str(e)[:200]))
                 page.on("console", lambda m, n=name: errors.append(n + " console: " + m.text[:150]) if m.type == "error" else None)
                 try:
-                    checks = run_card(page, url, card, errors)
+                    checks = run_card(page, url, card, errors, card_index)
                 except Exception as exc:
                     checks = [{"label": card["displayNameZh"] + " crashed", "ok": False, "detail": str(exc)[:300]}]
                 results.append({"cardId": card["id"], "name": card["displayNameZh"],
@@ -242,11 +274,15 @@ def main():
     finally:
         server.shutdown()
         server.server_close()
-    report = {"errors": errors, "results": results,
+    report = {"volume": volume, "errors": errors, "results": results,
               "passedCards": sum(1 for r in results if r["passed"] == r["total"]),
               "totalChecks": sum(r["total"] for r in results)}
-    (OUT / "report.json").write_text(json.dumps(report, ensure_ascii=False, indent=1) + "\n", encoding="utf-8")
-    print("cards fully passed: %d/41, checks: %d" % (report["passedCards"], report["totalChecks"]), flush=True)
+    # Volume 1 keeps the historic report.json name; later volumes are suffixed.
+    report_name = "report.json" if volume == 1 else "report-v%d.json" % volume
+    (OUT / report_name).write_text(
+        json.dumps(report, ensure_ascii=False, indent=1) + "\n", encoding="utf-8")
+    print("cards fully passed: %d/41, checks: %d (volume %d)"
+          % (report["passedCards"], report["totalChecks"], volume), flush=True)
 
 
 if __name__ == "__main__":

@@ -89,19 +89,19 @@ for (let a = 0; a < 6; a++) for (let d = 0; d < 6; d++) {
         const factor = favourable ? 2 : advantage.get(d) === a ? .5 : 1;
         for (const magic of [false, true]) {
             const spec = { atk: 100, mgc: 100, def: 100, mdef: 100, skill: { coef: 1, magic },
-                element: a, targetElement: d, tempo: 2.6, weakElementBonus: .35 };
-            assert.equal(resolveDamage(spec), Math.max(1, Math.round(260 * (factor + (favourable ? .35 : 0)) - 60)));
-            assert.equal(resolveDamage({ ...spec, weakElementBonus: 0 }), Math.max(1, Math.round(260 * factor - 60)));
+                element: a, targetElement: d, tempo: 4.15, weakElementBonus: .35 };
+            assert.equal(resolveDamage(spec), Math.max(1, Math.round(415 * (factor + (favourable ? .35 : 0)) - 60)));
+            assert.equal(resolveDamage({ ...spec, weakElementBonus: 0 }), Math.max(1, Math.round(415 * factor - 60)));
         }
     });
 }
 test("resistance and defence keep their existing order, favourable result is 429", () => {
     const spec = { atk: 100, def: 100, skill: 1, element: 0, targetElement: 3,
-        tempo: 2.6, defenderResist: .2, weakElementBonus: .35 };
-    assert.equal(resolveDamage(spec), 429); // 100*2.35*2.6*.8 - 60
-    assert.equal(resolveDamage({ ...spec, crit: true }), 673);
+        tempo: 4.15, defenderResist: .2, weakElementBonus: .35 };
+    assert.equal(resolveDamage(spec), 720); // crit row: 100*2.35*4.15*.8 - 60, ×1.5 crit
+    assert.equal(resolveDamage({ ...spec, crit: true }), 1110);
     assert.equal(resolveDamage({ ...spec, def: 100000 }), 1);
-    assert.equal(resolveDamage({ ...spec, element: { attacker: 0, defender: 3 } }), 429);
+    assert.equal(resolveDamage({ ...spec, element: { attacker: 0, defender: 3 } }), 720);
 });
 test("absent elements and non-finite bonuses cannot amplify or poison a hit", () => {
     for (const weakElementBonus of [undefined, NaN, Infinity, -.35, ".35"]) {
@@ -112,11 +112,11 @@ test("absent elements and non-finite bonuses cannot amplify or poison a hit", ()
 test("attackFrom and barriers preserve their shared damage contract", () => {
     const w = makeWorld(), e = foe(w); addBonus(w.player.skills);
     const attack = attackFrom(w.player, e, { coef: 1, magic: false }, { crit: false });
-    near(attack.weakElementBonus, .35); assert.equal(resolveDamage(attack), 605);
+    near(attack.weakElementBonus, .35); assert.equal(resolveDamage(attack), 969);
     const s = createSkills({ table, card: kotone, maxHp: 1000 });
     s.applySelf({ barrier: { cut: 1, hits: 1 } }); e.skills = s;
     assert.equal(tryHit(e, attack).damage, 0);
-    assert.equal(tryHit(e, attack).damage, 605);
+    assert.equal(tryHit(e, attack).damage, 969);
 });
 test("normal shot carries cast-time bonus after the caster loses the effect", () => {
     const w = makeWorld(), e = foe(w); cast(w); step(w, .45);
@@ -127,7 +127,7 @@ test("normal shot carries cast-time bonus after the caster loses the effect", ()
     assert.ok(bullet, "normal projectile launched"); near(bullet.weakElementBonus, .35);
     assert.equal(bullet.coef, .5); assert.equal(bullet.power, 100);
     w.player.skills.clearEffects(); near(w.player.skills.weakElementBonus, 0);
-    step(w, .65); assert.equal(100000 - e.hp, 300);
+    step(w, .65); assert.equal(100000 - e.hp, 482);
 });
 test("ordinary skill projectile snapshots bonus, target resistance is live", () => {
     const w = makeWorld(), e = foe(w); cast(w); step(w, .45);
@@ -137,7 +137,7 @@ test("ordinary skill projectile snapshots bonus, target resistance is live", () 
     const coef = table.player[450020001].coef;
     w.player.skills.clearEffects(); e.resists = [{ element: 0, pct: .2, remaining: 10 }];
     step(w, 1);
-    assert.equal(100000 - e.hp, Math.round(100 * coef * 2.35 * 2.6 * .8 - 6));
+    assert.equal(100000 - e.hp, Math.round(100 * coef * 2.35 * 4.15 * .8 - 6));
 });
 test("pool reuse does not leak a previous attack's bonus to enemy or ordinary shots", () => {
     const d = createDanmaku({ capacity: 1 });
@@ -156,7 +156,7 @@ for (const bonusFirst of [false, true]) test("ultimate obeys original sub-effect
     w.player.skills.addGauge(w.player.skills.gaugeMax);
     assert.ok(w.useUltimate()); assert.equal(w.useUltimate(), false);
     assert.equal(w.player.skills.gauge, 0); near(w.player.skills.weakElementBonus, .35);
-    assert.equal(100000 - e.hp, bonusFirst ? 605 : 514);
+    assert.equal(100000 - e.hp, bonusFirst ? 969 : 824);
 });
 test("pause, room change and death obey existing temporary-state boundaries", () => {
     const w = makeWorld(); cast(w); step(w, .45);
