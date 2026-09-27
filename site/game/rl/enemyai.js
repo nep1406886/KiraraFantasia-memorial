@@ -1,4 +1,4 @@
-// Enemy behaviour: three AI types, all built on "enemies do not walk".
+// Enemy behaviour: five AI types, all built on "enemies do not walk".
 //
 // HARD RULE (master plan §4.1): no three.js, no DOM.
 //
@@ -13,6 +13,13 @@
 //            reacting. Fires danmaku too, when it rolls a ranged skill.
 //   boss     phases on HP, adds patterns and tightens cadence per phase, and
 //            asks the world for reinforcements when a phase flips.
+//   kiter    (B.4) a sentry that buys distance instead of standing in the
+//            player's melee: retreats while the player is inside its comfort
+//            band, holds at the band's far edge. It never closes distance, so
+//            the player's approach is the whole duel. Fires the same moveset.
+//   summoner (B.4) a sentry that spends some of its action slots calling for
+//            help instead of firing -- the same requestSummon path the boss
+//            phase uses, on a wall-clock cooldown, capped by the world.
 //
 // Cadence comes from the row's own Spd: the original's turn is 8 recasts =
 // 2.8 s (asset/rl/skills-rl.json turnSeconds), and an enemy acts every turn
@@ -30,6 +37,18 @@ import { updateEnemyAction } from "./enemyactions.js";
 export const SPD_BASELINE = 100;
 // Boss HP fractions where the next phase starts (three phases).
 export const BOSS_PHASES = [0.7, 0.4];
+
+// B.4 kiter band: inside this distance the kiter retreats, at/above it holds
+// and fires. 4.5 = just outside the player's swing reach (combat.js melee
+// band), so the duel is "close the gap the kiter keeps re-opening".
+const KITER_BAND = 4.5;
+// The player's walk speed (actorstate.js PLAYER_TIMING.moveSpeed); the kiter
+// retreats at a fraction of it scaled by its own Spd row, capped AT it.
+const WALK_SPEED = 3.5;
+// B.4 summoner: first call lands this many seconds in (the player has met the
+// room before the help arrives), then every SUMMONER_CALL_SECONDS.
+const SUMMONER_FIRST_CALL = 2.5;
+const SUMMONER_CALL_SECONDS = 7.0;
 
 // How each danmaku pattern is dressed. Counts are the readable-density choice;
 // the pattern itself came from the skill name at build time.
@@ -345,11 +364,38 @@ export function enemyai(unit, world, dt) {
     // it only decides when the unit is actually free to act, below.
     if (unit.supportTimer === undefined) { unit.supportTimer = actionInterval(unit) * 2; }
     unit.supportTimer -= dt;
+    // The summoner's call clock (B.4): independent of the action cadence so a
+    // slow summoner still calls at the authored wall-clock rate, not once per
+    // every few turns.
+    if (unit.summonTimer === undefined) { unit.summonTimer = SUMMONER_FIRST_CALL; }
+    unit.summonTimer -= dt;
 
     // Aim tracks the player except while committed: once the telegraph starts
     // the direction is locked, which is what makes the tell honest.
     if (alive && (state === "idle" || state === "recover")) {
         faceToward(unit, p, dt, 4);
+    }
+
+    // B.4 kiter: buy distance while the player is inside the band. Runs in
+    // idle/recover only (the same states aim tracks) so a committed telegraph
+    // still pins the kiter in place — the dodge window stays honest. Speed is
+    // the player's WALK speed scaled by the row's Spd relative to the
+    // baseline, clamped under it: a kiter can never outrun an approaching
+    // player, only slow the approach down.
+    if (unit.aiType === "kiter" && alive
+            && (state === "idle" || state === "recover")) {
+        const dist = Math.hypot(p.x - unit.x, p.y - unit.y);
+        if (dist < KITER_BAND) {
+            const away = Math.atan2(unit.y - p.y, unit.x - p.x);
+            const spd = Math.min(WALK_SPEED,
+                WALK_SPEED * (effectiveStat(unit, "spd") || SPD_BASELINE) / SPD_BASELINE);
+            const step = Math.min(dt * spd, KITER_BAND - dist + 0.1);
+            const position = moveCircle(unit, Math.cos(away) * step, Math.sin(away) * step,
+                world.roomColliders,
+                { minX: unit.radius, maxX: world.width - unit.radius,
+                  minY: unit.radius, maxY: world.height - unit.radius });
+            unit.x = position.x; unit.y = position.y;
+        }
     }
 
     if (state === "dash") {
@@ -384,6 +430,21 @@ export function enemyai(unit, world, dt) {
 
     if (unit.actionTimer > 0 || !alive) {
         return;
+    }
+
+    // B.4 summoner: the call clock is wall-clock, and when it fires the call
+    // REPLACES this action slot — same trade the support cast makes. The world
+    // caps how many adds can be alive at once (requestSummon's own budget),
+    // and the cooldown resets regardless so a refused call retries on the
+    // next cadence, not next frame.
+    if (unit.aiType === "summoner" && unit.summonTimer <= 0) {
+        unit.summonTimer = SUMMONER_CALL_SECONDS;
+        if (typeof world.requestSummon === "function") {
+            const made = world.requestSummon(unit, 1);
+            if (made > 0) {
+                unit.actionTimer = actionInterval(unit);
+            }
+        }
     }
 
     // 2026-09-18 敌人支援模组: the support clock runs on its own timer and,

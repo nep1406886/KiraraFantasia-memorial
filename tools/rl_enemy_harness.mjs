@@ -143,7 +143,7 @@ function events(world, type) {
 // --- 1. the shipped tables name only implemented behaviour -------------------
 
 {
-    const AI_TYPES = ["sentry", "charger", "boss"];
+    const AI_TYPES = ["sentry", "charger", "boss", "kiter", "summoner"];
     const MELEE = "charge";
     const badAi = allSpecs.filter(function (s) { return AI_TYPES.indexOf(s.aiType) < 0; });
     check("every encounters.json aiType is one of the three", badAi.length === 0,
