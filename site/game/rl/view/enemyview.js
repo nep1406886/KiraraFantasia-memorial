@@ -514,6 +514,14 @@ export function attachEnemyView(unit, scene) {
                             // clamp, so change them together.
                             root.position.y = (posture ? posture.lift : 0)
                                 + Math.max(0, Math.sin((now || 0) / 600)) * 0.06;
+                            // ~4° of in-plane breathing: paper stacks sit flat
+                            // on Y, so a z-axis lean reads as a body sway. The
+                            // magnitude is small enough the foot marker stays
+                            // under the torso. Mirroring via applyFacing will
+                            // invert the lean for left-facing enemies, which
+                            // is what the run clip does too — treat it as the
+                            // same convention, not a bug.
+                            root.rotation.z = Math.sin((now || 0) / 880) * 0.072;
                         } else if (deadNames) {
                             if (!deadSwapped) {
                                 deadSwapped = true;

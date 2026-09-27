@@ -283,8 +283,18 @@ function groundKit(cfg) {
             }
         }
     };
-    // Grain only, at full authored strength: a speck is 1.5–4.6 px and reads as
-    // a pebble however dark it is. Two sizes, because one is a screen door.
+    // Grain is the only feature the eye can track. 1.5–4.6 px specks were too
+    // small to see at 1× and read as flat colour past the first metre. Three
+    // weight classes now: a handful of large blades/stones that set the
+    // ground's scale, medium pebbles for texture, and fine speckle to fill.
+    // Each weight class uses a different silhouette and alpha so the layers
+    // don't merge into a same-sized screen door.
+    for (let i = 0; i < 18; i++) {
+        // Large features: blades/flat stones, 12–22 px across, solid silhouette.
+        // The original kit's ground cards are this scale at PROP_SCALE — they
+        // should not be the only thing in the frame that says "outdoors".
+        speck(GROUND_TILE * (0.020 + rng() * 0.020), 0.40 + rng() * 0.30);
+    }
     for (let i = 0; i < 70; i++) {
         speck(GROUND_TILE * (0.006 + rng() * 0.012), 0.35 + rng() * 0.45);
     }
@@ -1227,7 +1237,7 @@ export function createMapView(scene, volume) {
                     if (unit) placeStatic(unit, bed.x, bed.y, false, true, 1.35);
                 });
 
-                // -- anchor: the room's semantic landmark ------------------------
+                // -- anchor: the room's semantic landmark -----------------------
                 // Landmarks read as landmarks by being bigger than the ring.
                 // pickPool only *sorts* by prefer, so its head is "the widest
                 // prop in the volume" whenever no anchor name matches — a
