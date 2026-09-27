@@ -182,7 +182,22 @@ const POSTURE = {
     "model/enemy/model_en_14800.muast": { lift: 0.006 },
     "model/enemy/model_en_16700.muast": { lift: 0.033 },
     "model/enemy/model_en_17300.muast": { lift: 0.064 },
-    "model/enemy/model_en_17400.muast": { lift: 0.072 }
+    "model/enemy/model_en_17400.muast": { lift: 0.072 },
+    // B.1 扩表 (2026-09-28): the new mob fleet measured through the same
+    // ENEMY_PROBE (tools/rl_posture_probe.py contract, .cache/posture_b1.json).
+    // All animated; sized with the T23e animated formula lift = -0.015 -
+    // minYover. Models that measured above -0.08 (or float) carry no entry.
+    "model/enemy/model_en_11200.muast": { lift: 0.067 },
+    "model/enemy/model_en_11300.muast": { lift: 0.087 },
+    "model/enemy/model_en_11400.muast": { lift: 0.083 },
+    "model/enemy/model_en_11900.muast": { lift: 0.189 },
+    "model/enemy/model_en_12000.muast": { lift: 0.083 },
+    "model/enemy/model_en_12200.muast": { lift: 0.079 },
+    "model/enemy/model_en_13700.muast": { lift: 0.284 },
+    "model/enemy/model_en_14300.muast": { lift: 0.272 },
+    "model/enemy/model_en_14500.muast": { lift: 0.097 },
+    "model/enemy/model_en_16800.muast": { lift: 0.078 },
+    "model/enemy/model_en_8300.muast": { lift: 0.100 }
 };
 
 function collectMaterials(root) {
