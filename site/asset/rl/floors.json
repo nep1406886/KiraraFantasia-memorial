@@ -302,7 +302,8 @@
       "borderPrefer": ["tree", "wall", "rock", "gate", "build", "tent", "coral",
         "conch", "boat", "cardboard"],
       "animated": 3,
-      "water": 2
+      "water": 2,
+      "ring": 10
     },
     "chest": {
       "scatter": 10,
@@ -347,6 +348,7 @@
         "ship1", "cardboard"],
       "animated": 3,
       "water": 2,
+      "ring": 12,
       "anchor": ["gate", "build", "ship1", "tent", "wall", "fall", "pond", "fire",
         "boat", "cave", "tower", "piller", "back_forest", "foundation", "=treea",
         "treel", "treer"]

@@ -1237,6 +1237,37 @@ export function createMapView(scene, volume) {
                     if (unit) placeStatic(unit, bed.x, bed.y, false, true, 1.35);
                 });
 
+                // -- stage ring: accent props framing the fight floor -------------
+                // A painted arena disc (boss) or plaza inlay (battle) alone is
+                // just ground colour; a ring of small kit cards just inside its
+                // edge gives the encounter a staged frame the way Hades' arenas
+                // read. Vocabulary comes from the volume's own scatter pool —
+                // v1 frames with shells and coral, v5 with temple stones. Slots
+                // sit half a step off both axes so door corridors stay open;
+                // placeStatic still rejects whatever the path mask protects.
+                const ringCount = recipe.ring ? Math.round(recipe.ring) : 0;
+                if (ringCount > 0) {
+                    const small = function (unit) {
+                        return !laysFlat(unit.entry)
+                            && Math.max(unit.entry.footprint[0], unit.entry.footprint[1]) <= .9;
+                    };
+                    const ringPool = pool(["prop", "animated"], prefer.scatter,
+                        recipe.scatterPrefer).filter(small);
+                    const usableRing = ringPool.length ? ringPool : borderPool.filter(small);
+                    const ringRadius = recipe.arena
+                        ? Math.min(size.w, size.h) * ARENA_COVER / 2 - .8
+                        : layout.plazaRadius + 1.3;
+                    for (let i = 0; i < ringCount; i++) {
+                        const angle = (i + .5) * Math.PI * 2 / ringCount;
+                        const unit = pickFrom(usableRing);
+                        if (!unit) { continue; }
+                        placeStatic(unit,
+                            size.w / 2 + Math.cos(angle) * ringRadius,
+                            size.h / 2 + Math.sin(angle) * ringRadius,
+                            false, false, .95);
+                    }
+                }
+
                 // -- anchor: the room's semantic landmark -----------------------
                 // Landmarks read as landmarks by being bigger than the ring.
                 // pickPool only *sorts* by prefer, so its head is "the widest

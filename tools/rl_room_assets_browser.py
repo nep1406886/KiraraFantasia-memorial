@@ -48,7 +48,14 @@ def main():
         with sync_playwright() as pw:
             browser = pw.chromium.launch(args=['--use-gl=angle', '--enable-unsafe-swiftshader'])
             context, page = boot(browser, base, report['errors'])
-            model = page.evaluate("""()=>{const w=kirafanRL.world;window.sourceMap=kirafanRL.mapview.group;
+            # warmModels (main.js run-start path) pre-parses this floor's mobs,
+            # elites AND boss during boot settle. By the entry below the boss
+            # GLB is usually already in the blob cache, so the 503 route never
+            # fires and the gate starves on the failed-phase selector (proven
+            # failing at HEAD). Drop the blob cache first — the chest section
+            # below already does exactly this for the same hazard.
+            model = page.evaluate("""async()=>{await (await import('/site/core/loader.js')).clearModelCache();
+                const w=kirafanRL.world;window.sourceMap=kirafanRL.mapview.group;
                 w.enterRoom(w.dungeon.boss);return w.enemies[0].model;}""")
             pattern = '**/' + manifest['models'][model]['file']
             failed = []
