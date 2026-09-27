@@ -19,6 +19,7 @@
 import * as loader from "../../../core/loader.js";
 import { ENEMY_TIMING } from "../actorstate.js";
 import { createBlobShadow } from "./blobshadow.js";
+import { createEliteAura } from "./eliteaura.js";
 import { LAYER, applyLayer, CHARACTER_SCALE } from "./layers.js";
 import { characterTiltX } from "./tilt.js";
 import { applyModelRules, createMirrorSideManager } from "./modelrules.js";
@@ -321,6 +322,14 @@ export function attachEnemyView(unit, scene) {
             const baseScale = (unit.scale && unit.scale !== 1 ? unit.scale : 1)
                 * CHARACTER_SCALE;
             const shadow = createBlobShadow(THREE, scene, unit.radius * CHARACTER_SCALE);
+            // B.2 精英光环: elites and bosses carry an element-coloured ground
+            // ring (view/eliteaura.js) — the HP bar's 「◆ 精英」 badge only
+            // appears after first damage, the ring is the three-rooms-away tell.
+            const aura = unit.elite || unit.kind === "boss"
+                ? createEliteAura(THREE, scene,
+                    Math.max(0.55, unit.radius * CHARACTER_SCALE * 1.1),
+                    Number.isFinite(unit.element) ? unit.element : 0, unit.kind)
+                : null;
             if (baseScale !== 1) {
                 root.scale.setScalar(baseScale);
             }
@@ -576,11 +585,22 @@ export function attachEnemyView(unit, scene) {
                     // the shadow reads them straight off the model.
                     shadow.sync(at.x, at.y,
                         Math.max(0, root.position.y), !unit.dead);
+                    if (aura) {
+                        // The aura dies with the unit's VIEW, not its hp bar:
+                        // a killed elite keeps the corpse until the fade-out
+                        // retires it, and a fading corpse standing on a live
+                        // ring reads as "still dangerous". `now` is the clock
+                        // main.js already threads to sync() (ms since epoch
+                        // in the rAF path) — the pulse phase, not the absolute
+                        // time, is what matters, so any monotonic feed is fine.
+                        aura.sync(at.x, at.y, (now || 0) / 1000, !unit.dead && !retired);
+                    }
                 },
 
                 dispose: function () {
                     retired = true;
                     if (mixer) { mixer.stopAllAction(); mixer.uncacheRoot(root); }
+                    if (aura) { aura.dispose(); }
                     shadow.dispose();
                     scene.remove(root);
                     loader.disposeObject(root);
