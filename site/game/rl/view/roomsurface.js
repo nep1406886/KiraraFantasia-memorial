@@ -118,6 +118,78 @@ export function createRoomSurface(THREE, cfg, layout, room, volume) {
     ctx.globalAlpha = cfg.night ? .68 : .78;
     ctx.drawImage(paving, 0, 0); ctx.globalAlpha = 1;
 
+    if (room.type === "battle" || room.type === "boss") {
+        // Themed arena sigil: two concentric courses plus a per-volume motif
+        // between them — the combat floor reads as a prepared ring instead of
+        // bare paving, without adding collision or new geometry. Same ink as
+        // the plaza courses below (colors.trim), so the whole floor stays one
+        // authored inlay layer. Deterministic (no rng) — the sigil is room
+        // identity, like the arena disc, not scatter.
+        const cx = layout.center.x * p, cy = layout.center.y * p;
+        const outer = (room.type === "boss" ? 8.3 : 8.0) * p;
+        const inner = (room.type === "boss" ? 6.6 : 5.2) * p;
+        ctx.save();
+        ctx.translate(cx, cy);
+        ctx.strokeStyle = colors.trim + (cfg.night ? "90" : "78");
+        ctx.fillStyle = colors.trim + (cfg.night ? "86" : "70");
+        ctx.lineWidth = 2.2;
+        ctx.beginPath(); ctx.arc(0, 0, outer, 0, Math.PI * 2); ctx.stroke();
+        ctx.beginPath(); ctx.arc(0, 0, inner, 0, Math.PI * 2); ctx.stroke();
+        if (volume === 1) {
+            // 港町: wave crests on the ring plus eight spokes — rope-and-buoy.
+            for (let i = 0; i < 8; i++) {
+                const a = i * Math.PI / 4;
+                ctx.beginPath();
+                ctx.arc(0, 0, (inner + outer) * .5, a, a + .19);
+                ctx.stroke();
+                const r = (inner + outer) * .5;
+                ctx.beginPath();
+                ctx.moveTo(Math.cos(a) * inner, Math.sin(a) * inner);
+                ctx.lineTo(Math.cos(a) * (outer - p * .22), Math.sin(a) * (outer - p * .22));
+                ctx.stroke();
+            }
+        } else if (volume === 2) {
+            // 沙漠: a sunburst — long/short rays on a 16th grid.
+            for (let i = 0; i < 16; i++) {
+                const a = i * Math.PI / 8;
+                const r0 = i % 4 === 0 ? inner + p * .3 : inner + p * .55;
+                ctx.beginPath();
+                ctx.moveTo(Math.cos(a) * r0, Math.sin(a) * r0);
+                ctx.lineTo(Math.cos(a) * (outer - p * .3), Math.sin(a) * (outer - p * .3));
+                ctx.stroke();
+            }
+        } else if (volume === 3) {
+            // 蜜林: petals — twelve leaves around the ring.
+            for (let i = 0; i < 12; i++) {
+                const a = i * Math.PI / 6;
+                const r = (inner + outer) * .5;
+                ctx.save(); ctx.rotate(a);
+                ctx.beginPath(); ctx.ellipse(r, 0, p * .22, p * .08, 0, 0, Math.PI * 2); ctx.fill();
+                ctx.restore();
+            }
+        } else if (volume === 4) {
+            // 机关: gear teeth — a fine 24th tick ring with banded roots.
+            for (let i = 0; i < 24; i++) {
+                const a = i * Math.PI / 12;
+                const r0 = inner + (i % 3 === 0 ? p * .25 : p * .55);
+                ctx.beginPath();
+                ctx.moveTo(Math.cos(a) * r0, Math.sin(a) * r0);
+                ctx.lineTo(Math.cos(a) * (outer - p * .25), Math.sin(a) * (outer - p * .25));
+                ctx.stroke();
+            }
+        } else {
+            // 神殿: spirit marks — eight small diamonds, shrine-corner stones.
+            for (let i = 0; i < 8; i++) {
+                const a = i * Math.PI / 4;
+                const r = (inner + outer) * .5;
+                ctx.save(); ctx.rotate(a);
+                ctx.strokeRect(r - p * .16, -p * .16, p * .32, p * .32);
+                ctx.restore();
+            }
+        }
+        ctx.restore();
+    }
+
     // Thin inset courses around the plaza are surface inlay, not new raised
     // collision geometry. The boss keeps its broad combat floor unobstructed.
     ctx.strokeStyle = colors.trim + "88"; ctx.lineWidth = 1.6;

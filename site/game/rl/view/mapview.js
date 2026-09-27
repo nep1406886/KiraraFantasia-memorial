@@ -1268,7 +1268,7 @@ export function createMapView(scene, volume) {
                     }
                 }
 
-                // -- anchor: the room's semantic landmark -----------------------
+                // -- anchor: the room's semantic landmark ------------------------
                 // Landmarks read as landmarks by being bigger than the ring.
                 // pickPool only *sorts* by prefer, so its head is "the widest
                 // prop in the volume" whenever no anchor name matches — a
