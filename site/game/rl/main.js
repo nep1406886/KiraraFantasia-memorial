@@ -45,6 +45,7 @@ import {
 } from "./view/interactview.js";
 import { createDanmakuView } from "./view/danmakuview.js";
 import { createEnemyTelegraphs } from "./view/enemytelegraphs.js";
+import { createPlayerWarning } from "./view/playerwarning.js";
 import { createFollowCamera } from "./view/camera.js";
 import { createMinimap } from "./view/minimap.js";
 import { createStageScene } from "./view/scene.js?v=20260908-1";
@@ -353,6 +354,7 @@ let lastEquipmentState = null;
 let enemyViews = [];
 let danmakuView = null;
 let enemyTelegraphs = null;
+let playerWarning = null;
 let damageTextLayer = null;
 let healthBars = null;
 let battleIndicators = null;
@@ -477,6 +479,7 @@ function setup(modules) {
         projectileVisualReady: bullet => !!skillVFX && skillVFX.projectileVisualReady(bullet)
     });
     enemyTelegraphs = createEnemyTelegraphs(scene, THREE);
+    playerWarning = createPlayerWarning(scene, THREE);
     damageTextLayer = createDamageTextLayer(stage, THREE);
     healthBars = createHealthBars(stage, THREE);
     battleIndicators = createBattleIndicators(stage, THREE);
@@ -646,7 +649,7 @@ function setup(modules) {
         get floorBiome() { return volumeConfig(volume, world ? world.floor : 1).biome; },
         get floorLabel() { return floorBox ? floorBox.textContent : ""; },
         get views() { return { player: playerView, enemies: enemyViews, danmaku: danmakuView,
-            telegraphs: enemyTelegraphs }; },
+            telegraphs: enemyTelegraphs, playerWarning: playerWarning }; },
         // Same attach path the "summon" event takes, exposed so headless
         // fixtures can give a mid-test spawned unit its real view.
         syncEnemyViews: ensureEnemyViews,
@@ -785,7 +788,8 @@ function syncViews(dt, motion, alpha) {
     enemyViews.forEach(function (view) {
         view.sync(view.unit.dead ? dt : poseDt, now, position(view.unit));
     });
-    enemyTelegraphs.sync(world);
+    enemyTelegraphs.sync(world, world.time);
+    if (playerWarning) { playerWarning.update(dt, world, world.time); }
     if (skillVFX) {
         skillVFX.syncProjectiles(world.danmaku, position);
         skillVFX.update(effectDt);
@@ -1109,7 +1113,7 @@ function consumeEvents() {
                 skillVFX.emitHitImpact(
                     impact.x,
                     impact.y,
-                    event.attacker ? event.attacker.element || 0 : 0,
+                    event.attacker ? event.attacker.element : null,
                     event.crit || false
                 );
                 // The original's common death burst (ef_btl_common_dead):

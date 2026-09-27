@@ -4,6 +4,10 @@
 # should be on screen so pixels can be cross-checked.
 #
 # Usage: python tools/rl_shot_diag.py PORT [volume] [tag]
+# PORT must serve the site root directly (e.g. `python -m http.server PORT
+# --directory site`), so URLs here are /game/roguelike.html, NOT
+# /site/game/roguelike.html — the repo-rooted servers the *_browser gates
+# spin up are a different contract.
 from __future__ import annotations
 
 import json
@@ -20,8 +24,13 @@ CACHE = ROOT / ".cache"
 def main() -> int:
     port = int(sys.argv[1]) if len(sys.argv) > 1 else 8941
     vol = int(sys.argv[2]) if len(sys.argv) > 2 else 1
+    # tag, or tag[-4:] == "battle": start in the floor's BATTLE room instead
+    # of the start room. A battle room is where enemies and the border ring
+    # actually live — the start room has neither (spawn clearing).
     tag = sys.argv[3] if len(sys.argv) > 3 else "diag"
-    url = "http://127.0.0.1:%d/site/game/roguelike.html?volume=%d" % (port, vol)
+    want_battle = tag.endswith("battle")
+    url = ("http://127.0.0.1:%d/game/roguelike.html?volume=%d&debug=1"
+           % (port, vol))
     result = {"console": [], "errors": []}
     with sync_playwright() as p:
         browser = p.chromium.launch(
@@ -31,10 +40,18 @@ def main() -> int:
                 if m.type in ("error", "warning") else None)
         page.on("pageerror", lambda e: result["errors"].append(str(e)))
 
+        # Boot gates on the prologue/tutorial dialogue when neither flag is in
+        # meta storage (rl_recovery_browser.py:96-98 pattern). A diagnostic
+        # page without them freezes the world on the opening box and the
+        # step() loop below spins forever with an empty room.
+        page.add_init_script(
+            "localStorage.setItem('kirafan-rl:meta',"
+            "JSON.stringify({prologueSeen:true,tutorialSeen:true}));")
+
         page.goto(url, wait_until="load", timeout=60000)
         deadline = time.time() + 120
         while time.time() < deadline:
-            if page.evaluate("!!window.kirafanRL && !!window.kirafanRL.mapview.group"):
+            if page.evaluate("window.kirafanRL && window.kirafanRL.mapview && !!window.kirafanRL.mapview.group"):
                 break
             try:
                 card = page.query_selector(".roster-card")
@@ -42,16 +59,84 @@ def main() -> int:
                     card.click()
             except Exception:
                 pass
-            page.evaluate("window.kirafanRL && window.kirafanRL.step(1/60)")
+            if page.evaluate("!!window.kirafanRL"):
+                page.evaluate("window.kirafanRL.step(1/60)")
             page.wait_for_timeout(50)
-        # let the first room settle (textures, enemy views)
-        for _ in range(400):
+
+        if not page.evaluate("window.kirafanRL && !!window.kirafanRL.mapview.group"):
+            state = page.evaluate("""() => ({
+                kirafanRL: !!window.kirafanRL,
+                status: document.getElementById('status')?.textContent,
+                rosterCards: document.querySelectorAll('.roster-card').length,
+                dialogueVisible: !!document.getElementById('dialogue-box')
+                    && document.getElementById('dialogue-box').offsetParent !== null
+            })""")
+            result["errors"].append("boot: first room never built within 120s; state=" + json.dumps(state, ensure_ascii=False))
+            browser.close()
+            print(json.dumps(result, ensure_ascii=True))
+            return 1
+
+        # A volume-opening dialogue (v<vol>_open) or a leftover beat freezes
+        # the world; its presenter has no clock here (no rAF), so skip lines
+        # manually — same dismiss() as rl_recovery_browser.py. The roster gate
+        # requires the FIRST card click to remain a plain select (spec/07 §6
+        # rosters elect-click), so a headless pass that picks the default card
+        # has to press the card the player sees selected, which is the click —
+        # rl_recovery_browser.py line ~248 does exactly that.
+        #
+        # click("#dialogue-skip") dies whenever the box fades out under the
+        # pointer mid-click (the 120ms dlg-out timer), and the box's own
+        # click-advance listener runs regardless of the target, so a direct
+        # DOM .click() on the button is the same action minus the race.
+        def dismiss_dialogue():
+            for _ in range(90):
+                visible = page.evaluate(
+                    "!!document.getElementById('dialogue-box')"
+                    " && !document.getElementById('dialogue-box').classList.contains('dlg-hidden')"
+                    " && !document.getElementById('dialogue-box').classList.contains('dlg-out')")
+                if not visible:
+                    return
+                page.evaluate("document.getElementById('dialogue-skip')?.click()")
+                page.evaluate("window.kirafanRL.step(1/60)")
+                page.wait_for_timeout(20)
+
+        # The volume-open dialogue is queued on the world BEFORE the first
+        # step (queueDialogue in volumeOpen()), so until a step lands the
+        # presenter never exists and dismiss_dialogue() above is a no-op.
+        # Step once through any queued node, then sweep until the box is
+        # really gone.
+        dismiss_dialogue()
+        for _ in range(240):
             page.evaluate("window.kirafanRL.step(1/60)")
+            dismiss_dialogue()
+            if not page.evaluate(
+                    "!!document.getElementById('dialogue-box')"
+                    " && !document.getElementById('dialogue-box').classList.contains('dlg-hidden')"
+                    " && !document.getElementById('dialogue-box').classList.contains('dlg-out')"):
+                break
+            page.wait_for_timeout(10)
+        # let the first room settle (textures, enemy views); a freeze can still
+        # re-open the box (queued nodes), so re-dismiss mid-stream
+        for i in range(400):
+            page.evaluate("window.kirafanRL.step(1/60)")
+            if i % 40 == 39:
+                dismiss_dialogue()
             page.wait_for_timeout(5)
         page.wait_for_timeout(500)
-        while page.evaluate("window.kirafanRL.pending"):
+        settle = time.time() + 60
+        while page.evaluate("window.kirafanRL.pending") and time.time() < settle:
             page.evaluate("window.kirafanRL.step(1/60)")
             page.wait_for_timeout(50)
+        # Some opens queue AFTER the settle (the typewriter is a wall-clock
+        # presenter; a step-only driver never finishes a line fast enough to
+        # satisfy it). Sweep, settle again, sweep — then walk once the box is
+        # really gone.
+        dismiss_dialogue()
+        settle = time.time() + 60
+        while page.evaluate("window.kirafanRL.pending") and time.time() < settle:
+            page.evaluate("window.kirafanRL.step(1/60)")
+            page.wait_for_timeout(50)
+        dismiss_dialogue()
 
         shot = CACHE / ("rl_%s.png" % tag)
         page.screenshot(path=str(shot))

@@ -59,7 +59,13 @@ def main():
                 page=browser.new_page(viewport={'width':1280,'height':840})
                 page.on('pageerror',lambda e:report['errors'].append(str(e)))
                 page.route('**/mixed-size',lambda r:r.fulfill(content_type='text/html',body='<body></body>'))
-                page.goto(base+'/mixed-size');page.add_script_tag(url=base+'/site/asset/gacha/cards.js');page.evaluate(SETUP)
+                # The harness document must sit at the SAME depth as
+                # site/game/roguelike.html: mapview fetches
+                # "../asset/rl/mapkit.json" document-relative (fetch resolves
+                # against the document, not the importing module), so a page at
+                # the server root 404s on mapkit.json. Same for serve.py-based
+                # gates — keep the two-segment prefix.
+                page.goto(base+'/site/game/mixed-size');page.add_script_tag(url=base+'/site/asset/gacha/cards.js');page.evaluate(SETUP)
                 report['candidates']=page.evaluate(MIXED)
                 for row in report['candidates']:check(row['name'],row['ok'])
                 start(page,base+'/site/game/roguelike.html?seed=74061')

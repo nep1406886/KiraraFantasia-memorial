@@ -37,6 +37,12 @@ function particleActiveRange(timeline) {
     return (first === null || last === null) ? null : [first, last];
 }
 const COMMON = ["ef_btl_recover_00", "ef_btl_barrier_00", "ef_btl_buff_line", "ef_btl_buff_ring", "ef_btl_dmg_single_00", "ef_btl_stun_occur", "ef_btl_common_dead"];
+// Per-element impact art. The native index ships ef_btl_dmg_all_<element>_00
+// for all six elements (0=炎..5=陽 by ELEMENT_NAMES); a hit lands in the
+// attacker's element colour, not one neutral flash. Names resolve lazily
+// through the same index as every other effect, so an asset that ever goes
+// missing degrades to the shared single burst rather than an empty frame.
+const ELEMENT_IMPACT = ELEMENT_NAMES.map(element => "ef_btl_dmg_all_" + element + "_00");
 const ROOT = new URL("../../../", import.meta.url);
 
 export function createSkillVFX(scene, THREE, options) {
@@ -90,7 +96,7 @@ export function createSkillVFX(scene, THREE, options) {
                 resolve();
             }, undefined, reject);
         }));
-        return Promise.all([preloadNative("effects", COMMON), ...textures]);
+        return Promise.all([preloadNative("effects", [...COMMON, ...ELEMENT_IMPACT]), ...textures]);
     }).catch(error => { errors.push(error.message); console.warn("Native battle effects:", error); });
 
     function release(resource) {
@@ -402,8 +408,16 @@ export function createSkillVFX(scene, THREE, options) {
         emitSkillCast(unit, skill) { cast(unit, skill, .48); },
         emitSlash(unit) { cast(unit, unit.skills && unit.skills.normal, .25, true); },
         emitTrail,
-        emitHitImpact(x, y, element, crit) { return emit("ef_btl_dmg_single_00", x, y,
-            { kind: "impact", height: COMBAT_HEIGHT, scale: crit ? 1.35 : .9, duration: crit ? .36 : .25 }); },
+        emitHitImpact(x, y, element, crit) {
+            // 2026-09-18 原素材美术: a hit lands in the attacker's element
+            // colour (ef_btl_dmg_all_<element>_00, 0=炎..5=陽), not the one
+            // neutral ef_btl_dmg_single_00. Unknown/out-of-range elements and
+            // any asset that fails to resolve fall back to the shared burst.
+            const keyed = ELEMENT_IMPACT[element];
+            const effect = (keyed && index && index.effects[keyed]) ? keyed : "ef_btl_dmg_single_00";
+            return emit(effect, x, y,
+                { kind: "impact", height: COMBAT_HEIGHT, scale: crit ? 1.35 : .9, duration: crit ? .36 : .25 });
+        },
         emitCharge(x, y) { return emit("ef_btl_buff_ring", x, y, { kind: "charge", scale: 1.2, duration: .65 }); },
         emitHeal(x, y) { return emit("ef_btl_recover_00", x, y, { kind: "heal", duration: .6 }); },
         emitPickup(x, y) { return emit("ef_btl_buff_ring", x, y, { kind: "charge", duration: .45 }); },

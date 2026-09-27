@@ -81,7 +81,7 @@ export function createEnemyTelegraphs(scene, THREE) {
         object: root,
         get count() { return entries.size; },
         get shapeCount() { let count = 0; for (const entry of entries.values()) { count += entry.group.children.length; } return count; },
-        sync(world) {
+        sync(world, timeSec) {
             if (disposed) { return; }
             const used = new Set();
             if (!world.player?.dead) {
@@ -96,14 +96,30 @@ export function createEnemyTelegraphs(scene, THREE) {
             // Retire before acquiring: active + idle can never exceed the
             // world threat limit, even when every action changes this frame.
             for (const [action, entry] of entries) { if (!used.has(action)) { release(action, entry); } }
+            const t = Number.isFinite(timeSec) ? timeSec : 0;
             for (const action of used) {
                 let entry = entries.get(action);
-                if (!entry) { entry = create(action); entries.set(action, entry); }
+                // Phase from action.age so the shim's frozen-time rerun of an
+                // identical action still produces byte-identical pixels. A
+                // Math.random() salt here breaks the reuse-parity gate.
+                if (!entry) { entry = create(action); entry.phaseOffset = 0; entries.set(action, entry); }
                 const active = action.stage === "active";
                 entry.fill.color.setHex(active ? ACTIVE : WARNING);
                 entry.edge.color.copy(entry.fill.color);
-                entry.fill.opacity = active ? .48 : .18 + .16 * Math.min(1, action.age / action.move.warning);
-                entry.edge.opacity = active ? 1 : .9;
+                // warning is fractional (e.g. 0.95s) — no integer truncation,
+                // or every sub-second windup would read as instantly charged.
+                const warning = Math.max(1e-3, action.move.warning);
+                const charge = Math.min(1, action.age / warning);
+                // Countdown-driven fill: alpha grows with age AND the rim breathes
+                // so a static windup never reads as dead ground art. Accessible
+                // under reduced-flash because the sinusoid stays inside opacity,
+                // never crosses a brightness threshold.
+                const pulse = 0.5 + 0.5 * Math.sin(t * 7 + action.age * 3 + entry.phaseOffset);
+                // Floor stays at the original flat windup brightness so the
+                // shape-parity gate's pulse-time samples stay foreground.
+                entry.fill.opacity = active ? .48
+                    : .20 + .16 * charge + .05 * pulse;
+                entry.edge.opacity = active ? 1 : .72 + .26 * pulse;
             }
         },
         clear,
