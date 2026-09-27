@@ -3,10 +3,10 @@
 # synthesises every cue from WebAudio recipes keyed by the original cue names,
 # and an unknown name is a caught mistake (console warning), not silence.
 # This gate pins both halves of that contract:
-#   offline: RECIPES holds exactly the 19 cues the node-count table knows,
+#   offline: RECIPES holds exactly the 20 cues the node-count table knows,
 #            and main.js wires all 7 new cues (dodge/crit/pickup/door/death/
 #            levelup/guard); the crit branch no longer borrows chime
-#   browser A (synthesis): each of the 19 cues builds exactly the nodes its
+#   browser A (synthesis): each of the 20 cues builds exactly the nodes its
 #            recipe body says (noiseBurst -> 1 buffer source, tone -> 1
 #            oscillator), counted by an AudioContext wrapper; an unknown cue
 #            warns exactly once and builds nothing
@@ -59,6 +59,8 @@ NODE_COUNTS = {
     "death": (1, 2),
     "levelup": (1, 4),
     "guard": (1, 1),
+    # B.3 首领换阶段: drum (noiseBurst) + bell pair (2 tones) + low sine.
+    "boss_phase": (1, 3),
 }
 
 # World event -> (buffer sources, oscillators) expected from the
@@ -122,7 +124,7 @@ def check_offline(check) -> None:
     src = AUDIO_SRC.read_text(encoding="utf-8")
     body = src.split("const RECIPES = {", 1)[1].split("\n};", 1)[0]
     keys = re.findall(r"^    (\w+): function", body, re.M)
-    check("RECIPES holds 19 cues", len(keys) == 19, len(keys))
+    check("RECIPES holds 20 cues", len(keys) == 20, len(keys))
     check("recipe set matches the node-count table",
           set(keys) == set(NODE_COUNTS),
           sorted(set(keys) ^ set(NODE_COUNTS)))
@@ -183,7 +185,7 @@ def run_synth_case(page, base_url, check, warnings, errors) -> None:
         check("boot (synthesis case)", False)
         return
     cues = unlock_module(page)
-    check("module exposes 19 cues", len(cues) == 19, cues)
+    check("module exposes 20 cues", len(cues) == 20, cues)
     for cue in cues:
         got = page.evaluate("""(cue) => {
             const before = { n: window.__synth.noise, o: window.__synth.osc };

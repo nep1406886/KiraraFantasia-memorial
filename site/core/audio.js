@@ -351,6 +351,15 @@ const RECIPES = {
     guard: function (ctx, at, level) {
         tone(ctx, at, { frequency: 1980, glideTo: 1400, duration: 0.14, gain: level * 0.12, wave: "triangle" });
         noiseBurst(ctx, at, { duration: 0.05, frequency: 3000, gain: level * 0.35, type: "bandpass", q: 2.2 });
+    },
+    // B.3 首领换阶段: a low drum-and-bell toll — the fight's tempo changing,
+    // not a victory fanfare. The drum says "brace", the rising bell pair says
+    // "stronger". Two seconds total, ducked under the boss BGM like every cue.
+    boss_phase: function (ctx, at, level) {
+        tone(ctx, at, { frequency: 98, glideTo: 49, duration: 0.5, gain: level * 0.34, wave: "sine" });
+        noiseBurst(ctx, at, { duration: 0.3, frequency: 180, sweepTo: 60, gain: level * 0.5, q: 1.0 });
+        tone(ctx, at + 0.32, { frequency: 587, duration: 0.5, gain: level * 0.11, wave: "triangle" });
+        tone(ctx, at + 0.44, { frequency: 880, duration: 0.7, gain: level * 0.09, wave: "triangle" });
     }
 };
 

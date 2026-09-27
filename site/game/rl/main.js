@@ -983,7 +983,26 @@ function consumeEvents() {
             beat("↯ " + unitName(event.unit) + " 召来援军 ×" + event.count);
             break;
         case "bossPhase":
-            beat("◆ " + unitName(event.unit) + " 第 " + event.phase + " 阶段");
+            // B.3 阶段化演出: the flip is a beat of its own — white flash,
+            // camera shake, the toll cue, the HP bar announcing the phase, and
+            // the boss speaking. Each piece is independent and degrades alone:
+            // no reduced-flash = no flash, muted SE = silent toll.
+            beat("◆ " + unitName(event.unit) + " 第 " + event.phase + " 阶段", 3);
+            audio.se("boss_phase", { volume: 0.9 });
+            if (!accessibility.reducedFlash) {
+                stage.classList.add("phase-flash");
+                setTimeout(function () { stage.classList.remove("phase-flash"); }, 260);
+            }
+            if (followCam) { followCam.shake(0.32, 0.5); }
+            announceBossPhase(event.unit, event.phase);
+            // B.3 后半场换曲: the boss theme hands over to the volume's
+            // `bossLate` track from phase 3 (HP ≤ .4) — a new song is the
+            // loudest "the fight changed" signal a roguelike has. First
+            // phase-flip (phase 2) keeps the opening theme: two track changes
+            // in one fight would read as noise.
+            if (event.phase >= 3 && event.unit.kind === "boss" && bgm) {
+                playBGM("bossLate", { fadeIn: 900 });
+            }
             break;
         case "telegraph":
             if (event.unit.kind === "boss" || event.unit.elite) {
@@ -3019,6 +3038,31 @@ function playBossVoice(unit) {
     });
     const lines = bossVoiceLines && bossVoiceLines[unit.voiceCueSheet];
     showBossVoiceLine(unitName(unit), lines && lines.line);
+}
+
+// B.3 阶段化重做 — the phase-flip voice line. The opening voice (above) is
+// the warning-wave cue the original plays at BattleSystem.cs:3777; the flip
+// re-uses the SAME sheet (the boss has exactly one voice bank), but picks the
+// subtitle text that reads as escalation rather than greeting. Data-driven:
+// bossvoice-lines.json gains a `phases` array per sheet; a sheet without one
+// simply does not speak (the story bosses of volumes 1-4 ship no sheet at all,
+// matching the original's warning gate).
+const BOSS_PHASE_LINES = ["", "", "这局面，可有点不妙了……", "到此为止——认真起来了！", "最后一段乐章！"];
+function announceBossPhase(unit, phase) {
+    if (!unit || !unit.voiceCueSheet || !bossVoiceData) { return; }
+    const rec = bossVoiceData.sheets[unit.voiceCueSheet];
+    if (!rec || !rec.files || !rec.files.length) { return; }
+    const lines = bossVoiceLines && bossVoiceLines[unit.voiceCueSheet];
+    const custom = lines && lines.phases && lines.phases[phase];
+    const text = custom || BOSS_PHASE_LINES[phase] || BOSS_PHASE_LINES[2];
+    if (bossVoiceAudio) {
+        bossVoiceAudio.pause();
+        bossVoiceAudio = null;
+    }
+    const file = rec.files[Math.floor(Math.random() * rec.files.length)];
+    bossVoiceAudio = new Audio(new URL("../../audio/voice/" + file, import.meta.url).href);
+    bossVoiceAudio.play().catch(function () { /* subtitle carries the beat */ });
+    showBossVoiceLine(unitName(unit), text);
 }
 
 // 阶段 6: load and play one とっておき performance

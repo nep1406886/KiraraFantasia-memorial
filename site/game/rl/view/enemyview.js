@@ -350,6 +350,7 @@ export function attachEnemyView(unit, scene) {
                 material: material, opacity: material.opacity
             }));
             let postureLift = 0;     // lift currently riding on root.y (see sync)
+            let auraPhase = 1;       // last boss phase pushed into the aura ring
             const posture = POSTURE[unit.model] || null;
             const deadNames = posture && posture.deadParts;
             if (deadNames) {
@@ -580,6 +581,15 @@ export function attachEnemyView(unit, scene) {
                             root.visible = false;
                             if (mixer) { mixer.stopAllAction(); }
                         }
+                        // The aura fades WITH the corpse (0.75s), not after the
+                        // view retires — a full-strength ring under an empty
+                        // floor reads as "the boss is still here". Both driven
+                        // by the same t, so the ring is gone the same frame the
+                        // body is (B.3 gate: 死亡后光环清空).
+                        if (aura) {
+                            aura.sync(at.x, at.y, (now || 0) / 1000,
+                                false, 1 - t);
+                        }
                     }
                     // The float bob and the death sink are both real height, so
                     // the shadow reads them straight off the model.
@@ -593,6 +603,14 @@ export function attachEnemyView(unit, scene) {
                         // main.js already threads to sync() (ms since epoch
                         // in the rAF path) — the pulse phase, not the absolute
                         // time, is what matters, so any monotonic feed is fine.
+                        if (auraPhase !== (unit.phase || 1)) {
+                            // B.3: the phase flip reaches the ring through the
+                            // same view sync the HP bar reads — no event bus,
+                            // no per-frame allocation, just the unit's own
+                            // phase field (set by enemyai.updatePhase).
+                            auraPhase = unit.phase || 1;
+                            aura.setPhase(auraPhase);
+                        }
                         aura.sync(at.x, at.y, (now || 0) / 1000, !unit.dead && !retired);
                     }
                 },

@@ -23,6 +23,10 @@ const RING_Y = 0.03;
 const BASE_OPACITY = 0.30;
 const PULSE_AMPLITUDE = 0.12;
 const PULSE_SECONDS = 2.4;
+// Per-instance pulse shaping, mutated by setPhase (B.3).
+let pulseSeconds = PULSE_SECONDS;
+let pulseAmplitude = PULSE_AMPLITUDE;
+let spinRate = 0;
 // Bosses get a second outer ring: an elite is "stronger", a boss is "the room".
 const BOSS_OUTER = 1.22;
 const BOSS_OUTER_OPACITY = 0.55;
@@ -33,6 +37,11 @@ function ringGeometry(THREE, inner, outer) {
 
 export function createEliteAura(THREE, scene, radius, element, kind) {
     const color = ELEMENT_COLOR[element] || ELEMENT_COLOR[0];
+    // Module-level pulse shaping is shared: reset per instance so a disposed
+    // phase-3 aura does not leak its fast pulse into the next elite's ring.
+    pulseSeconds = PULSE_SECONDS;
+    pulseAmplitude = PULSE_AMPLITUDE;
+    spinRate = 0;
     const material = new THREE.MeshBasicMaterial({
         color: color, transparent: true, opacity: BASE_OPACITY,
         side: THREE.DoubleSide, depthWrite: false, fog: false, toneMapped: false
@@ -61,19 +70,36 @@ export function createEliteAura(THREE, scene, radius, element, kind) {
         object: root,
         material: material,
         get color() { return material.color.getHex(); },
-        sync: function (x, z, timeSec, alive) {
-            if (!alive) {
+        // B.3 阶段化: each phase escalates the ring instead of recolouring it
+        // — phase 2 breathes faster and 25% stronger, phase 3 adds a slow spin
+        // to the outer ring, phase 3+ inner edge tightens. The element colour
+        // IS the boss's identity; changing it per phase would change WHO the
+        // ring says is standing there.
+        setPhase: function (phase) {
+            const p = Math.max(1, phase | 0);
+            root.userData.phase = p;
+            pulseSeconds = PULSE_SECONDS / (1 + (p - 1) * 0.35);
+            pulseAmplitude = PULSE_AMPLITUDE * (1 + (p - 1) * 0.25);
+            if (outer) { spinRate = (p >= 3 ? 0.5 : 0) * Math.PI / 4; }
+        },
+        sync: function (x, z, timeSec, alive, fade) {
+            if (!alive && !(fade > 0)) {
                 root.visible = false;
                 return;
             }
             root.visible = true;
             root.position.set(x, RING_Y, z);
             const t = Number.isFinite(timeSec) ? timeSec : 0;
-            const pulse = 0.5 + 0.5 * Math.sin(t * Math.PI * 2 / PULSE_SECONDS);
-            material.opacity = BASE_OPACITY + PULSE_AMPLITUDE * pulse;
+            const pulse = 0.5 + 0.5 * Math.sin(t * Math.PI * 2 / pulseSeconds);
+            // fade > 0: the death fade (enemyview drives 1→0 over the corpse
+            // animation). Scales the whole ring toward zero with the body so
+            // a dying boss's aura dies with it instead of blinking out.
+            const f = alive ? 1 : Math.max(0, fade || 0);
+            material.opacity = (BASE_OPACITY + pulseAmplitude * pulse) * f;
             if (outer) {
                 outer.material.opacity =
-                    (BASE_OPACITY * BOSS_OUTER_OPACITY) * (0.8 + 0.4 * pulse);
+                    (BASE_OPACITY * BOSS_OUTER_OPACITY) * (0.8 + 0.4 * pulse) * f;
+                if (spinRate) { outer.rotation.z = t * spinRate; }
             }
         },
         dispose: function () {

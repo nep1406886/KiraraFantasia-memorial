@@ -507,6 +507,23 @@
     transition: opacity 0.15s ease-in;
 }
 #room-fade.instant { transition:none; }
+/* B.3 首领换阶段白闪: a paper-white wash over the canvas for ~260ms. Same
+   layer grammar as #room-fade (an overlay chip that owes the scene nothing);
+   driven by the stage class so the JS side is one classList toggle. */
+#stage.phase-flash::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    z-index: 6;
+    background: #fff;
+    opacity: 0.55;
+    pointer-events: none;
+    animation: kf-phase-flash 260ms ease-out both;
+}
+@keyframes kf-phase-flash { from { opacity: 0.55; } to { opacity: 0; } }
+@media (prefers-reduced-motion: reduce) {
+    #stage.phase-flash::after { animation: none; opacity: 0; }
+}
 .room-loading :is(.hud-skillbar,.hud-gauge,.touch-zone,.touch-stick,.touch-knob,
     .touch-btn:not(.hud-pause),.battle-indicators,.damage-text-layer,.floor-shrine-marker) { visibility:hidden; pointer-events:none; }
 .room-loading #hud { z-index:30; }

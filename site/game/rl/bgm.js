@@ -34,11 +34,11 @@ const BGM_TRACKS = {
 // the class-5 set stay reserved for event/class hooks, not run-of-the-mill
 // rooms, so they are deliberately absent here.
 const VOLUME_TRACKS = {
-    1: { explore: "bgm_questselect",   battle: "bgm_battle_1",  boss: "bgm_battle_3",  rest: "bgm_town_2" },
-    2: { explore: "bgm_questselect_2", battle: "bgm_battle_2",  boss: "bgm_battle_6",  rest: "bgm_town_3" },
-    3: { explore: "bgm_questselect_3", battle: "bgm_battle_5",  boss: "bgm_battle_10", rest: "bgm_town_4" },
-    4: { explore: "bgm_adv_7",         battle: "bgm_battle_9",  boss: "bgm_battle_11", rest: "bgm_town_5" },
-    5: { explore: "bgm_adv_13",        battle: "bgm_battle_12", boss: "bgm_battle_13", rest: "bgm_town_2" }
+    1: { explore: "bgm_questselect",   battle: "bgm_battle_1",  boss: "bgm_battle_3",  bossLate: "bgm_battle_1",  rest: "bgm_town_2" },
+    2: { explore: "bgm_questselect_2", battle: "bgm_battle_2",  boss: "bgm_battle_6",  bossLate: "bgm_battle_12", rest: "bgm_town_3" },
+    3: { explore: "bgm_questselect_3", battle: "bgm_battle_5",  boss: "bgm_battle_10", bossLate: "bgm_battle_11", rest: "bgm_town_4" },
+    4: { explore: "bgm_adv_7",         battle: "bgm_battle_9",  boss: "bgm_battle_11", bossLate: "bgm_battle_13", rest: "bgm_town_5" },
+    5: { explore: "bgm_adv_13",        battle: "bgm_battle_12", boss: "bgm_battle_13", bossLate: "bgm_battle_9",  rest: "bgm_town_2" }
 };
 
 // The 卷 the run is in (main.js calls this once the ?volume= param is read).

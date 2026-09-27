@@ -144,6 +144,16 @@ export function updateEnemyAction(unit, world, dt, thresholds) {
             unit.phase = phase;
             unit.choreographyCursor = 0;
             cancelEnemyAction(unit, PHASE_RECOVERY);
+            // B.3: the choreography path had no summons — the plain-AI path
+            // (enemyai.updatePhase) asks the world for reinforcements on its
+            // flip. Presentation (flash/voice/aura/BGM) hangs off the
+            // bossPhase event in main.js; the bullet ring stays OFF this path
+            // by design — the authored choreography IS the phase's danmaku
+            // (the harness pins 0 active bullets on the flip frame), while a
+            // plain-AI boss has no authored patterns to carry the beat.
+            if (typeof world.requestSummon === "function") {
+                world.requestSummon(unit, phase);
+            }
             world.events.push({ type: "bossPhase", unit, phase });
             return;
         }
