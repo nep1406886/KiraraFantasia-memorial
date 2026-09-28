@@ -2897,6 +2897,569 @@
      "adaptationKey": "set"
     }
    ]
+  },
+  {
+   "enemyId": 90013000,
+   "originalName": "カルダモン",
+   "ownerSkillIds": [
+    12010,
+    12011,
+    12012,
+    12013,
+    12014,
+    12015,
+    12016,
+    12017,
+    12018,
+    12022,
+    12023,
+    12021,
+    12024,
+    12025,
+    -1,
+    -1,
+    -1,
+    -1,
+    -1,
+    -1,
+    -1,
+    -1,
+    -1,
+    -1,
+    -1,
+    -1,
+    -1,
+    -1,
+    -1,
+    -1,
+    -1,
+    -1
+   ],
+   "skills": [
+    {
+     "skillId": 12011,
+     "originalName": "切り崩す",
+     "sap": "EN_912_ATK_03",
+     "content": [
+      {
+       "m_SkillLvCoef": 0,
+       "m_Target": 1,
+       "m_Type": 0,
+       "m_Args": [
+        300,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+       ]
+      }
+     ],
+     "runtime": {
+      "coef": 0.3,
+      "magic": false,
+      "healingLockChance": 0,
+      "healingLockSeconds": 0
+     },
+     "adaptationKey": "cut"
+    },
+    {
+     "skillId": 12012,
+     "originalName": "引っかき回す",
+     "sap": "EN_912_ATK_01",
+     "content": [
+      {
+       "m_SkillLvCoef": 0,
+       "m_Target": 2,
+       "m_Type": 0,
+       "m_Args": [
+        100,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+       ]
+      }
+     ],
+     "runtime": {
+      "coef": 0.1,
+      "magic": false,
+      "healingLockChance": 0,
+      "healingLockSeconds": 0
+     },
+     "adaptationKey": "circle"
+    }
+   ]
+  },
+  {
+   "enemyId": 99610002,
+   "originalName": "好戦的なシュガーさん",
+   "ownerSkillIds": [
+    10019,
+    10020,
+    10021,
+    10022,
+    -1,
+    -1,
+    -1,
+    -1,
+    -1,
+    -1,
+    -1,
+    -1,
+    -1,
+    -1,
+    -1,
+    -1,
+    -1,
+    -1,
+    -1,
+    -1,
+    -1,
+    -1,
+    -1,
+    -1,
+    -1,
+    -1,
+    -1,
+    -1,
+    -1,
+    -1,
+    -1,
+    -1
+   ],
+   "skills": [
+    {
+     "skillId": 10020,
+     "originalName": "カスタードスマッシュ",
+     "sap": "EN_910_ATK_03",
+     "content": [
+      {
+       "m_SkillLvCoef": 0,
+       "m_Target": 1,
+       "m_Type": 0,
+       "m_Args": [
+        350,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+       ]
+      }
+     ],
+     "runtime": {
+      "coef": 0.35,
+      "magic": false,
+      "healingLockChance": 0,
+      "healingLockSeconds": 0
+     },
+     "adaptationKey": "custard"
+    },
+    {
+     "skillId": 10021,
+     "originalName": "通常攻撃",
+     "sap": "EN_910_ATK_02",
+     "content": [
+      {
+       "m_SkillLvCoef": 0,
+       "m_Target": 1,
+       "m_Type": 0,
+       "m_Args": [
+        200,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+       ]
+      }
+     ],
+     "runtime": {
+      "coef": 0.2,
+      "magic": false,
+      "healingLockChance": 0,
+      "healingLockSeconds": 0
+     },
+     "adaptationKey": "rush"
+    }
+   ]
+  },
+  {
+   "enemyId": 99513003,
+   "originalName": "ソルト",
+   "ownerSkillIds": [
+    13011,
+    13012,
+    13037,
+    13040,
+    13041,
+    13038,
+    13039,
+    13018,
+    999999,
+    -1,
+    -1,
+    -1,
+    -1,
+    -1,
+    -1,
+    -1,
+    -1,
+    -1,
+    -1,
+    -1,
+    -1,
+    -1,
+    -1,
+    -1,
+    -1,
+    -1,
+    -1,
+    -1,
+    -1,
+    -1,
+    -1,
+    -1
+   ],
+   "skills": [
+    {
+     "skillId": 13011,
+     "originalName": "シュリンプペースト",
+     "sap": "EN_913_ATK_02",
+     "content": [
+      {
+       "m_SkillLvCoef": 0,
+       "m_Target": 1,
+       "m_Type": 0,
+       "m_Args": [
+        200,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+       ]
+      }
+     ],
+     "runtime": {
+      "coef": 0.2,
+      "magic": false,
+      "healingLockChance": 0,
+      "healingLockSeconds": 0
+     },
+     "adaptationKey": "shrimp"
+    },
+    {
+     "skillId": 13012,
+     "originalName": "アンチョビソース",
+     "sap": "EN_913_ATK_03",
+     "content": [
+      {
+       "m_SkillLvCoef": 0,
+       "m_Target": 1,
+       "m_Type": 0,
+       "m_Args": [
+        400,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+       ]
+      }
+     ],
+     "runtime": {
+      "coef": 0.4,
+      "magic": false,
+      "healingLockChance": 0,
+      "healingLockSeconds": 0
+     },
+     "adaptationKey": "anchovy"
+    }
+   ]
+  },
+  {
+   "enemyId": 99138006,
+   "originalName": "テンペスト",
+   "ownerSkillIds": [
+    38003,
+    38004,
+    38006,
+    38007,
+    38008,
+    38009,
+    38010,
+    38011,
+    38012,
+    999999,
+    -1,
+    -1,
+    -1,
+    -1,
+    -1,
+    -1,
+    -1,
+    -1,
+    -1,
+    -1,
+    -1,
+    -1,
+    -1,
+    -1,
+    -1,
+    -1,
+    -1,
+    -1,
+    -1,
+    -1,
+    -1,
+    -1
+   ],
+   "skills": [
+    {
+     "skillId": 38004,
+     "originalName": "スラッシュ・クロウ",
+     "sap": "EN_940_ATK_02",
+     "content": [
+      {
+       "m_SkillLvCoef": 0,
+       "m_Target": 1,
+       "m_Type": 0,
+       "m_Args": [
+        200,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+       ]
+      }
+     ],
+     "runtime": {
+      "coef": 0.2,
+      "magic": false,
+      "healingLockChance": 0,
+      "healingLockSeconds": 0
+     },
+     "adaptationKey": "claw"
+    },
+    {
+     "skillId": 38006,
+     "originalName": "ダイビング・クロウ",
+     "sap": "EN_940_ATK_02",
+     "content": [
+      {
+       "m_SkillLvCoef": 0,
+       "m_Target": 1,
+       "m_Type": 0,
+       "m_Args": [
+        300,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+       ]
+      }
+     ],
+     "runtime": {
+      "coef": 0.3,
+      "magic": false,
+      "healingLockChance": 0,
+      "healingLockSeconds": 0
+     },
+     "adaptationKey": "dive"
+    },
+    {
+     "skillId": 38003,
+     "originalName": "疾風のはばたき",
+     "sap": "EN_940_ATK_02",
+     "content": [
+      {
+       "m_SkillLvCoef": 0,
+       "m_Target": 2,
+       "m_Type": 0,
+       "m_Args": [
+        150,
+        1,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+       ]
+      }
+     ],
+     "runtime": {
+      "coef": 0.15,
+      "magic": true,
+      "healingLockChance": 0,
+      "healingLockSeconds": 0
+     },
+     "adaptationKey": "eye"
+    }
+   ]
+  },
+  {
+   "enemyId": 90226005,
+   "originalName": "サンストーン",
+   "ownerSkillIds": [
+    74003,
+    74004,
+    74005,
+    74006,
+    74007,
+    74018,
+    -1,
+    -1,
+    -1,
+    -1,
+    -1,
+    -1,
+    -1,
+    -1,
+    -1,
+    -1,
+    -1,
+    -1,
+    -1,
+    -1,
+    -1,
+    -1,
+    -1,
+    -1,
+    -1,
+    -1,
+    -1,
+    -1,
+    -1,
+    -1,
+    -1,
+    -1
+   ],
+   "skills": [
+    {
+     "skillId": 74004,
+     "originalName": "暁光【一刃】",
+     "sap": "EN_740_ATK_04",
+     "content": [
+      {
+       "m_SkillLvCoef": 0,
+       "m_Target": 1,
+       "m_Type": 0,
+       "m_Args": [
+        150,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+       ]
+      }
+     ],
+     "runtime": {
+      "coef": 0.15,
+      "magic": false,
+      "healingLockChance": 0,
+      "healingLockSeconds": 0
+     },
+     "adaptationKey": "dawn"
+    },
+    {
+     "skillId": 74018,
+     "originalName": "振り抜き",
+     "sap": "EN_740_ATK_03",
+     "content": [
+      {
+       "m_SkillLvCoef": 0,
+       "m_Target": 1,
+       "m_Type": 0,
+       "m_Args": [
+        150,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+       ]
+      }
+     ],
+     "runtime": {
+      "coef": 0.15,
+      "magic": false,
+      "healingLockChance": 0,
+      "healingLockSeconds": 0
+     },
+     "adaptationKey": "sunset"
+    }
+   ]
   }
  ]
 }

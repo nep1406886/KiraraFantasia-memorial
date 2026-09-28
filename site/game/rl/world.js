@@ -834,13 +834,23 @@ export function createWorld(options) {
                 if (!finalFloor && elites.length) {
                     return elites[(rng() * elites.length) | 0];
                 }
-                return enc.boss;
+                // 2026-09-28 首领种类扩充: the final floor rolls ONE of the
+                // volume's bosses[] (seeded — the same run always fields the
+                // same boss, run to run it varies). A volume without bosses[]
+                // keeps its single enc.boss exactly as before.
+                const pool = enc.bosses && enc.bosses.length ? enc.bosses : [enc.boss];
+                return pool[(rng() * pool.length) | 0];
             }
             return mobs.length ? mobs[(rng() * mobs.length) | 0] : null;
         });
         // One placement in a battle room may come up an elite instead: the same
         // roll, on the same slot, that rl_balance_harness.mjs's mobGroup makes.
-        if (specs.length && elites.length && specs[0] && specs[0] !== enc.boss
+        // The boss slot is exempt — it is either the volume boss or one of its
+        // authored alternates (bosses[]), never a random elite (2026-09-28:
+        // the swap used to fire whenever the alternate rolled, replacing the
+        // boss room's boss with an elite one run in four).
+        if (specs.length && elites.length && specs[0]
+            && specs[0].aiType !== "boss"
             && rng() < ELITE_CHANCE) {
             specs[0] = elites[(rng() * elites.length) | 0];
         }
@@ -860,7 +870,7 @@ export function createWorld(options) {
         if (!enc) { return []; }
         const seen = new Set();
         const out = [];
-        segmentMobs().concat(enc.elites || [], [enc.boss]).forEach(function (spec) {
+        segmentMobs().concat(enc.elites || [], enc.bosses || [], [enc.boss]).forEach(function (spec) {
             const key = spec && spec.model;
             if (typeof key === "string" && key && !seen.has(key)) {
                 seen.add(key);

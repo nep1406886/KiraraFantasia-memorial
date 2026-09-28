@@ -64,7 +64,20 @@ export const ENEMY_ROLES = Object.freeze({
     99215004: profile("lunar", [charge("sting", 15001, "月刺突进"),
         ring("flare", 15002, "弦月环斩", 2.2, 5.8), line("cancel", 15017, "月相取消")]),
     90226005: profile("zenith", [charge("dawn", 74004, "晓光突进"),
-        sweep("noon", 74009, "正午挥斩", 4, PI), sweep("set", 74018, "落日挥斩", 4, PI)])
+        sweep("noon", 74009, "正午挥斩", 4, PI), sweep("set", 74018, "落日挥斩", 4, PI)],
+        [["dawn", "set"], ["noon", "dawn", "set"], ["set", "noon", "dawn", "set"]]),
+    // 2026-09-28 首领扩种·真首领轮换: each volume's final floor now rolls one
+    // of its bosses[] — these are the five alternates, re-using moves already
+    // authored for the same model family elsewhere in the roster.
+    90013000: profile("duelist", [charge("cut", 12011, "切入突袭"), ring("circle", 12012, "回旋切割")],
+        [["cut", "circle"], ["circle", "cut", "circle"], ["cut", "circle", "cut", "circle"]]),
+    99610002: profile("sugar", [disc("custard", 10020, "奶油重击"), charge("rush", 10021, "甜点冲撞")],
+        [["custard", "rush"], ["rush", "custard", "rush"], ["custard", "rush", "custard", "rush"]]),
+    99513003: profile("brine", [line("shrimp", 13011, "虾酱弹"), sweep("anchovy", 13012, "鳀鱼斩", 3.5, PI * .7)],
+        [["shrimp", "anchovy"], ["anchovy", "shrimp", "anchovy"], ["shrimp", "anchovy", "shrimp", "anchovy"]]),
+    99138006: profile("storm", [sweep("claw", 38004, "爪翼横扫"),
+        charge("dive", 38006, "俯冲利爪", 8), ring("eye", 38003, "疾风之眼", 2.3, 6.5)],
+        [["claw", "dive"], ["dive", "eye", "claw"], ["eye", "dive", "claw", "eye"]])
 });
 
 export function enemyRole(enemyId, moveset) {

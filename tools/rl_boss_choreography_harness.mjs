@@ -13,7 +13,7 @@ import { loadMeasurementData, createMeasurementWorld } from "./rl_world_balance.
 
 const DT = 1 / 60, data = loadMeasurementData();
 const facts = JSON.parse(readFileSync(new URL("../docs/data/enemy-choreography-source.json", import.meta.url), "utf8"));
-const specs = new Map(data.encounters.flatMap(v => [v.boss, ...v.elites, ...v.mobs]).map(s => [s.id, s]));
+const specs = new Map(data.encounters.flatMap(v => [v.boss, ...(v.bosses || []), ...v.elites, ...v.mobs]).map(s => [s.id, s]));
 let passed = 0, failed = 0;
 function test(name, fn) {
     try { fn(); passed++; console.log("PASS " + name); }
@@ -52,9 +52,9 @@ function playerBullet(f, power) {
 }
 const playerHits = events => events.filter(e => e.type === "hit" && e.target.kind === "player");
 
-test("22份编排只绑定自身真实技能，原系数、物魔位与SAP不被改写", () => {
-    // 2026-09-28 首领种类扩充: 16 -> 22 (6 voice elites joined the 层守卫 pools).
-    assert.equal(Object.keys(ENEMY_ROLES).length, 22);
+test("26份编排只绑定自身真实技能，原系数、物魔位与SAP不被改写", () => {
+    // 2026-09-28 首领种类扩充: 16 -> 26 (6 elites + 4 alternate final bosses).
+    assert.equal(Object.keys(ENEMY_ROLES).length, 26);
     for (const [id, authored] of Object.entries(ENEMY_ROLES)) {
         const spec = specs.get(Number(id)); assert.ok(spec, id);
         const moveset = enemyMoveset(data.skills, spec.skills), role = enemyRole(id, moveset);
@@ -135,7 +135,7 @@ test("真实五卷第20层入口接入主首领，层守卫不是三阶段复制
         assert.ok(w.enemies[0].choreography, "volume " + volume);
         assert.equal(w.enemies[0].kind, "boss");
     }
-    for (const id of Object.keys(ENEMY_ROLES).map(Number).filter(id => !data.encounters.some(v => v.boss.id === id))) {
+    for (const id of Object.keys(ENEMY_ROLES).map(Number).filter(id => !data.encounters.some(v => v.boss.id === id || (v.bosses || []).some(b => b.id === id)))) {
         const f = fixture(id, null, { elite: true }); f.e.hp = f.e.maxHp * .2;
         const events = tick(f.w);
         assert.equal(f.e.phase, 1); assert.ok(!events.some(e => e.type === "bossPhase"));
@@ -144,7 +144,7 @@ test("真实五卷第20层入口接入主首领，层守卫不是三阶段复制
 });
 test("全部编排按自身阶段序列执行，不只核对目录存在", () => {
     for (const id of Object.keys(ENEMY_ROLES).map(Number)) {
-        const boss = data.encounters.some(v => v.boss.id === id);
+        const boss = data.encounters.some(v => v.boss.id === id || (v.bosses || []).some(b => b.id === id));
         for (let phase = 1; phase <= (boss ? 3 : 1); phase++) {
             const f = fixture(id, null, { elite: !boss });
             f.e.phase = phase; f.e.hp = f.e.maxHp * [1, .65, .35][phase - 1];
