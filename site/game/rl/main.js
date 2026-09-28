@@ -925,6 +925,23 @@ function consumeEvents() {
             // before the new room first renders.
             coverRoom(false);
             audio.se("page_fade", { volume: 0.5 });
+            // D.1 过门涟漪: a soft ring expanding from the crossed door's
+            // edge, on top of the opaque cover. It is removed by its own
+            // animationend (and by any later coverRoom), so nothing leaks
+            // across rooms.
+            if (event.side && !accessibility.reducedFlash) {
+                const ripple = document.createElement("span");
+                ripple.className = "door-ripple";
+                const rect = stage.getBoundingClientRect();
+                const size = Math.max(rect.width, rect.height) * 0.5;
+                ripple.style.width = ripple.style.height = size + "px";
+                const mid = { N: [rect.width / 2, 0], S: [rect.width / 2, rect.height],
+                    W: [0, rect.height / 2], E: [rect.width, rect.height / 2] }[event.side];
+                ripple.style.left = (mid[0] - size / 2) + "px";
+                ripple.style.top = (mid[1] - size / 2) + "px";
+                ripple.addEventListener("animationend", function () { ripple.remove(); });
+                roomFade.appendChild(ripple);
+            }
             break;
         case "room":
             cancelRoomLoad();
