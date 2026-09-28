@@ -3460,6 +3460,2248 @@
         "cardsWithheld": 44,
         "layeredMaterials": 0
       }
+    },
+    {
+      "id": "U25",
+      "cardId": 40002001,
+      "resourceId": 400002,
+      "name": "樱衣乃",
+      "shortName": "衣乃",
+      "originalName": "樱 衣乃",
+      "work": "Kirara Fantasia",
+      "classId": 3,
+      "className": "骑士",
+      "elementId": 4,
+      "elementName": "月",
+      "headId": 0,
+      "displayScale": 0.95,
+      "role": "二路散射",
+      "plannedCost": 235,
+      "icon": "asset/img/rl/icon/40002001.webp",
+      "card": "asset/img/rl/card/40002001.webp",
+      "skills": [
+        {
+          "id": 400020010,
+          "sceneId": "400002",
+          "action": "skill"
+        },
+        {
+          "id": 400020001,
+          "sceneId": null,
+          "action": "class_skill_3"
+        },
+        {
+          "id": 400020002,
+          "sceneId": null,
+          "action": "class_skill_3"
+        }
+      ],
+      "voice": null,
+      "ultimateScene": null
+    },
+    {
+      "id": "U26",
+      "cardId": 46002001,
+      "resourceId": 460002,
+      "name": "後藤一里",
+      "shortName": "一里",
+      "originalName": "後藤 ひとり",
+      "work": "Kirara Fantasia",
+      "classId": 3,
+      "className": "骑士",
+      "elementId": 4,
+      "elementName": "月",
+      "headId": 0,
+      "displayScale": 0.95,
+      "role": "蓄力贯甲",
+      "plannedCost": 225,
+      "icon": "asset/img/rl/icon/46002001.webp",
+      "card": "asset/img/rl/card/46002001.webp",
+      "skills": [
+        {
+          "id": 460020010,
+          "sceneId": "460002",
+          "action": "skill"
+        },
+        {
+          "id": 460020001,
+          "sceneId": null,
+          "action": "class_skill_3"
+        },
+        {
+          "id": 460020002,
+          "sceneId": null,
+          "action": "class_skill_3"
+        }
+      ],
+      "voice": null,
+      "ultimateScene": null
+    },
+    {
+      "id": "U27",
+      "cardId": 35002001,
+      "resourceId": 350004,
+      "name": "吉田优子",
+      "shortName": "优子",
+      "originalName": "吉田 优子",
+      "work": "Kirara Fantasia",
+      "classId": 2,
+      "className": "僧侣",
+      "elementId": 4,
+      "elementName": "月",
+      "headId": 0,
+      "displayScale": 0.95,
+      "role": "守夜重骑",
+      "plannedCost": 175,
+      "icon": "asset/img/rl/icon/35002001.webp",
+      "card": "asset/img/rl/card/35002001.webp",
+      "skills": [
+        {
+          "id": 350020010,
+          "sceneId": "350004",
+          "action": "skill"
+        },
+        {
+          "id": 350020001,
+          "sceneId": null,
+          "action": "class_skill_3"
+        },
+        {
+          "id": 350020002,
+          "sceneId": null,
+          "action": "class_skill_3"
+        }
+      ],
+      "voice": null,
+      "ultimateScene": null
+    },
+    {
+      "id": "U28",
+      "cardId": 15002001,
+      "resourceId": 150004,
+      "name": "凉风青叶",
+      "shortName": "青叶",
+      "originalName": "凉风 青叶",
+      "work": "Kirara Fantasia",
+      "classId": 1,
+      "className": "魔法使",
+      "elementId": 3,
+      "elementName": "风",
+      "headId": 0,
+      "displayScale": 0.95,
+      "role": "白拳射手",
+      "plannedCost": 150,
+      "icon": "asset/img/rl/icon/15002001.webp",
+      "card": "asset/img/rl/card/15002001.webp",
+      "skills": [
+        {
+          "id": 150020010,
+          "sceneId": "150004",
+          "action": "skill"
+        },
+        {
+          "id": 150020001,
+          "sceneId": null,
+          "action": "class_skill_2"
+        },
+        {
+          "id": 150020002,
+          "sceneId": null,
+          "action": "class_skill_3"
+        }
+      ],
+      "voice": null,
+      "ultimateScene": null
+    },
+    {
+      "id": "U29",
+      "cardId": 22002001,
+      "resourceId": 220004,
+      "name": "平泽唯",
+      "shortName": "唯",
+      "originalName": "平泽 唯",
+      "work": "轻音少女",
+      "classId": 0,
+      "className": "斗士",
+      "elementId": 0,
+      "elementName": "炎",
+      "headId": 0,
+      "displayScale": 0.95,
+      "role": "蓄力猛击",
+      "plannedCost": 125,
+      "icon": "asset/img/rl/icon/22002001.webp",
+      "card": "asset/img/rl/card/22002001.webp",
+      "skills": [
+        {
+          "id": 220020010,
+          "sceneId": "220004",
+          "action": "skill"
+        },
+        {
+          "id": 220020001,
+          "sceneId": null,
+          "action": "class_skill_2"
+        },
+        {
+          "id": 220020002,
+          "sceneId": null,
+          "action": "class_skill_3"
+        }
+      ],
+      "voice": null,
+      "ultimateScene": null
+    },
+    {
+      "id": "U30",
+      "cardId": 31002001,
+      "resourceId": 310004,
+      "name": "鸠谷小羽",
+      "shortName": "小羽",
+      "originalName": "鸠谷 小羽",
+      "work": "Anima Yell!",
+      "classId": 1,
+      "className": "魔法使",
+      "elementId": 0,
+      "elementName": "炎",
+      "headId": 0,
+      "displayScale": 0.95,
+      "role": "全体烈焰",
+      "plannedCost": 125,
+      "icon": "asset/img/rl/icon/31002001.webp",
+      "card": "asset/img/rl/card/31002001.webp",
+      "skills": [
+        {
+          "id": 310020010,
+          "sceneId": "310004",
+          "action": "skill"
+        },
+        {
+          "id": 310020001,
+          "sceneId": null,
+          "action": "class_skill_2"
+        },
+        {
+          "id": 310020002,
+          "sceneId": null,
+          "action": "class_skill_3"
+        }
+      ],
+      "voice": null,
+      "ultimateScene": null
+    },
+    {
+      "id": "U31",
+      "cardId": 11012001,
+      "resourceId": 110104,
+      "name": "栎井唯",
+      "shortName": "唯(栎井)",
+      "originalName": "栎井 唯",
+      "work": "悠悠式",
+      "classId": 3,
+      "className": "骑士",
+      "elementId": 3,
+      "elementName": "风",
+      "headId": 0,
+      "displayScale": 0.95,
+      "role": "风压骑士",
+      "plannedCost": 125,
+      "icon": "asset/img/rl/icon/11012001.webp",
+      "card": "asset/img/rl/card/11012001.webp",
+      "skills": [
+        {
+          "id": 110120010,
+          "sceneId": "110104",
+          "action": "skill"
+        },
+        {
+          "id": 110120001,
+          "sceneId": null,
+          "action": "class_skill_2"
+        },
+        {
+          "id": 110120002,
+          "sceneId": null,
+          "action": "class_skill_3"
+        }
+      ],
+      "voice": null,
+      "ultimateScene": null
+    },
+    {
+      "id": "U32",
+      "cardId": 21002001,
+      "resourceId": 210004,
+      "name": "一之濑花名",
+      "shortName": "花名",
+      "originalName": "一之濑 花名",
+      "work": "Slow Start",
+      "classId": 2,
+      "className": "僧侣",
+      "elementId": 1,
+      "elementName": "水",
+      "headId": 0,
+      "displayScale": 0.95,
+      "role": "大量回复",
+      "plannedCost": 125,
+      "icon": "asset/img/rl/icon/21002001.webp",
+      "card": "asset/img/rl/card/21002001.webp",
+      "skills": [
+        {
+          "id": 210020010,
+          "sceneId": "210004",
+          "action": "skill"
+        },
+        {
+          "id": 210020001,
+          "sceneId": null,
+          "action": "class_skill_3"
+        },
+        {
+          "id": 210020002,
+          "sceneId": null,
+          "action": "class_skill_3"
+        }
+      ],
+      "voice": null,
+      "ultimateScene": null
+    },
+    {
+      "id": "U33",
+      "cardId": 36002001,
+      "resourceId": 360002,
+      "name": "细野晴海",
+      "shortName": "晴海",
+      "originalName": "细野 晴海",
+      "work": "晴海国度",
+      "classId": 0,
+      "className": "斗士",
+      "elementId": 0,
+      "elementName": "炎",
+      "headId": 0,
+      "displayScale": 0.95,
+      "role": "净化前锋",
+      "plannedCost": 125,
+      "icon": "asset/img/rl/icon/36002001.webp",
+      "card": "asset/img/rl/card/36002001.webp",
+      "skills": [
+        {
+          "id": 360020010,
+          "sceneId": "360002",
+          "action": "skill"
+        },
+        {
+          "id": 360020001,
+          "sceneId": null,
+          "action": "class_skill_2"
+        },
+        {
+          "id": 360020002,
+          "sceneId": null,
+          "action": "class_skill_3"
+        }
+      ],
+      "voice": null,
+      "ultimateScene": null
+    },
+    {
+      "id": "U34",
+      "cardId": 41002001,
+      "resourceId": 410002,
+      "name": "御庭摘希",
+      "shortName": "摘希",
+      "originalName": "御庭 摘希",
+      "work": "一起一起这里那里",
+      "classId": 0,
+      "className": "斗士",
+      "elementId": 2,
+      "elementName": "土",
+      "headId": 0,
+      "displayScale": 0.95,
+      "role": "迅捷斗士",
+      "plannedCost": 125,
+      "icon": "asset/img/rl/icon/41002001.webp",
+      "card": "asset/img/rl/card/41002001.webp",
+      "skills": [
+        {
+          "id": 410020010,
+          "sceneId": "410002",
+          "action": "skill"
+        },
+        {
+          "id": 410020001,
+          "sceneId": null,
+          "action": "class_skill_1"
+        },
+        {
+          "id": 410020002,
+          "sceneId": null,
+          "action": "class_skill_3"
+        }
+      ],
+      "voice": null,
+      "ultimateScene": null
+    },
+    {
+      "id": "U35",
+      "cardId": 12012001,
+      "resourceId": 120104,
+      "name": "惠飞须泽胡桃",
+      "shortName": "胡桃",
+      "originalName": "惠飞须泽 胡桃",
+      "work": "学园孤岛",
+      "classId": 0,
+      "className": "战士",
+      "elementId": 2,
+      "elementName": "土",
+      "headId": 0,
+      "displayScale": 0.95,
+      "role": "鏟击破甲",
+      "plannedCost": 150,
+      "icon": "asset/img/rl/icon/12012001.webp",
+      "card": "asset/img/rl/card/12012001.webp",
+      "skills": [
+        {
+          "id": 120120010,
+          "sceneId": "120104",
+          "action": "skill"
+        },
+        {
+          "id": 120120001,
+          "sceneId": null,
+          "action": "class_skill_2"
+        },
+        {
+          "id": 120120002,
+          "sceneId": null,
+          "action": "class_skill_3"
+        }
+      ],
+      "voice": null,
+      "ultimateScene": null
+    },
+    {
+      "id": "U36",
+      "cardId": 14012011,
+      "resourceId": 140108,
+      "name": "爱丽丝",
+      "shortName": "爱丽丝",
+      "originalName": "爱丽丝·卡塔雷特",
+      "work": "黄金拼图",
+      "classId": 4,
+      "className": "炼金术士",
+      "elementId": 0,
+      "elementName": "炎",
+      "headId": 0,
+      "displayScale": 0.95,
+      "role": "炎瓶减速",
+      "plannedCost": 150,
+      "icon": "asset/img/rl/icon/14012011.webp",
+      "card": "asset/img/rl/card/14012011.webp",
+      "skills": [
+        {
+          "id": 140120110,
+          "sceneId": "140108",
+          "action": "skill"
+        },
+        {
+          "id": 140120101,
+          "sceneId": null,
+          "action": "class_skill_1"
+        },
+        {
+          "id": 140120102,
+          "sceneId": null,
+          "action": "class_skill_1"
+        }
+      ],
+      "voice": null,
+      "ultimateScene": null
+    },
+    {
+      "id": "U37",
+      "cardId": 14022001,
+      "resourceId": 140206,
+      "name": "大宫忍",
+      "shortName": "忍",
+      "originalName": "大宫 忍",
+      "work": "黄金拼图",
+      "classId": 2,
+      "className": "僧侣",
+      "elementId": 0,
+      "elementName": "炎",
+      "headId": 0,
+      "displayScale": 0.95,
+      "role": "暖阳治疗",
+      "plannedCost": 150,
+      "icon": "asset/img/rl/icon/14022001.webp",
+      "card": "asset/img/rl/card/14022001.webp",
+      "skills": [
+        {
+          "id": 140220010,
+          "sceneId": "140206",
+          "action": "skill"
+        },
+        {
+          "id": 140220001,
+          "sceneId": null,
+          "action": "class_skill_3"
+        },
+        {
+          "id": 140220002,
+          "sceneId": null,
+          "action": "class_skill_3"
+        }
+      ],
+      "voice": null,
+      "ultimateScene": null
+    },
+    {
+      "id": "U38",
+      "cardId": 14032001,
+      "resourceId": 140304,
+      "name": "小路绫",
+      "shortName": "绫",
+      "originalName": "绫【情人节】",
+      "work": "黄金拼图",
+      "classId": 4,
+      "className": "炼金术士",
+      "elementId": 4,
+      "elementName": "月",
+      "headId": 0,
+      "displayScale": 0.95,
+      "role": "巧克力炸药",
+      "plannedCost": 150,
+      "icon": "asset/img/rl/icon/14032001.webp",
+      "card": "asset/img/rl/card/14032001.webp",
+      "skills": [
+        {
+          "id": 140320010,
+          "sceneId": "140304",
+          "action": "skill"
+        },
+        {
+          "id": 140320001,
+          "sceneId": null,
+          "action": "class_skill_1"
+        },
+        {
+          "id": 140320002,
+          "sceneId": null,
+          "action": "class_skill_1"
+        }
+      ],
+      "voice": null,
+      "ultimateScene": null
+    },
+    {
+      "id": "U39",
+      "cardId": 22042001,
+      "resourceId": 220404,
+      "name": "中野梓",
+      "shortName": "梓",
+      "originalName": "中野 梓",
+      "work": "轻音少女",
+      "classId": 1,
+      "className": "魔法使",
+      "elementId": 3,
+      "elementName": "风",
+      "headId": 0,
+      "displayScale": 0.95,
+      "role": "双马尾连射",
+      "plannedCost": 150,
+      "icon": "asset/img/rl/icon/22042001.webp",
+      "card": "asset/img/rl/card/22042001.webp",
+      "skills": [
+        {
+          "id": 220420010,
+          "sceneId": "220404",
+          "action": "skill"
+        },
+        {
+          "id": 220420001,
+          "sceneId": null,
+          "action": "class_skill_2"
+        },
+        {
+          "id": 220420002,
+          "sceneId": null,
+          "action": "class_skill_3"
+        }
+      ],
+      "voice": null,
+      "ultimateScene": null
+    },
+    {
+      "id": "U40",
+      "cardId": 22031001,
+      "resourceId": 220302,
+      "name": "琴吹紬",
+      "shortName": "紬",
+      "originalName": "琴吹 䌷",
+      "work": "轻音少女",
+      "classId": 4,
+      "className": "炼金术士",
+      "elementId": 3,
+      "elementName": "风",
+      "headId": 0,
+      "displayScale": 0.95,
+      "role": "红茶范围",
+      "plannedCost": 150,
+      "icon": "asset/img/rl/icon/22031001.webp",
+      "card": "asset/img/rl/card/22031001.webp",
+      "skills": [
+        {
+          "id": 220310010,
+          "sceneId": "220302",
+          "action": "skill"
+        },
+        {
+          "id": 220310001,
+          "sceneId": null,
+          "action": "class_skill_1"
+        },
+        {
+          "id": 220310002,
+          "sceneId": null,
+          "action": "class_skill_1"
+        }
+      ],
+      "voice": null,
+      "ultimateScene": null
+    },
+    {
+      "id": "U41",
+      "cardId": 30032001,
+      "resourceId": 300304,
+      "name": "宇佐美千夜",
+      "shortName": "千夜",
+      "originalName": "千夜",
+      "work": "请问您今天要来点兔子吗？",
+      "classId": 2,
+      "className": "僧侣",
+      "elementId": 3,
+      "elementName": "风",
+      "headId": 0,
+      "displayScale": 0.95,
+      "role": "和菓子治疗",
+      "plannedCost": 150,
+      "icon": "asset/img/rl/icon/30032001.webp",
+      "card": "asset/img/rl/card/30032001.webp",
+      "skills": [
+        {
+          "id": 300320010,
+          "sceneId": "300304",
+          "action": "skill"
+        },
+        {
+          "id": 300320001,
+          "sceneId": null,
+          "action": "class_skill_3"
+        },
+        {
+          "id": 300320002,
+          "sceneId": null,
+          "action": "class_skill_3"
+        }
+      ],
+      "voice": null,
+      "ultimateScene": null
+    },
+    {
+      "id": "U42",
+      "cardId": 46011001,
+      "resourceId": 460102,
+      "name": "伊地知虹夏",
+      "shortName": "虹夏",
+      "originalName": "伊地知 虹夏",
+      "work": "孤独摇滚！",
+      "classId": 2,
+      "className": "僧侣",
+      "elementId": 1,
+      "elementName": "水",
+      "headId": 0,
+      "displayScale": 0.95,
+      "role": "鼓点加速",
+      "plannedCost": 150,
+      "icon": "asset/img/rl/icon/46011001.webp",
+      "card": "asset/img/rl/card/46011001.webp",
+      "skills": [
+        {
+          "id": 460110010,
+          "sceneId": "460102",
+          "action": "skill"
+        },
+        {
+          "id": 460110001,
+          "sceneId": null,
+          "action": "class_skill_3"
+        },
+        {
+          "id": 460110002,
+          "sceneId": null,
+          "action": "class_skill_3"
+        }
+      ],
+      "voice": null,
+      "ultimateScene": null
+    },
+    {
+      "id": "U43",
+      "cardId": 35031001,
+      "resourceId": 350302,
+      "name": "阳夏木蜜柑",
+      "shortName": "蜜柑",
+      "originalName": "阳夏木 蜜柑",
+      "work": "街角魔族",
+      "classId": 4,
+      "className": "炼金术士",
+      "elementId": 3,
+      "elementName": "风",
+      "headId": 0,
+      "displayScale": 0.95,
+      "role": "蜜柑投掷",
+      "plannedCost": 150,
+      "icon": "asset/img/rl/icon/35031001.webp",
+      "card": "asset/img/rl/card/35031001.webp",
+      "skills": [
+        {
+          "id": 350310010,
+          "sceneId": "350302",
+          "action": "skill"
+        },
+        {
+          "id": 350310001,
+          "sceneId": null,
+          "action": "class_skill_1"
+        },
+        {
+          "id": 350310002,
+          "sceneId": null,
+          "action": "class_skill_3"
+        }
+      ],
+      "voice": null,
+      "ultimateScene": null
+    },
+    {
+      "id": "U44",
+      "cardId": 35012011,
+      "resourceId": 350106,
+      "name": "千代田桃",
+      "shortName": "桃",
+      "originalName": "千代田 桃",
+      "work": "街角魔族",
+      "classId": 0,
+      "className": "战士",
+      "elementId": 4,
+      "elementName": "月",
+      "headId": 0,
+      "displayScale": 0.95,
+      "role": "炎舞斗士",
+      "plannedCost": 150,
+      "icon": "asset/img/rl/icon/35012011.webp",
+      "card": "asset/img/rl/card/35012011.webp",
+      "skills": [
+        {
+          "id": 350120110,
+          "sceneId": "350106",
+          "action": "skill"
+        },
+        {
+          "id": 350120101,
+          "sceneId": null,
+          "action": "class_skill_2"
+        },
+        {
+          "id": 350120102,
+          "sceneId": null,
+          "action": "class_skill_3"
+        }
+      ],
+      "voice": null,
+      "ultimateScene": null
+    },
+    {
+      "id": "U45",
+      "cardId": 10002021,
+      "resourceId": 100008,
+      "name": "由乃（泳装）",
+      "shortName": "泳装由乃",
+      "originalName": "由乃【泳装】",
+      "work": "向阳素描",
+      "classId": 3,
+      "className": "骑士",
+      "elementId": 5,
+      "elementName": "阳",
+      "headId": 0,
+      "displayScale": 0.95,
+      "role": "夏日屏障",
+      "plannedCost": 150,
+      "icon": "asset/img/rl/icon/10002021.webp",
+      "card": "asset/img/rl/card/10002021.webp",
+      "skills": [
+        {
+          "id": 100020210,
+          "sceneId": "100008",
+          "action": "skill"
+        },
+        {
+          "id": 100020201,
+          "sceneId": null,
+          "action": "class_skill_3"
+        },
+        {
+          "id": 100020202,
+          "sceneId": null,
+          "action": "class_skill_3"
+        }
+      ],
+      "voice": null,
+      "ultimateScene": null
+    },
+    {
+      "id": "U46",
+      "cardId": 12012011,
+      "resourceId": 120106,
+      "name": "胡桃（泳装）",
+      "shortName": "泳装胡桃",
+      "originalName": "胡桃【泳装】",
+      "work": "学园孤岛",
+      "classId": 3,
+      "className": "骑士",
+      "elementId": 4,
+      "elementName": "月",
+      "headId": 0,
+      "displayScale": 0.95,
+      "role": "海滩鏟卫",
+      "plannedCost": 150,
+      "icon": "asset/img/rl/icon/12012011.webp",
+      "card": "asset/img/rl/card/12012011.webp",
+      "skills": [
+        {
+          "id": 120120110,
+          "sceneId": "120106",
+          "action": "skill"
+        },
+        {
+          "id": 120120101,
+          "sceneId": null,
+          "action": "class_skill_2"
+        },
+        {
+          "id": 120120102,
+          "sceneId": null,
+          "action": "class_skill_3"
+        }
+      ],
+      "voice": null,
+      "ultimateScene": null
+    },
+    {
+      "id": "U47",
+      "cardId": 22002011,
+      "resourceId": 220006,
+      "name": "平泽唯（泳装）",
+      "shortName": "泳装唯",
+      "originalName": "唯【泳装】",
+      "work": "轻音少女",
+      "classId": 2,
+      "className": "僧侣",
+      "elementId": 1,
+      "elementName": "水",
+      "headId": 0,
+      "displayScale": 0.95,
+      "role": "浪花连射",
+      "plannedCost": 150,
+      "icon": "asset/img/rl/icon/22002011.webp",
+      "card": "asset/img/rl/card/22002011.webp",
+      "skills": [
+        {
+          "id": 220020110,
+          "sceneId": "220006",
+          "action": "skill"
+        },
+        {
+          "id": 220020101,
+          "sceneId": null,
+          "action": "class_skill_3"
+        },
+        {
+          "id": 220020102,
+          "sceneId": null,
+          "action": "class_skill_3"
+        }
+      ],
+      "voice": null,
+      "ultimateScene": null
+    },
+    {
+      "id": "U48",
+      "cardId": 30002021,
+      "resourceId": 300008,
+      "name": "保登心爱（泳装）",
+      "shortName": "泳装心爱",
+      "originalName": "心爱【泳装】",
+      "work": "请问您今天要来点兔子吗？",
+      "classId": 4,
+      "className": "炼金术士",
+      "elementId": 2,
+      "elementName": "土",
+      "headId": 0,
+      "displayScale": 0.95,
+      "role": "向日葵支援",
+      "plannedCost": 150,
+      "icon": "asset/img/rl/icon/30002021.webp",
+      "card": "asset/img/rl/card/30002021.webp",
+      "skills": [
+        {
+          "id": 300020210,
+          "sceneId": "300008",
+          "action": "skill"
+        },
+        {
+          "id": 300020201,
+          "sceneId": null,
+          "action": "class_skill_1"
+        },
+        {
+          "id": 300020202,
+          "sceneId": null,
+          "action": "class_skill_1"
+        }
+      ],
+      "voice": null,
+      "ultimateScene": null
+    },
+    {
+      "id": "U49",
+      "cardId": 30012011,
+      "resourceId": 300106,
+      "name": "香风智乃（泳装）",
+      "shortName": "泳装智乃",
+      "originalName": "智乃【泳装】",
+      "work": "请问您今天要来点兔子吗？",
+      "classId": 3,
+      "className": "骑士",
+      "elementId": 2,
+      "elementName": "土",
+      "headId": 0,
+      "displayScale": 0.95,
+      "role": "冰饮速射",
+      "plannedCost": 150,
+      "icon": "asset/img/rl/icon/30012011.webp",
+      "card": "asset/img/rl/card/30012011.webp",
+      "skills": [
+        {
+          "id": 300120110,
+          "sceneId": "300106",
+          "action": "skill"
+        },
+        {
+          "id": 300120101,
+          "sceneId": null,
+          "action": "class_skill_3"
+        },
+        {
+          "id": 300120102,
+          "sceneId": null,
+          "action": "class_skill_3"
+        }
+      ],
+      "voice": null,
+      "ultimateScene": null
+    },
+    {
+      "id": "U50",
+      "cardId": 14032011,
+      "resourceId": 140306,
+      "name": "小路绫（泳装）",
+      "shortName": "泳装绫",
+      "originalName": "绫【泳装】",
+      "work": "黄金拼图",
+      "classId": 3,
+      "className": "骑士",
+      "elementId": 5,
+      "elementName": "阳",
+      "headId": 0,
+      "displayScale": 0.95,
+      "role": "海风扫射",
+      "plannedCost": 150,
+      "icon": "asset/img/rl/icon/14032011.webp",
+      "card": "asset/img/rl/card/14032011.webp",
+      "skills": [
+        {
+          "id": 140320110,
+          "sceneId": "140306",
+          "action": "skill"
+        },
+        {
+          "id": 140320101,
+          "sceneId": null,
+          "action": "class_skill_2"
+        },
+        {
+          "id": 140320102,
+          "sceneId": null,
+          "action": "class_skill_3"
+        }
+      ],
+      "voice": null,
+      "ultimateScene": null
+    },
+    {
+      "id": "U51",
+      "cardId": 23012001,
+      "resourceId": 230104,
+      "name": "抚子（泳装）",
+      "shortName": "泳装抚子",
+      "originalName": "抚子【泳装】",
+      "work": "摇曳露营△",
+      "classId": 3,
+      "className": "骑士",
+      "elementId": 3,
+      "elementName": "风",
+      "headId": 0,
+      "displayScale": 0.95,
+      "role": "浅滩斩",
+      "plannedCost": 150,
+      "icon": "asset/img/rl/icon/23012001.webp",
+      "card": "asset/img/rl/card/23012001.webp",
+      "skills": [
+        {
+          "id": 230120010,
+          "sceneId": "230104",
+          "action": "skill"
+        },
+        {
+          "id": 230120001,
+          "sceneId": null,
+          "action": "class_skill_2"
+        },
+        {
+          "id": 230120002,
+          "sceneId": null,
+          "action": "class_skill_3"
+        }
+      ],
+      "voice": null,
+      "ultimateScene": null
+    },
+    {
+      "id": "U52",
+      "cardId": 32012011,
+      "resourceId": 320106,
+      "name": "兰普（泳装）",
+      "shortName": "泳装兰普",
+      "originalName": "兰普【泳装】",
+      "work": "Kirara Fantasia",
+      "classId": 1,
+      "className": "魔法使",
+      "elementId": 5,
+      "elementName": "阳",
+      "headId": 0,
+      "displayScale": 0.95,
+      "role": "灯火漂瓶",
+      "plannedCost": 150,
+      "icon": "asset/img/rl/icon/32012011.webp",
+      "card": "asset/img/rl/card/32012011.webp",
+      "skills": [
+        {
+          "id": 320120110,
+          "sceneId": "320106",
+          "action": "skill"
+        },
+        {
+          "id": 320120101,
+          "sceneId": null,
+          "action": "class_skill_2"
+        },
+        {
+          "id": 320120102,
+          "sceneId": null,
+          "action": "class_skill_1"
+        }
+      ],
+      "voice": null,
+      "ultimateScene": null
+    },
+    {
+      "id": "U53",
+      "cardId": 32002021,
+      "resourceId": 320006,
+      "name": "琪拉拉（第2部）",
+      "shortName": "琪拉拉②",
+      "originalName": "琪拉拉【第2部】",
+      "work": "Kirara Fantasia",
+      "classId": 1,
+      "className": "魔法使",
+      "elementId": 5,
+      "elementName": "阳",
+      "headId": 0,
+      "displayScale": 0.95,
+      "role": "里中核心",
+      "plannedCost": 100,
+      "icon": "asset/img/rl/icon/32002021.webp",
+      "card": "asset/img/rl/card/32002021.webp",
+      "skills": [
+        {
+          "id": 320020210,
+          "sceneId": "320006",
+          "action": "skill"
+        },
+        {
+          "id": 320020201,
+          "sceneId": null,
+          "action": "class_skill_2"
+        },
+        {
+          "id": 320020202,
+          "sceneId": null,
+          "action": "class_skill_3"
+        }
+      ],
+      "voice": null,
+      "ultimateScene": null
+    },
+    {
+      "id": "U54",
+      "cardId": 32022001,
+      "resourceId": 320204,
+      "name": "克蕾尔（女儿节）",
+      "shortName": "克蕾尔②",
+      "originalName": "克蕾尔【女儿节】",
+      "work": "Kirara Fantasia",
+      "classId": 1,
+      "className": "魔法使",
+      "elementId": 1,
+      "elementName": "水",
+      "headId": 0,
+      "displayScale": 0.95,
+      "role": "雏人偶祈愿",
+      "plannedCost": 100,
+      "icon": "asset/img/rl/icon/32022001.webp",
+      "card": "asset/img/rl/card/32022001.webp",
+      "skills": [
+        {
+          "id": 320220010,
+          "sceneId": "320204",
+          "action": "skill"
+        },
+        {
+          "id": 320220001,
+          "sceneId": null,
+          "action": "class_skill_2"
+        },
+        {
+          "id": 320220002,
+          "sceneId": null,
+          "action": "class_skill_3"
+        }
+      ],
+      "voice": null,
+      "ultimateScene": null
+    },
+    {
+      "id": "U55",
+      "cardId": 32152001,
+      "resourceId": 321502,
+      "name": "薄荷",
+      "shortName": "薄荷",
+      "originalName": "薄荷",
+      "work": "Kirara Fantasia",
+      "classId": 1,
+      "className": "魔法使",
+      "elementId": 4,
+      "elementName": "月",
+      "headId": 0,
+      "displayScale": 0.95,
+      "role": "清凉魔弹",
+      "plannedCost": 100,
+      "icon": "asset/img/rl/icon/32152001.webp",
+      "card": "asset/img/rl/card/32152001.webp",
+      "skills": [
+        {
+          "id": 321520010,
+          "sceneId": "321502",
+          "action": "skill"
+        },
+        {
+          "id": 321520001,
+          "sceneId": null,
+          "action": "class_skill_1"
+        },
+        {
+          "id": 321520002,
+          "sceneId": null,
+          "action": "class_skill_3"
+        }
+      ],
+      "voice": null,
+      "ultimateScene": null
+    },
+    {
+      "id": "U56",
+      "cardId": 32162001,
+      "resourceId": 321602,
+      "name": "梅蒂娅（第2部）",
+      "shortName": "梅蒂娅②",
+      "originalName": "梅蒂娅【第2部】",
+      "work": "Kirara Fantasia",
+      "classId": 1,
+      "className": "魔法使",
+      "elementId": 4,
+      "elementName": "月",
+      "headId": 0,
+      "displayScale": 0.95,
+      "role": "暗夜女王",
+      "plannedCost": 100,
+      "icon": "asset/img/rl/icon/32162001.webp",
+      "card": "asset/img/rl/card/32162001.webp",
+      "skills": [
+        {
+          "id": 321620010,
+          "sceneId": "321602",
+          "action": "skill"
+        },
+        {
+          "id": 321620001,
+          "sceneId": null,
+          "action": "class_skill_1"
+        },
+        {
+          "id": 321620002,
+          "sceneId": null,
+          "action": "class_skill_2"
+        }
+      ],
+      "voice": null,
+      "ultimateScene": null
+    },
+    {
+      "id": "U57",
+      "cardId": 22062001,
+      "resourceId": 220602,
+      "name": "山中佐和子",
+      "shortName": "佐和子",
+      "originalName": "山中 さわ子",
+      "work": "轻音少女",
+      "classId": 0,
+      "className": "战士",
+      "elementId": 0,
+      "elementName": "炎",
+      "headId": 0,
+      "displayScale": 0.95,
+      "role": "音乐近卫",
+      "plannedCost": 100,
+      "icon": "asset/img/rl/icon/22062001.webp",
+      "card": "asset/img/rl/card/22062001.webp",
+      "skills": [
+        {
+          "id": 220620010,
+          "sceneId": "220602",
+          "action": "skill"
+        },
+        {
+          "id": 220620001,
+          "sceneId": null,
+          "action": "class_skill_2"
+        },
+        {
+          "id": 220620002,
+          "sceneId": null,
+          "action": "class_skill_3"
+        }
+      ],
+      "voice": null,
+      "ultimateScene": null
+    },
+    {
+      "id": "U58",
+      "cardId": 17002031,
+      "resourceId": 170012,
+      "name": "千矢（复活节）",
+      "shortName": "千矢②",
+      "originalName": "千矢【复活节】",
+      "work": "Urara 迷路帖",
+      "classId": 0,
+      "className": "战士",
+      "elementId": 2,
+      "elementName": "土",
+      "headId": 0,
+      "displayScale": 0.95,
+      "role": "彩蛋重击",
+      "plannedCost": 100,
+      "icon": "asset/img/rl/icon/17002031.webp",
+      "card": "asset/img/rl/card/17002031.webp",
+      "skills": [
+        {
+          "id": 170020310,
+          "sceneId": "170012",
+          "action": "skill"
+        },
+        {
+          "id": 170020301,
+          "sceneId": null,
+          "action": "class_skill_2"
+        },
+        {
+          "id": 170020302,
+          "sceneId": null,
+          "action": "class_skill_3"
+        }
+      ],
+      "voice": null,
+      "ultimateScene": null
+    },
+    {
+      "id": "U59",
+      "cardId": 17012021,
+      "resourceId": 170108,
+      "name": "绀（婚礼服）",
+      "shortName": "绀婚",
+      "originalName": "绀【婚礼服】",
+      "work": "Urara 迷路帖",
+      "classId": 4,
+      "className": "炼金术士",
+      "elementId": 0,
+      "elementName": "炎",
+      "headId": 0,
+      "displayScale": 0.95,
+      "role": "白纱药雨",
+      "plannedCost": 100,
+      "icon": "asset/img/rl/icon/17012021.webp",
+      "card": "asset/img/rl/card/17012021.webp",
+      "skills": [
+        {
+          "id": 170120210,
+          "sceneId": "170108",
+          "action": "skill"
+        },
+        {
+          "id": 170120201,
+          "sceneId": null,
+          "action": "class_skill_2"
+        },
+        {
+          "id": 170120202,
+          "sceneId": null,
+          "action": "class_skill_1"
+        }
+      ],
+      "voice": null,
+      "ultimateScene": null
+    },
+    {
+      "id": "U60",
+      "cardId": 17022021,
+      "resourceId": 170208,
+      "name": "小梅（万圣节）",
+      "shortName": "小梅②",
+      "originalName": "小梅【万圣节】",
+      "work": "Urara 迷路帖",
+      "classId": 2,
+      "className": "僧侣",
+      "elementId": 4,
+      "elementName": "月",
+      "headId": 0,
+      "displayScale": 0.95,
+      "role": "南瓜戏法",
+      "plannedCost": 100,
+      "icon": "asset/img/rl/icon/17022021.webp",
+      "card": "asset/img/rl/card/17022021.webp",
+      "skills": [
+        {
+          "id": 170220210,
+          "sceneId": "170208",
+          "action": "skill"
+        },
+        {
+          "id": 170220201,
+          "sceneId": null,
+          "action": "class_skill_3"
+        },
+        {
+          "id": 170220202,
+          "sceneId": null,
+          "action": "class_skill_3"
+        }
+      ],
+      "voice": null,
+      "ultimateScene": null
+    },
+    {
+      "id": "U61",
+      "cardId": 17061011,
+      "resourceId": 170606,
+      "name": "臣（七夕）",
+      "shortName": "臣七夕",
+      "originalName": "臣【七夕】",
+      "work": "Urara 迷路帖",
+      "classId": 0,
+      "className": "战士",
+      "elementId": 2,
+      "elementName": "土",
+      "headId": 0,
+      "displayScale": 0.95,
+      "role": "短笔祈星",
+      "plannedCost": 100,
+      "icon": "asset/img/rl/icon/17061011.webp",
+      "card": "asset/img/rl/card/17061011.webp",
+      "skills": [
+        {
+          "id": 170610110,
+          "sceneId": "170606",
+          "action": "skill"
+        },
+        {
+          "id": 170610101,
+          "sceneId": null,
+          "action": "class_skill_1"
+        },
+        {
+          "id": 170610102,
+          "sceneId": null,
+          "action": "class_skill_1"
+        }
+      ],
+      "voice": null,
+      "ultimateScene": null
+    },
+    {
+      "id": "U62",
+      "cardId": 17062001,
+      "resourceId": 170604,
+      "name": "臣（新年）",
+      "shortName": "臣新年",
+      "originalName": "臣【新年】",
+      "work": "Urara 迷路帖",
+      "classId": 4,
+      "className": "炼金术士",
+      "elementId": 3,
+      "elementName": "风",
+      "headId": 0,
+      "displayScale": 0.95,
+      "role": "新年钟语",
+      "plannedCost": 100,
+      "icon": "asset/img/rl/icon/17062001.webp",
+      "card": "asset/img/rl/card/17062001.webp",
+      "skills": [
+        {
+          "id": 170620010,
+          "sceneId": "170604",
+          "action": "skill"
+        },
+        {
+          "id": 170620001,
+          "sceneId": null,
+          "action": "class_skill_1"
+        },
+        {
+          "id": 170620002,
+          "sceneId": null,
+          "action": "class_skill_1"
+        }
+      ],
+      "voice": null,
+      "ultimateScene": null
+    },
+    {
+      "id": "U63",
+      "cardId": 17032011,
+      "resourceId": 170308,
+      "name": "诺诺（温泉）",
+      "shortName": "诺诺",
+      "originalName": "ノノ【温泉】",
+      "work": "Urara 迷路帖",
+      "classId": 1,
+      "className": "魔法使",
+      "elementId": 2,
+      "elementName": "土",
+      "headId": 0,
+      "displayScale": 0.95,
+      "role": "汤烟回响",
+      "plannedCost": 100,
+      "icon": "asset/img/rl/icon/17032011.webp",
+      "card": "asset/img/rl/card/17032011.webp",
+      "skills": [
+        {
+          "id": 170320110,
+          "sceneId": "170308",
+          "action": "skill"
+        },
+        {
+          "id": 170320101,
+          "sceneId": null,
+          "action": "class_skill_2"
+        },
+        {
+          "id": 170320102,
+          "sceneId": null,
+          "action": "class_skill_3"
+        }
+      ],
+      "voice": null,
+      "ultimateScene": null
+    },
+    {
+      "id": "U64",
+      "cardId": 17052001,
+      "resourceId": 170504,
+      "name": "枣妮娜",
+      "shortName": "妮娜",
+      "originalName": "枣 妮娜",
+      "work": "Urara 迷路帖",
+      "classId": 4,
+      "className": "炼金术士",
+      "elementId": 3,
+      "elementName": "风",
+      "headId": 0,
+      "displayScale": 0.95,
+      "role": "夜幕镰手",
+      "plannedCost": 100,
+      "icon": "asset/img/rl/icon/17052001.webp",
+      "card": "asset/img/rl/card/17052001.webp",
+      "skills": [
+        {
+          "id": 170520010,
+          "sceneId": "170504",
+          "action": "skill"
+        },
+        {
+          "id": 170520001,
+          "sceneId": null,
+          "action": "class_skill_1"
+        },
+        {
+          "id": 170520002,
+          "sceneId": null,
+          "action": "class_skill_2"
+        }
+      ],
+      "voice": null,
+      "ultimateScene": null
+    },
+    {
+      "id": "U65",
+      "cardId": 38012001,
+      "resourceId": 380104,
+      "name": "苍（白色情人节）",
+      "shortName": "苍②",
+      "originalName": "苍【白色情人节】",
+      "work": "恋爱小行星",
+      "classId": 3,
+      "className": "骑士",
+      "elementId": 2,
+      "elementName": "土",
+      "headId": 0,
+      "displayScale": 0.95,
+      "role": "白银赠礼",
+      "plannedCost": 100,
+      "icon": "asset/img/rl/icon/38012001.webp",
+      "card": "asset/img/rl/card/38012001.webp",
+      "skills": [
+        {
+          "id": 380120010,
+          "sceneId": "380104",
+          "action": "skill"
+        },
+        {
+          "id": 380120001,
+          "sceneId": null,
+          "action": "class_skill_1"
+        },
+        {
+          "id": 380120002,
+          "sceneId": null,
+          "action": "class_skill_3"
+        }
+      ],
+      "voice": null,
+      "ultimateScene": null
+    },
+    {
+      "id": "U66",
+      "cardId": 14012031,
+      "resourceId": 140112,
+      "name": "爱丽丝（玉桂狗）",
+      "shortName": "玉桂爱丽丝",
+      "originalName": "爱丽丝【玉桂狗 (三丽鸥)】",
+      "work": "黄金拼图",
+      "classId": 2,
+      "className": "僧侣",
+      "elementId": 1,
+      "elementName": "水",
+      "headId": 0,
+      "displayScale": 0.95,
+      "role": "三丽鸥快枪",
+      "plannedCost": 100,
+      "icon": "asset/img/rl/icon/14012031.webp",
+      "card": "asset/img/rl/card/14012031.webp",
+      "skills": [
+        {
+          "id": 140120310,
+          "sceneId": "140112",
+          "action": "skill"
+        },
+        {
+          "id": 140120301,
+          "sceneId": null,
+          "action": "class_skill_3"
+        },
+        {
+          "id": 140120302,
+          "sceneId": null,
+          "action": "class_skill_3"
+        }
+      ],
+      "voice": null,
+      "ultimateScene": null
+    },
+    {
+      "id": "U67",
+      "cardId": 14032021,
+      "resourceId": 140308,
+      "name": "绫（圣诞节）",
+      "shortName": "圣诞绫",
+      "originalName": "绫【圣诞节】",
+      "work": "黄金拼图",
+      "classId": 0,
+      "className": "战士",
+      "elementId": 1,
+      "elementName": "水",
+      "headId": 0,
+      "displayScale": 0.95,
+      "role": "铃铛挥击",
+      "plannedCost": 100,
+      "icon": "asset/img/rl/icon/14032021.webp",
+      "card": "asset/img/rl/card/14032021.webp",
+      "skills": [
+        {
+          "id": 140320210,
+          "sceneId": "140308",
+          "action": "skill"
+        },
+        {
+          "id": 140320201,
+          "sceneId": null,
+          "action": "class_skill_1"
+        },
+        {
+          "id": 140320202,
+          "sceneId": null,
+          "action": "class_skill_3"
+        }
+      ],
+      "voice": null,
+      "ultimateScene": null
+    },
+    {
+      "id": "U68",
+      "cardId": 30032011,
+      "resourceId": 300306,
+      "name": "千夜（圣诞节）",
+      "shortName": "圣诞千夜",
+      "originalName": "千夜【圣诞节】",
+      "work": "请问您今天要来点兔子吗？",
+      "classId": 1,
+      "className": "魔法使",
+      "elementId": 0,
+      "elementName": "炎",
+      "headId": 0,
+      "displayScale": 0.95,
+      "role": "圣夜菓子",
+      "plannedCost": 100,
+      "icon": "asset/img/rl/icon/30032011.webp",
+      "card": "asset/img/rl/card/30032011.webp",
+      "skills": [
+        {
+          "id": 300320110,
+          "sceneId": "300306",
+          "action": "skill"
+        },
+        {
+          "id": 300320101,
+          "sceneId": null,
+          "action": "class_skill_2"
+        },
+        {
+          "id": 300320102,
+          "sceneId": null,
+          "action": "class_skill_3"
+        }
+      ],
+      "voice": null,
+      "ultimateScene": null
+    },
+    {
+      "id": "U69",
+      "cardId": 30042011,
+      "resourceId": 300406,
+      "name": "纱路（万圣节）",
+      "shortName": "万圣纱路",
+      "originalName": "纱路【万圣节】",
+      "work": "请问您今天要来点兔子吗？",
+      "classId": 1,
+      "className": "魔法使",
+      "elementId": 4,
+      "elementName": "月",
+      "headId": 0,
+      "displayScale": 0.95,
+      "role": "南瓜惊吓",
+      "plannedCost": 100,
+      "icon": "asset/img/rl/icon/30042011.webp",
+      "card": "asset/img/rl/card/30042011.webp",
+      "skills": [
+        {
+          "id": 300420110,
+          "sceneId": "300406",
+          "action": "skill"
+        },
+        {
+          "id": 300420101,
+          "sceneId": null,
+          "action": "class_skill_2"
+        },
+        {
+          "id": 300420102,
+          "sceneId": null,
+          "action": "class_skill_3"
+        }
+      ],
+      "voice": null,
+      "ultimateScene": null
+    },
+    {
+      "id": "U70",
+      "cardId": 30012021,
+      "resourceId": 300108,
+      "name": "智乃（第2部）",
+      "shortName": "智乃②",
+      "originalName": "智乃【第2部】",
+      "work": "请问您今天要来点兔子吗？",
+      "classId": 0,
+      "className": "战士",
+      "elementId": 2,
+      "elementName": "土",
+      "headId": 0,
+      "displayScale": 0.95,
+      "role": "土兔强袭",
+      "plannedCost": 100,
+      "icon": "asset/img/rl/icon/30012021.webp",
+      "card": "asset/img/rl/card/30012021.webp",
+      "skills": [
+        {
+          "id": 300120210,
+          "sceneId": "300108",
+          "action": "skill"
+        },
+        {
+          "id": 300120201,
+          "sceneId": null,
+          "action": "class_skill_1"
+        },
+        {
+          "id": 300120202,
+          "sceneId": null,
+          "action": "class_skill_2"
+        }
+      ],
+      "voice": null,
+      "ultimateScene": null
+    },
+    {
+      "id": "U71",
+      "cardId": 30022011,
+      "resourceId": 300206,
+      "name": "理世（万圣节）",
+      "shortName": "万治理世",
+      "originalName": "理世【万圣节】",
+      "work": "请问您今天要来点兔子吗？",
+      "classId": 0,
+      "className": "战士",
+      "elementId": 1,
+      "elementName": "水",
+      "headId": 0,
+      "displayScale": 0.95,
+      "role": "魅影乱射",
+      "plannedCost": 100,
+      "icon": "asset/img/rl/icon/30022011.webp",
+      "card": "asset/img/rl/card/30022011.webp",
+      "skills": [
+        {
+          "id": 300220110,
+          "sceneId": "300206",
+          "action": "skill"
+        },
+        {
+          "id": 300220101,
+          "sceneId": null,
+          "action": "class_skill_2"
+        },
+        {
+          "id": 300220102,
+          "sceneId": null,
+          "action": "class_skill_1"
+        }
+      ],
+      "voice": null,
+      "ultimateScene": null
+    },
+    {
+      "id": "U72",
+      "cardId": 30072001,
+      "resourceId": 300702,
+      "name": "摩卡",
+      "shortName": "摩卡",
+      "originalName": "摩卡",
+      "work": "请问您今天要来点兔子吗？",
+      "classId": 3,
+      "className": "骑士",
+      "elementId": 3,
+      "elementName": "风",
+      "headId": 0,
+      "displayScale": 0.95,
+      "role": "野性近卫",
+      "plannedCost": 100,
+      "icon": "asset/img/rl/icon/30072001.webp",
+      "card": "asset/img/rl/card/30072001.webp",
+      "skills": [
+        {
+          "id": 300720010,
+          "sceneId": "300702",
+          "action": "skill"
+        },
+        {
+          "id": 300720001,
+          "sceneId": null,
+          "action": "class_skill_2"
+        },
+        {
+          "id": 300720002,
+          "sceneId": null,
+          "action": "class_skill_3"
+        }
+      ],
+      "voice": null,
+      "ultimateScene": null
+    },
+    {
+      "id": "U73",
+      "cardId": 30052001,
+      "resourceId": 300504,
+      "name": "麻耶",
+      "shortName": "麻耶",
+      "originalName": "麻耶",
+      "work": "请问您今天要来点兔子吗？",
+      "classId": 0,
+      "className": "战士",
+      "elementId": 5,
+      "elementName": "阳",
+      "headId": 0,
+      "displayScale": 0.95,
+      "role": "宝冢之星",
+      "plannedCost": 100,
+      "icon": "asset/img/rl/icon/30052001.webp",
+      "card": "asset/img/rl/card/30052001.webp",
+      "skills": [
+        {
+          "id": 300520010,
+          "sceneId": "300504",
+          "action": "skill"
+        },
+        {
+          "id": 300520001,
+          "sceneId": null,
+          "action": "class_skill_2"
+        },
+        {
+          "id": 300520002,
+          "sceneId": null,
+          "action": "class_skill_3"
+        }
+      ],
+      "voice": null,
+      "ultimateScene": null
+    },
+    {
+      "id": "U74",
+      "cardId": 30062001,
+      "resourceId": 300604,
+      "name": "惠",
+      "shortName": "惠",
+      "originalName": "惠",
+      "work": "请问您今天要来点兔子吗？",
+      "classId": 2,
+      "className": "僧侣",
+      "elementId": 5,
+      "elementName": "阳",
+      "headId": 0,
+      "displayScale": 0.95,
+      "role": "向日骑士",
+      "plannedCost": 100,
+      "icon": "asset/img/rl/icon/30062001.webp",
+      "card": "asset/img/rl/card/30062001.webp",
+      "skills": [
+        {
+          "id": 300620010,
+          "sceneId": "300604",
+          "action": "skill"
+        },
+        {
+          "id": 300620001,
+          "sceneId": null,
+          "action": "class_skill_3"
+        },
+        {
+          "id": 300620002,
+          "sceneId": null,
+          "action": "class_skill_3"
+        }
+      ],
+      "voice": null,
+      "ultimateScene": null
+    },
+    {
+      "id": "U75",
+      "cardId": 30002031,
+      "resourceId": 300010,
+      "name": "心爱（第2部）",
+      "shortName": "心爱②",
+      "originalName": "心爱【第2部】",
+      "work": "请问您今天要来点兔子吗？",
+      "classId": 1,
+      "className": "魔法使",
+      "elementId": 1,
+      "elementName": "水",
+      "headId": 0,
+      "displayScale": 0.95,
+      "role": "兔耳旋风",
+      "plannedCost": 100,
+      "icon": "asset/img/rl/icon/30002031.webp",
+      "card": "asset/img/rl/card/30002031.webp",
+      "skills": [
+        {
+          "id": 300020310,
+          "sceneId": "300010",
+          "action": "skill"
+        },
+        {
+          "id": 300020301,
+          "sceneId": null,
+          "action": "class_skill_1"
+        },
+        {
+          "id": 300020302,
+          "sceneId": null,
+          "action": "class_skill_2"
+        }
+      ],
+      "voice": null,
+      "ultimateScene": null
+    },
+    {
+      "id": "U76",
+      "cardId": 40012001,
+      "resourceId": 400104,
+      "name": "露子（情人节）",
+      "shortName": "露子②",
+      "originalName": "露子【情人节】",
+      "work": "满溢的水果挞",
+      "classId": 1,
+      "className": "魔法使",
+      "elementId": 4,
+      "elementName": "月",
+      "headId": 0,
+      "displayScale": 0.95,
+      "role": "心唱祝福",
+      "plannedCost": 100,
+      "icon": "asset/img/rl/icon/40012001.webp",
+      "card": "asset/img/rl/card/40012001.webp",
+      "skills": [
+        {
+          "id": 400120010,
+          "sceneId": "400104",
+          "action": "skill"
+        },
+        {
+          "id": 400120001,
+          "sceneId": null,
+          "action": "class_skill_2"
+        },
+        {
+          "id": 400120002,
+          "sceneId": null,
+          "action": "class_skill_1"
+        }
+      ],
+      "voice": null,
+      "ultimateScene": null
+    },
+    {
+      "id": "U77",
+      "cardId": 15042001,
+      "resourceId": 150404,
+      "name": "光（泳装）",
+      "shortName": "泳装光",
+      "originalName": "光【泳装】",
+      "work": "NEW GAME!",
+      "classId": 1,
+      "className": "魔法使",
+      "elementId": 0,
+      "elementName": "炎",
+      "headId": 0,
+      "displayScale": 0.95,
+      "role": "晴空狙击",
+      "plannedCost": 100,
+      "icon": "asset/img/rl/icon/15042001.webp",
+      "card": "asset/img/rl/card/15042001.webp",
+      "skills": [
+        {
+          "id": 150420010,
+          "sceneId": "150404",
+          "action": "skill"
+        },
+        {
+          "id": 150420001,
+          "sceneId": null,
+          "action": "class_skill_1"
+        },
+        {
+          "id": 150420002,
+          "sceneId": null,
+          "action": "class_skill_2"
+        }
+      ],
+      "voice": null,
+      "ultimateScene": null
+    },
+    {
+      "id": "U78",
+      "cardId": 15012011,
+      "resourceId": 150106,
+      "name": "一二三（圣诞节）",
+      "shortName": "圣诞一二三",
+      "originalName": "一二三【圣诞节】",
+      "work": "NEW GAME!",
+      "classId": 0,
+      "className": "战士",
+      "elementId": 0,
+      "elementName": "炎",
+      "headId": 0,
+      "displayScale": 0.95,
+      "role": "圣夜支援",
+      "plannedCost": 100,
+      "icon": "asset/img/rl/icon/15012011.webp",
+      "card": "asset/img/rl/card/15012011.webp",
+      "skills": [
+        {
+          "id": 150120110,
+          "sceneId": "150106",
+          "action": "skill"
+        },
+        {
+          "id": 150120101,
+          "sceneId": null,
+          "action": "class_skill_2"
+        },
+        {
+          "id": 150120102,
+          "sceneId": null,
+          "action": "class_skill_3"
+        }
+      ],
+      "voice": null,
+      "ultimateScene": null
+    },
+    {
+      "id": "U79",
+      "cardId": 15012001,
+      "resourceId": 150104,
+      "name": "泷本一二三",
+      "shortName": "一二三",
+      "originalName": "泷本 一二三",
+      "work": "NEW GAME!",
+      "classId": 1,
+      "className": "魔法使",
+      "elementId": 4,
+      "elementName": "月",
+      "headId": 0,
+      "displayScale": 0.95,
+      "role": "月下管弦",
+      "plannedCost": 100,
+      "icon": "asset/img/rl/icon/15012001.webp",
+      "card": "asset/img/rl/card/15012001.webp",
+      "skills": [
+        {
+          "id": 150120010,
+          "sceneId": "150104",
+          "action": "skill"
+        },
+        {
+          "id": 150120001,
+          "sceneId": null,
+          "action": "class_skill_2"
+        },
+        {
+          "id": 150120002,
+          "sceneId": null,
+          "action": "class_skill_3"
+        }
+      ],
+      "voice": null,
+      "ultimateScene": null
+    },
+    {
+      "id": "U80",
+      "cardId": 21012011,
+      "resourceId": 210106,
+      "name": "冠（美乐蒂）",
+      "shortName": "冠美乐蒂",
+      "originalName": "冠【美乐蒂 (三丽鸥)】",
+      "work": "Slow Start",
+      "classId": 0,
+      "className": "战士",
+      "elementId": 2,
+      "elementName": "土",
+      "headId": 0,
+      "displayScale": 0.95,
+      "role": "旋律连打",
+      "plannedCost": 100,
+      "icon": "asset/img/rl/icon/21012011.webp",
+      "card": "asset/img/rl/card/21012011.webp",
+      "skills": [
+        {
+          "id": 210120110,
+          "sceneId": "210106",
+          "action": "skill"
+        },
+        {
+          "id": 210120101,
+          "sceneId": null,
+          "action": "class_skill_2"
+        },
+        {
+          "id": 210120102,
+          "sceneId": null,
+          "action": "class_skill_3"
+        }
+      ],
+      "voice": null,
+      "ultimateScene": null
+    },
+    {
+      "id": "U81",
+      "cardId": 21022021,
+      "resourceId": 210210,
+      "name": "荣依子（情人节）",
+      "shortName": "荣依子",
+      "originalName": "荣依子【情人节】",
+      "work": "Slow Start",
+      "classId": 0,
+      "className": "战士",
+      "elementId": 0,
+      "elementName": "炎",
+      "headId": 0,
+      "displayScale": 0.95,
+      "role": "巧克重逢",
+      "plannedCost": 100,
+      "icon": "asset/img/rl/icon/21022021.webp",
+      "card": "asset/img/rl/card/21022021.webp",
+      "skills": [
+        {
+          "id": 210220210,
+          "sceneId": "210210",
+          "action": "skill"
+        },
+        {
+          "id": 210220201,
+          "sceneId": null,
+          "action": "class_skill_2"
+        },
+        {
+          "id": 210220202,
+          "sceneId": null,
+          "action": "class_skill_3"
+        }
+      ],
+      "voice": null,
+      "ultimateScene": null
+    },
+    {
+      "id": "U82",
+      "cardId": 21011011,
+      "resourceId": 210108,
+      "name": "冠（情人节）",
+      "shortName": "冠情人节",
+      "originalName": "冠【情人节】",
+      "work": "Slow Start",
+      "classId": 2,
+      "className": "僧侣",
+      "elementId": 0,
+      "elementName": "炎",
+      "headId": 0,
+      "displayScale": 0.95,
+      "role": "甜心双璧",
+      "plannedCost": 100,
+      "icon": "asset/img/rl/icon/21011011.webp",
+      "card": "asset/img/rl/card/21011011.webp",
+      "skills": [
+        {
+          "id": 210110110,
+          "sceneId": "210108",
+          "action": "skill"
+        },
+        {
+          "id": 210110101,
+          "sceneId": null,
+          "action": "class_skill_3"
+        },
+        {
+          "id": 210110102,
+          "sceneId": null,
+          "action": "class_skill_3"
+        }
+      ],
+      "voice": null,
+      "ultimateScene": null
+    },
+    {
+      "id": "U83",
+      "cardId": 27011001,
+      "resourceId": 270102,
+      "name": "哈娜·N·芳婷史坦",
+      "shortName": "哈娜",
+      "originalName": "哈娜·N·芳婷史坦",
+      "work": "花舞少女",
+      "classId": 1,
+      "className": "魔法使",
+      "elementId": 4,
+      "elementName": "月",
+      "headId": 0,
+      "displayScale": 0.95,
+      "role": "花语剑姬",
+      "plannedCost": 100,
+      "icon": "asset/img/rl/icon/27011001.webp",
+      "card": "asset/img/rl/card/27011001.webp",
+      "skills": [
+        {
+          "id": 270110010,
+          "sceneId": "270102",
+          "action": "skill"
+        },
+        {
+          "id": 270110001,
+          "sceneId": null,
+          "action": "class_skill_1"
+        },
+        {
+          "id": 270110002,
+          "sceneId": null,
+          "action": "class_skill_3"
+        }
+      ],
+      "voice": null,
+      "ultimateScene": null
     }
   ]
 }

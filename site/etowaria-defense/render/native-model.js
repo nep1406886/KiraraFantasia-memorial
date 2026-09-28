@@ -104,9 +104,12 @@ export class NativeModel {
         const actor = await actors.create({ resourceId: unit.resourceId, classId: unit.classId,
             headId: unit.headId, skillId: unit.resourceId, weapon: "default" });
         try {
-            if (!actor.facialTable || !actor.actionNames.includes("attack") || !actor.actionNames.includes("idle")) {
-                throw new Error(`${unit.name} 的表情或职业动作不完整`);
+            if (!actor.actionNames.includes("attack") || !actor.actionNames.includes("idle")) {
+                throw new Error(`${unit.name} 的职业动作不完整`);
             }
+            // A missing facial table (孤独摇滚 rigs ship none in the original
+            // export) only means no blink/expressions — the model is complete,
+            // so she stays playable instead of failing the whole level load.
             if (!actor.weaponResourceIds.length) { throw new Error(`${unit.name} 的原职业武器未加载`); }
             await actor.loadActions(siteUrl("asset/rl/anim/anchors.glb.gz"), { compression: "gzip" });
             applyAuthoredMaterials(actor.object, assets.THREE, assets.anisotropy);
@@ -180,7 +183,8 @@ export class NativeModel {
         this.baseLift = foot.isEmpty() ? -posedBounds(this.THREE, this.root, mesh => !weaponPart(mesh)).min.y : -foot.min.y;
         this.lift.position.y = this.baseLift;
         this.group.updateWorldMatrix(true, true);
-        this.idleMotion = this.actor ? new IdleMotion(this.THREE, this.root, this.unit.resourceId) : null;
+        this.idleMotion = this.actor ? new IdleMotion(this.THREE, this.root, this.unit.resourceId,
+            { actor: this.actor, billboard: this.billboard }) : null;
     }
 
     configureIdle(options) {

@@ -36,7 +36,8 @@ export class NativeItems {
         }
         return this.trailTextures.get(key);
     }
-    bottle(height = .48) {
+    async bottle(height = .48) {
+        if (!this.template) { await this.prepare(); }
         if (!this.template) { throw new Error("原药瓶尚未准备好"); }
         const group = new this.THREE.Group();
         const turn = new this.THREE.Group();

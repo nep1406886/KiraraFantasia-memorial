@@ -21,10 +21,10 @@ function check(name, fn) {
     results.push({ name, passed: true });
 }
 
-check("24 unique exact card identities", () => {
-    assert.equal(catalogue.units.length, 24);
-    assert.equal(new Set(catalogue.units.map(unit => unit.cardId)).size, 24);
-    assert.equal(new Set(catalogue.units.map(unit => unit.id)).size, 24);
+check("83 unique exact card identities", () => {
+    assert.equal(catalogue.units.length, 83);
+    assert.equal(new Set(catalogue.units.map(unit => unit.cardId)).size, 83);
+    assert.equal(new Set(catalogue.units.map(unit => unit.id)).size, 83);
 });
 
 const golden = {

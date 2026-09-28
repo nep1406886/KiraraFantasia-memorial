@@ -13,9 +13,12 @@ const ENEMIES = [
 ];
 const PLACEMENT = { U01: [0, 2], U07: [2, 4], U11: [0, 5], U12: [2, 5], U15: [2, 2], U19: [4, 2] };
 const THEMES = {
-    day: { title: "里口花径", caption: "里外的花径", rows: 5 },
-    camp: { title: "星灯营地", caption: "营灯点亮之后", rows: 5 },
-    water: { title: "浅湾合宿", caption: "先准备好落脚的地方", rows: 6 }
+    day: { title: "里口花径", caption: "里外的花径", rows: 5, art: "day" },
+    camp: { title: "星灯营地", caption: "营灯点亮之后", rows: 5, art: "camp" },
+    water: { title: "浅湾合宿", caption: "先准备好落脚的地方", rows: 6, art: "water" },
+    // Chapter 3-4 use the night palette; it shares the camp's art but lights
+    // its fire and lantern, so every theme key resolves to real scenery.
+    night: { title: "夜火集结", caption: "深夜的守望", rows: 5, art: "camp" }
 };
 
 export class DefenseStage {
@@ -37,7 +40,7 @@ export class DefenseStage {
         try {
             await stage.loadScenery();
             if (options.isCurrent && !options.isCurrent()) { throw new Error("本次场地准备已取消"); }
-            await stage.setTheme("day");
+            await stage.setTheme(options.theme || "day");
             return stage;
         } catch (error) {
             stage.dispose();
@@ -72,7 +75,9 @@ export class DefenseStage {
         this.renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true, powerPreference: "high-performance" });
         this.renderer.outputColorSpace = THREE.SRGBColorSpace;
         this.renderer.toneMapping = THREE.NoToneMapping;
-        this.renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
+        // 1.5 is the sweet spot for this stylized scene: retina-sharp on phones,
+        // ~44% fewer fragments than a 2× ratio on desktops.
+        this.renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 1.5));
         this.renderer.setClearColor(0x000000, 0);
         this.renderer.domElement.tabIndex = 0;
         this.renderer.domElement.setAttribute("aria-label", "原生模型场景：点击伙伴选择，点击空格试摆");
@@ -107,12 +112,13 @@ export class DefenseStage {
         this.pointerCancel = () => { this.down = null; };
         this.pointerMove = event => {
             if (event.pointerType !== "touch" && !event.buttons && this.options.onFieldHover) {
-                this.options.onFieldHover(this.cellAt(event));
+                const point = this.groundAt(event.clientX, event.clientY);
+                this.options.onFieldHover(point && this.cellOf(point), point);
             }
         };
         this.pointerLeave = event => {
             this.down = null;
-            if (event.pointerType !== "touch") { this.options.onFieldHover?.(null); }
+            if (event.pointerType !== "touch") { this.options.onFieldHover?.(null, null); }
         };
         this.contextMenu = event => {
             if (this.options.onFieldCancel) { event.preventDefault(); this.options.onFieldCancel(); }
@@ -287,17 +293,19 @@ export class DefenseStage {
     async loadScenery() {
         const THREE = this.THREE;
         const textureLoader = new THREE.TextureLoader();
-        const themes = await Promise.all(Object.keys(THEMES).map(async theme => {
-            const texture = await textureLoader.loadAsync(new URL(`../assets/stage/${theme}.webp`, import.meta.url).href);
+        const themes = await Promise.all(Object.keys(THEMES).map(async key => {
+            const art = THEMES[key].art || key;
+            const texture = await textureLoader.loadAsync(new URL(`../assets/stage/${art}.webp`, import.meta.url).href);
             texture.colorSpace = THREE.SRGBColorSpace;
-            return [theme, texture];
+            return [key, texture];
         }));
         this.backgrounds = Object.fromEntries(themes);
-        this.fieldTextures = Object.fromEntries(await Promise.all(Object.keys(THEMES).map(async theme => {
-            const texture = await textureLoader.loadAsync(new URL(`../assets/stage/${theme}-field.webp`, import.meta.url).href);
+        this.fieldTextures = Object.fromEntries(await Promise.all(Object.keys(THEMES).map(async key => {
+            const art = THEMES[key].art || key;
+            const texture = await textureLoader.loadAsync(new URL(`../assets/stage/${art}-field.webp`, import.meta.url).href);
             texture.colorSpace = THREE.SRGBColorSpace;
             texture.anisotropy = this.assets.anisotropy;
-            return [theme, texture];
+            return [key, texture];
         })));
         this.field = new THREE.Mesh(new THREE.PlaneGeometry(11.7, 10.5), new THREE.MeshBasicMaterial({
             map: this.fieldTextures.day, transparent: false, depthWrite: false, blending: THREE.CustomBlending,
@@ -338,8 +346,7 @@ export class DefenseStage {
             [entries.goods_1043, "tent", 1.35],
             [entries.hobby_1014, "float", .25],
             [native.furniture.goods_1041, "fire", .5],
-            [native.furniture.goods_1072, "lantern", .5],
-            [native.buildings.bld_100000_0, "house", 2]
+            [native.furniture.goods_1072, "lantern", .5]
         ];
         const results = await Promise.allSettled(jobs.map(([entry, name, height]) => this.loadProp(entry, name, height)));
         const failure = results.find(result => result.status === "rejected");
@@ -356,11 +363,12 @@ export class DefenseStage {
         this.items.reset();
         this.effects.reset();
         this.theme = theme;
+        const art = THEMES[theme].art || theme;
         this.rows = THEMES[theme].rows;
-        this.scene.background = this.backgrounds[theme];
-        this.host.style.backgroundImage = `url("${new URL(`../assets/stage/${theme}.webp`, import.meta.url).href}")`;
+        this.scene.background = this.backgrounds[art] || null;
+        this.host.style.backgroundImage = `url("${new URL(`../assets/stage/${art}.webp`, import.meta.url).href}")`;
         this.water.visible = theme === "water";
-        this.field.material.map = this.fieldTextures[theme];
+        this.field.material.map = this.fieldTextures[art];
         this.field.scale.y = this.rows / 5;
         for (const prop of this.props) {
             prop.group.visible = prop.name !== "float";
@@ -369,7 +377,7 @@ export class DefenseStage {
             if (positions[prop.name]) { prop.group.position.set(positions[prop.name][0], 0, positions[prop.name][1]); }
             if (prop.name === "house" || prop.name === "desk" || prop.name === "plant") { prop.group.visible = theme === "day"; }
             if (prop.name === "tent") { prop.group.visible = theme !== "day"; }
-            if (prop.name === "fire" || prop.name === "lantern") { prop.group.visible = theme === "camp"; }
+            if (prop.name === "fire" || prop.name === "lantern") { prop.group.visible = theme === "camp" || theme === "night"; }
         }
         this.buildGrid();
         this.resetPositions();
@@ -608,16 +616,23 @@ export class DefenseStage {
         this.render();
     }
 
-    cellAt(event) {
+    groundAt(clientX, clientY) {
         const rect = this.renderer.domElement.getBoundingClientRect();
-        if (!rect.width || !rect.height) { return null; }
-        this.pointer.set((event.clientX - rect.left) / rect.width * 2 - 1, 1 - (event.clientY - rect.top) / rect.height * 2);
+        if (!rect.width || !rect.height || clientX < rect.left || clientX > rect.right || clientY < rect.top || clientY > rect.bottom) { return null; }
+        this.pointer.set((clientX - rect.left) / rect.width * 2 - 1, 1 - (clientY - rect.top) / rect.height * 2);
         this.ray.setFromCamera(this.pointer, this.camera);
-        const point = this.ray.ray.intersectPlane(this.ground, new this.THREE.Vector3());
-        if (!point) { return null; }
+        return this.ray.ray.intersectPlane(this.ground, new this.THREE.Vector3());
+    }
+
+    cellOf(point) {
         const col = Math.round(point.x / 1.3 + 4);
         const row = Math.round(point.z / 2.1 + (this.rows - 1) / 2);
         return row < 0 || row >= this.rows || col < 0 || col > 8 ? null : { row, col };
+    }
+
+    cellAt(event) {
+        const point = this.groundAt(event.clientX, event.clientY);
+        return point && this.cellOf(point);
     }
 
     pick(event) {
@@ -685,12 +700,7 @@ export class DefenseStage {
         this.width = width; this.height = height;
         this.renderer.setSize(width, height, false);
         const aspect = width / height;
-        const span = Math.max(this.rows === 6 ? 7.45 : 6.4, 16.2 / aspect);
-        this.camera.left = -span * aspect / 2;
-        this.camera.right = span * aspect / 2;
-        this.camera.top = span / 2;
-        this.camera.bottom = -span / 2;
-        this.camera.updateProjectionMatrix();
+        this.frameCamera(this.camera, aspect);
         const background = this.scene.background;
         if (background?.isTexture && background.image) {
             const sourceAspect = background.image.width / background.image.height;
@@ -706,6 +716,33 @@ export class DefenseStage {
         this.render();
     }
 
+    // Fit a ground rectangle (world x/z, plus the height of a back-row
+    // character) into the view. Without a frame the observation scene keeps
+    // its authored composition.
+    frameCamera(camera, aspect) {
+        const frame = this.frame;
+        if (!frame) {
+            const span = Math.max(this.rows === 6 ? 7.45 : 6.4, 16.2 / aspect);
+            camera.left = -span * aspect / 2; camera.right = span * aspect / 2;
+            camera.top = span / 2; camera.bottom = -span / 2;
+            camera.updateProjectionMatrix();
+            return;
+        }
+        const up = Math.cos(Math.atan2(18.55 - .55, 18 / Math.tan(PITCH)));
+        const depth = Math.sin(Math.atan2(18.55 - .55, 18 / Math.tan(PITCH)));
+        const target = .55 * up;
+        const bottom = -frame.zMax * depth - target - frame.padBottom;
+        const top = -frame.zMin * depth + frame.headroom - target;
+        const height = top - bottom;
+        const width = frame.xMax - frame.xMin;
+        const span = Math.max(height, width / aspect);
+        const centerX = (frame.xMin + frame.xMax) / 2;
+        const centerY = (top + bottom) / 2;
+        camera.left = centerX - span * aspect / 2; camera.right = centerX + span * aspect / 2;
+        camera.top = centerY + span / 2; camera.bottom = centerY - span / 2;
+        camera.updateProjectionMatrix();
+    }
+
     render() {
         if (this.disposed) { return; }
         this.frames++;
@@ -716,10 +753,14 @@ export class DefenseStage {
             }
             if (model.label) {
                 const point = model.group.position.clone();
-                point.y -= .035;
+                if (model.labelAnchor === "head") {
+                    const top = (model.height || 1) * 1.04 + .06;
+                    point.y += top * Math.cos(PITCH);
+                    point.z -= top * Math.sin(PITCH);
+                } else { point.y -= .035; }
                 point.project(this.camera);
                 model.label.style.left = `${(point.x + 1) / 2 * this.width}px`;
-                model.label.style.top = `${(1 - point.y) / 2 * this.height + 4}px`;
+                model.label.style.top = `${(1 - point.y) / 2 * this.height + (model.labelAnchor === "head" ? 0 : 4)}px`;
             }
         }
         this.renderer.render(this.scene, this.camera);
@@ -747,10 +788,7 @@ export class DefenseStage {
         const aspect = width / height;
         try {
             if (!this.cinematic) {
-                const span = Math.max(this.rows === 6 ? 7.45 : 6.4, 16.2 / aspect);
-                camera.left = -span * aspect / 2; camera.right = span * aspect / 2;
-                camera.top = span / 2; camera.bottom = -span / 2;
-                camera.updateProjectionMatrix();
+                this.frameCamera(camera, aspect);
                 if (background) {
                     const sourceAspect = background.image.width / background.image.height;
                     background.repeat.set(aspect > sourceAspect ? 1 : aspect / sourceAspect,

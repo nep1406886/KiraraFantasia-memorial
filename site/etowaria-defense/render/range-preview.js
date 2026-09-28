@@ -1,6 +1,6 @@
 import { placementCoverage } from "../sim/targeting.js";
 
-const COLORS = { attack: 0x315d94, healing: 0x278a5b, burst: 0x986127, placement: 0x9d8550 };
+const COLORS = { attack: 0x315d94, healing: 0x278a5b, support: 0x8a4fb5, burst: 0x986127, placement: 0x9d8550 };
 
 export class RangePreview {
     constructor(stage, world) {

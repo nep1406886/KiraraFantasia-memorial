@@ -280,6 +280,2926 @@
       "expressions": false,
       "depthWrite": true,
       "compression": "gzip"
+    },
+    "model/enemy/model_en_10300.muast": {
+      "file": "asset/models/model_en_10300/model.glb.gz?v=1788327306",
+      "label": "完整单骨架 · 6 个游戏动作",
+      "animations": true,
+      "expressions": false,
+      "depthWrite": true,
+      "compression": "gzip"
+    },
+    "model/enemy/model_en_10900.muast": {
+      "file": "asset/models/model_en_10900/model.glb.gz?v=1788327308",
+      "label": "完整单骨架 · 6 个游戏动作",
+      "animations": true,
+      "expressions": false,
+      "depthWrite": true,
+      "compression": "gzip"
+    },
+    "model/enemy/model_en_11100.muast": {
+      "file": "asset/models/model_en_11100/model.glb.gz?v=1788327309",
+      "label": "完整单骨架 · 6 个游戏动作",
+      "animations": true,
+      "expressions": false,
+      "depthWrite": true,
+      "compression": "gzip"
+    },
+    "model/enemy/model_en_11400.muast": {
+      "file": "asset/models/model_en_11400/model.glb.gz?v=1788327310",
+      "label": "完整单骨架 · 6 个游戏动作",
+      "animations": true,
+      "expressions": false,
+      "depthWrite": true,
+      "compression": "gzip"
+    },
+    "model/enemy/model_en_11500.muast": {
+      "file": "asset/models/model_en_11500/model.glb.gz?v=1788327310",
+      "label": "完整单骨架 · 6 个游戏动作",
+      "animations": true,
+      "expressions": false,
+      "depthWrite": true,
+      "compression": "gzip"
+    },
+    "model/enemy/model_en_10600.muast": {
+      "file": "asset/models/model_en_10600/model.glb.gz?v=1788327307",
+      "label": "完整单骨架 · 6 个游戏动作",
+      "animations": true,
+      "expressions": false,
+      "depthWrite": true,
+      "compression": "gzip"
+    },
+    "model/enemy/model_en_10800.muast": {
+      "file": "asset/models/model_en_10800/model.glb.gz?v=1788327308",
+      "label": "完整单骨架 · 6 个游戏动作",
+      "animations": true,
+      "expressions": false,
+      "depthWrite": true,
+      "compression": "gzip"
+    },
+    "model/enemy/model_en_12000.muast": {
+      "file": "asset/models/model_en_12000/model.glb.gz?v=1788327311",
+      "label": "完整单骨架 · 6 个游戏动作",
+      "animations": true,
+      "expressions": false,
+      "depthWrite": true,
+      "compression": "gzip"
+    },
+    "model/enemy/model_en_14300.muast": {
+      "file": "asset/models/model_en_14300/model.glb.gz?v=1788327317",
+      "label": "完整单骨架 · 6 个游戏动作",
+      "animations": true,
+      "expressions": false,
+      "depthWrite": true,
+      "compression": "gzip"
+    },
+    "model/enemy/model_en_13600.muast": {
+      "file": "asset/models/model_en_13600/model.glb.gz?v=1788327315",
+      "label": "完整单骨架 · 6 个游戏动作",
+      "animations": true,
+      "expressions": false,
+      "depthWrite": true,
+      "compression": "gzip"
+    },
+    "model/enemy/model_en_13500.muast": {
+      "file": "asset/models/model_en_13500/model.glb.gz?v=1788327314",
+      "label": "完整单骨架 · 6 个游戏动作",
+      "animations": true,
+      "expressions": false,
+      "depthWrite": true,
+      "compression": "gzip"
+    },
+    "model/enemy/model_en_10400.muast": {
+      "file": "asset/models/model_en_10400/model.glb.gz?v=1788327306",
+      "label": "完整单骨架 · 6 个游戏动作",
+      "animations": true,
+      "expressions": false,
+      "depthWrite": true,
+      "compression": "gzip"
+    },
+    "model/enemy/model_en_11200.muast": {
+      "file": "asset/models/model_en_11200/model.glb.gz?v=1788327309",
+      "label": "完整单骨架 · 6 个游戏动作",
+      "animations": true,
+      "expressions": false,
+      "depthWrite": true,
+      "compression": "gzip"
+    },
+    "model/enemy/model_en_11900.muast": {
+      "file": "asset/models/model_en_11900/model.glb.gz?v=1788327311",
+      "label": "完整单骨架 · 6 个游戏动作",
+      "animations": true,
+      "expressions": false,
+      "depthWrite": true,
+      "compression": "gzip"
+    },
+    "model/enemy/model_en_13100.muast": {
+      "file": "asset/models/model_en_13100/model.glb.gz?v=1788327313",
+      "label": "完整单骨架 · 6 个游戏动作",
+      "animations": true,
+      "expressions": false,
+      "depthWrite": true,
+      "compression": "gzip"
+    },
+    "model/enemy/model_en_11300.muast": {
+      "file": "asset/models/model_en_11300/model.glb.gz?v=1788327310",
+      "label": "完整单骨架 · 6 个游戏动作",
+      "animations": true,
+      "expressions": false,
+      "depthWrite": true,
+      "compression": "gzip"
+    },
+    "model/enemy/model_en_10500.muast": {
+      "file": "asset/models/model_en_10500/model.glb.gz?v=1788327307",
+      "label": "完整单骨架 · 6 个游戏动作",
+      "animations": true,
+      "expressions": false,
+      "depthWrite": true,
+      "compression": "gzip"
+    },
+    "model/enemy/model_en_13400.muast": {
+      "file": "asset/models/model_en_13400/model.glb.gz?v=1788327314",
+      "label": "完整单骨架 · 6 个游戏动作",
+      "animations": true,
+      "expressions": false,
+      "depthWrite": true,
+      "compression": "gzip"
+    },
+    "model/enemy/model_en_13200.muast": {
+      "file": "asset/models/model_en_13200/model.glb.gz?v=1788327314",
+      "label": "完整单骨架 · 6 个游戏动作",
+      "animations": true,
+      "expressions": false,
+      "depthWrite": true,
+      "compression": "gzip"
+    },
+    "model/enemy/model_en_11600.muast": {
+      "file": "asset/models/model_en_11600/model.glb.gz?v=1788327310",
+      "label": "完整单骨架 · 6 个游戏动作",
+      "animations": true,
+      "expressions": false,
+      "depthWrite": true,
+      "compression": "gzip"
+    },
+    "model/enemy/model_en_11000.muast": {
+      "file": "asset/models/model_en_11000/model.glb.gz?v=1788327309",
+      "label": "完整单骨架 · 6 个游戏动作",
+      "animations": true,
+      "expressions": false,
+      "depthWrite": true,
+      "compression": "gzip"
+    },
+    "model/enemy/model_en_11700.muast": {
+      "file": "asset/models/model_en_11700/model.glb.gz?v=1788327311",
+      "label": "完整单骨架 · 6 个游戏动作",
+      "animations": true,
+      "expressions": false,
+      "depthWrite": true,
+      "compression": "gzip"
+    },
+    "model/enemy/model_en_12100.muast": {
+      "file": "asset/models/model_en_12100/model.glb.gz?v=1788327311",
+      "label": "完整单骨架 · 6 个游戏动作",
+      "animations": true,
+      "expressions": false,
+      "depthWrite": true,
+      "compression": "gzip"
+    },
+    "model/enemy/model_en_12200.muast": {
+      "file": "asset/models/model_en_12200/model.glb.gz?v=1788327312",
+      "label": "完整单骨架 · 6 个游戏动作",
+      "animations": true,
+      "expressions": false,
+      "depthWrite": true,
+      "compression": "gzip"
+    },
+    "model/enemy/model_en_13700.muast": {
+      "file": "asset/models/model_en_13700/model.glb.gz?v=1788327315",
+      "label": "完整单骨架 · 6 个游戏动作",
+      "animations": true,
+      "expressions": false,
+      "depthWrite": true,
+      "compression": "gzip"
+    },
+    "model/enemy/model_en_14400.muast": {
+      "file": "asset/models/model_en_14400/model.glb.gz?v=1788327317",
+      "label": "完整单骨架 · 6 个游戏动作",
+      "animations": true,
+      "expressions": false,
+      "depthWrite": true,
+      "compression": "gzip"
+    },
+    "model/weapon/wpn_3212200.muast": {
+      "file": "asset/models/wpn_3212200/model.glb.gz?v=1788327472",
+      "label": "完整静态网格",
+      "animations": false,
+      "expressions": false,
+      "depthWrite": true,
+      "compression": "gzip"
+    },
+    "model/weapon/wpn_3202200.muast": {
+      "file": "asset/models/wpn_3202200/model.glb.gz?v=1788327460",
+      "label": "完整静态网格",
+      "animations": false,
+      "expressions": false,
+      "depthWrite": true,
+      "compression": "gzip"
+    },
+    "model/weapon/wpn_3202218.muast": {
+      "file": "asset/models/wpn_3202218/model.glb.gz?v=1788327458",
+      "label": "完整静态网格",
+      "animations": false,
+      "expressions": false,
+      "depthWrite": true,
+      "compression": "gzip"
+    },
+    "model/weapon/wpn_3202219.muast": {
+      "file": "asset/models/wpn_3202219/model.glb.gz?v=1788327459",
+      "label": "完整静态网格",
+      "animations": false,
+      "expressions": false,
+      "depthWrite": true,
+      "compression": "gzip"
+    },
+    "model/weapon/wpn_1000200.muast": {
+      "file": "asset/models/wpn_1000200/model.glb.gz?v=1788327353",
+      "label": "完整静态网格",
+      "animations": false,
+      "expressions": false,
+      "depthWrite": true,
+      "compression": "gzip"
+    },
+    "model/weapon/wpn_1000210.muast": {
+      "file": "asset/models/wpn_1000210/model.glb.gz?v=1788327352",
+      "label": "完整静态网格",
+      "animations": false,
+      "expressions": false,
+      "depthWrite": true,
+      "compression": "gzip"
+    },
+    "model/weapon/wpn_1000220.muast": {
+      "file": "asset/models/wpn_1000220/model.glb.gz?v=1788327353",
+      "label": "完整静态网格",
+      "animations": false,
+      "expressions": false,
+      "depthWrite": true,
+      "compression": "gzip"
+    },
+    "model/weapon/wpn_1001.muast": {
+      "file": "asset/models/wpn_1001/model.glb.gz?v=1788327354",
+      "label": "完整静态网格",
+      "animations": false,
+      "expressions": false,
+      "depthWrite": true,
+      "compression": "gzip"
+    },
+    "model/weapon/wpn_1001210.muast": {
+      "file": "asset/models/wpn_1001210/model.glb.gz?v=1788327355",
+      "label": "完整静态网格",
+      "animations": false,
+      "expressions": false,
+      "depthWrite": true,
+      "compression": "gzip"
+    },
+    "model/weapon/wpn_1001200.muast": {
+      "file": "asset/models/wpn_1001200/model.glb.gz?v=1788327355",
+      "label": "完整静态网格",
+      "animations": false,
+      "expressions": false,
+      "depthWrite": true,
+      "compression": "gzip"
+    },
+    "model/weapon/wpn_1002.muast": {
+      "file": "asset/models/wpn_1002/model.glb.gz?v=1788327355",
+      "label": "完整静态网格",
+      "animations": false,
+      "expressions": false,
+      "depthWrite": true,
+      "compression": "gzip"
+    },
+    "model/weapon/wpn_1002200.muast": {
+      "file": "asset/models/wpn_1002200/model.glb.gz?v=1788327356",
+      "label": "完整静态网格",
+      "animations": false,
+      "expressions": false,
+      "depthWrite": true,
+      "compression": "gzip"
+    },
+    "model/weapon/wpn_1005.muast": {
+      "file": "asset/models/wpn_1005/model.glb.gz?v=1788327357",
+      "label": "完整静态网格",
+      "animations": false,
+      "expressions": false,
+      "depthWrite": true,
+      "compression": "gzip"
+    },
+    "model/weapon/wpn_1003.muast": {
+      "file": "asset/models/wpn_1003/model.glb.gz?v=1788327356",
+      "label": "完整静态网格",
+      "animations": false,
+      "expressions": false,
+      "depthWrite": true,
+      "compression": "gzip"
+    },
+    "model/weapon/wpn_1004.muast": {
+      "file": "asset/models/wpn_1004/model.glb.gz?v=1788327357",
+      "label": "完整静态网格",
+      "animations": false,
+      "expressions": false,
+      "depthWrite": true,
+      "compression": "gzip"
+    },
+    "model/weapon/wpn_1006.muast": {
+      "file": "asset/models/wpn_1006/model.glb.gz?v=1788327358",
+      "label": "完整静态网格",
+      "animations": false,
+      "expressions": false,
+      "depthWrite": true,
+      "compression": "gzip"
+    },
+    "model/weapon/wpn_1007.muast": {
+      "file": "asset/models/wpn_1007/model.glb.gz?v=1788327359",
+      "label": "完整静态网格",
+      "animations": false,
+      "expressions": false,
+      "depthWrite": true,
+      "compression": "gzip"
+    },
+    "model/weapon/wpn_1009.muast": {
+      "file": "asset/models/wpn_1009/model.glb.gz?v=1788327359",
+      "label": "完整静态网格",
+      "animations": false,
+      "expressions": false,
+      "depthWrite": true,
+      "compression": "gzip"
+    },
+    "model/weapon/wpn_1008.muast": {
+      "file": "asset/models/wpn_1008/model.glb.gz?v=1788327359",
+      "label": "完整静态网格",
+      "animations": false,
+      "expressions": false,
+      "depthWrite": true,
+      "compression": "gzip"
+    },
+    "model/weapon/wpn_1010.muast": {
+      "file": "asset/models/wpn_1010/model.glb.gz?v=1788327360",
+      "label": "完整静态网格",
+      "animations": false,
+      "expressions": false,
+      "depthWrite": true,
+      "compression": "gzip"
+    },
+    "model/weapon/wpn_1100200.muast": {
+      "file": "asset/models/wpn_1100200/model.glb.gz?v=1788327361",
+      "label": "完整静态网格",
+      "animations": false,
+      "expressions": false,
+      "depthWrite": true,
+      "compression": "gzip"
+    },
+    "model/weapon/wpn_1101200.muast": {
+      "file": "asset/models/wpn_1101200/model.glb.gz?v=1788327362",
+      "label": "完整静态网格",
+      "animations": false,
+      "expressions": false,
+      "depthWrite": true,
+      "compression": "gzip"
+    },
+    "model/weapon/wpn_1100210.muast": {
+      "file": "asset/models/wpn_1100210/model.glb.gz?v=1788327361",
+      "label": "完整静态网格",
+      "animations": false,
+      "expressions": false,
+      "depthWrite": true,
+      "compression": "gzip"
+    },
+    "model/weapon/wpn_1102.muast": {
+      "file": "asset/models/wpn_1102/model.glb.gz?v=1788327363",
+      "label": "完整静态网格",
+      "animations": false,
+      "expressions": false,
+      "depthWrite": true,
+      "compression": "gzip"
+    },
+    "model/weapon/wpn_1101.muast": {
+      "file": "asset/models/wpn_1101/model.glb.gz?v=1788327361",
+      "label": "完整静态网格",
+      "animations": false,
+      "expressions": false,
+      "depthWrite": true,
+      "compression": "gzip"
+    },
+    "model/weapon/wpn_1102200.muast": {
+      "file": "asset/models/wpn_1102200/model.glb.gz?v=1788327362",
+      "label": "完整静态网格",
+      "animations": false,
+      "expressions": false,
+      "depthWrite": true,
+      "compression": "gzip"
+    },
+    "model/weapon/wpn_1103200.muast": {
+      "file": "asset/models/wpn_1103200/model.glb.gz?v=1788327363",
+      "label": "完整静态网格",
+      "animations": false,
+      "expressions": false,
+      "depthWrite": true,
+      "compression": "gzip"
+    },
+    "model/weapon/wpn_1103.muast": {
+      "file": "asset/models/wpn_1103/model.glb.gz?v=1788327365",
+      "label": "完整静态网格",
+      "animations": false,
+      "expressions": false,
+      "depthWrite": true,
+      "compression": "gzip"
+    },
+    "model/weapon/wpn_1104.muast": {
+      "file": "asset/models/wpn_1104/model.glb.gz?v=1788327365",
+      "label": "完整静态网格",
+      "animations": false,
+      "expressions": false,
+      "depthWrite": true,
+      "compression": "gzip"
+    },
+    "model/weapon/wpn_1106.muast": {
+      "file": "asset/models/wpn_1106/model.glb.gz?v=1788327366",
+      "label": "完整静态网格",
+      "animations": false,
+      "expressions": false,
+      "depthWrite": true,
+      "compression": "gzip"
+    },
+    "model/weapon/wpn_1105.muast": {
+      "file": "asset/models/wpn_1105/model.glb.gz?v=1788327364",
+      "label": "完整静态网格",
+      "animations": false,
+      "expressions": false,
+      "depthWrite": true,
+      "compression": "gzip"
+    },
+    "model/weapon/wpn_1108.muast": {
+      "file": "asset/models/wpn_1108/model.glb.gz?v=1788327368",
+      "label": "完整静态网格",
+      "animations": false,
+      "expressions": false,
+      "depthWrite": true,
+      "compression": "gzip"
+    },
+    "model/weapon/wpn_1107.muast": {
+      "file": "asset/models/wpn_1107/model.glb.gz?v=1788327366",
+      "label": "完整静态网格",
+      "animations": false,
+      "expressions": false,
+      "depthWrite": true,
+      "compression": "gzip"
+    },
+    "model/weapon/wpn_1109.muast": {
+      "file": "asset/models/wpn_1109/model.glb.gz?v=1788327366",
+      "label": "完整静态网格",
+      "animations": false,
+      "expressions": false,
+      "depthWrite": true,
+      "compression": "gzip"
+    },
+    "model/weapon/wpn_1110.muast": {
+      "file": "asset/models/wpn_1110/model.glb.gz?v=1788327368",
+      "label": "完整静态网格",
+      "animations": false,
+      "expressions": false,
+      "depthWrite": true,
+      "compression": "gzip"
+    },
+    "model/weapon/wpn_1102210.muast": {
+      "file": "asset/models/wpn_1102210/model.glb.gz?v=1788327363",
+      "label": "完整静态网格",
+      "animations": false,
+      "expressions": false,
+      "depthWrite": true,
+      "compression": "gzip"
+    },
+    "model/weapon/wpn_1200200.muast": {
+      "file": "asset/models/wpn_1200200/model.glb.gz?v=1788327368",
+      "label": "完整静态网格",
+      "animations": false,
+      "expressions": false,
+      "depthWrite": true,
+      "compression": "gzip"
+    },
+    "model/weapon/wpn_1200210.muast": {
+      "file": "asset/models/wpn_1200210/model.glb.gz?v=1788327370",
+      "label": "完整静态网格",
+      "animations": false,
+      "expressions": false,
+      "depthWrite": true,
+      "compression": "gzip"
+    },
+    "model/weapon/wpn_1201200.muast": {
+      "file": "asset/models/wpn_1201200/model.glb.gz?v=1788327370",
+      "label": "完整静态网格",
+      "animations": false,
+      "expressions": false,
+      "depthWrite": true,
+      "compression": "gzip"
+    },
+    "model/weapon/wpn_1201.muast": {
+      "file": "asset/models/wpn_1201/model.glb.gz?v=1788327369",
+      "label": "完整静态网格",
+      "animations": false,
+      "expressions": false,
+      "depthWrite": true,
+      "compression": "gzip"
+    },
+    "model/weapon/wpn_1201210.muast": {
+      "file": "asset/models/wpn_1201210/model.glb.gz?v=1788327371",
+      "label": "完整静态网格",
+      "animations": false,
+      "expressions": false,
+      "depthWrite": true,
+      "compression": "gzip"
+    },
+    "model/weapon/wpn_1202.muast": {
+      "file": "asset/models/wpn_1202/model.glb.gz?v=1788327371",
+      "label": "完整静态网格",
+      "animations": false,
+      "expressions": false,
+      "depthWrite": true,
+      "compression": "gzip"
+    },
+    "model/weapon/wpn_1201220.muast": {
+      "file": "asset/models/wpn_1201220/model.glb.gz?v=1788327371",
+      "label": "完整静态网格",
+      "animations": false,
+      "expressions": false,
+      "depthWrite": true,
+      "compression": "gzip"
+    },
+    "model/weapon/wpn_1202200.muast": {
+      "file": "asset/models/wpn_1202200/model.glb.gz?v=1788327372",
+      "label": "完整静态网格",
+      "animations": false,
+      "expressions": false,
+      "depthWrite": true,
+      "compression": "gzip"
+    },
+    "model/weapon/wpn_1203.muast": {
+      "file": "asset/models/wpn_1203/model.glb.gz?v=1788327373",
+      "label": "完整静态网格",
+      "animations": false,
+      "expressions": false,
+      "depthWrite": true,
+      "compression": "gzip"
+    },
+    "model/weapon/wpn_1202210.muast": {
+      "file": "asset/models/wpn_1202210/model.glb.gz?v=1788327373",
+      "label": "完整静态网格",
+      "animations": false,
+      "expressions": false,
+      "depthWrite": true,
+      "compression": "gzip"
+    },
+    "model/weapon/wpn_1204.muast": {
+      "file": "asset/models/wpn_1204/model.glb.gz?v=1788327374",
+      "label": "完整静态网格",
+      "animations": false,
+      "expressions": false,
+      "depthWrite": true,
+      "compression": "gzip"
+    },
+    "model/weapon/wpn_1203200.muast": {
+      "file": "asset/models/wpn_1203200/model.glb.gz?v=1788327373",
+      "label": "完整静态网格",
+      "animations": false,
+      "expressions": false,
+      "depthWrite": true,
+      "compression": "gzip"
+    },
+    "model/weapon/wpn_1204200.muast": {
+      "file": "asset/models/wpn_1204200/model.glb.gz?v=1788327375",
+      "label": "完整静态网格",
+      "animations": false,
+      "expressions": false,
+      "depthWrite": true,
+      "compression": "gzip"
+    },
+    "model/weapon/wpn_1205.muast": {
+      "file": "asset/models/wpn_1205/model.glb.gz?v=1788327376",
+      "label": "完整静态网格",
+      "animations": false,
+      "expressions": false,
+      "depthWrite": true,
+      "compression": "gzip"
+    },
+    "model/weapon/wpn_1206.muast": {
+      "file": "asset/models/wpn_1206/model.glb.gz?v=1788328060",
+      "label": "完整静态网格",
+      "animations": false,
+      "expressions": false,
+      "depthWrite": true,
+      "compression": "gzip"
+    },
+    "model/weapon/wpn_1207.muast": {
+      "file": "asset/models/wpn_1207/model.glb.gz?v=1788327377",
+      "label": "完整静态网格",
+      "animations": false,
+      "expressions": false,
+      "depthWrite": true,
+      "compression": "gzip"
+    },
+    "model/weapon/wpn_1208.muast": {
+      "file": "asset/models/wpn_1208/model.glb.gz?v=1788327376",
+      "label": "完整静态网格",
+      "animations": false,
+      "expressions": false,
+      "depthWrite": true,
+      "compression": "gzip"
+    },
+    "model/weapon/wpn_1209.muast": {
+      "file": "asset/models/wpn_1209/model.glb.gz?v=1788327378",
+      "label": "完整静态网格",
+      "animations": false,
+      "expressions": false,
+      "depthWrite": true,
+      "compression": "gzip"
+    },
+    "model/weapon/wpn_1210.muast": {
+      "file": "asset/models/wpn_1210/model.glb.gz?v=1788327378",
+      "label": "完整静态网格",
+      "animations": false,
+      "expressions": false,
+      "depthWrite": true,
+      "compression": "gzip"
+    },
+    "model/weapon/wpn_1300210.muast": {
+      "file": "asset/models/wpn_1300210/model.glb.gz?v=1788327380",
+      "label": "完整静态网格",
+      "animations": false,
+      "expressions": false,
+      "depthWrite": true,
+      "compression": "gzip"
+    },
+    "model/weapon/wpn_1300200.muast": {
+      "file": "asset/models/wpn_1300200/model.glb.gz?v=1788327379",
+      "label": "完整静态网格",
+      "animations": false,
+      "expressions": false,
+      "depthWrite": true,
+      "compression": "gzip"
+    },
+    "model/weapon/wpn_1301200.muast": {
+      "file": "asset/models/wpn_1301200/model.glb.gz?v=1788327382",
+      "label": "完整静态网格",
+      "animations": false,
+      "expressions": false,
+      "depthWrite": true,
+      "compression": "gzip"
+    },
+    "model/weapon/wpn_1301.muast": {
+      "file": "asset/models/wpn_1301/model.glb.gz?v=1788327380",
+      "label": "完整静态网格",
+      "animations": false,
+      "expressions": false,
+      "depthWrite": true,
+      "compression": "gzip"
+    },
+    "model/weapon/wpn_1301210.muast": {
+      "file": "asset/models/wpn_1301210/model.glb.gz?v=1788327381",
+      "label": "完整静态网格",
+      "animations": false,
+      "expressions": false,
+      "depthWrite": true,
+      "compression": "gzip"
+    },
+    "model/weapon/wpn_1302.muast": {
+      "file": "asset/models/wpn_1302/model.glb.gz?v=1788327382",
+      "label": "完整静态网格",
+      "animations": false,
+      "expressions": false,
+      "depthWrite": true,
+      "compression": "gzip"
+    },
+    "model/weapon/wpn_1302200.muast": {
+      "file": "asset/models/wpn_1302200/model.glb.gz?v=1788327383",
+      "label": "完整静态网格",
+      "animations": false,
+      "expressions": false,
+      "depthWrite": true,
+      "compression": "gzip"
+    },
+    "model/weapon/wpn_1302220.muast": {
+      "file": "asset/models/wpn_1302220/model.glb.gz?v=1788327384",
+      "label": "完整静态网格",
+      "animations": false,
+      "expressions": false,
+      "depthWrite": true,
+      "compression": "gzip"
+    },
+    "model/weapon/wpn_1303200.muast": {
+      "file": "asset/models/wpn_1303200/model.glb.gz?v=1788327385",
+      "label": "完整静态网格",
+      "animations": false,
+      "expressions": false,
+      "depthWrite": true,
+      "compression": "gzip"
+    },
+    "model/weapon/wpn_1303.muast": {
+      "file": "asset/models/wpn_1303/model.glb.gz?v=1788327384",
+      "label": "完整静态网格",
+      "animations": false,
+      "expressions": false,
+      "depthWrite": true,
+      "compression": "gzip"
+    },
+    "model/weapon/wpn_1304.muast": {
+      "file": "asset/models/wpn_1304/model.glb.gz?v=1788327385",
+      "label": "完整静态网格",
+      "animations": false,
+      "expressions": false,
+      "depthWrite": true,
+      "compression": "gzip"
+    },
+    "model/weapon/wpn_1306.muast": {
+      "file": "asset/models/wpn_1306/model.glb.gz?v=1788327387",
+      "label": "完整静态网格",
+      "animations": false,
+      "expressions": false,
+      "depthWrite": true,
+      "compression": "gzip"
+    },
+    "model/weapon/wpn_1305.muast": {
+      "file": "asset/models/wpn_1305/model.glb.gz?v=1788327388",
+      "label": "完整静态网格",
+      "animations": false,
+      "expressions": false,
+      "depthWrite": true,
+      "compression": "gzip"
+    },
+    "model/weapon/wpn_1308.muast": {
+      "file": "asset/models/wpn_1308/model.glb.gz?v=1788327390",
+      "label": "完整静态网格",
+      "animations": false,
+      "expressions": false,
+      "depthWrite": true,
+      "compression": "gzip"
+    },
+    "model/weapon/wpn_1307.muast": {
+      "file": "asset/models/wpn_1307/model.glb.gz?v=1788327387",
+      "label": "完整静态网格",
+      "animations": false,
+      "expressions": false,
+      "depthWrite": true,
+      "compression": "gzip"
+    },
+    "model/weapon/wpn_1309.muast": {
+      "file": "asset/models/wpn_1309/model.glb.gz?v=1788327388",
+      "label": "完整静态网格",
+      "animations": false,
+      "expressions": false,
+      "depthWrite": true,
+      "compression": "gzip"
+    },
+    "model/weapon/wpn_1400200.muast": {
+      "file": "asset/models/wpn_1400200/model.glb.gz?v=1788327391",
+      "label": "完整静态网格",
+      "animations": false,
+      "expressions": false,
+      "depthWrite": true,
+      "compression": "gzip"
+    },
+    "model/weapon/wpn_1400210.muast": {
+      "file": "asset/models/wpn_1400210/model.glb.gz?v=1788327392",
+      "label": "完整静态网格",
+      "animations": false,
+      "expressions": false,
+      "depthWrite": true,
+      "compression": "gzip"
+    },
+    "model/weapon/wpn_1401.muast": {
+      "file": "asset/models/wpn_1401/model.glb.gz?v=1788327392",
+      "label": "完整静态网格",
+      "animations": false,
+      "expressions": false,
+      "depthWrite": true,
+      "compression": "gzip"
+    },
+    "model/weapon/wpn_1310.muast": {
+      "file": "asset/models/wpn_1310/model.glb.gz?v=1788327390",
+      "label": "完整静态网格",
+      "animations": false,
+      "expressions": false,
+      "depthWrite": true,
+      "compression": "gzip"
+    },
+    "model/weapon/wpn_1401220.muast": {
+      "file": "asset/models/wpn_1401220/model.glb.gz?v=1788327395",
+      "label": "完整静态网格",
+      "animations": false,
+      "expressions": false,
+      "depthWrite": true,
+      "compression": "gzip"
+    },
+    "model/weapon/wpn_1401200.muast": {
+      "file": "asset/models/wpn_1401200/model.glb.gz?v=1788327393",
+      "label": "完整静态网格",
+      "animations": false,
+      "expressions": false,
+      "depthWrite": true,
+      "compression": "gzip"
+    },
+    "model/weapon/wpn_1401238.muast": {
+      "file": "asset/models/wpn_1401238/model.glb.gz?v=1788327393",
+      "label": "完整静态网格",
+      "animations": false,
+      "expressions": false,
+      "depthWrite": true,
+      "compression": "gzip"
+    },
+    "model/weapon/wpn_1401239.muast": {
+      "file": "asset/models/wpn_1401239/model.glb.gz?v=1788327394",
+      "label": "完整静态网格",
+      "animations": false,
+      "expressions": false,
+      "depthWrite": true,
+      "compression": "gzip"
+    },
+    "model/weapon/wpn_1402200.muast": {
+      "file": "asset/models/wpn_1402200/model.glb.gz?v=1788327395",
+      "label": "完整静态网格",
+      "animations": false,
+      "expressions": false,
+      "depthWrite": true,
+      "compression": "gzip"
+    },
+    "model/weapon/wpn_1403200.muast": {
+      "file": "asset/models/wpn_1403200/model.glb.gz?v=1788327397",
+      "label": "完整静态网格",
+      "animations": false,
+      "expressions": false,
+      "depthWrite": true,
+      "compression": "gzip"
+    },
+    "model/weapon/wpn_1402.muast": {
+      "file": "asset/models/wpn_1402/model.glb.gz?v=1788327395",
+      "label": "完整静态网格",
+      "animations": false,
+      "expressions": false,
+      "depthWrite": true,
+      "compression": "gzip"
+    },
+    "model/weapon/wpn_1403.muast": {
+      "file": "asset/models/wpn_1403/model.glb.gz?v=1788327396",
+      "label": "完整静态网格",
+      "animations": false,
+      "expressions": false,
+      "depthWrite": true,
+      "compression": "gzip"
+    },
+    "model/weapon/wpn_1403210.muast": {
+      "file": "asset/models/wpn_1403210/model.glb.gz?v=1788327398",
+      "label": "完整静态网格",
+      "animations": false,
+      "expressions": false,
+      "depthWrite": true,
+      "compression": "gzip"
+    },
+    "model/weapon/wpn_1403220.muast": {
+      "file": "asset/models/wpn_1403220/model.glb.gz?v=1788327397",
+      "label": "完整静态网格",
+      "animations": false,
+      "expressions": false,
+      "depthWrite": true,
+      "compression": "gzip"
+    },
+    "model/weapon/wpn_1404210.muast": {
+      "file": "asset/models/wpn_1404210/model.glb.gz?v=1788327398",
+      "label": "完整静态网格",
+      "animations": false,
+      "expressions": false,
+      "depthWrite": true,
+      "compression": "gzip"
+    },
+    "model/weapon/wpn_1405.muast": {
+      "file": "asset/models/wpn_1405/model.glb.gz?v=1788327398",
+      "label": "完整静态网格",
+      "animations": false,
+      "expressions": false,
+      "depthWrite": true,
+      "compression": "gzip"
+    },
+    "model/weapon/wpn_1404.muast": {
+      "file": "asset/models/wpn_1404/model.glb.gz?v=1788327397",
+      "label": "完整静态网格",
+      "animations": false,
+      "expressions": false,
+      "depthWrite": true,
+      "compression": "gzip"
+    },
+    "model/weapon/wpn_1406.muast": {
+      "file": "asset/models/wpn_1406/model.glb.gz?v=1788327404",
+      "label": "完整静态网格",
+      "animations": false,
+      "expressions": false,
+      "depthWrite": true,
+      "compression": "gzip"
+    },
+    "model/weapon/wpn_1408.muast": {
+      "file": "asset/models/wpn_1408/model.glb.gz?v=1788327400",
+      "label": "完整静态网格",
+      "animations": false,
+      "expressions": false,
+      "depthWrite": true,
+      "compression": "gzip"
+    },
+    "model/weapon/wpn_1406200.muast": {
+      "file": "asset/models/wpn_1406200/model.glb.gz?v=1788327399",
+      "label": "完整静态网格",
+      "animations": false,
+      "expressions": false,
+      "depthWrite": true,
+      "compression": "gzip"
+    },
+    "model/weapon/wpn_1407.muast": {
+      "file": "asset/models/wpn_1407/model.glb.gz?v=1788327401",
+      "label": "完整静态网格",
+      "animations": false,
+      "expressions": false,
+      "depthWrite": true,
+      "compression": "gzip"
+    },
+    "model/weapon/wpn_1409.muast": {
+      "file": "asset/models/wpn_1409/model.glb.gz?v=1788327401",
+      "label": "完整静态网格",
+      "animations": false,
+      "expressions": false,
+      "depthWrite": true,
+      "compression": "gzip"
+    },
+    "model/weapon/wpn_1500200.muast": {
+      "file": "asset/models/wpn_1500200/model.glb.gz?v=1788327403",
+      "label": "完整静态网格",
+      "animations": false,
+      "expressions": false,
+      "depthWrite": true,
+      "compression": "gzip"
+    },
+    "model/weapon/wpn_1502200.muast": {
+      "file": "asset/models/wpn_1502200/model.glb.gz?v=1788327405",
+      "label": "完整静态网格",
+      "animations": false,
+      "expressions": false,
+      "depthWrite": true,
+      "compression": "gzip"
+    },
+    "model/weapon/wpn_1501210.muast": {
+      "file": "asset/models/wpn_1501210/model.glb.gz?v=1788327404",
+      "label": "完整静态网格",
+      "animations": false,
+      "expressions": false,
+      "depthWrite": true,
+      "compression": "gzip"
+    },
+    "model/weapon/wpn_1501200.muast": {
+      "file": "asset/models/wpn_1501200/model.glb.gz?v=1788327403",
+      "label": "完整静态网格",
+      "animations": false,
+      "expressions": false,
+      "depthWrite": true,
+      "compression": "gzip"
+    },
+    "model/weapon/wpn_1410.muast": {
+      "file": "asset/models/wpn_1410/model.glb.gz?v=1788327401",
+      "label": "完整静态网格",
+      "animations": false,
+      "expressions": false,
+      "depthWrite": true,
+      "compression": "gzip"
+    },
+    "model/weapon/wpn_1503200.muast": {
+      "file": "asset/models/wpn_1503200/model.glb.gz?v=1788327405",
+      "label": "完整静态网格",
+      "animations": false,
+      "expressions": false,
+      "depthWrite": true,
+      "compression": "gzip"
+    },
+    "model/weapon/wpn_1504200.muast": {
+      "file": "asset/models/wpn_1504200/model.glb.gz?v=1788327407",
+      "label": "完整静态网格",
+      "animations": false,
+      "expressions": false,
+      "depthWrite": true,
+      "compression": "gzip"
+    },
+    "model/weapon/wpn_1505200.muast": {
+      "file": "asset/models/wpn_1505200/model.glb.gz?v=1788327406",
+      "label": "完整静态网格",
+      "animations": false,
+      "expressions": false,
+      "depthWrite": true,
+      "compression": "gzip"
+    },
+    "model/weapon/wpn_1508210.muast": {
+      "file": "asset/models/wpn_1508210/model.glb.gz?v=1788327406",
+      "label": "完整静态网格",
+      "animations": false,
+      "expressions": false,
+      "depthWrite": true,
+      "compression": "gzip"
+    },
+    "model/weapon/wpn_1600200.muast": {
+      "file": "asset/models/wpn_1600200/model.glb.gz?v=1788327408",
+      "label": "完整静态网格",
+      "animations": false,
+      "expressions": false,
+      "depthWrite": true,
+      "compression": "gzip"
+    },
+    "model/weapon/wpn_1506200.muast": {
+      "file": "asset/models/wpn_1506200/model.glb.gz?v=1788327407",
+      "label": "完整静态网格",
+      "animations": false,
+      "expressions": false,
+      "depthWrite": true,
+      "compression": "gzip"
+    },
+    "model/weapon/wpn_1601200.muast": {
+      "file": "asset/models/wpn_1601200/model.glb.gz?v=1788327408",
+      "label": "完整静态网格",
+      "animations": false,
+      "expressions": false,
+      "depthWrite": true,
+      "compression": "gzip"
+    },
+    "model/weapon/wpn_1602200.muast": {
+      "file": "asset/models/wpn_1602200/model.glb.gz?v=1788327408",
+      "label": "完整静态网格",
+      "animations": false,
+      "expressions": false,
+      "depthWrite": true,
+      "compression": "gzip"
+    },
+    "model/weapon/wpn_1603200.muast": {
+      "file": "asset/models/wpn_1603200/model.glb.gz?v=1788327408",
+      "label": "完整静态网格",
+      "animations": false,
+      "expressions": false,
+      "depthWrite": true,
+      "compression": "gzip"
+    },
+    "model/weapon/wpn_1607200.muast": {
+      "file": "asset/models/wpn_1607200/model.glb.gz?v=1788327410",
+      "label": "完整静态网格",
+      "animations": false,
+      "expressions": false,
+      "depthWrite": true,
+      "compression": "gzip"
+    },
+    "model/weapon/wpn_1700200.muast": {
+      "file": "asset/models/wpn_1700200/model.glb.gz?v=1788327410",
+      "label": "完整静态网格",
+      "animations": false,
+      "expressions": false,
+      "depthWrite": true,
+      "compression": "gzip"
+    },
+    "model/weapon/wpn_1701200.muast": {
+      "file": "asset/models/wpn_1701200/model.glb.gz?v=1788327410",
+      "label": "完整静态网格",
+      "animations": false,
+      "expressions": false,
+      "depthWrite": true,
+      "compression": "gzip"
+    },
+    "model/weapon/wpn_1701210.muast": {
+      "file": "asset/models/wpn_1701210/model.glb.gz?v=1788327413",
+      "label": "完整静态网格",
+      "animations": false,
+      "expressions": false,
+      "depthWrite": true,
+      "compression": "gzip"
+    },
+    "model/weapon/wpn_1700210.muast": {
+      "file": "asset/models/wpn_1700210/model.glb.gz?v=1788327411",
+      "label": "完整静态网格",
+      "animations": false,
+      "expressions": false,
+      "depthWrite": true,
+      "compression": "gzip"
+    },
+    "model/weapon/wpn_1702200.muast": {
+      "file": "asset/models/wpn_1702200/model.glb.gz?v=1788327412",
+      "label": "完整静态网格",
+      "animations": false,
+      "expressions": false,
+      "depthWrite": true,
+      "compression": "gzip"
+    },
+    "model/weapon/wpn_1702210.muast": {
+      "file": "asset/models/wpn_1702210/model.glb.gz?v=1788327412",
+      "label": "完整静态网格",
+      "animations": false,
+      "expressions": false,
+      "depthWrite": true,
+      "compression": "gzip"
+    },
+    "model/weapon/wpn_1703200.muast": {
+      "file": "asset/models/wpn_1703200/model.glb.gz?v=1788327413",
+      "label": "完整静态网格",
+      "animations": false,
+      "expressions": false,
+      "depthWrite": true,
+      "compression": "gzip"
+    },
+    "model/weapon/wpn_1800200.muast": {
+      "file": "asset/models/wpn_1800200/model.glb.gz?v=1788327414",
+      "label": "完整静态网格",
+      "animations": false,
+      "expressions": false,
+      "depthWrite": true,
+      "compression": "gzip"
+    },
+    "model/weapon/wpn_1706200.muast": {
+      "file": "asset/models/wpn_1706200/model.glb.gz?v=1788327413",
+      "label": "完整静态网格",
+      "animations": false,
+      "expressions": false,
+      "depthWrite": true,
+      "compression": "gzip"
+    },
+    "model/weapon/wpn_1800210.muast": {
+      "file": "asset/models/wpn_1800210/model.glb.gz?v=1788327414",
+      "label": "完整静态网格",
+      "animations": false,
+      "expressions": false,
+      "depthWrite": true,
+      "compression": "gzip"
+    },
+    "model/weapon/wpn_1801200.muast": {
+      "file": "asset/models/wpn_1801200/model.glb.gz?v=1788327416",
+      "label": "完整静态网格",
+      "animations": false,
+      "expressions": false,
+      "depthWrite": true,
+      "compression": "gzip"
+    },
+    "model/weapon/wpn_1900200.muast": {
+      "file": "asset/models/wpn_1900200/model.glb.gz?v=1788327415",
+      "label": "完整静态网格",
+      "animations": false,
+      "expressions": false,
+      "depthWrite": true,
+      "compression": "gzip"
+    },
+    "model/weapon/wpn_1802210.muast": {
+      "file": "asset/models/wpn_1802210/model.glb.gz?v=1788327415",
+      "label": "完整静态网格",
+      "animations": false,
+      "expressions": false,
+      "depthWrite": true,
+      "compression": "gzip"
+    },
+    "model/weapon/wpn_1901219.muast": {
+      "file": "asset/models/wpn_1901219/model.glb.gz?v=1788327418",
+      "label": "完整静态网格",
+      "animations": false,
+      "expressions": false,
+      "depthWrite": true,
+      "compression": "gzip"
+    },
+    "model/weapon/wpn_1901200.muast": {
+      "file": "asset/models/wpn_1901200/model.glb.gz?v=1788327417",
+      "label": "完整静态网格",
+      "animations": false,
+      "expressions": false,
+      "depthWrite": true,
+      "compression": "gzip"
+    },
+    "model/weapon/wpn_1902200.muast": {
+      "file": "asset/models/wpn_1902200/model.glb.gz?v=1788327418",
+      "label": "完整静态网格",
+      "animations": false,
+      "expressions": false,
+      "depthWrite": true,
+      "compression": "gzip"
+    },
+    "model/weapon/wpn_1901218.muast": {
+      "file": "asset/models/wpn_1901218/model.glb.gz?v=1788327418",
+      "label": "完整静态网格",
+      "animations": false,
+      "expressions": false,
+      "depthWrite": true,
+      "compression": "gzip"
+    },
+    "model/weapon/wpn_2000200.muast": {
+      "file": "asset/models/wpn_2000200/model.glb.gz?v=1788327418",
+      "label": "完整静态网格",
+      "animations": false,
+      "expressions": false,
+      "depthWrite": true,
+      "compression": "gzip"
+    },
+    "model/weapon/wpn_2000210.muast": {
+      "file": "asset/models/wpn_2000210/model.glb.gz?v=1788327419",
+      "label": "完整静态网格",
+      "animations": false,
+      "expressions": false,
+      "depthWrite": true,
+      "compression": "gzip"
+    },
+    "model/weapon/wpn_2001200.muast": {
+      "file": "asset/models/wpn_2001200/model.glb.gz?v=1788327419",
+      "label": "完整静态网格",
+      "animations": false,
+      "expressions": false,
+      "depthWrite": true,
+      "compression": "gzip"
+    },
+    "model/weapon/wpn_1900210.muast": {
+      "file": "asset/models/wpn_1900210/model.glb.gz?v=1788327415",
+      "label": "完整静态网格",
+      "animations": false,
+      "expressions": false,
+      "depthWrite": true,
+      "compression": "gzip"
+    },
+    "model/weapon/wpn_2001210.muast": {
+      "file": "asset/models/wpn_2001210/model.glb.gz?v=1788327420",
+      "label": "完整静态网格",
+      "animations": false,
+      "expressions": false,
+      "depthWrite": true,
+      "compression": "gzip"
+    },
+    "model/weapon/wpn_21000.muast": {
+      "file": "asset/models/wpn_21000/model.glb.gz?v=1788327421",
+      "label": "完整静态网格",
+      "animations": false,
+      "expressions": false,
+      "depthWrite": true,
+      "compression": "gzip"
+    },
+    "model/weapon/wpn_2002200.muast": {
+      "file": "asset/models/wpn_2002200/model.glb.gz?v=1788327420",
+      "label": "完整静态网格",
+      "animations": false,
+      "expressions": false,
+      "depthWrite": true,
+      "compression": "gzip"
+    },
+    "model/weapon/wpn_21001.muast": {
+      "file": "asset/models/wpn_21001/model.glb.gz?v=1788327422",
+      "label": "完整静态网格",
+      "animations": false,
+      "expressions": false,
+      "depthWrite": true,
+      "compression": "gzip"
+    },
+    "model/weapon/wpn_21002.muast": {
+      "file": "asset/models/wpn_21002/model.glb.gz?v=1788327422",
+      "label": "完整静态网格",
+      "animations": false,
+      "expressions": false,
+      "depthWrite": true,
+      "compression": "gzip"
+    },
+    "model/weapon/wpn_2100200.muast": {
+      "file": "asset/models/wpn_2100200/model.glb.gz?v=1788327423",
+      "label": "完整静态网格",
+      "animations": false,
+      "expressions": false,
+      "depthWrite": true,
+      "compression": "gzip"
+    },
+    "model/weapon/wpn_2101200.muast": {
+      "file": "asset/models/wpn_2101200/model.glb.gz?v=1788327424",
+      "label": "完整静态网格",
+      "animations": false,
+      "expressions": false,
+      "depthWrite": true,
+      "compression": "gzip"
+    },
+    "model/weapon/wpn_2101218.muast": {
+      "file": "asset/models/wpn_2101218/model.glb.gz?v=1788327423",
+      "label": "完整静态网格",
+      "animations": false,
+      "expressions": false,
+      "depthWrite": true,
+      "compression": "gzip"
+    },
+    "model/weapon/wpn_2103200.muast": {
+      "file": "asset/models/wpn_2103200/model.glb.gz?v=1788327425",
+      "label": "完整静态网格",
+      "animations": false,
+      "expressions": false,
+      "depthWrite": true,
+      "compression": "gzip"
+    },
+    "model/weapon/wpn_2104200.muast": {
+      "file": "asset/models/wpn_2104200/model.glb.gz?v=1788327426",
+      "label": "完整静态网格",
+      "animations": false,
+      "expressions": false,
+      "depthWrite": true,
+      "compression": "gzip"
+    },
+    "model/weapon/wpn_2101219.muast": {
+      "file": "asset/models/wpn_2101219/model.glb.gz?v=1788327423",
+      "label": "完整静态网格",
+      "animations": false,
+      "expressions": false,
+      "depthWrite": true,
+      "compression": "gzip"
+    },
+    "model/weapon/wpn_2105200.muast": {
+      "file": "asset/models/wpn_2105200/model.glb.gz?v=1788327425",
+      "label": "完整静态网格",
+      "animations": false,
+      "expressions": false,
+      "depthWrite": true,
+      "compression": "gzip"
+    },
+    "model/weapon/wpn_21100.muast": {
+      "file": "asset/models/wpn_21100/model.glb.gz?v=1788327426",
+      "label": "完整静态网格",
+      "animations": false,
+      "expressions": false,
+      "depthWrite": true,
+      "compression": "gzip"
+    },
+    "model/weapon/wpn_21101.muast": {
+      "file": "asset/models/wpn_21101/model.glb.gz?v=1788345547",
+      "label": "完整静态网格",
+      "animations": false,
+      "expressions": false,
+      "depthWrite": true,
+      "compression": "gzip"
+    },
+    "model/weapon/wpn_2002210.muast": {
+      "file": "asset/models/wpn_2002210/model.glb.gz?v=1788327421",
+      "label": "完整静态网格",
+      "animations": false,
+      "expressions": false,
+      "depthWrite": true,
+      "compression": "gzip"
+    },
+    "model/weapon/wpn_21202.muast": {
+      "file": "asset/models/wpn_21202/model.glb.gz?v=1788327428",
+      "label": "完整静态网格",
+      "animations": false,
+      "expressions": false,
+      "depthWrite": true,
+      "compression": "gzip"
+    },
+    "model/weapon/wpn_21201.muast": {
+      "file": "asset/models/wpn_21201/model.glb.gz?v=1788327428",
+      "label": "完整静态网格",
+      "animations": false,
+      "expressions": false,
+      "depthWrite": true,
+      "compression": "gzip"
+    },
+    "model/weapon/wpn_21200.muast": {
+      "file": "asset/models/wpn_21200/model.glb.gz?v=1788327427",
+      "label": "完整静态网格",
+      "animations": false,
+      "expressions": false,
+      "depthWrite": true,
+      "compression": "gzip"
+    },
+    "model/weapon/wpn_21300.muast": {
+      "file": "asset/models/wpn_21300/model.glb.gz?v=1788327427",
+      "label": "完整静态网格",
+      "animations": false,
+      "expressions": false,
+      "depthWrite": true,
+      "compression": "gzip"
+    },
+    "model/weapon/wpn_21401.muast": {
+      "file": "asset/models/wpn_21401/model.glb.gz?v=1788327429",
+      "label": "完整静态网格",
+      "animations": false,
+      "expressions": false,
+      "depthWrite": true,
+      "compression": "gzip"
+    },
+    "model/weapon/wpn_21301.muast": {
+      "file": "asset/models/wpn_21301/model.glb.gz?v=1788327429",
+      "label": "完整静态网格",
+      "animations": false,
+      "expressions": false,
+      "depthWrite": true,
+      "compression": "gzip"
+    },
+    "model/weapon/wpn_2200210.muast": {
+      "file": "asset/models/wpn_2200210/model.glb.gz?v=1788327431",
+      "label": "完整静态网格",
+      "animations": false,
+      "expressions": false,
+      "depthWrite": true,
+      "compression": "gzip"
+    },
+    "model/weapon/wpn_21400.muast": {
+      "file": "asset/models/wpn_21400/model.glb.gz?v=1788327429",
+      "label": "完整静态网格",
+      "animations": false,
+      "expressions": false,
+      "depthWrite": true,
+      "compression": "gzip"
+    },
+    "model/weapon/wpn_2200200.muast": {
+      "file": "asset/models/wpn_2200200/model.glb.gz?v=1788327431",
+      "label": "完整静态网格",
+      "animations": false,
+      "expressions": false,
+      "depthWrite": true,
+      "compression": "gzip"
+    },
+    "model/weapon/wpn_2204200.muast": {
+      "file": "asset/models/wpn_2204200/model.glb.gz?v=1788327431",
+      "label": "完整静态网格",
+      "animations": false,
+      "expressions": false,
+      "depthWrite": true,
+      "compression": "gzip"
+    },
+    "model/weapon/wpn_2300200.muast": {
+      "file": "asset/models/wpn_2300200/model.glb.gz?v=1788327433",
+      "label": "完整静态网格",
+      "animations": false,
+      "expressions": false,
+      "depthWrite": true,
+      "compression": "gzip"
+    },
+    "model/weapon/wpn_2300210.muast": {
+      "file": "asset/models/wpn_2300210/model.glb.gz?v=1788327432",
+      "label": "完整静态网格",
+      "animations": false,
+      "expressions": false,
+      "depthWrite": true,
+      "compression": "gzip"
+    },
+    "model/weapon/wpn_2301200.muast": {
+      "file": "asset/models/wpn_2301200/model.glb.gz?v=1788327435",
+      "label": "完整静态网格",
+      "animations": false,
+      "expressions": false,
+      "depthWrite": true,
+      "compression": "gzip"
+    },
+    "model/weapon/wpn_2301210.muast": {
+      "file": "asset/models/wpn_2301210/model.glb.gz?v=1788327434",
+      "label": "完整静态网格",
+      "animations": false,
+      "expressions": false,
+      "depthWrite": true,
+      "compression": "gzip"
+    },
+    "model/weapon/wpn_2303200.muast": {
+      "file": "asset/models/wpn_2303200/model.glb.gz?v=1788327434",
+      "label": "完整静态网格",
+      "animations": false,
+      "expressions": false,
+      "depthWrite": true,
+      "compression": "gzip"
+    },
+    "model/weapon/wpn_2302200.muast": {
+      "file": "asset/models/wpn_2302200/model.glb.gz?v=1788327434",
+      "label": "完整静态网格",
+      "animations": false,
+      "expressions": false,
+      "depthWrite": true,
+      "compression": "gzip"
+    },
+    "model/weapon/wpn_2303210.muast": {
+      "file": "asset/models/wpn_2303210/model.glb.gz?v=1788327436",
+      "label": "完整静态网格",
+      "animations": false,
+      "expressions": false,
+      "depthWrite": true,
+      "compression": "gzip"
+    },
+    "model/weapon/wpn_2400210.muast": {
+      "file": "asset/models/wpn_2400210/model.glb.gz?v=1788327436",
+      "label": "完整静态网格",
+      "animations": false,
+      "expressions": false,
+      "depthWrite": true,
+      "compression": "gzip"
+    },
+    "model/weapon/wpn_2201200.muast": {
+      "file": "asset/models/wpn_2201200/model.glb.gz?v=1788327431",
+      "label": "完整静态网格",
+      "animations": false,
+      "expressions": false,
+      "depthWrite": true,
+      "compression": "gzip"
+    },
+    "model/weapon/wpn_2400200.muast": {
+      "file": "asset/models/wpn_2400200/model.glb.gz?v=1788327437",
+      "label": "完整静态网格",
+      "animations": false,
+      "expressions": false,
+      "depthWrite": true,
+      "compression": "gzip"
+    },
+    "model/weapon/wpn_2401200.muast": {
+      "file": "asset/models/wpn_2401200/model.glb.gz?v=1788327436",
+      "label": "完整静态网格",
+      "animations": false,
+      "expressions": false,
+      "depthWrite": true,
+      "compression": "gzip"
+    },
+    "model/weapon/wpn_2401210.muast": {
+      "file": "asset/models/wpn_2401210/model.glb.gz?v=1788327438",
+      "label": "完整静态网格",
+      "animations": false,
+      "expressions": false,
+      "depthWrite": true,
+      "compression": "gzip"
+    },
+    "model/weapon/wpn_2402200.muast": {
+      "file": "asset/models/wpn_2402200/model.glb.gz?v=1788327440",
+      "label": "完整静态网格",
+      "animations": false,
+      "expressions": false,
+      "depthWrite": true,
+      "compression": "gzip"
+    },
+    "model/weapon/wpn_2500200.muast": {
+      "file": "asset/models/wpn_2500200/model.glb.gz?v=1788327438",
+      "label": "完整静态网格",
+      "animations": false,
+      "expressions": false,
+      "depthWrite": true,
+      "compression": "gzip"
+    },
+    "model/weapon/wpn_2600210.muast": {
+      "file": "asset/models/wpn_2600210/model.glb.gz?v=1788327439",
+      "label": "完整静态网格",
+      "animations": false,
+      "expressions": false,
+      "depthWrite": true,
+      "compression": "gzip"
+    },
+    "model/weapon/wpn_2600200.muast": {
+      "file": "asset/models/wpn_2600200/model.glb.gz?v=1788327438",
+      "label": "完整静态网格",
+      "animations": false,
+      "expressions": false,
+      "depthWrite": true,
+      "compression": "gzip"
+    },
+    "model/weapon/wpn_2600220.muast": {
+      "file": "asset/models/wpn_2600220/model.glb.gz?v=1788327440",
+      "label": "完整静态网格",
+      "animations": false,
+      "expressions": false,
+      "depthWrite": true,
+      "compression": "gzip"
+    },
+    "model/weapon/wpn_2600238.muast": {
+      "file": "asset/models/wpn_2600238/model.glb.gz?v=1788327440",
+      "label": "完整静态网格",
+      "animations": false,
+      "expressions": false,
+      "depthWrite": true,
+      "compression": "gzip"
+    },
+    "model/weapon/wpn_2602200.muast": {
+      "file": "asset/models/wpn_2602200/model.glb.gz?v=1788327442",
+      "label": "完整静态网格",
+      "animations": false,
+      "expressions": false,
+      "depthWrite": true,
+      "compression": "gzip"
+    },
+    "model/weapon/wpn_2600239.muast": {
+      "file": "asset/models/wpn_2600239/model.glb.gz?v=1788327441",
+      "label": "完整静态网格",
+      "animations": false,
+      "expressions": false,
+      "depthWrite": true,
+      "compression": "gzip"
+    },
+    "model/weapon/wpn_2601200.muast": {
+      "file": "asset/models/wpn_2601200/model.glb.gz?v=1788327442",
+      "label": "完整静态网格",
+      "animations": false,
+      "expressions": false,
+      "depthWrite": true,
+      "compression": "gzip"
+    },
+    "model/weapon/wpn_2700200.muast": {
+      "file": "asset/models/wpn_2700200/model.glb.gz?v=1788327442",
+      "label": "完整静态网格",
+      "animations": false,
+      "expressions": false,
+      "depthWrite": true,
+      "compression": "gzip"
+    },
+    "model/weapon/wpn_2703200.muast": {
+      "file": "asset/models/wpn_2703200/model.glb.gz?v=1788327444",
+      "label": "完整静态网格",
+      "animations": false,
+      "expressions": false,
+      "depthWrite": true,
+      "compression": "gzip"
+    },
+    "model/weapon/wpn_2800200.muast": {
+      "file": "asset/models/wpn_2800200/model.glb.gz?v=1788327444",
+      "label": "完整静态网格",
+      "animations": false,
+      "expressions": false,
+      "depthWrite": true,
+      "compression": "gzip"
+    },
+    "model/weapon/wpn_2800218.muast": {
+      "file": "asset/models/wpn_2800218/model.glb.gz?v=1788327446",
+      "label": "完整静态网格",
+      "animations": false,
+      "expressions": false,
+      "depthWrite": true,
+      "compression": "gzip"
+    },
+    "model/weapon/wpn_2701200.muast": {
+      "file": "asset/models/wpn_2701200/model.glb.gz?v=1788327442",
+      "label": "完整静态网格",
+      "animations": false,
+      "expressions": false,
+      "depthWrite": true,
+      "compression": "gzip"
+    },
+    "model/weapon/wpn_2800219.muast": {
+      "file": "asset/models/wpn_2800219/model.glb.gz?v=1788327444",
+      "label": "完整静态网格",
+      "animations": false,
+      "expressions": false,
+      "depthWrite": true,
+      "compression": "gzip"
+    },
+    "model/weapon/wpn_2802200.muast": {
+      "file": "asset/models/wpn_2802200/model.glb.gz?v=1788327445",
+      "label": "完整静态网格",
+      "animations": false,
+      "expressions": false,
+      "depthWrite": true,
+      "compression": "gzip"
+    },
+    "model/weapon/wpn_2801200.muast": {
+      "file": "asset/models/wpn_2801200/model.glb.gz?v=1788327445",
+      "label": "完整静态网格",
+      "animations": false,
+      "expressions": false,
+      "depthWrite": true,
+      "compression": "gzip"
+    },
+    "model/weapon/wpn_2900200.muast": {
+      "file": "asset/models/wpn_2900200/model.glb.gz?v=1788327447",
+      "label": "完整静态网格",
+      "animations": false,
+      "expressions": false,
+      "depthWrite": true,
+      "compression": "gzip"
+    },
+    "model/weapon/wpn_2901200.muast": {
+      "file": "asset/models/wpn_2901200/model.glb.gz?v=1788327447",
+      "label": "完整静态网格",
+      "animations": false,
+      "expressions": false,
+      "depthWrite": true,
+      "compression": "gzip"
+    },
+    "model/weapon/wpn_3000200.muast": {
+      "file": "asset/models/wpn_3000200/model.glb.gz?v=1788327448",
+      "label": "完整静态网格",
+      "animations": false,
+      "expressions": false,
+      "depthWrite": true,
+      "compression": "gzip"
+    },
+    "model/weapon/wpn_3000210.muast": {
+      "file": "asset/models/wpn_3000210/model.glb.gz?v=1788327449",
+      "label": "完整静态网格",
+      "animations": false,
+      "expressions": false,
+      "depthWrite": true,
+      "compression": "gzip"
+    },
+    "model/weapon/wpn_3001210.muast": {
+      "file": "asset/models/wpn_3001210/model.glb.gz?v=1788327450",
+      "label": "完整静态网格",
+      "animations": false,
+      "expressions": false,
+      "depthWrite": true,
+      "compression": "gzip"
+    },
+    "model/weapon/wpn_3001200.muast": {
+      "file": "asset/models/wpn_3001200/model.glb.gz?v=1788327449",
+      "label": "完整静态网格",
+      "animations": false,
+      "expressions": false,
+      "depthWrite": true,
+      "compression": "gzip"
+    },
+    "model/weapon/wpn_3000220.muast": {
+      "file": "asset/models/wpn_3000220/model.glb.gz?v=1788327448",
+      "label": "完整静态网格",
+      "animations": false,
+      "expressions": false,
+      "depthWrite": true,
+      "compression": "gzip"
+    },
+    "model/weapon/wpn_2803200.muast": {
+      "file": "asset/models/wpn_2803200/model.glb.gz?v=1788327447",
+      "label": "完整静态网格",
+      "animations": false,
+      "expressions": false,
+      "depthWrite": true,
+      "compression": "gzip"
+    },
+    "model/weapon/wpn_3002200.muast": {
+      "file": "asset/models/wpn_3002200/model.glb.gz?v=1788327450",
+      "label": "完整静态网格",
+      "animations": false,
+      "expressions": false,
+      "depthWrite": true,
+      "compression": "gzip"
+    },
+    "model/weapon/wpn_3003210.muast": {
+      "file": "asset/models/wpn_3003210/model.glb.gz?v=1788327451",
+      "label": "完整静态网格",
+      "animations": false,
+      "expressions": false,
+      "depthWrite": true,
+      "compression": "gzip"
+    },
+    "model/weapon/wpn_3003200.muast": {
+      "file": "asset/models/wpn_3003200/model.glb.gz?v=1788327450",
+      "label": "完整静态网格",
+      "animations": false,
+      "expressions": false,
+      "depthWrite": true,
+      "compression": "gzip"
+    },
+    "model/weapon/wpn_3004200.muast": {
+      "file": "asset/models/wpn_3004200/model.glb.gz?v=1788327451",
+      "label": "完整静态网格",
+      "animations": false,
+      "expressions": false,
+      "depthWrite": true,
+      "compression": "gzip"
+    },
+    "model/weapon/wpn_3005200.muast": {
+      "file": "asset/models/wpn_3005200/model.glb.gz?v=1788327452",
+      "label": "完整静态网格",
+      "animations": false,
+      "expressions": false,
+      "depthWrite": true,
+      "compression": "gzip"
+    },
+    "model/weapon/wpn_3100200.muast": {
+      "file": "asset/models/wpn_3100200/model.glb.gz?v=1788327453",
+      "label": "完整静态网格",
+      "animations": false,
+      "expressions": false,
+      "depthWrite": true,
+      "compression": "gzip"
+    },
+    "model/weapon/wpn_3102200.muast": {
+      "file": "asset/models/wpn_3102200/model.glb.gz?v=1788327453",
+      "label": "完整静态网格",
+      "animations": false,
+      "expressions": false,
+      "depthWrite": true,
+      "compression": "gzip"
+    },
+    "model/weapon/wpn_3200200.muast": {
+      "file": "asset/models/wpn_3200200/model.glb.gz?v=1788327454",
+      "label": "完整静态网格",
+      "animations": false,
+      "expressions": false,
+      "depthWrite": true,
+      "compression": "gzip"
+    },
+    "model/weapon/wpn_3200208.muast": {
+      "file": "asset/models/wpn_3200208/model.glb.gz?v=1788327456",
+      "label": "完整静态网格",
+      "animations": false,
+      "expressions": false,
+      "depthWrite": true,
+      "compression": "gzip"
+    },
+    "model/weapon/wpn_3103200.muast": {
+      "file": "asset/models/wpn_3103200/model.glb.gz?v=1788345547",
+      "label": "完整静态网格",
+      "animations": false,
+      "expressions": false,
+      "depthWrite": true,
+      "compression": "gzip"
+    },
+    "model/weapon/wpn_3200209.muast": {
+      "file": "asset/models/wpn_3200209/model.glb.gz?v=1788327455",
+      "label": "完整静态网格",
+      "animations": false,
+      "expressions": false,
+      "depthWrite": true,
+      "compression": "gzip"
+    },
+    "model/weapon/wpn_3200210.muast": {
+      "file": "asset/models/wpn_3200210/model.glb.gz?v=1788327456",
+      "label": "完整静态网格",
+      "animations": false,
+      "expressions": false,
+      "depthWrite": true,
+      "compression": "gzip"
+    },
+    "model/weapon/wpn_3200228.muast": {
+      "file": "asset/models/wpn_3200228/model.glb.gz?v=1788327455",
+      "label": "完整静态网格",
+      "animations": false,
+      "expressions": false,
+      "depthWrite": true,
+      "compression": "gzip"
+    },
+    "model/weapon/wpn_3200229.muast": {
+      "file": "asset/models/wpn_3200229/model.glb.gz?v=1788327460",
+      "label": "完整静态网格",
+      "animations": false,
+      "expressions": false,
+      "depthWrite": true,
+      "compression": "gzip"
+    },
+    "model/weapon/wpn_3201200.muast": {
+      "file": "asset/models/wpn_3201200/model.glb.gz?v=1788327457",
+      "label": "完整静态网格",
+      "animations": false,
+      "expressions": false,
+      "depthWrite": true,
+      "compression": "gzip"
+    },
+    "model/weapon/wpn_3201210.muast": {
+      "file": "asset/models/wpn_3201210/model.glb.gz?v=1788327457",
+      "label": "完整静态网格",
+      "animations": false,
+      "expressions": false,
+      "depthWrite": true,
+      "compression": "gzip"
+    },
+    "model/weapon/wpn_3201230.muast": {
+      "file": "asset/models/wpn_3201230/model.glb.gz?v=1788327458",
+      "label": "完整静态网格",
+      "animations": false,
+      "expressions": false,
+      "depthWrite": true,
+      "compression": "gzip"
+    },
+    "model/weapon/wpn_3203200.muast": {
+      "file": "asset/models/wpn_3203200/model.glb.gz?v=1788327460",
+      "label": "完整静态网格",
+      "animations": false,
+      "expressions": false,
+      "depthWrite": true,
+      "compression": "gzip"
+    },
+    "model/weapon/wpn_3204200.muast": {
+      "file": "asset/models/wpn_3204200/model.glb.gz?v=1788327461",
+      "label": "完整静态网格",
+      "animations": false,
+      "expressions": false,
+      "depthWrite": true,
+      "compression": "gzip"
+    },
+    "model/weapon/wpn_3206200.muast": {
+      "file": "asset/models/wpn_3206200/model.glb.gz?v=1788327462",
+      "label": "完整静态网格",
+      "animations": false,
+      "expressions": false,
+      "depthWrite": true,
+      "compression": "gzip"
+    },
+    "model/weapon/wpn_3208200.muast": {
+      "file": "asset/models/wpn_3208200/model.glb.gz?v=1788327462",
+      "label": "完整静态网格",
+      "animations": false,
+      "expressions": false,
+      "depthWrite": true,
+      "compression": "gzip"
+    },
+    "model/weapon/wpn_3208208.muast": {
+      "file": "asset/models/wpn_3208208/model.glb.gz?v=1788327463",
+      "label": "完整静态网格",
+      "animations": false,
+      "expressions": false,
+      "depthWrite": true,
+      "compression": "gzip"
+    },
+    "model/weapon/wpn_3006200.muast": {
+      "file": "asset/models/wpn_3006200/model.glb.gz?v=1788327452",
+      "label": "完整静态网格",
+      "animations": false,
+      "expressions": false,
+      "depthWrite": true,
+      "compression": "gzip"
+    },
+    "model/weapon/wpn_3208209.muast": {
+      "file": "asset/models/wpn_3208209/model.glb.gz?v=1788327464",
+      "label": "完整静态网格",
+      "animations": false,
+      "expressions": false,
+      "depthWrite": true,
+      "compression": "gzip"
+    },
+    "model/weapon/wpn_3209200.muast": {
+      "file": "asset/models/wpn_3209200/model.glb.gz?v=1788327465",
+      "label": "完整静态网格",
+      "animations": false,
+      "expressions": false,
+      "depthWrite": true,
+      "compression": "gzip"
+    },
+    "model/weapon/wpn_3209209.muast": {
+      "file": "asset/models/wpn_3209209/model.glb.gz?v=1788327466",
+      "label": "完整静态网格",
+      "animations": false,
+      "expressions": false,
+      "depthWrite": true,
+      "compression": "gzip"
+    },
+    "model/weapon/wpn_3209208.muast": {
+      "file": "asset/models/wpn_3209208/model.glb.gz?v=1788327465",
+      "label": "完整静态网格",
+      "animations": false,
+      "expressions": false,
+      "depthWrite": true,
+      "compression": "gzip"
+    },
+    "model/weapon/wpn_3210200.muast": {
+      "file": "asset/models/wpn_3210200/model.glb.gz?v=1788327466",
+      "label": "完整静态网格",
+      "animations": false,
+      "expressions": false,
+      "depthWrite": true,
+      "compression": "gzip"
+    },
+    "model/weapon/wpn_3210208.muast": {
+      "file": "asset/models/wpn_3210208/model.glb.gz?v=1788327473",
+      "label": "完整静态网格",
+      "animations": false,
+      "expressions": false,
+      "depthWrite": true,
+      "compression": "gzip"
+    },
+    "model/weapon/wpn_3210209.muast": {
+      "file": "asset/models/wpn_3210209/model.glb.gz?v=1788327467",
+      "label": "完整静态网格",
+      "animations": false,
+      "expressions": false,
+      "depthWrite": true,
+      "compression": "gzip"
+    },
+    "model/weapon/wpn_3211208.muast": {
+      "file": "asset/models/wpn_3211208/model.glb.gz?v=1788327468",
+      "label": "完整静态网格",
+      "animations": false,
+      "expressions": false,
+      "depthWrite": true,
+      "compression": "gzip"
+    },
+    "model/weapon/wpn_3211200.muast": {
+      "file": "asset/models/wpn_3211200/model.glb.gz?v=1788327472",
+      "label": "完整静态网格",
+      "animations": false,
+      "expressions": false,
+      "depthWrite": true,
+      "compression": "gzip"
+    },
+    "model/weapon/wpn_3211209.muast": {
+      "file": "asset/models/wpn_3211209/model.glb.gz?v=1788327473",
+      "label": "完整静态网格",
+      "animations": false,
+      "expressions": false,
+      "depthWrite": true,
+      "compression": "gzip"
+    },
+    "model/weapon/wpn_3212208.muast": {
+      "file": "asset/models/wpn_3212208/model.glb.gz?v=1788327474",
+      "label": "完整静态网格",
+      "animations": false,
+      "expressions": false,
+      "depthWrite": true,
+      "compression": "gzip"
+    },
+    "model/weapon/wpn_3212209.muast": {
+      "file": "asset/models/wpn_3212209/model.glb.gz?v=1788327474",
+      "label": "完整静态网格",
+      "animations": false,
+      "expressions": false,
+      "depthWrite": true,
+      "compression": "gzip"
+    },
+    "model/weapon/wpn_3208210.muast": {
+      "file": "asset/models/wpn_3208210/model.glb.gz?v=1788327465",
+      "label": "完整静态网格",
+      "animations": false,
+      "expressions": false,
+      "depthWrite": true,
+      "compression": "gzip"
+    },
+    "model/weapon/wpn_3213200.muast": {
+      "file": "asset/models/wpn_3213200/model.glb.gz?v=1788327475",
+      "label": "完整静态网格",
+      "animations": false,
+      "expressions": false,
+      "depthWrite": true,
+      "compression": "gzip"
+    },
+    "model/weapon/wpn_3213208.muast": {
+      "file": "asset/models/wpn_3213208/model.glb.gz?v=1788327474",
+      "label": "完整静态网格",
+      "animations": false,
+      "expressions": false,
+      "depthWrite": true,
+      "compression": "gzip"
+    },
+    "model/weapon/wpn_3213209.muast": {
+      "file": "asset/models/wpn_3213209/model.glb.gz?v=1788327476",
+      "label": "完整静态网格",
+      "animations": false,
+      "expressions": false,
+      "depthWrite": true,
+      "compression": "gzip"
+    },
+    "model/weapon/wpn_3214208.muast": {
+      "file": "asset/models/wpn_3214208/model.glb.gz?v=1788327476",
+      "label": "完整静态网格",
+      "animations": false,
+      "expressions": false,
+      "depthWrite": true,
+      "compression": "gzip"
+    },
+    "model/weapon/wpn_3214200.muast": {
+      "file": "asset/models/wpn_3214200/model.glb.gz?v=1788327476",
+      "label": "完整静态网格",
+      "animations": false,
+      "expressions": false,
+      "depthWrite": true,
+      "compression": "gzip"
+    },
+    "model/weapon/wpn_3215200.muast": {
+      "file": "asset/models/wpn_3215200/model.glb.gz?v=1788327477",
+      "label": "完整静态网格",
+      "animations": false,
+      "expressions": false,
+      "depthWrite": true,
+      "compression": "gzip"
+    },
+    "model/weapon/wpn_3214209.muast": {
+      "file": "asset/models/wpn_3214209/model.glb.gz?v=1788327476",
+      "label": "完整静态网格",
+      "animations": false,
+      "expressions": false,
+      "depthWrite": true,
+      "compression": "gzip"
+    },
+    "model/weapon/wpn_3215208.muast": {
+      "file": "asset/models/wpn_3215208/model.glb.gz?v=1788327477",
+      "label": "完整静态网格",
+      "animations": false,
+      "expressions": false,
+      "depthWrite": true,
+      "compression": "gzip"
+    },
+    "model/weapon/wpn_3215209.muast": {
+      "file": "asset/models/wpn_3215209/model.glb.gz?v=1788327477",
+      "label": "完整静态网格",
+      "animations": false,
+      "expressions": false,
+      "depthWrite": true,
+      "compression": "gzip"
+    },
+    "model/weapon/wpn_3216209.muast": {
+      "file": "asset/models/wpn_3216209/model.glb.gz?v=1788327479",
+      "label": "完整静态网格",
+      "animations": false,
+      "expressions": false,
+      "depthWrite": true,
+      "compression": "gzip"
+    },
+    "model/weapon/wpn_3300200.muast": {
+      "file": "asset/models/wpn_3300200/model.glb.gz?v=1788327479",
+      "label": "完整静态网格",
+      "animations": false,
+      "expressions": false,
+      "depthWrite": true,
+      "compression": "gzip"
+    },
+    "model/weapon/wpn_3217208.muast": {
+      "file": "asset/models/wpn_3217208/model.glb.gz?v=1788327482",
+      "label": "完整静态网格",
+      "animations": false,
+      "expressions": false,
+      "depthWrite": true,
+      "compression": "gzip"
+    },
+    "model/weapon/wpn_3216208.muast": {
+      "file": "asset/models/wpn_3216208/model.glb.gz?v=1788327477",
+      "label": "完整静态网格",
+      "animations": false,
+      "expressions": false,
+      "depthWrite": true,
+      "compression": "gzip"
+    },
+    "model/weapon/wpn_3217209.muast": {
+      "file": "asset/models/wpn_3217209/model.glb.gz?v=1788327480",
+      "label": "完整静态网格",
+      "animations": false,
+      "expressions": false,
+      "depthWrite": true,
+      "compression": "gzip"
+    },
+    "model/weapon/wpn_3301200.muast": {
+      "file": "asset/models/wpn_3301200/model.glb.gz?v=1788327480",
+      "label": "完整静态网格",
+      "animations": false,
+      "expressions": false,
+      "depthWrite": true,
+      "compression": "gzip"
+    },
+    "model/weapon/wpn_3302200.muast": {
+      "file": "asset/models/wpn_3302200/model.glb.gz?v=1788327481",
+      "label": "完整静态网格",
+      "animations": false,
+      "expressions": false,
+      "depthWrite": true,
+      "compression": "gzip"
+    },
+    "model/weapon/wpn_3304208.muast": {
+      "file": "asset/models/wpn_3304208/model.glb.gz?v=1788327482",
+      "label": "完整静态网格",
+      "animations": false,
+      "expressions": false,
+      "depthWrite": true,
+      "compression": "gzip"
+    },
+    "model/weapon/wpn_3304209.muast": {
+      "file": "asset/models/wpn_3304209/model.glb.gz?v=1788327482",
+      "label": "完整静态网格",
+      "animations": false,
+      "expressions": false,
+      "depthWrite": true,
+      "compression": "gzip"
+    },
+    "model/weapon/wpn_3500200.muast": {
+      "file": "asset/models/wpn_3500200/model.glb.gz?v=1788327484",
+      "label": "完整静态网格",
+      "animations": false,
+      "expressions": false,
+      "depthWrite": true,
+      "compression": "gzip"
+    },
+    "model/weapon/wpn_3400200.muast": {
+      "file": "asset/models/wpn_3400200/model.glb.gz?v=1788327484",
+      "label": "完整静态网格",
+      "animations": false,
+      "expressions": false,
+      "depthWrite": true,
+      "compression": "gzip"
+    },
+    "model/weapon/wpn_3501200.muast": {
+      "file": "asset/models/wpn_3501200/model.glb.gz?v=1788327484",
+      "label": "完整静态网格",
+      "animations": false,
+      "expressions": false,
+      "depthWrite": true,
+      "compression": "gzip"
+    },
+    "model/weapon/wpn_3700200.muast": {
+      "file": "asset/models/wpn_3700200/model.glb.gz?v=1788327485",
+      "label": "完整静态网格",
+      "animations": false,
+      "expressions": false,
+      "depthWrite": true,
+      "compression": "gzip"
+    },
+    "model/weapon/wpn_3600200.muast": {
+      "file": "asset/models/wpn_3600200/model.glb.gz?v=1788327487",
+      "label": "完整静态网格",
+      "animations": false,
+      "expressions": false,
+      "depthWrite": true,
+      "compression": "gzip"
+    },
+    "model/weapon/wpn_3503200.muast": {
+      "file": "asset/models/wpn_3503200/model.glb.gz?v=1788327485",
+      "label": "完整静态网格",
+      "animations": false,
+      "expressions": false,
+      "depthWrite": true,
+      "compression": "gzip"
+    },
+    "model/weapon/wpn_3700210.muast": {
+      "file": "asset/models/wpn_3700210/model.glb.gz?v=1788327486",
+      "label": "完整静态网格",
+      "animations": false,
+      "expressions": false,
+      "depthWrite": true,
+      "compression": "gzip"
+    },
+    "model/weapon/wpn_3800200.muast": {
+      "file": "asset/models/wpn_3800200/model.glb.gz?v=1788345547",
+      "label": "完整静态网格",
+      "animations": false,
+      "expressions": false,
+      "depthWrite": true,
+      "compression": "gzip"
+    },
+    "model/weapon/wpn_3900200.muast": {
+      "file": "asset/models/wpn_3900200/model.glb.gz?v=1788327488",
+      "label": "完整静态网格",
+      "animations": false,
+      "expressions": false,
+      "depthWrite": true,
+      "compression": "gzip"
+    },
+    "model/weapon/wpn_4000200.muast": {
+      "file": "asset/models/wpn_4000200/model.glb.gz?v=1788327487",
+      "label": "完整静态网格",
+      "animations": false,
+      "expressions": false,
+      "depthWrite": true,
+      "compression": "gzip"
+    },
+    "model/weapon/wpn_4300200.muast": {
+      "file": "asset/models/wpn_4300200/model.glb.gz?v=1788327489",
+      "label": "完整静态网格",
+      "animations": false,
+      "expressions": false,
+      "depthWrite": true,
+      "compression": "gzip"
+    },
+    "model/weapon/wpn_4100200.muast": {
+      "file": "asset/models/wpn_4100200/model.glb.gz?v=1788327488",
+      "label": "完整静态网格",
+      "animations": false,
+      "expressions": false,
+      "depthWrite": true,
+      "compression": "gzip"
+    },
+    "model/weapon/wpn_4200200.muast": {
+      "file": "asset/models/wpn_4200200/model.glb.gz?v=1788327489",
+      "label": "完整静态网格",
+      "animations": false,
+      "expressions": false,
+      "depthWrite": true,
+      "compression": "gzip"
+    },
+    "model/weapon/wpn_3205200.muast": {
+      "file": "asset/models/wpn_3205200/model.glb.gz?v=1788327464",
+      "label": "完整静态网格",
+      "animations": false,
+      "expressions": false,
+      "depthWrite": true,
+      "compression": "gzip"
+    },
+    "model/weapon/wpn_4500200.muast": {
+      "file": "asset/models/wpn_4500200/model.glb.gz?v=1788327493",
+      "label": "完整静态网格",
+      "animations": false,
+      "expressions": false,
+      "depthWrite": true,
+      "compression": "gzip"
+    },
+    "model/weapon/wpn_4600200.muast": {
+      "file": "asset/models/wpn_4600200/model.glb.gz?v=1788327492",
+      "label": "完整静态网格",
+      "animations": false,
+      "expressions": false,
+      "depthWrite": true,
+      "compression": "gzip"
+    },
+    "model/weapon/wpn_4700200.muast": {
+      "file": "asset/models/wpn_4700200/model.glb.gz?v=1788327492",
+      "label": "完整静态网格",
+      "animations": false,
+      "expressions": false,
+      "depthWrite": true,
+      "compression": "gzip"
+    },
+    "model/player/model_pl_400002.muast": {
+      "facial": "asset/models/facial/ochifuru_ino.json?v=1787922670",
+      "file": "asset/models/model_pl_400002/model.glb.gz?v=1788327261",
+      "label": "完整蒙皮 · 5 个游戏动作 · 表情随动作并可细调",
+      "animations": true,
+      "expressions": true,
+      "depthWrite": true,
+      "compression": "gzip"
+    },
+    "model/player/model_pl_460002.muast": {
+      "file": "asset/models/model_pl_460002/model.glb.gz?v=1788327288",
+      "label": "完整蒙皮 · 5 个游戏动作 · 表情随动作并可细调",
+      "animations": true,
+      "expressions": true,
+      "depthWrite": true,
+      "compression": "gzip"
+    },
+    "model/player/model_pl_350004.muast": {
+      "facial": "asset/models/facial/matikado_yuko.json?v=1787922670",
+      "file": "asset/models/model_pl_350004/model.glb.gz?v=1788327233",
+      "label": "完整蒙皮 · 5 个游戏动作 · 表情随动作并可细调",
+      "animations": true,
+      "expressions": true,
+      "depthWrite": true,
+      "compression": "gzip"
+    },
+    "model/player/model_pl_150004.muast": {
+      "facial": "asset/models/facial/newgame_aoba.json?v=1787922670",
+      "file": "asset/models/model_pl_150004/model.glb.gz?v=1788326945",
+      "label": "完整蒙皮 · 5 个游戏动作 · 表情随动作并可细调",
+      "animations": true,
+      "expressions": true,
+      "depthWrite": true,
+      "compression": "gzip"
+    },
+    "model/enemy/model_en_15700.muast": {
+      "file": "asset/models/model_en_15700/model.glb.gz?v=1788327320",
+      "label": "完整单骨架 · 6 个游戏动作",
+      "animations": true,
+      "expressions": false,
+      "depthWrite": true,
+      "compression": "gzip"
+    },
+    "model/enemy/model_en_14500.muast": {
+      "file": "asset/models/model_en_14500/model.glb.gz?v=1788327318",
+      "label": "完整单骨架 · 6 个游戏动作",
+      "animations": true,
+      "expressions": false,
+      "depthWrite": true,
+      "compression": "gzip"
+    },
+    "model/enemy/model_en_15800.muast": {
+      "file": "asset/models/model_en_15800/model.glb.gz?v=1788327320",
+      "label": "完整单骨架 · 6 个游戏动作",
+      "animations": true,
+      "expressions": false,
+      "depthWrite": true,
+      "compression": "gzip"
+    },
+    "model/enemy/model_en_15900.muast": {
+      "file": "asset/models/model_en_15900/model.glb.gz?v=1788327320",
+      "label": "完整单骨架 · 6 个游戏动作",
+      "animations": true,
+      "expressions": false,
+      "depthWrite": true,
+      "compression": "gzip"
+    },
+    "model/enemy/model_en_12400.muast": {
+      "file": "asset/models/model_en_12400/model.glb.gz?v=1788327312",
+      "label": "完整单骨架 · 6 个游戏动作",
+      "animations": true,
+      "expressions": false,
+      "depthWrite": true,
+      "compression": "gzip"
+    },
+    "model/enemy/model_en_14000.muast": {
+      "file": "asset/models/model_en_14000/model.glb.gz?v=1788327316",
+      "label": "完整单骨架 · 6 个游戏动作",
+      "animations": true,
+      "expressions": false,
+      "depthWrite": true,
+      "compression": "gzip"
+    },
+    "model/enemy/model_en_16400.muast": {
+      "file": "asset/models/model_en_16400/model.glb.gz?v=1788327321",
+      "label": "完整单骨架 · 6 个游戏动作",
+      "animations": true,
+      "expressions": false,
+      "depthWrite": true,
+      "compression": "gzip"
+    },
+    "model/enemy/model_en_17600.muast": {
+      "file": "asset/models/model_en_17600/model.glb.gz?v=1788327324",
+      "label": "完整单骨架 · 6 个游戏动作",
+      "animations": true,
+      "expressions": false,
+      "depthWrite": true,
+      "compression": "gzip"
+    },
+    "model/enemy/model_en_16200.muast": {
+      "file": "asset/models/model_en_16200/model.glb.gz?v=1788327320",
+      "label": "完整单骨架 · 6 个游戏动作",
+      "animations": true,
+      "expressions": false,
+      "depthWrite": true,
+      "compression": "gzip"
+    },
+    "model/player/model_pl_220004.muast": {
+      "facial": "asset/models/facial/keion_yui.json?v=1787922670",
+      "file": "asset/models/model_pl_220004/model.glb.gz?v=1788327070",
+      "label": "完整蒙皮 · 5 个游戏动作 · 表情随动作并可细调",
+      "animations": true,
+      "expressions": true,
+      "depthWrite": true,
+      "compression": "gzip"
+    },
+    "model/player/model_pl_310004.muast": {
+      "facial": "asset/models/facial/anima_kohane.json?v=1787922670",
+      "file": "asset/models/model_pl_310004/model.glb.gz?v=1788327172",
+      "label": "完整蒙皮 · 5 个游戏动作 · 表情随动作并可细调",
+      "animations": true,
+      "expressions": true,
+      "depthWrite": true,
+      "compression": "gzip"
+    },
+    "model/player/model_pl_110104.muast": {
+      "facial": "asset/models/facial/yuyushiki_yui.json?v=1787922670",
+      "file": "asset/models/model_pl_110104/model.glb.gz?v=1788326871",
+      "label": "完整蒙皮 · 5 个游戏动作 · 表情随动作并可细调",
+      "animations": true,
+      "expressions": true,
+      "depthWrite": true,
+      "compression": "gzip"
+    },
+    "model/player/model_pl_210004.muast": {
+      "facial": "asset/models/facial/slowstart_hana.json?v=1787922670",
+      "file": "asset/models/model_pl_210004/model.glb.gz?v=1788327052",
+      "label": "完整蒙皮 · 5 个游戏动作 · 表情随动作并可细调",
+      "animations": true,
+      "expressions": true,
+      "depthWrite": true,
+      "compression": "gzip"
+    },
+    "model/player/model_pl_360002.muast": {
+      "facial": "asset/models/facial/harumination_harumi.json?v=1787922670",
+      "file": "asset/models/model_pl_360002/model.glb.gz?v=1788327240",
+      "label": "完整蒙皮 · 5 个游戏动作 · 表情随动作并可细调",
+      "animations": true,
+      "expressions": true,
+      "depthWrite": true,
+      "compression": "gzip"
+    },
+    "model/player/model_pl_410002.muast": {
+      "facial": "asset/models/facial/acchikocchi_tumiki.json?v=1787922670",
+      "file": "asset/models/model_pl_410002/model.glb.gz?v=1788327267",
+      "label": "完整蒙皮 · 5 个游戏动作 · 表情随动作并可细调",
+      "animations": true,
+      "expressions": true,
+      "depthWrite": true,
+      "compression": "gzip"
+    },
+    "model/player/model_pl_120104.muast": {
+      "facial": "asset/models/facial/gakkou_kurumi.json?v=1787922670",
+      "file": "asset/models/model_pl_120104/model.glb.gz?v=1788326888",
+      "label": "完整蒙皮 · 5 个游戏动作 · 表情随动作并可细调",
+      "animations": true,
+      "expressions": true,
+      "depthWrite": true,
+      "compression": "gzip"
+    },
+    "model/player/model_pl_140108.muast": {
+      "facial": "asset/models/facial/kinmosa_alice.json?v=1787922670",
+      "file": "asset/models/model_pl_140108/model.glb.gz?v=1788326927",
+      "label": "完整蒙皮 · 5 个游戏动作 · 表情随动作并可细调",
+      "animations": true,
+      "expressions": true,
+      "depthWrite": true,
+      "compression": "gzip"
+    },
+    "model/player/model_pl_140206.muast": {
+      "facial": "asset/models/facial/kinmosa_shinobu.json?v=1787922670",
+      "file": "asset/models/model_pl_140206/model.glb.gz?v=1788326930",
+      "label": "完整蒙皮 · 5 个游戏动作 · 表情随动作并可细调",
+      "animations": true,
+      "expressions": true,
+      "depthWrite": true,
+      "compression": "gzip"
+    },
+    "model/player/model_pl_140304.muast": {
+      "facial": "asset/models/facial/kinmosa_aya.json?v=1787922670",
+      "file": "asset/models/model_pl_140304/model.glb.gz?v=1788326933",
+      "label": "完整蒙皮 · 5 个游戏动作 · 表情随动作并可细调",
+      "animations": true,
+      "expressions": true,
+      "depthWrite": true,
+      "compression": "gzip"
+    },
+    "model/player/model_pl_220404.muast": {
+      "facial": "asset/models/facial/keion_azusa.json?v=1787922670",
+      "file": "asset/models/model_pl_220404/model.glb.gz?v=1788327077",
+      "label": "完整蒙皮 · 5 个游戏动作 · 表情随动作并可细调",
+      "animations": true,
+      "expressions": true,
+      "depthWrite": true,
+      "compression": "gzip"
+    },
+    "model/player/model_pl_220302.muast": {
+      "facial": "asset/models/facial/keion_tumugi.json?v=1787922670",
+      "file": "asset/models/model_pl_220302/model.glb.gz?v=1788327076",
+      "label": "完整蒙皮 · 5 个游戏动作 · 表情随动作并可细调",
+      "animations": true,
+      "expressions": true,
+      "depthWrite": true,
+      "compression": "gzip"
+    },
+    "model/player/model_pl_300304.muast": {
+      "facial": "asset/models/facial/gochiusa_chiya.json?v=1787922670",
+      "file": "asset/models/model_pl_300304/model.glb.gz?v=1788327163",
+      "label": "完整蒙皮 · 5 个游戏动作 · 表情随动作并可细调",
+      "animations": true,
+      "expressions": true,
+      "depthWrite": true,
+      "compression": "gzip"
+    },
+    "model/player/model_pl_460102.muast": {
+      "file": "asset/models/model_pl_460102/model.glb.gz?v=1788327289",
+      "label": "完整蒙皮 · 5 个游戏动作 · 表情随动作并可细调",
+      "animations": true,
+      "expressions": true,
+      "depthWrite": true,
+      "compression": "gzip"
+    },
+    "model/player/model_pl_350302.muast": {
+      "facial": "asset/models/facial/matikado_mikan.json?v=1787922670",
+      "file": "asset/models/model_pl_350302/model.glb.gz?v=1788327237",
+      "label": "完整蒙皮 · 5 个游戏动作 · 表情随动作并可细调",
+      "animations": true,
+      "expressions": true,
+      "depthWrite": true,
+      "compression": "gzip"
+    },
+    "model/player/model_pl_350106.muast": {
+      "facial": "asset/models/facial/matikado_momo.json?v=1787922670",
+      "file": "asset/models/model_pl_350106/model.glb.gz?v=1788327235",
+      "label": "完整蒙皮 · 5 个游戏动作 · 表情随动作并可细调",
+      "animations": true,
+      "expressions": true,
+      "depthWrite": true,
+      "compression": "gzip"
+    },
+    "model/player/model_pl_100008.muast": {
+      "facial": "asset/models/facial/hidamari_yuno.json?v=1787922670",
+      "file": "asset/models/model_pl_100008/model.glb.gz?v=1788326856",
+      "label": "完整蒙皮 · 5 个游戏动作 · 表情随动作并可细调",
+      "animations": true,
+      "expressions": true,
+      "depthWrite": true,
+      "compression": "gzip"
+    },
+    "model/player/model_pl_120106.muast": {
+      "facial": "asset/models/facial/gakkou_kurumi.json?v=1787922670",
+      "file": "asset/models/model_pl_120106/model.glb.gz?v=1788326889",
+      "label": "完整蒙皮 · 5 个游戏动作 · 表情随动作并可细调",
+      "animations": true,
+      "expressions": true,
+      "depthWrite": true,
+      "compression": "gzip"
+    },
+    "model/player/model_pl_220006.muast": {
+      "facial": "asset/models/facial/keion_yui.json?v=1787922670",
+      "file": "asset/models/model_pl_220006/model.glb.gz?v=1788327071",
+      "label": "完整蒙皮 · 5 个游戏动作 · 表情随动作并可细调",
+      "animations": true,
+      "expressions": true,
+      "depthWrite": true,
+      "compression": "gzip"
+    },
+    "model/player/model_pl_300008.muast": {
+      "facial": "asset/models/facial/gochiusa_cocoa.json?v=1787922670",
+      "file": "asset/models/model_pl_300008/model.glb.gz?v=1788327154",
+      "label": "完整蒙皮 · 5 个游戏动作 · 表情随动作并可细调",
+      "animations": true,
+      "expressions": true,
+      "depthWrite": true,
+      "compression": "gzip"
+    },
+    "model/player/model_pl_300106.muast": {
+      "facial": "asset/models/facial/gochiusa_chino.json?v=1787922670",
+      "file": "asset/models/model_pl_300106/model.glb.gz?v=1788327157",
+      "label": "完整蒙皮 · 5 个游戏动作 · 表情随动作并可细调",
+      "animations": true,
+      "expressions": true,
+      "depthWrite": true,
+      "compression": "gzip"
+    },
+    "model/player/model_pl_140306.muast": {
+      "facial": "asset/models/facial/kinmosa_aya.json?v=1787922670",
+      "file": "asset/models/model_pl_140306/model.glb.gz?v=1788326934",
+      "label": "完整蒙皮 · 5 个游戏动作 · 表情随动作并可细调",
+      "animations": true,
+      "expressions": true,
+      "depthWrite": true,
+      "compression": "gzip"
+    },
+    "model/player/model_pl_230104.muast": {
+      "facial": "asset/models/facial/yurukyan_nadesiko.json?v=1787922670",
+      "file": "asset/models/model_pl_230104/model.glb.gz?v=1788327083",
+      "label": "完整蒙皮 · 5 个游戏动作 · 表情随动作并可细调",
+      "animations": true,
+      "expressions": true,
+      "depthWrite": true,
+      "compression": "gzip"
+    },
+    "model/player/model_pl_320106.muast": {
+      "facial": "asset/models/facial/kirara_lump.json?v=1787922670",
+      "file": "asset/models/model_pl_320106/model.glb.gz?v=1788327186",
+      "label": "完整蒙皮 · 5 个游戏动作 · 表情随动作并可细调",
+      "animations": true,
+      "expressions": true,
+      "depthWrite": true,
+      "compression": "gzip"
+    },
+    "model/enemy/model_en_7000.muast": {
+      "file": "asset/models/model_en_7000/model.glb.gz?v=1788327334",
+      "label": "完整单骨架 · 7 个游戏动作",
+      "animations": true,
+      "expressions": false,
+      "depthWrite": true,
+      "compression": "gzip"
+    },
+    "model/player/model_pl_320006.muast": {
+      "facial": "asset/models/facial/kirara_kirara.json?v=1787922670",
+      "file": "asset/models/model_pl_320006/model.glb.gz?v=1788327184",
+      "label": "完整蒙皮 · 5 个游戏动作 · 表情随动作并可细调",
+      "animations": true,
+      "expressions": true,
+      "depthWrite": true,
+      "compression": "gzip"
+    },
+    "model/player/model_pl_320204.muast": {
+      "facial": "asset/models/facial/kirara_claire.json?v=1787922670",
+      "file": "asset/models/model_pl_320204/model.glb.gz?v=1788327190",
+      "label": "完整蒙皮 · 5 个游戏动作 · 表情随动作并可细调",
+      "animations": true,
+      "expressions": true,
+      "depthWrite": true,
+      "compression": "gzip"
+    },
+    "model/player/model_pl_321502.muast": {
+      "facial": "asset/models/facial/kirara_hakka.json?v=1787922670",
+      "file": "asset/models/model_pl_321502/model.glb.gz?v=1788327213",
+      "label": "完整蒙皮 · 5 个游戏动作 · 表情随动作并可细调",
+      "animations": true,
+      "expressions": true,
+      "depthWrite": true,
+      "compression": "gzip"
+    },
+    "model/player/model_pl_321602.muast": {
+      "facial": "asset/models/facial/kirara_media.json?v=1787922670",
+      "file": "asset/models/model_pl_321602/model.glb.gz?v=1788327214",
+      "label": "完整蒙皮 · 5 个游戏动作 · 表情随动作并可细调",
+      "animations": true,
+      "expressions": true,
+      "depthWrite": true,
+      "compression": "gzip"
+    },
+    "model/player/model_pl_220602.muast": {
+      "file": "asset/models/model_pl_220602/model.glb.gz?v=1788327079",
+      "label": "完整蒙皮 · 5 个游戏动作 · 表情随动作并可细调",
+      "animations": true,
+      "expressions": true,
+      "depthWrite": true,
+      "compression": "gzip"
+    },
+    "model/player/model_pl_170012.muast": {
+      "facial": "asset/models/facial/urara_chiya.json?v=1787922670",
+      "file": "asset/models/model_pl_170012/model.glb.gz?v=1788326992",
+      "label": "完整蒙皮 · 5 个游戏动作 · 表情随动作并可细调",
+      "animations": true,
+      "expressions": true,
+      "depthWrite": true,
+      "compression": "gzip"
+    },
+    "model/player/model_pl_170108.muast": {
+      "facial": "asset/models/facial/urara_kon.json?v=1787922670",
+      "file": "asset/models/model_pl_170108/model.glb.gz?v=1788326996",
+      "label": "完整蒙皮 · 5 个游戏动作 · 表情随动作并可细调",
+      "animations": true,
+      "expressions": true,
+      "depthWrite": true,
+      "compression": "gzip"
+    },
+    "model/player/model_pl_170208.muast": {
+      "facial": "asset/models/facial/urara_koume.json?v=1787922670",
+      "file": "asset/models/model_pl_170208/model.glb.gz?v=1788326999",
+      "label": "完整蒙皮 · 5 个游戏动作 · 表情随动作并可细调",
+      "animations": true,
+      "expressions": true,
+      "depthWrite": true,
+      "compression": "gzip"
+    },
+    "model/player/model_pl_170606.muast": {
+      "facial": "asset/models/facial/urara_omi.json?v=1787922670",
+      "file": "asset/models/model_pl_170606/model.glb.gz?v=1788327007",
+      "label": "完整蒙皮 · 5 个游戏动作 · 表情随动作并可细调",
+      "animations": true,
+      "expressions": true,
+      "depthWrite": true,
+      "compression": "gzip"
+    },
+    "model/player/model_pl_170604.muast": {
+      "facial": "asset/models/facial/urara_omi.json?v=1787922670",
+      "file": "asset/models/model_pl_170604/model.glb.gz?v=1788327006",
+      "label": "完整蒙皮 · 5 个游戏动作 · 表情随动作并可细调",
+      "animations": true,
+      "expressions": true,
+      "depthWrite": true,
+      "compression": "gzip"
+    },
+    "model/player/model_pl_170308.muast": {
+      "facial": "asset/models/facial/urara_nono.json?v=1787922670",
+      "file": "asset/models/model_pl_170308/model.glb.gz?v=1788327003",
+      "label": "完整蒙皮 · 5 个游戏动作 · 表情随动作并可细调",
+      "animations": true,
+      "expressions": true,
+      "depthWrite": true,
+      "compression": "gzip"
+    },
+    "model/player/model_pl_170504.muast": {
+      "facial": "asset/models/facial/urara_nina.json?v=1787922670",
+      "file": "asset/models/model_pl_170504/model.glb.gz?v=1788327005",
+      "label": "完整蒙皮 · 5 个游戏动作 · 表情随动作并可细调",
+      "animations": true,
+      "expressions": true,
+      "depthWrite": true,
+      "compression": "gzip"
+    },
+    "model/player/model_pl_380104.muast": {
+      "facial": "asset/models/facial/koiasu_ao.json?v=1787922670",
+      "file": "asset/models/model_pl_380104/model.glb.gz?v=1788327253",
+      "label": "完整蒙皮 · 5 个游戏动作 · 表情随动作并可细调",
+      "animations": true,
+      "expressions": true,
+      "depthWrite": true,
+      "compression": "gzip"
+    },
+    "model/player/model_pl_140112.muast": {
+      "facial": "asset/models/facial/kinmosa_alice.json?v=1787922670",
+      "file": "asset/models/model_pl_140112/model.glb.gz?v=1788326928",
+      "label": "完整蒙皮 · 5 个游戏动作 · 表情随动作并可细调",
+      "animations": true,
+      "expressions": true,
+      "depthWrite": true,
+      "compression": "gzip"
+    },
+    "model/player/model_pl_140308.muast": {
+      "facial": "asset/models/facial/kinmosa_aya.json?v=1787922670",
+      "file": "asset/models/model_pl_140308/model.glb.gz?v=1788326935",
+      "label": "完整蒙皮 · 5 个游戏动作 · 表情随动作并可细调",
+      "animations": true,
+      "expressions": true,
+      "depthWrite": true,
+      "compression": "gzip"
+    },
+    "model/player/model_pl_300306.muast": {
+      "facial": "asset/models/facial/gochiusa_chiya.json?v=1787922670",
+      "file": "asset/models/model_pl_300306/model.glb.gz?v=1788327163",
+      "label": "完整蒙皮 · 5 个游戏动作 · 表情随动作并可细调",
+      "animations": true,
+      "expressions": true,
+      "depthWrite": true,
+      "compression": "gzip"
+    },
+    "model/player/model_pl_300406.muast": {
+      "facial": "asset/models/facial/gochiusa_syaro.json?v=1787922670",
+      "file": "asset/models/model_pl_300406/model.glb.gz?v=1788327166",
+      "label": "完整蒙皮 · 5 个游戏动作 · 表情随动作并可细调",
+      "animations": true,
+      "expressions": true,
+      "depthWrite": true,
+      "compression": "gzip"
+    },
+    "model/player/model_pl_300108.muast": {
+      "facial": "asset/models/facial/gochiusa_chino.json?v=1787922670",
+      "file": "asset/models/model_pl_300108/model.glb.gz?v=1788327158",
+      "label": "完整蒙皮 · 5 个游戏动作 · 表情随动作并可细调",
+      "animations": true,
+      "expressions": true,
+      "depthWrite": true,
+      "compression": "gzip"
+    },
+    "model/player/model_pl_300206.muast": {
+      "facial": "asset/models/facial/gochiusa_rize.json?v=1787922670",
+      "file": "asset/models/model_pl_300206/model.glb.gz?v=1788327160",
+      "label": "完整蒙皮 · 5 个游戏动作 · 表情随动作并可细调",
+      "animations": true,
+      "expressions": true,
+      "depthWrite": true,
+      "compression": "gzip"
+    },
+    "model/player/model_pl_300702.muast": {
+      "facial": "asset/models/facial/gochiusa_mocha.json?v=1787922670",
+      "file": "asset/models/model_pl_300702/model.glb.gz?v=1788327170",
+      "label": "完整蒙皮 · 5 个游戏动作 · 表情随动作并可细调",
+      "animations": true,
+      "expressions": true,
+      "depthWrite": true,
+      "compression": "gzip"
+    },
+    "model/player/model_pl_300504.muast": {
+      "facial": "asset/models/facial/gochiusa_maya.json?v=1787922670",
+      "file": "asset/models/model_pl_300504/model.glb.gz?v=1788327168",
+      "label": "完整蒙皮 · 5 个游戏动作 · 表情随动作并可细调",
+      "animations": true,
+      "expressions": true,
+      "depthWrite": true,
+      "compression": "gzip"
+    },
+    "model/player/model_pl_300604.muast": {
+      "facial": "asset/models/facial/gochiusa_megu.json?v=1787922670",
+      "file": "asset/models/model_pl_300604/model.glb.gz?v=1788327169",
+      "label": "完整蒙皮 · 5 个游戏动作 · 表情随动作并可细调",
+      "animations": true,
+      "expressions": true,
+      "depthWrite": true,
+      "compression": "gzip"
+    },
+    "model/player/model_pl_300010.muast": {
+      "facial": "asset/models/facial/gochiusa_cocoa.json?v=1787922670",
+      "file": "asset/models/model_pl_300010/model.glb.gz?v=1788327155",
+      "label": "完整蒙皮 · 5 个游戏动作 · 表情随动作并可细调",
+      "animations": true,
+      "expressions": true,
+      "depthWrite": true,
+      "compression": "gzip"
+    },
+    "model/player/model_pl_400104.muast": {
+      "facial": "asset/models/facial/ochifuru_roko.json?v=1787922670",
+      "file": "asset/models/model_pl_400104/model.glb.gz?v=1788327263",
+      "label": "完整蒙皮 · 5 个游戏动作 · 表情随动作并可细调",
+      "animations": true,
+      "expressions": true,
+      "depthWrite": true,
+      "compression": "gzip"
+    },
+    "model/player/model_pl_150404.muast": {
+      "facial": "asset/models/facial/newgame_ko.json?v=1787922670",
+      "file": "asset/models/model_pl_150404/model.glb.gz?v=1788326956",
+      "label": "完整蒙皮 · 5 个游戏动作 · 表情随动作并可细调",
+      "animations": true,
+      "expressions": true,
+      "depthWrite": true,
+      "compression": "gzip"
+    },
+    "model/player/model_pl_150106.muast": {
+      "facial": "asset/models/facial/newgame_hifumi.json?v=1787922670",
+      "file": "asset/models/model_pl_150106/model.glb.gz?v=1788326950",
+      "label": "完整蒙皮 · 5 个游戏动作 · 表情随动作并可细调",
+      "animations": true,
+      "expressions": true,
+      "depthWrite": true,
+      "compression": "gzip"
+    },
+    "model/player/model_pl_150104.muast": {
+      "facial": "asset/models/facial/newgame_hifumi.json?v=1787922670",
+      "file": "asset/models/model_pl_150104/model.glb.gz?v=1788326949",
+      "label": "完整蒙皮 · 5 个游戏动作 · 表情随动作并可细调",
+      "animations": true,
+      "expressions": true,
+      "depthWrite": true,
+      "compression": "gzip"
+    },
+    "model/player/model_pl_210106.muast": {
+      "facial": "asset/models/facial/slowstart_kamu.json?v=1787922670",
+      "file": "asset/models/model_pl_210106/model.glb.gz?v=1788327057",
+      "label": "完整蒙皮 · 5 个游戏动作 · 表情随动作并可细调",
+      "animations": true,
+      "expressions": true,
+      "depthWrite": true,
+      "compression": "gzip"
+    },
+    "model/player/model_pl_210210.muast": {
+      "facial": "asset/models/facial/slowstart_eiko.json?v=1787922670",
+      "file": "asset/models/model_pl_210210/model.glb.gz?v=1788327061",
+      "label": "完整蒙皮 · 5 个游戏动作 · 表情随动作并可细调",
+      "animations": true,
+      "expressions": true,
+      "depthWrite": true,
+      "compression": "gzip"
+    },
+    "model/player/model_pl_210108.muast": {
+      "facial": "asset/models/facial/slowstart_kamu.json?v=1787922670",
+      "file": "asset/models/model_pl_210108/model.glb.gz?v=1788327058",
+      "label": "完整蒙皮 · 5 个游戏动作 · 表情随动作并可细调",
+      "animations": true,
+      "expressions": true,
+      "depthWrite": true,
+      "compression": "gzip"
+    },
+    "model/player/model_pl_270102.muast": {
+      "facial": "asset/models/facial/hanayamata_hana.json?v=1787922670",
+      "file": "asset/models/model_pl_270102/model.glb.gz?v=1788327945",
+      "label": "完整蒙皮 · 5 个游戏动作 · 表情随动作并可细调",
+      "animations": true,
+      "expressions": true,
+      "depthWrite": true,
+      "compression": "gzip"
+    },
+    "model/enemy/model_en_5200.muast": {
+      "file": "asset/models/model_en_5200/model.glb.gz?v=1788327330",
+      "label": "完整单骨架 · 7 个游戏动作",
+      "animations": true,
+      "expressions": false,
+      "depthWrite": true,
+      "compression": "gzip"
     }
   },
   "classActions": {

@@ -402,7 +402,8 @@ window.__defense = Object.freeze({
     snapshot: () => ({ screen: state.screen, party: state.party.slice(), selected: state.selected,
         ready: !!state.catalogue, scene: state.stage?.snapshot() || null, campaign: campaign?.snapshot() || null,
         audio: { track: audio.track, paused: audio.bgm.paused, volume: audio.bgm.volume,
-            music: audio.settings.music, verificationMuted: audio.silent } })
+            music: audio.settings.music, verificationMuted: audio.silent } }),
+    get campaign() { return campaign; }
 });
 
 if (REVIEW_CLOCK) {

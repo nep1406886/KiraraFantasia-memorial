@@ -101,8 +101,31 @@ export class NativeEffects {
     emit(name, options = {}) {
         const slots = this.pools.get(name);
         if (!slots) { throw new Error(`特效尚未准备：${name}`); }
-        const slot = slots.find(candidate => !candidate.busy);
-        if (!slot) { return false; }
+        let slot = slots.find(candidate => !candidate.busy);
+        if (!slot) {
+            // The pool is momentarily exhausted (volley/multi-lane cards fire
+            // faster than slots recycle). Grow it on demand instead of
+            // returning false — an invisible attack is worse than a late one,
+            // and stopping the battle over a visual is never acceptable.
+            this.prepareOne(name, (this.pools.get(name)?.length || 0) + 2)
+                .then(() => {
+                    const fresh = this.pools.get(name)?.find(candidate => !candidate.busy);
+                    if (fresh) {
+                        fresh.busy = true; fresh.age = 0; fresh.options = options;
+                        fresh.impactSent = false; fresh.wrapper.visible = true;
+                        fresh.pivot.position.set(0, 0, 0);
+                        const scale = options.scale || 1.4;
+                        fresh.wrapper.scale.set(scale * (options.facing || 1), scale, scale);
+                        fresh.particles?.reset(); fresh.player.seek(0); fresh.player.play();
+                        fresh.wrapper.position.copy(options.from);
+                        this.active.add(fresh);
+                        this.history.push({ effect: name, flight: options.flight || 0 });
+                        if (this.history.length > 24) { this.history.shift(); }
+                    }
+                })
+                .catch(() => { /* pool growth failed; the sim is unaffected */ });
+            return null;
+        }
         slot.busy = true;
         slot.age = 0;
         slot.options = options;

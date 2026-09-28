@@ -31,7 +31,7 @@ export function createCampaignDriver() {
                 || battle.units.some(unit => unit.row === row && unit.col === col)) { return false; }
             const card = document.querySelector(`[data-card="${type}"]`);
             if (!card || card.disabled) { return false; }
-            card.click();
+            if (card.getAttribute("aria-pressed") !== "true") { card.click(); }
             const point = window.__defenseReview.cellPoint(row, col);
             const canvas = document.querySelector(".battle-canvas canvas");
             const hit = document.elementFromPoint(point.x, point.y);

@@ -2,7 +2,7 @@ import { siteUrl } from "./assets.js";
 
 const KEY = "etowaria-defense.p0.settings.v1";
 const DEFAULTS = { music: true, musicVolume: 0.35, voice: true, reducedMotion: false };
-const THEMES = { day: "bgm_town_1", camp: "bgm_town_3", water: "bgm_town_2" };
+const THEMES = { day: "bgm_town_1", camp: "bgm_town_3", water: "bgm_town_2", night: "bgm_town_3" };
 
 export class AudioDirector {
     constructor(onNotice = () => {}) {
