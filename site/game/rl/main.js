@@ -46,6 +46,7 @@ import {
 import { createDanmakuView } from "./view/danmakuview.js";
 import { createEnemyTelegraphs } from "./view/enemytelegraphs.js";
 import { createPlayerWarning } from "./view/playerwarning.js";
+import { createDeathStains } from "./view/deathstains.js?v=b5";
 import { createFollowCamera } from "./view/camera.js";
 import { createMinimap } from "./view/minimap.js";
 import { createStageScene } from "./view/scene.js?v=20260908-1";
@@ -355,6 +356,7 @@ let enemyViews = [];
 let danmakuView = null;
 let enemyTelegraphs = null;
 let playerWarning = null;
+let deathStains = null;
 let damageTextLayer = null;
 let healthBars = null;
 let battleIndicators = null;
@@ -479,7 +481,12 @@ function setup(modules) {
         projectileVisualReady: bullet => !!skillVFX && skillVFX.projectileVisualReady(bullet)
     });
     enemyTelegraphs = createEnemyTelegraphs(scene, THREE);
+    // NOTE: playerwarning.js takes (scene, THREE) — the OPPOSITE order of
+    // every other view factory here. Mixing them up passes the Scene instance
+    // as THREE (Object.keys(scene) is the 38 Object3D fields) and the next
+    // factory's new THREE.Group() dies with "not a constructor".
     playerWarning = createPlayerWarning(scene, THREE);
+    deathStains = createDeathStains(THREE, scene);
     damageTextLayer = createDamageTextLayer(stage, THREE);
     healthBars = createHealthBars(stage, THREE);
     battleIndicators = createBattleIndicators(stage, THREE);
@@ -649,7 +656,8 @@ function setup(modules) {
         get floorBiome() { return volumeConfig(volume, world ? world.floor : 1).biome; },
         get floorLabel() { return floorBox ? floorBox.textContent : ""; },
         get views() { return { player: playerView, enemies: enemyViews, danmaku: danmakuView,
-            telegraphs: enemyTelegraphs, playerWarning: playerWarning }; },
+            telegraphs: enemyTelegraphs, playerWarning: playerWarning,
+            deathStains: deathStains }; },
         // Same attach path the "summon" event takes, exposed so headless
         // fixtures can give a mid-test spawned unit its real view.
         syncEnemyViews: ensureEnemyViews,
@@ -790,6 +798,7 @@ function syncViews(dt, motion, alpha) {
     });
     enemyTelegraphs.sync(world, world.time);
     if (playerWarning) { playerWarning.update(dt, world, world.time); }
+    if (deathStains) { deathStains.update(dt); }
     if (skillVFX) {
         skillVFX.syncProjectiles(world.danmaku, position);
         skillVFX.update(effectDt);
@@ -913,6 +922,7 @@ function consumeEvents() {
             if (damageTextLayer) { damageTextLayer.clear(); }
             if (healthBars) { healthBars.clear(); }
             if (skillVFX) { skillVFX.clear(); }
+            if (deathStains) { deathStains.clear(); }
             roomGeneration += 1;
             clearEnemyViews();
             clearDropViews();
@@ -1144,6 +1154,13 @@ function consumeEvents() {
                     skillVFX.emitNative("ef_btl_common_dead", impact.x, impact.y, {
                         kind: "impact", height: COMBAT_HEIGHT,
                         scale: big ? 1.6 : 1.0, duration: .5 });
+                    // B.5: the floor keeps the mark after the burst — a
+                    // shrinking dark patch where the body was, so the room
+                    // remembers the fight for another beat.
+                    if (deathStains) {
+                        deathStains.spawn(impact.x, impact.y,
+                            (event.target.radius || 0.45) * (big ? 1.8 : 1.2));
+                    }
                 }
             }
             // Impact shake: taking a hit moves the camera harder than dealing
