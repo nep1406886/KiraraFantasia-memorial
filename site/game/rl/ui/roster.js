@@ -49,10 +49,10 @@ const ROSTER_CSS = `
     }
     .rl-roster-grid {
         display: grid;
-        grid-template-columns: repeat(auto-fill, minmax(min(168px, 100%), 1fr));
-        gap: clamp(10px, 2vmin, 18px);
+        grid-template-columns: repeat(auto-fill, minmax(min(200px, 100%), 1fr));
+        gap: clamp(12px, 2.4vmin, 22px);
         width: 100%;
-        max-width: 1160px;
+        max-width: 1280px;
         margin-bottom: clamp(16px, 3vmin, 28px);
     }
     .rl-roster-card {
@@ -173,6 +173,53 @@ const ROSTER_CSS = `
         justify-content: center;
         gap: 10px;
     }
+    /* C.1 element filter chips: six data-ring dots + an "all" chip. Same
+       paper-chip grammar as the actions row, one row, no fixed widths. */
+    .rl-roster-filters {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: center;
+        gap: 8px;
+        width: 100%;
+        max-width: 1280px;
+        margin: 0 0 clamp(12px, 2.4vmin, 20px);
+    }
+    .rl-roster-filter {
+        font: inherit;
+        font-size: 0.85rem;
+        font-weight: 600;
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        padding: 5px 14px;
+        background: var(--kf-paper);
+        color: var(--kf-ink-soft);
+        border: 1.5px solid var(--kf-ink-soft);
+        border-radius: 999px;
+        cursor: pointer;
+        transition: border-color 0.18s ease-out, color 0.18s ease-out;
+    }
+    .rl-roster-filter:hover, .rl-roster-filter:focus-visible {
+        border-color: var(--kf-gold);
+        outline: none;
+    }
+    .rl-roster-filter:focus-visible {
+        outline: 2px solid var(--kf-gold);
+        outline-offset: 2px;
+    }
+    .rl-roster-filter[aria-pressed="true"] {
+        color: var(--kf-ink);
+        border-color: var(--kf-gold);
+        box-shadow: inset 0 -2px 0 var(--kf-gold);
+    }
+    .rl-roster-filter .dot {
+        flex: none;
+        width: 9px;
+        height: 9px;
+        border-radius: 50%;
+        border: 1px solid var(--kf-ink-soft);
+    }
+    .rl-roster-card[data-filtered-out="true"] { display: none; }
     .rl-roster-actions button {
         font: inherit;
         font-weight: 600;
@@ -253,6 +300,61 @@ export function createRosterUI(options) {
     header.textContent = "选择角色";
     overlay.appendChild(header);
 
+    // C.1 element filter row: the data ring 0=炎…5=陽. A chip toggles its
+    // element; "全部" clears the filter. The filter hides cards via
+    // data-filtered-out so the grid keeps its layout math (no reflow churn),
+    // and the card click contract is untouched — hidden cards are not
+    // clickable, visible cards behave exactly as before (roster gate).
+    const ELEMENT_NAMES = ["炎", "水", "土", "風", "月", "陽"];
+    const filters = document.createElement("div");
+    filters.className = "rl-roster-filters";
+    let activeElement = null;
+    function applyFilter() {
+        grid.querySelectorAll(".rl-roster-card").forEach((el) => {
+            const card = el.__rlCard;
+            const out = activeElement !== null && card && card.element !== activeElement;
+            el.dataset.filteredOut = out ? "true" : "false";
+        });
+    }
+    const allChip = document.createElement("button");
+    allChip.type = "button";
+    allChip.className = "rl-roster-filter";
+    allChip.textContent = "全部";
+    allChip.setAttribute("aria-pressed", "true");
+    allChip.addEventListener("click", function () {
+        activeElement = null;
+        chips.forEach((chip) => chip.setAttribute("aria-pressed", "false"));
+        allChip.setAttribute("aria-pressed", "true");
+        applyFilter();
+    });
+    filters.appendChild(allChip);
+    const chips = [];
+    for (let el = 0; el <= 5; el++) {
+        const chip = document.createElement("button");
+        chip.type = "button";
+        chip.className = "rl-roster-filter";
+        const dot = document.createElement("span");
+        dot.className = "dot";
+        dot.style.background = ELEMENT_VAR[el];
+        chip.appendChild(dot);
+        // textContent assignment, not createTextNode: the entry harness's
+        // mock document implements createElement/appendChild but not
+        // createTextNode, and textContent covers the same need.
+        chip.textContent = ELEMENT_NAMES[el];
+        chip.setAttribute("aria-pressed", "false");
+        chip.addEventListener("click", function () {
+            if (activeElement === el) { return; }
+            activeElement = el;
+            chips.forEach((c) => c.setAttribute("aria-pressed", "false"));
+            allChip.setAttribute("aria-pressed", "false");
+            chip.setAttribute("aria-pressed", "true");
+            applyFilter();
+        });
+        chips.push(chip);
+        filters.appendChild(chip);
+    }
+    overlay.appendChild(filters);
+
     // Grid container
     const grid = document.createElement("div");
     grid.className = "rl-roster-grid";
@@ -265,6 +367,9 @@ export function createRosterUI(options) {
             }
             document.body.removeChild(overlay);
         });
+        // C.1 filter lookup: the element chip reads the card's data ring
+        // element off the DOM node — no second roster array to keep in sync.
+        cardEl.__rlCard = card;
         // T22i 人物卡: a dedicated 详情 button opens the character sheet
         // (title/profile/skills, with its own 出发). The card body stays a
         // one-click select — the established flow both players and the
