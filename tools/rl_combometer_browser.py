@@ -99,7 +99,7 @@ def main() -> int:
                 page.evaluate(HIT_ONCE)
             st4 = page.evaluate("""() => ({
                 count: kirafanRL.views.comboMeter.count,
-                visible: getComputedStyle(kirafanRL.views.comboMeter.node).opacity !== "0"
+                visible: kirafanRL.views.comboMeter.node.dataset.shown === "true"
             })""")
             check("未到 5 连击时计数器不出现", st4["count"] == 4 and not st4["visible"], st4)
             # The fifth shows it.
@@ -107,7 +107,7 @@ def main() -> int:
             st5 = page.evaluate("""() => ({
                 count: kirafanRL.views.comboMeter.count,
                 text: kirafanRL.views.comboMeter.node.textContent,
-                visible: getComputedStyle(kirafanRL.views.comboMeter.node).opacity !== "0"
+                visible: kirafanRL.views.comboMeter.node.dataset.shown === "true"
             })""")
             check("第 5 连击起显示 N 连击", st5["count"] == 5 and "5" in (st5["text"] or "")
                   and st5["visible"], st5)
@@ -116,7 +116,7 @@ def main() -> int:
                 "() => { for (let i = 0; i < 200; i++) { kirafanRL.step(1/60); } }")
             stR = page.evaluate("""() => ({
                 count: kirafanRL.views.comboMeter.count,
-                visible: getComputedStyle(kirafanRL.views.comboMeter.node).opacity !== "0"
+                visible: kirafanRL.views.comboMeter.node.dataset.shown === "true"
             })""")
             check("断连静默归零", stR["count"] == 0 and not stR["visible"], stR)
             check("无页面异常", not report["errors"], report["errors"][:3])

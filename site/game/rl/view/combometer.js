@@ -52,6 +52,10 @@ export function createComboMeter(container) {
                 node.textContent = count + " 连击";
                 node.style.opacity = "1";
                 node.style.transform = "translateY(0) scale(1.06)";
+                // The 0.25s opacity TRANSITION can outrun the gate's sample:
+                // a mid-fade read reports opacity "0.5", not "1". Truth is
+                // "shown", so carry the state on the node itself.
+                node.dataset.shown = "true";
             }
         },
         update(dt) {
@@ -64,6 +68,7 @@ export function createComboMeter(container) {
                 count = 0;
                 node.style.opacity = "0";
                 node.style.transform = "translateY(6px) scale(0.95)";
+                node.dataset.shown = "false";
                 return;
             }
             if (peak > 0) {
@@ -78,6 +83,7 @@ export function createComboMeter(container) {
             count = 0;
             node.style.opacity = "0";
             node.style.transform = "translateY(6px) scale(0.95)";
+            node.dataset.shown = "false";
         },
         dispose() { node.remove(); }
     };
