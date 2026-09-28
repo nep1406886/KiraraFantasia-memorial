@@ -186,6 +186,24 @@
     .hud-skillbar, .hud-gauge, .touch-zone, .touch-stick, .damage-text-layer,
     .touch-btn:not(.hud-pause)) { visibility: hidden; pointer-events: none; }
 #stage.ultimate-playing .hud-pause { top: 16px; left: 16px; }
+/* D.3 电影黑边: the cinematic already clears + scissors itself to the
+   timeline's aperture (core/skillstage.js render); the bars are what the
+   cleared margin LOOKS like. These ::before/::after strips just guarantee a
+   solid ink bar even when the aperture fills the frame edge-to-edge, so the
+   mode always reads as "film", never as "the game with the HUD missing".
+   4% per plan D.3; pointer-events none so the skip button keeps its taps. */
+#stage.ultimate-playing::before,
+#stage.ultimate-playing::after {
+    content: "";
+    position: absolute;
+    left: 0; right: 0;
+    height: 4%;
+    background: var(--kf-ink);
+    pointer-events: none;
+    z-index: 400;
+}
+#stage.ultimate-playing::before { top: 0; }
+#stage.ultimate-playing::after { bottom: 0; }
 
 :root {
     /* 底色：原作卡面的天空/纸感 */
