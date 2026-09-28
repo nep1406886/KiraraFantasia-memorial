@@ -632,7 +632,7 @@ function measureAnchors() {
     } : null;
 
     const sugarTimes = [];
-    const bossTimes = encounters.map(function () { return []; });
+    const bossTimes = encounters.map(function (enc, vi) { return []; });
     const ratios = [];
     const vol5 = encounters[encounters.length - 1];
 
@@ -641,10 +641,18 @@ function measureAnchors() {
             sugarTimes.push(killSeconds(entry.cardId, 1,
                 [enemyUnit(sugarSpec, 1)], 7000 + ci));
         }
+        // 2026-09-28 review #5: the final floor rolls ONE of the volume's
+        // bosses[], so the TTK band must hold for every alternate as well as
+        // the primary — measure both. NOTE: `enc`/`dials` resolve through the
+        // closure over the per-volume `bossTimes` map callback that created
+        // each array; re-derive per volume here instead.
         encounters.forEach(function (enc, vi) {
             const dials = dialsOf(enc);
-            bossTimes[vi].push(killSeconds(entry.cardId, dials.playerLevel,
-                [enemyUnit(enc.boss, dials.level)], 7100 + vi * 100 + ci));
+            const bossSpecs = [enc.boss].concat(enc.bosses || []);
+            bossSpecs.forEach(function (spec) {
+                bossTimes[vi].push(killSeconds(entry.cardId, dials.playerLevel,
+                    [enemyUnit(spec, dials.level)], 7100 + vi * 100 + ci));
+            });
         });
         // 满练(lv80) vs the final volume's standard battle room (three mobs,
         // the median room size generateDungeon rolls) at RATIO_ELV. T22e: the

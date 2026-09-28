@@ -251,10 +251,14 @@ def main() -> int:
                 });
                 kirafanRL.step(1/60);
             }""")
+            # 2026-09-28 review: the aura now fades WITH the corpse (0.75s), so
+            # "cleared" means no VISIBLE ring — wait out the fade window too,
+            # not just the phase flip (the phase reads null the moment the boss
+            # dies while the ring is still mid-fade).
             for _ in range(240):
                 page.evaluate("kirafanRL.step(1/60)")
                 st = page.evaluate(STATE)
-                if st["phase"] is None:
+                if st["phase"] is None and st["auraPhase"] is None:
                     break
                 page.wait_for_timeout(10)
             st_dead = page.evaluate(STATE)

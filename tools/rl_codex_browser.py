@@ -5,7 +5,7 @@
 #      open, unfrozen on close; the closing Esc does NOT fall through to the
 #      menu underneath
 #   2.5 enemy tab (T22f): walking into a battle room records the faces to the
-#      meta slot (遭遇解锁); the 敌人 tab lists all 96 authored faces with
+#      meta slot (遭遇解锁); the 敌人 tab lists all 121 authored faces with
 #      met/un-met rendering, stats+rewards detail, a lazily rendered model
 #      thumbnail, and tabbing back restores the 残页 grid
 #   3. contents: 37 entries (14010000 deduped from vol2+vol5), 6 sections,
@@ -266,12 +266,12 @@ def main() -> int:
                              .textContent === '？？？')
                 };
             })()""")
-            check("96 enemy entries (5 卷, mob+elite+boss)",
-                  estats["total"] == 96, estats["total"])
+            check("142 enemy entries (5 卷, mob+elite+bosses)",
+                  estats["total"] == 142, estats["total"])
             check("5 section headers", estats["sections"] == 5,
                   estats["sections"])
-            check("count text is N / 96 with N > 0",
-                  estats["count"].endswith("/ 96")
+            check("count text is N / 142 with N > 0",
+                  estats["count"].endswith("/ 142")
                   and int(estats["count"].split(" / ")[0]) > 0,
                   estats["count"])
             check("un-met entries are ？？？", estats["lockedNames"])

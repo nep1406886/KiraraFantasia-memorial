@@ -70,8 +70,6 @@ export function createDeathStains(THREE, scene) {
                 // dark patch reads as drying; a global opacity tween would tie
                 // every stain to the youngest's clock.
                 const shrink = 1 - t * t;
-                const r = Math.max(0.05, stain.mesh.userData.baseR * shrink
-                    || stain.mesh.scale.x * shrink);
                 stain.mesh.userData.baseR = stain.mesh.userData.baseR || stain.mesh.scale.x;
                 stain.mesh.scale.x = stain.mesh.userData.baseR * shrink;
                 stain.mesh.scale.z = stain.mesh.userData.baseR * SQUASH * shrink;

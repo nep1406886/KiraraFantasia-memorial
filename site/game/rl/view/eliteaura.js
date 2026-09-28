@@ -23,10 +23,6 @@ const RING_Y = 0.03;
 const BASE_OPACITY = 0.30;
 const PULSE_AMPLITUDE = 0.12;
 const PULSE_SECONDS = 2.4;
-// Per-instance pulse shaping, mutated by setPhase (B.3).
-let pulseSeconds = PULSE_SECONDS;
-let pulseAmplitude = PULSE_AMPLITUDE;
-let spinRate = 0;
 // Bosses get a second outer ring: an elite is "stronger", a boss is "the room".
 const BOSS_OUTER = 1.22;
 const BOSS_OUTER_OPACITY = 0.55;
@@ -37,11 +33,14 @@ function ringGeometry(THREE, inner, outer) {
 
 export function createEliteAura(THREE, scene, radius, element, kind) {
     const color = ELEMENT_COLOR[element] || ELEMENT_COLOR[0];
-    // Module-level pulse shaping is shared: reset per instance so a disposed
-    // phase-3 aura does not leak its fast pulse into the next elite's ring.
-    pulseSeconds = PULSE_SECONDS;
-    pulseAmplitude = PULSE_AMPLITUDE;
-    spinRate = 0;
+    // 2026-09-28 review #2: pulse shaping is PER-INSTANCE closure state.
+    // The previous module-level lets meant a boss's setPhase rewrote every
+    // other live aura's pulse (a room can field a boss AND an elite, and
+    // ELITE_CHANCE can add one to any battle room). Moved into the closure
+    // so each ring owns its own clock.
+    let pulseSeconds = PULSE_SECONDS;
+    let pulseAmplitude = PULSE_AMPLITUDE;
+    let spinRate = 0;
     const material = new THREE.MeshBasicMaterial({
         color: color, transparent: true, opacity: BASE_OPACITY,
         side: THREE.DoubleSide, depthWrite: false, fog: false, toneMapped: false

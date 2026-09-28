@@ -351,6 +351,7 @@ export function attachEnemyView(unit, scene) {
             }));
             let postureLift = 0;     // lift currently riding on root.y (see sync)
             let auraPhase = 1;       // last boss phase pushed into the aura ring
+            let auraFading = false;  // death-fade already drove this frame's aura.sync
             const posture = POSTURE[unit.model] || null;
             const deadNames = posture && posture.deadParts;
             if (deadNames) {
@@ -589,6 +590,12 @@ export function attachEnemyView(unit, scene) {
                         if (aura) {
                             aura.sync(at.x, at.y, (now || 0) / 1000,
                                 false, 1 - t);
+                            // The shared aura block below re-syncs with
+                            // alive=!unit.dead — that second call would
+                            // override this fade with an instant hide, so
+                            // skip to the phase check only, then skip its sync.
+                            // (2026-09-28 review #9.)
+                            auraFading = true;
                         }
                     }
                     // The float bob and the death sink are both real height, so
@@ -611,7 +618,9 @@ export function attachEnemyView(unit, scene) {
                             auraPhase = unit.phase || 1;
                             aura.setPhase(auraPhase);
                         }
-                        aura.sync(at.x, at.y, (now || 0) / 1000, !unit.dead && !retired);
+                        if (!auraFading) {
+                            aura.sync(at.x, at.y, (now || 0) / 1000, !unit.dead && !retired);
+                        }
                     }
                 },
 

@@ -564,8 +564,14 @@ function setup(modules) {
             motion.beginStep(world);
             updateFollowCamera(dt, 1, motion);
             projectAim();
-            world.update(dt);
+            // 2026-09-28 review #1: the probe MUST be consumed before
+            // world.update — the attack latches inside world.update's input
+            // read (captureAction), so a loot click consumed after it would
+            // pick up AND swing. The headless step() already had this order;
+            // the rAF path did not, and the pickup gate (which drives step)
+            // couldn't see it.
             consumePickupProbe();
+            world.update(dt);
             consumeEvents();
             tickTutorial(dt);
             if (hud) {
@@ -936,8 +942,16 @@ function consumePickupProbe() {
     entry.offered = true;
     input.clear();
     const item = entry.items[0];
+    // 2026-09-28 review #6: a declined click must re-arm the drop. updateDrops
+    // only re-arms on leaving the radius, so a player standing next to the
+    // loot that clicks then declines would find the drop permanently locked.
+    // Route the close through a wrapper that re-arms whatever entry is still
+    // in world.drops when the choice dismisses without confirming.
+    const pendingEntry = entry;
     openEquipmentChoice(item, function () {
-        return world.takeDrop(entry, item, persistRoomEvent);
+        const ok = world.takeDrop(pendingEntry, item, persistRoomEvent);
+        if (!ok && world.drops.indexOf(pendingEntry) >= 0) { pendingEntry.offered = false; }
+        return ok;
     });
     return true;
 }
@@ -972,9 +986,10 @@ function consumeEvents() {
             coverRoom(false);
             audio.se("page_fade", { volume: 0.5 });
             // D.1 过门涟漪: a soft ring expanding from the crossed door's
-            // edge, on top of the opaque cover. It is removed by its own
-            // animationend (and by any later coverRoom), so nothing leaks
-            // across rooms.
+            // edge, on top of the opaque cover. Removal is driven by the
+            // animationend timer — which never fires while the tab is hidden
+            // — plus a hard 1s backstop below, so a backgrounded tab can't
+            // leave a stale ripple on the fade layer.
             if (event.side && !accessibility.reducedFlash) {
                 const ripple = document.createElement("span");
                 ripple.className = "door-ripple";
@@ -985,7 +1000,9 @@ function consumeEvents() {
                     W: [0, rect.height / 2], E: [rect.width, rect.height / 2] }[event.side];
                 ripple.style.left = (mid[0] - size / 2) + "px";
                 ripple.style.top = (mid[1] - size / 2) + "px";
-                ripple.addEventListener("animationend", function () { ripple.remove(); });
+                const retire = function () { ripple.remove(); };
+                ripple.addEventListener("animationend", retire);
+                setTimeout(retire, 1200);
                 roomFade.appendChild(ripple);
             }
             break;
@@ -2725,15 +2742,20 @@ function enemyCodexSections() {
     );
     return (tables && tables.encounters ? tables.encounters : []).map(
         function (vol) {
+            // 2026-09-28 review #4: bosses[] alternates join the codex listing
+            // too — a player felled by an alternate final boss must be able to
+            // find it in the 图鉴. Their role reads "boss" (not "mob"), since
+            // the final floor rolls them as the true boss.
+            const bossIds = [vol.boss].concat(vol.bosses || []);
             const rows = []
-                .concat(vol.mobs, vol.elites, [vol.boss])
+                .concat(vol.mobs, vol.elites, bossIds)
                 .filter(Boolean);
             return {
                 title: CODEX_VOLUME_TITLES[(vol.vol || 1) - 1],
                 entries: rows.map(function (row) {
                     const stats = tables.stats
                         ? tables.stats.enemyStats(row.id, vol.level) : null;
-                    const role = row.id === vol.boss.id ? "boss"
+                    const role = bossIds.some(function (b) { return b.id === row.id; }) ? "boss"
                         : (row.elite ? "elite" : "mob");
                     return {
                         id: row.id,
