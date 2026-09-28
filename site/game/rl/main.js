@@ -47,6 +47,7 @@ import { createDanmakuView } from "./view/danmakuview.js";
 import { createEnemyTelegraphs } from "./view/enemytelegraphs.js";
 import { createPlayerWarning } from "./view/playerwarning.js";
 import { createDeathStains } from "./view/deathstains.js?v=b5";
+import { createComboMeter } from "./view/combometer.js";
 import { createFollowCamera } from "./view/camera.js";
 import { createMinimap } from "./view/minimap.js";
 import { createStageScene } from "./view/scene.js?v=20260908-1";
@@ -357,6 +358,7 @@ let danmakuView = null;
 let enemyTelegraphs = null;
 let playerWarning = null;
 let deathStains = null;
+let comboMeter = null;
 let damageTextLayer = null;
 let healthBars = null;
 let battleIndicators = null;
@@ -487,6 +489,7 @@ function setup(modules) {
     // factory's new THREE.Group() dies with "not a constructor".
     playerWarning = createPlayerWarning(scene, THREE);
     deathStains = createDeathStains(THREE, scene);
+    comboMeter = createComboMeter(stage);
     damageTextLayer = createDamageTextLayer(stage, THREE);
     healthBars = createHealthBars(stage, THREE);
     battleIndicators = createBattleIndicators(stage, THREE);
@@ -657,7 +660,7 @@ function setup(modules) {
         get floorLabel() { return floorBox ? floorBox.textContent : ""; },
         get views() { return { player: playerView, enemies: enemyViews, danmaku: danmakuView,
             telegraphs: enemyTelegraphs, playerWarning: playerWarning,
-            deathStains: deathStains }; },
+            deathStains: deathStains, comboMeter: comboMeter }; },
         // Same attach path the "summon" event takes, exposed so headless
         // fixtures can give a mid-test spawned unit its real view.
         syncEnemyViews: ensureEnemyViews,
@@ -799,6 +802,7 @@ function syncViews(dt, motion, alpha) {
     enemyTelegraphs.sync(world, world.time);
     if (playerWarning) { playerWarning.update(dt, world, world.time); }
     if (deathStains) { deathStains.update(dt); }
+    if (comboMeter) { comboMeter.update(dt); }
     if (skillVFX) {
         skillVFX.syncProjectiles(world.danmaku, position);
         skillVFX.update(effectDt);
@@ -923,6 +927,7 @@ function consumeEvents() {
             if (healthBars) { healthBars.clear(); }
             if (skillVFX) { skillVFX.clear(); }
             if (deathStains) { deathStains.clear(); }
+            if (comboMeter) { comboMeter.clear(); }
             roomGeneration += 1;
             clearEnemyViews();
             clearDropViews();
@@ -1179,6 +1184,11 @@ function consumeEvents() {
             // into a drum roll.
             const playerLanded = !!(event.attacker && event.attacker.kind === "player");
             const targetIsPlayer = event.target.kind === "player";
+            // C.3 连击计数: player-dealt hits on enemies ride the same event
+            // the damage numbers do; the meter owns its own window/reset.
+            if (comboMeter && playerLanded && !targetIsPlayer) {
+                comboMeter.hit();
+            }
             world.applyHitStop(hitStopFor(event));
             if (targetIsPlayer) {
                 audio.se("hit", { volume: 1.0 });
