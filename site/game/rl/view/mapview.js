@@ -1251,7 +1251,14 @@ export function createMapView(scene, volume) {
                         return !laysFlat(unit.entry)
                             && Math.max(unit.entry.footprint[0], unit.entry.footprint[1]) <= .9;
                     };
-                    const ringPool = pool(["prop", "animated"], prefer.scatter,
+                    // C.2: the ring composes from the volume's OWN signature
+                    // first (floors.json prefer.ring), falling back to the
+                    // scatter vocabulary — so vol 1's arena ring reads as
+                    // shell-and-coral, vol 3's as flowers, vol 5's as spirit
+                    // plants, while the fallback keeps volumes without a
+                    // curated list exactly as before.
+                    const ringPool = pool(["prop", "animated"],
+                        prefer.ring && prefer.ring.length ? prefer.ring : prefer.scatter,
                         recipe.scatterPrefer).filter(small);
                     const usableRing = ringPool.length ? ringPool : borderPool.filter(small);
                     const ringRadius = recipe.arena

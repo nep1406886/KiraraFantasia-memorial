@@ -181,6 +181,7 @@ console.log("view gate: serving on 127.0.0.1:" + port);
         [["prefer.border", (cfg.prefer || {}).border || []],
             ["prefer.focal", (cfg.prefer || {}).focal || []],
             ["prefer.scatter", (cfg.prefer || {}).scatter || []],
+            ["prefer.ring", (cfg.prefer || {}).ring || []],
             ["exclude", cfg.exclude || []]].forEach(function (group) {
             const dead = group[1].filter(function (p) {
                 return !units.some(function (e) { return hits(e.name, [p]); });
