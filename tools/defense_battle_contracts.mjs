@@ -397,6 +397,23 @@ test("partner pairings boost both cards and every new card keeps its original cl
         assert.ok(expected.length === 1, `${unit.id} ${rule.name}: kind ${rule.kind} does not match original classId ${unit.classId}`);
     }
 });
+test("an endless checkpoint round-trips and rejects corruption", () => {
+    const b = new Battle(ENDLESS, { deck: ["F01", "U07", "U15"], seed: 4242 });
+    b.deploy("F01", 2, 0); b.deploy("U07", 2, 3); b.start();
+    advance(b, 70);
+    const checkpoint = b.serializeEndless();
+    assert.ok(checkpoint && checkpoint.wave >= 2 && checkpoint.units.length === 2);
+    const saved = validateProgress({ version: 1, completed: [], best: {}, endlessRun: checkpoint }).endlessRun;
+    assert.ok(saved, "validator kept the checkpoint");
+    assert.equal(saved.level, "endless");
+    const restored = new Battle(ENDLESS, { deck: ["F01", "U07", "U15"], seed: 1 });
+    assert.equal(Battle.applyEndless(restored, saved), true);
+    assert.equal(restored.wave, checkpoint.wave);
+    assert.equal(restored.units.size, checkpoint.units.length);
+    assert.equal(restored.stats.kills, checkpoint.stats.kills);
+    assert.equal(Battle.applyEndless(restored, { version: 1, level: "1-1", seed: 1, wave: 3, deck: [], units: [] }), false);
+    assert.equal(Battle.applyEndless(restored, { version: 1, level: "endless", seed: "x" }), false);
+});
 test("endless grants a card swap every five cleared waves and the E39 queen takes wave 20", () => {
     const battle = new Battle(ENDLESS, { deck: DECK_ORDER, seed: 7 });
     // Wave plan: E13 bosses before 15, E30 at 15, E39 from 20.
