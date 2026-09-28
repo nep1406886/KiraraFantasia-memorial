@@ -448,6 +448,29 @@
         font-size: 12px;
         color: var(--kf-ink-soft);
     }
+    /* C.1b 卷景横幅: rounded art strip under the menu title, 110px tall,
+       full panel width, with the volume/floor label bottom-left on a paper
+       chip. Fixed height + background-size:cover = no reflow at any width. */
+    #menu-landscape {
+        height: 110px;
+        border-radius: 10px;
+        margin: 0 0 12px;
+        background: #8a92a0 center / cover no-repeat;
+        position: relative;
+        flex: none;
+    }
+    #menu-where {
+        position: absolute;
+        left: 8px;
+        bottom: 8px;
+        padding: 3px 10px;
+        background: var(--kf-paper);
+        border: 1.5px solid var(--kf-ink-soft);
+        border-radius: 999px;
+        font-size: 12px;
+        font-weight: 600;
+        color: var(--kf-ink);
+    }
 
     /* 残页図鑑 (T13): full-screen overlay, same feel as the roster. The grid
        is auto-fill minmax(0,1fr) — no fixed width anywhere, so no width can
@@ -912,6 +935,11 @@
     </dialog>
     <div id="menu-panel" class="panel hidden">
         <h2>菜单</h2>
+        <!-- C.1b 卷景横幅: the pause menu carries the current volume's own
+             landscape (same scene_*.webp art the campaign screens use), so
+             "paused" reads as "somewhere in THIS story", not a settings sheet.
+             main.js writes data-volume + the floor label on open. -->
+        <div id="menu-landscape" aria-hidden="true"><span id="menu-where"></span></div>
         <button id="menu-resume">继续</button>
         <div id="menu-equipment-model" hidden>
             <p id="menu-equipment-status" role="status"></p>

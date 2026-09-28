@@ -2582,7 +2582,32 @@ function toggleMenu() {
     if (menuPanel) {
         menuPanel.classList.toggle("hidden", !menuOpen);
     }
-    if (menuOpen) { updateEquipmentAppearance(); }
+    if (menuOpen) {
+        updateEquipmentAppearance();
+        // C.1b 卷景横幅: paint the menu with THIS run's volume art + a
+        // where-am-I chip. The five scene strips already exist on disk
+        // (asset/img/rl/ui/scene_*.webp); volume 1's port town reads best on
+        // the sea strip, the desert/sand pair maps 2, the meadow-forest 3,
+         // the forge 4, the library 5 (the finale's 终之书架).
+        const SCENE = ["scene_sea", "scene_sand", "scene_field",
+            "scene_forge", "scene_library"];
+        const strip = document.getElementById("menu-landscape");
+        if (strip) {
+            const idx = Math.min(4, Math.max(0, volume - 1));
+            // Module-relative like every other asset reference here — the
+            // inline-style URL must resolve against the PAGE or it escapes a
+            // deployment subpath, so build it from this module's own URL.
+            const art = new URL("../../asset/img/rl/ui/"
+                + SCENE[idx] + ".webp", import.meta.url).href;
+            strip.style.backgroundImage = "url(" + art + ")";
+            const where = document.getElementById("menu-where");
+            if (where) {
+                const cfg = volumeConfig(volume, world.floor);
+                where.textContent = "卷" + volume + " " + (cfg.name || "")
+                    + " · 第 " + world.floor + " 层";
+            }
+        }
+    }
 }
 
 // 残页図鑑 (T13, spec/06): the page-collection viewer, reachable from the
