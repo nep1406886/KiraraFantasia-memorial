@@ -48,6 +48,8 @@ import { createEnemyTelegraphs } from "./view/enemytelegraphs.js";
 import { createPlayerWarning } from "./view/playerwarning.js";
 import { createDeathStains } from "./view/deathstains.js?v=b5";
 import { createComboMeter } from "./view/combometer.js";
+import { createAfterimage } from "./view/afterimage.js";
+import { PLAYER_TIMING } from "./actorstate.js";
 import { createFollowCamera } from "./view/camera.js";
 import { createMinimap } from "./view/minimap.js";
 import { createStageScene } from "./view/scene.js?v=20260908-1";
@@ -359,6 +361,7 @@ let enemyTelegraphs = null;
 let playerWarning = null;
 let deathStains = null;
 let comboMeter = null;
+let afterimage = null;
 let damageTextLayer = null;
 let healthBars = null;
 let battleIndicators = null;
@@ -490,6 +493,7 @@ function setup(modules) {
     playerWarning = createPlayerWarning(scene, THREE);
     deathStains = createDeathStains(THREE, scene);
     comboMeter = createComboMeter(stage);
+    afterimage = createAfterimage(THREE, scene);
     damageTextLayer = createDamageTextLayer(stage, THREE);
     healthBars = createHealthBars(stage, THREE);
     battleIndicators = createBattleIndicators(stage, THREE);
@@ -660,7 +664,8 @@ function setup(modules) {
         get floorLabel() { return floorBox ? floorBox.textContent : ""; },
         get views() { return { player: playerView, enemies: enemyViews, danmaku: danmakuView,
             telegraphs: enemyTelegraphs, playerWarning: playerWarning,
-            deathStains: deathStains, comboMeter: comboMeter }; },
+            deathStains: deathStains, comboMeter: comboMeter,
+            afterimage: afterimage }; },
         // Same attach path the "summon" event takes, exposed so headless
         // fixtures can give a mid-test spawned unit its real view.
         syncEnemyViews: ensureEnemyViews,
@@ -803,6 +808,7 @@ function syncViews(dt, motion, alpha) {
     if (playerWarning) { playerWarning.update(dt, world, world.time); }
     if (deathStains) { deathStains.update(dt); }
     if (comboMeter) { comboMeter.update(dt); }
+    if (afterimage) { afterimage.update(dt); }
     if (skillVFX) {
         skillVFX.syncProjectiles(world.danmaku, position);
         skillVFX.update(effectDt);
@@ -928,6 +934,7 @@ function consumeEvents() {
             if (skillVFX) { skillVFX.clear(); }
             if (deathStains) { deathStains.clear(); }
             if (comboMeter) { comboMeter.clear(); }
+            if (afterimage) { afterimage.clear(); }
             roomGeneration += 1;
             clearEnemyViews();
             clearDropViews();
@@ -1392,6 +1399,23 @@ function consumeEvents() {
             // The player's own sidestep (world pushes it from idle/move on
             // the dodge input); enemies never dodge, so no unit filter.
             audio.se("dodge", { volume: 0.6 });
+            // C.3b 残影: six fading ghosts along the dodge's swept path. The
+            // dodge direction is locked at push time, so the path is a
+            // straight burst of duration * speed * 2.4 — recompute positions
+            // analytically from the player's own numbers, no motion history.
+            if (afterimage && playerView) {
+                const at = event.unit;
+                const dir = at.dodgeDir || { x: 1, y: 0 };
+                const total = at.speed * PLAYER_TIMING.dodgeSpeedMult
+                    * PLAYER_TIMING.dodgeDuration;
+                afterimage.spawn(playerView.actor.object,
+                    function (t) {
+                        return { x: at.x - dir.x * total * (1 - t),
+                                 y: at.y - dir.y * total * (1 - t) };
+                    },
+                    at.facing, playerView.actor.object.scale.y,
+                    playerView.actor.object.scale.x < 0);
+            }
             break;
         case "enemySkill":
             // The original's enemy attack burst (ef_btl_dmg_enemy_attack_*),
