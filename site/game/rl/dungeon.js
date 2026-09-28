@@ -70,6 +70,11 @@ export function generateDungeon(seed, floorCfg) {
         // threat band both need headroom (spec/06 T21e 密度).
         enemiesMin: 3,      // per battle room (before scaling)
         enemiesMax: 6,
+        // 2026-09-28 层度递增 (用户反馈: 玩着无聊): cfg.depth ∈ [0,1] lifts
+        // the density band as the floor climbs — floor 1 rolls 2-4 enemies,
+        // the volume's last floors roll 4-6. The absolute cap stays at 6 for
+        // the same-screen perf budget; depth only moves the FLOOR of the roll.
+        depth: 0,
         loopChance: 0.25    // chance an adjacency to an existing room adds a door
     }, floorCfg || {});
 
@@ -199,9 +204,16 @@ export function generateDungeon(seed, floorCfg) {
             return;
         }
         const roomRng = createRandom(room.seed);
+        // Depth ramp: the band FLOOR rises with depth (3→5 at full depth),
+        // the CEILING stays at the historical 6 — pressure climbs without
+        // breaking the same-screen perf budget, and depth 0 is byte-identical
+        // to the historical roll (gate determinism holds).
+        const rampMin = cfg.enemiesMin
+            + Math.round(Math.max(0, Math.min(1, cfg.depth || 0)) * (cfg.enemiesMax - cfg.enemiesMin - 1));
+        const rampMax = Math.max(rampMin, cfg.enemiesMax);
         const count = room.type === "boss"
             ? 1
-            : cfg.enemiesMin + Math.floor(roomRng() * (cfg.enemiesMax - cfg.enemiesMin + 1));
+            : rampMin + Math.floor(roomRng() * (rampMax - rampMin + 1));
         for (let i = 0; i < count; i++) {
             // room-local world coordinates; the game layer maps these to the
             // shared ROOM_SIZE interior and picks the model from the floor's

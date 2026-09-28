@@ -44,6 +44,11 @@ export function createInput() {
         // canvas, with a "seen at least once" latch. The view layer converts
         // it to world ground coordinates (input.js stays three-free).
         pointer: { x: 0, y: 0, active: false },
+        // 2026-09-28 装备鼠标拾取: the NDC point of the latest canvas click,
+        // consumed (nulled) by the one world update that follows it. main.js
+        // projects it to the ground; a drop within PICKUP_RADIUS of that
+        // ground point is offered and the click does NOT also swing.
+        pickupProbe: null,
         // Independent touch attack stick: a continuous screen-space direction.
         aimStick: { x: 0, y: 0, active: false }
     };
@@ -127,6 +132,14 @@ export function createInput() {
         syncAttack();
         if (event.target === rendererCanvas) {
             aimFrom(event.clientX, event.clientY);
+            // 2026-09-28 装备鼠标拾取 (用户反馈): a left click on the play
+            // field also records the screen point for the pickup probe —
+            // main.js projects it to the ground and, if an equipment drop
+            // sits under the cursor (PICKUP_RADIUS), offers it instead of
+            // firing the swing. One channel, consumed by the very next
+            // world update, so a loot click never also swings.
+            const probe = ndcFromClient(event.clientX, event.clientY);
+            if (probe) { state.pickupProbe = probe; }
         }
     }
 
@@ -176,6 +189,20 @@ export function createInput() {
         state.pointer.active = true;
     }
 
+    // Pickup probe needs the same client→NDC math, but WITHOUT arming the aim
+    // latch (a pickup click on a drop behind the player must not re-aim the
+    // next keyboard swing at that spot).
+    function ndcFromClient(clientX, clientY) {
+        const canvas = rendererCanvas;
+        if (!canvas) { return null; }
+        const rect = canvas.getBoundingClientRect();
+        if (!rect.width || !rect.height) { return null; }
+        return {
+            x: Math.max(-1, Math.min(1, ((clientX - rect.left) / rect.width) * 2 - 1)),
+            y: Math.max(-1, Math.min(1, -(((clientY - rect.top) / rect.height) * 2 - 1)))
+        };
+    }
+
     function onPointerMove(event) {
         if (event.pointerType === "touch") {
             state.pointer.active = false;
@@ -198,11 +225,13 @@ export function createInput() {
     function onBlur() {
         heldKeys.clear();
         mouseAttack = false;
+        mouseAttackPending = false;
         Object.keys(KEYMAP).forEach(function (code) {
             apply(KEYMAP[code], false);
         });
         state.attack = false;
         state.pointer.active = false;
+        state.pickupProbe = null;
         state.aimStick.x = 0; state.aimStick.y = 0; state.aimStick.active = false;
     }
 

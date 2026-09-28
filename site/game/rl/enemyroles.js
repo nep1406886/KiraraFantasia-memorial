@@ -49,7 +49,22 @@ export const ENEMY_ROLES = Object.freeze({
     99316004: profile("spell", [lanes("cliff", 16067, "峭壁封锁"), line("chorus", 16002, "轮唱锁定")]),
     90426005: profile("sunblade", [charge("dawn", 74004, "晓光突进"), sweep("sunset", 74018, "落日挥斩", 4, PI)]),
     90023000: profile("arsenal", [sweep("edge", 69001, "花刃横扫"), cross("arsenal", 69002, "交叉兵装")]),
-    90136002: profile("palm", [disc("palm", 73006, "震掌"), spots("blast", 73008, "爆破落点", 1.7, 2)])
+    90136002: profile("palm", [disc("palm", 73006, "震掌"), spots("blast", 73008, "爆破落点", 1.7, 2)]),
+    // 2026-09-28 首领种类扩充 (用户反馈: boss 的种类希望多一点): the 层守卫
+    // pool grows from 2 to 3+ per volume — each new entry is that volume's OWN
+    // unused voice elite, with an authored two-to-three-move duel.
+    99411001: profile("tide", [ring("spread", 11001, "水环扩散", 2.2, 6.5),
+        ring("deep", 11002, "深雨环涌", 1.8, 5.2)]),
+    90036002: profile("toxin", [disc("shockwave", 73006, "震掌"),
+        spots("blast", 73008, "爆破落点", 1.7, 2)]),
+    99048003: profile("curry", [sweep("pour", 48006, "热汤倾倒", 5.2, PI * .6),
+        spots("spice", 48005, "香料落点", 1.55, 3), disc("boil", 48004, "沸腾震圈", 3.8)]),
+    99313003: profile("brine", [line("shrimp", 13011, "虾酱弹"),
+        sweep("anchovy", 13012, "鳀鱼斩", 3.5, PI * .7)]),
+    99215004: profile("lunar", [charge("sting", 15001, "月刺突进"),
+        ring("flare", 15002, "弦月环斩", 2.2, 5.8), line("cancel", 15017, "月相取消")]),
+    90226005: profile("zenith", [charge("dawn", 74004, "晓光突进"),
+        sweep("noon", 74009, "正午挥斩", 4, PI), sweep("set", 74018, "落日挥斩", 4, PI)])
 });
 
 export function enemyRole(enemyId, moveset) {

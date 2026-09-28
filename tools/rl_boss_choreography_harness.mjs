@@ -52,8 +52,9 @@ function playerBullet(f, power) {
 }
 const playerHits = events => events.filter(e => e.type === "hit" && e.target.kind === "player");
 
-test("16份编排只绑定自身真实技能，原系数、物魔位与SAP不被改写", () => {
-    assert.equal(Object.keys(ENEMY_ROLES).length, 16);
+test("22份编排只绑定自身真实技能，原系数、物魔位与SAP不被改写", () => {
+    // 2026-09-28 首领种类扩充: 16 -> 22 (6 voice elites joined the 层守卫 pools).
+    assert.equal(Object.keys(ENEMY_ROLES).length, 22);
     for (const [id, authored] of Object.entries(ENEMY_ROLES)) {
         const spec = specs.get(Number(id)); assert.ok(spec, id);
         const moveset = enemyMoveset(data.skills, spec.skills), role = enemyRole(id, moveset);

@@ -35,7 +35,7 @@ import { setAffixPool } from "./loot.js";
 import { setAffixTable, affixTableFromPassives } from "./equipment.js";
 import { setWeaponCatalog, weaponDefinition, canEquipWeapon } from "./weaponcatalog.js";
 import { gadgetDefinition, gadgetTerms } from "./gadgets.js";
-import { createWorld, EXP_PER_KILL, COIN_PER_KILL } from "./world.js";
+import { createWorld, EXP_PER_KILL, COIN_PER_KILL, PICKUP_RADIUS } from "./world.js";
 import { hitStopFor } from "./impact.js";
 import { generateDungeon, doorsOf } from "./dungeon.js";
 import { attachPlayerView } from "./view/actorview.js";
@@ -48,8 +48,6 @@ import { createEnemyTelegraphs } from "./view/enemytelegraphs.js";
 import { createPlayerWarning } from "./view/playerwarning.js";
 import { createDeathStains } from "./view/deathstains.js?v=b5";
 import { createComboMeter } from "./view/combometer.js";
-import { createAfterimage } from "./view/afterimage.js";
-import { PLAYER_TIMING } from "./actorstate.js";
 import { createFollowCamera } from "./view/camera.js";
 import { createMinimap } from "./view/minimap.js";
 import { createStageScene } from "./view/scene.js?v=20260908-1";
@@ -361,7 +359,6 @@ let enemyTelegraphs = null;
 let playerWarning = null;
 let deathStains = null;
 let comboMeter = null;
-let afterimage = null;
 let damageTextLayer = null;
 let healthBars = null;
 let battleIndicators = null;
@@ -493,7 +490,6 @@ function setup(modules) {
     playerWarning = createPlayerWarning(scene, THREE);
     deathStains = createDeathStains(THREE, scene);
     comboMeter = createComboMeter(stage);
-    afterimage = createAfterimage(THREE, scene);
     damageTextLayer = createDamageTextLayer(stage, THREE);
     healthBars = createHealthBars(stage, THREE);
     battleIndicators = createBattleIndicators(stage, THREE);
@@ -569,6 +565,7 @@ function setup(modules) {
             updateFollowCamera(dt, 1, motion);
             projectAim();
             world.update(dt);
+            consumePickupProbe();
             consumeEvents();
             tickTutorial(dt);
             if (hud) {
@@ -641,6 +638,7 @@ function setup(modules) {
         };
     }
 
+
     // Headless handle: a backgrounded tab never runs rAF, so checks drive
     // the world synchronously through step() instead (same as models.js).
     window.kirafanRL = {
@@ -664,8 +662,7 @@ function setup(modules) {
         get floorLabel() { return floorBox ? floorBox.textContent : ""; },
         get views() { return { player: playerView, enemies: enemyViews, danmaku: danmakuView,
             telegraphs: enemyTelegraphs, playerWarning: playerWarning,
-            deathStains: deathStains, comboMeter: comboMeter,
-            afterimage: afterimage }; },
+            deathStains: deathStains, comboMeter: comboMeter }; },
         // Same attach path the "summon" event takes, exposed so headless
         // fixtures can give a mid-test spawned unit its real view.
         syncEnemyViews: ensureEnemyViews,
@@ -720,6 +717,7 @@ function setup(modules) {
         step: function (dt) {
             updateFollowCamera(dt);
             projectAim();
+            consumePickupProbe();
             world.update(dt);
             consumeEvents();
             if (hud) {
@@ -808,7 +806,6 @@ function syncViews(dt, motion, alpha) {
     if (playerWarning) { playerWarning.update(dt, world, world.time); }
     if (deathStains) { deathStains.update(dt); }
     if (comboMeter) { comboMeter.update(dt); }
-    if (afterimage) { afterimage.update(dt); }
     if (skillVFX) {
         skillVFX.syncProjectiles(world.danmaku, position);
         skillVFX.update(effectDt);
@@ -896,6 +893,55 @@ function unitName(unit) {
 }
 
 let lastSeenSwing = 0;
+// 2026-09-28 装备鼠标拾取: the click's ground point, using the same ortho
+// unprojection pair projectAim uses (COMBAT_HEIGHT → 0 here, because a drop
+// marker sits on the floor, not at torso height). Module-level because
+// consumeEvents (top-level) consumes the probe; THREE is the module-level let
+// that setup() assigns, and the probe only ever runs after setup.
+const probeVec = { near: null, far: null };
+function projectProbe(camera, probe) {
+    if (!probe || !camera || !THREE) { return null; }
+    if (!probeVec.near) { probeVec.near = new THREE.Vector3(); probeVec.far = new THREE.Vector3(); }
+    camera.updateMatrixWorld();
+    probeVec.near.set(probe.x, probe.y, -1).unproject(camera);
+    probeVec.far.set(probe.x, probe.y, 1).unproject(camera);
+    const dy = probeVec.far.y - probeVec.near.y;
+    if (Math.abs(dy) < 1e-6) { return null; }
+    const t = (0 - probeVec.near.y) / dy;
+    if (t < 0 || t > 1) { return null; }
+    return { x: probeVec.near.x + (probeVec.far.x - probeVec.near.x) * t,
+             y: probeVec.near.z + (probeVec.far.z - probeVec.near.z) * t };
+}
+
+// 2026-09-28 装备鼠标拾取: consumes the click probe. Runs BEFORE
+// world.update in the step order, because the attack latches inside
+// world.update's input read — if the probe ran after, the click would swing
+// AND open the choice. A drop within PICKUP_RADIUS of the clicked ground
+// point is offered and the input is cleared so this click never swings; the
+// probe is one-shot either way (a missed click must not arm a sticky pickup
+// zone). The approach-offer path (walking over / E) is untouched.
+function consumePickupProbe() {
+    if (!input.state.pickupProbe) { return false; }
+    const probe = input.state.pickupProbe;
+    input.state.pickupProbe = null;
+    if (!world || world.frozen || runPhase !== "active" || decisionOpen
+            || !world.player || world.player.dead) { return false; }
+    const ground = projectProbe(camera, probe);
+    if (!ground) { return false; }
+    const entry = world.drops.find(function (drop) {
+        return drop.items.length && !drop.offered
+            && Math.hypot(drop.x - ground.x, drop.y - ground.y) <= PICKUP_RADIUS;
+    });
+    if (!entry) { return false; }
+    entry.offered = true;
+    input.clear();
+    const item = entry.items[0];
+    openEquipmentChoice(item, function () {
+        return world.takeDrop(entry, item, persistRoomEvent);
+    });
+    return true;
+}
+
 function consumeEvents() {
     // A quick click's latch stays armed until the world has actually swung
     // with it (swingId changed this update) — a click landing mid-swing then
@@ -951,7 +997,6 @@ function consumeEvents() {
             if (skillVFX) { skillVFX.clear(); }
             if (deathStains) { deathStains.clear(); }
             if (comboMeter) { comboMeter.clear(); }
-            if (afterimage) { afterimage.clear(); }
             roomGeneration += 1;
             clearEnemyViews();
             clearDropViews();
@@ -1415,24 +1460,8 @@ function consumeEvents() {
         case "dodge":
             // The player's own sidestep (world pushes it from idle/move on
             // the dodge input); enemies never dodge, so no unit filter.
+            // 2026-09-28 用户反馈: 残影去除——闪避读法回归"位置变化"本身。
             audio.se("dodge", { volume: 0.6 });
-            // C.3b 残影: six fading ghosts along the dodge's swept path. The
-            // dodge direction is locked at push time, so the path is a
-            // straight burst of duration * speed * 2.4 — recompute positions
-            // analytically from the player's own numbers, no motion history.
-            if (afterimage && playerView) {
-                const at = event.unit;
-                const dir = at.dodgeDir || { x: 1, y: 0 };
-                const total = at.speed * PLAYER_TIMING.dodgeSpeedMult
-                    * PLAYER_TIMING.dodgeDuration;
-                afterimage.spawn(playerView.actor.object,
-                    function (t) {
-                        return { x: at.x - dir.x * total * (1 - t),
-                                 y: at.y - dir.y * total * (1 - t) };
-                    },
-                    at.facing, playerView.actor.object.scale.y,
-                    playerView.actor.object.scale.x < 0);
-            }
             break;
         case "enemySkill":
             // The original's enemy attack burst (ef_btl_dmg_enemy_attack_*),
@@ -1708,7 +1737,8 @@ async function attemptDescent(tx) {
             throw new Error("检查点已变化，未继续下潜。请核对备份后重新载入。");
         }
         if (!tx.nextDungeon) {
-            tx.nextDungeon = generateDungeon(layoutSeedFor(tx.to), { roomsMin: 6, roomsMax: 9 });
+            tx.nextDungeon = generateDungeon(layoutSeedFor(tx.to), { roomsMin: 6, roomsMax: 9,
+                depth: (tx.to - 1) / Math.max(1, VOLUME_FLOORS - 1) });
             tx.entry = tx.nextDungeon.rooms.find(function (room) { return room.id === tx.nextDungeon.start; });
             if (!tx.entry || tx.entry.enemies.length) { throw new Error("下一层入口无效，原层已保留。"); }
         }
@@ -3575,7 +3605,10 @@ function loadPlayer() {
 
                 world.floor = bootFloor;
                 const dungeon = generateDungeon(layoutSeedFor(bootFloor), {
-                    roomsMin: 6, roomsMax: 9
+                    roomsMin: 6, roomsMax: 9,
+                    // 2026-09-28 层度递增: density climbs with the floor's
+                    // position in the volume (0 on floor 1, ~1 near the boss).
+                    depth: (bootFloor - 1) / Math.max(1, VOLUME_FLOORS - 1)
                 });
                 minimap.setDungeon(dungeon);
                 world.setDungeon(dungeon, resume ? resume.roomClaims : []); // fires the first "room" event,

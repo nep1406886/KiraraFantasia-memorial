@@ -33,8 +33,9 @@ site/asset/models/class-actions/*/actions.glb.gz
 site/asset/rl/_raw/
 
 # ---- 本轮提交按用户要求排除 ----
-site/game/star/
-site/asset/game/
 .zcode/
 *.lnk
 desktop.ini
+
+# ---- 2026-09-28 根目录杂物归档: 抓取的网页快照/表情图/临时截图 ----
+.attic-scratch/
