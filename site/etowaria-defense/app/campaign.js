@@ -14,7 +14,6 @@ const markup = `
       <section class="panel campaign-selection" aria-label="选择巡守关卡"><div class="campaign-levels" data-role="levels"></div><div class="level-brief"><h3 data-role="level-title"></h3><p data-role="level-subtitle"></p><dl class="level-facts"><div><dt>布阵区域</dt><dd data-role="area"></dd></div><div><dt>初始应援</dt><dd data-role="budget"></dd></div><div><dt>来袭波次</dt><dd data-role="waves"></dd></div></dl><p data-role="enemy"></p><p data-role="objective"></p><p data-role="rewards"></p><p class="muted" data-role="best"></p></div><div class="campaign-map-actions"><p class="muted">所有关卡都可以直接挑战，也可以重玩已完成的关卡。</p><button class="native-button primary" data-action="prepare">选择阵容</button></div><p class="campaign-disclosure">本作同人改编。当前开放四章十九关与无尽巡守。</p></section>
       <section class="panel deck-picker" data-role="deck-picker" aria-label="选择本次布阵的卡牌" hidden><header class="deck-picker-head"><div><h3>本次布阵</h3><p class="muted">从巡守图鉴里挑最多${DECK_SIZE}张卡同行；可随时返回换一关。</p></div><p class="deck-count" data-role="deck-count"></p></header>
 <div class="deck-chosen" data-role="deck-chosen" aria-label="已选择的卡牌"></div><div class="deck-presets" data-role="deck-presets"><span class="deck-presets-label">推荐配置</span><div class="deck-preset-buttons" data-role="deck-preset-buttons"></div></div><div class="deck-grid" data-role="deck-grid"></div><p class="deck-detail" data-role="deck-detail"></p><div class="campaign-map-actions"><button class="native-button compact" data-action="deck-back">返回选关</button><button class="native-button primary" data-action="deck-start">开始巡守</button></div></section>
-</div><div class="deck-chosen" data-role="deck-chosen" aria-label="已选择的卡牌"></div><div class="deck-presets" data-role="deck-presets"><span class="deck-presets-label">推荐配置</span><div class="deck-preset-buttons" data-role="deck-preset-buttons"></div></div><div class="deck-grid" data-role="deck-grid"></div><p class="deck-detail" data-role="deck-detail"></p><div class="campaign-map-actions"><button class="native-button compact" data-action="deck-back">返回选关</button><button class="native-button primary" data-action="deck-start">开始巡守</button></div></section>
     </div><p class="save-problem" data-role="save-problem" role="status" hidden></p>
   </div>
   <div class="campaign-battle" data-view="battle" hidden>
@@ -196,7 +195,14 @@ export class Campaign {
             names.append(title, detail);
             const status = document.createElement("span"); status.className = "level-state"; status.textContent = completed ? "已守住" : open ? "可挑战" : "🔒 先守上一关";
             button.append(number, names, status);
-            button.addEventListener("click", () => { this.levelId = level.id; this.renderMap(); });
+            let lastClick = 0;
+            button.addEventListener("click", () => {
+                const again = Date.now() - lastClick < 400;
+                lastClick = Date.now();
+                this.levelId = level.id; this.renderMap();
+                if (again) { this.startLevel(level.id); return; }
+                if (this.save.canOpen(level.id)) { this.showDeckPicker(); }
+            });
             list.append(button);
         }
         const level = levelById(this.levelId) || LEVELS[0];
@@ -250,10 +256,11 @@ export class Campaign {
         this.deckChoice = [...(this.save.deck || DEFAULT_DECK)].filter(id => DECK_ORDER.includes(id));
         this.deckFocus = null;
         this.get("deck-picker").hidden = false;
+        this.host.classList.add("deck-open");
         this.renderDeckPicker();
-        this.get("deck-picker").scrollIntoView({ block: "nearest" });
+        this.get("deck-picker").scrollIntoView({ block: "start" });
     }
-    hideDeckPicker() { this.get("deck-picker").hidden = true; }
+    hideDeckPicker() { const picker = this.get("deck-picker"); picker.hidden = true; this.host.classList.remove("deck-open"); }
     renderDeckPicker() {
         const chosen = this.get("deck-chosen"); chosen.replaceChildren();
         this.deckChoice.forEach((id, index) => {
@@ -590,6 +597,8 @@ export class Campaign {
         const restockButton = this.button("restock");
         restockButton.hidden = !(state.endless && state.restocks > 0);
         this.text("restock-label", `换卡×${state.restocks || 0}`);
+        this.button("checkpoint").hidden = !state.endless || !["setup", "running"].includes(state.phase);
+        if (state.endless && state.phase === "running") { this.maybeAutosaveEndless(state); }
         this.button("recall").setAttribute("aria-pressed", String(controls.recall));
         this.button("recall").disabled = !["setup", "running"].includes(state.phase);
         this.button("start").disabled = controls.loading || !!state.pauses.length;
