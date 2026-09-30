@@ -1193,6 +1193,17 @@ export class BattleView {
         model.group.position.y = 0;
         model.beginWalk();
         if (event.summoned) { this.emit("ef_btl_common_dead", model.bodyPoint(), .55); }
+        // 首领/精英登场读法：原作里 BOSS 换阶段有 boss_phase 低钟——
+        // 登场同用一次；脚下亮增益环（与召唤同族），浮字报名。精英
+        // 只亮环不响钟。
+        if (event.boss) {
+            this.emit("ef_btl_buff_ring", model.group.position.clone(), 1.4);
+            this.floater(model, "首领来袭！", "enemy-heal");
+            this.options.audio.se?.("boss_phase", { volume: 0.7 });
+        } else if (event.elite) {
+            this.emit("ef_btl_buff_ring", model.group.position.clone(), 1.1);
+            this.floater(model, "精英", "enemy-heal");
+        }
     }
 
     loadEnemy(type) {

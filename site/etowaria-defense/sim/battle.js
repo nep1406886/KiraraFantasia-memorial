@@ -245,7 +245,8 @@ export class Battle {
             nextSpecial: this.time + (rule.healer?.period || rule.summon?.period || 0), summoned: !!entry.summoned };
         this.enemies.set(enemy.id, enemy);
         this.wave = Math.max(this.wave, entry.wave);
-        this.emit("spawned", { id: enemy.id, enemyType: enemy.type, row: enemy.row, x: enemy.x, wave: entry.wave, summoned: enemy.summoned });
+        this.emit("spawned", { id: enemy.id, enemyType: enemy.type, row: enemy.row, x: enemy.x, wave: entry.wave,
+            summoned: enemy.summoned, boss: !!rule.boss, elite: !!entry.elite });
         return enemy;
     }
 
