@@ -253,3 +253,10 @@
 .town-card small { color: var(--muted); font-size: .72rem; }
 .town-card p { font-size: .8rem; margin: 0; }
 .town-card .native-button { align-self: flex-start; margin-top: 6px; }
+
+/* 换卡满编：换出选择行 */
+.restock-drop-row { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; margin: 0 0 8px; font-size: .8rem; }
+.restock-drop-grid { display: flex; flex-wrap: wrap; gap: 6px; }
+.restock-drop-chip { padding: 3px 10px; border-radius: 999px; border: 1.5px solid #c8b37d; background: #fffdf6;
+  color: #5a4330; font: 700 .74rem/1 inherit; cursor: pointer; }
+.restock-drop-chip.active { background: #f4e9c8; border-color: #8a6a3c; }

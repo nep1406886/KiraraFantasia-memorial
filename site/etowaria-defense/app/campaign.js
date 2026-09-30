@@ -861,10 +861,34 @@ export class Campaign {
         if (!view || view.battle.restocks < 1) { return; }
         view.setPaused("restock", true);
         this.restockPick = null;
+        this.restockDrop = null;
         const deck = [...view.battle.deck];
         const grid = this.get("restock-grid"); grid.replaceChildren();
         this.text("restock-detail", "");
         this.button("restock-confirm").disabled = true;
+        const full = deck.length >= DECK_SIZE;
+        // 满编时必须先选一张要换出的卡（已部署的不受影响，只动卡组槽位）。
+        // 旧提示行先清掉——每次打开都会重建。
+        this.host.querySelectorAll(".restock-drop-row").forEach(node => node.remove());
+        const dropRow = document.createElement("p");
+        dropRow.className = "muted restock-drop-row";
+        dropRow.textContent = full ? `卡组已满${DECK_SIZE}张：先点一张要换出的卡。` : "";
+        if (full) {
+            const dropGrid = document.createElement("div"); dropGrid.className = "restock-drop-grid";
+            for (const id of deck) {
+                const rule = UNIT_RULES[id];
+                const chip = document.createElement("button");
+                chip.className = "restock-drop-chip";
+                chip.textContent = rule.name;
+                chip.addEventListener("click", () => {
+                    this.restockDrop = id;
+                    dropGrid.querySelectorAll(".restock-drop-chip").forEach(node => node.classList.toggle("active", node === chip));
+                });
+                dropGrid.append(chip);
+            }
+            dropRow.append(dropGrid);
+        }
+        grid.before(dropRow);
         const pool = DECK_ORDER.filter(id => !deck.includes(id));
         for (const id of pool) {
             const rule = UNIT_RULES[id];
@@ -876,7 +900,7 @@ export class Campaign {
             card.append(art, name);
             card.addEventListener("click", () => {
                 this.restockPick = id;
-                this.button("restock-confirm").disabled = false;
+                this.button("restock-confirm").disabled = !(this.restockPick && (!full || this.restockDrop));
                 this.text("restock-detail", `${rule.name}（${rule.role}）：${rule.help}`);
             });
             grid.append(card);
@@ -887,7 +911,10 @@ export class Campaign {
         const view = this.view;
         if (!view || !this.restockPick || view.battle.restocks < 1) { return; }
         const battle = view.battle;
+        const deck = [...battle.deck];
+        if (deck.length >= DECK_SIZE && !this.restockDrop) { return; }
         battle.restocks--;
+        if (deck.length >= DECK_SIZE) { battle.deck.delete(this.restockDrop); }
         battle.deck.add(this.restockPick);
         this.buildBank([...battle.deck]);
         // The gear tray follows the new deck: universal gear stays, dedicated
@@ -897,8 +924,10 @@ export class Campaign {
         // Pause for the dialog came through the view; the sim mirrors it.
         this.get("restock-dialog").close();
         view.setPaused("restock", false);
-        this.notice(`${UNIT_RULES[this.restockPick].name}已换入卡组。换卡机会剩 ${battle.restocks} 次。`);
+        const swapped = deck.length >= DECK_SIZE ? `（${UNIT_RULES[this.restockDrop].name}换出）` : "";
+        this.notice(`${UNIT_RULES[this.restockPick].name}已换入卡组${swapped}。换卡机会剩 ${battle.restocks} 次。`);
         this.restockPick = null;
+        this.restockDrop = null;
     }
 
     // 城镇：素材库存 + 五栋建筑（原作 TownObjectList 折算）。升级走
