@@ -382,7 +382,11 @@ export class DefenseStage {
         this.buildGrid();
         this.resetPositions();
         this.options.onTheme?.(THEMES[theme]);
-        this.audio.playTheme(theme);
+        // 布阵阶段保持进场前的曲子（选关曲/上一首）——换曲是 view.start()
+        // 开打时的事。setTheme 在每次进场时都会跑，若在这里 playTheme，
+        // 选关的 questselect 曲会被城镇曲盖掉，进关前后听感断裂。
+        // 仅当当前完全没有在播的曲（首次入场）才按主题起曲。
+        if (!this.audio.track) { this.audio.playTheme(theme); }
         this.resize();
         this.render();
     }

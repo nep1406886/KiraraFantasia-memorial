@@ -1,6 +1,6 @@
 import { LEVELS, SAVE_KEY, DECK_KEY, DECK_SIZE, DECK_ORDER, canOpenLevel, levelById, unlockedUnits } from "../data/campaign.js";
 
-export function emptyProgress() { return { version: 1, completed: [], best: {}, lastLevel: "1-1", endless: null, endlessRun: null }; }
+export function emptyProgress() { return { version: 1, completed: [], best: {}, lastLevel: "1-1", endless: null, endlessRun: null, materials: {}, town: {} }; }
 
 // Levels are all open; a record only remembers what was cleared and how well.
 // Older saves (which required contiguous progress) remain valid as they are.
@@ -26,7 +26,9 @@ export function validateProgress(value) {
     }
     return { version: 1, completed: LEVELS.filter(level => completed.includes(level.id)).map(level => level.id), best,
         lastLevel: typeof value.lastLevel === "string" && levelById(value.lastLevel) ? value.lastLevel : "1-1", endless,
-        endlessRun: validateEndlessRun(value.endlessRun) };
+        endlessRun: validateEndlessRun(value.endlessRun),
+        materials: validateMaterials(value.materials),
+        town: validateTown(value.town) };
 }
 
 // A mid-run endless checkpoint. Strictly capped so a corrupt or oversized
@@ -48,10 +50,36 @@ function validateEndlessRun(value) {
     }
     return { version: 1, level: typeof value.level === "string" ? value.level : "endless", seed: value.seed, wave: value.wave, time: value.time, resource: value.resource,
         restocks: value.restocks, deck: [...new Set(value.deck)].slice(0, 12), units,
+        // 当前波击杀进度（断点续玩时用它扣波界，第五波奖励不凭空消失）。
+        waveProgress: value.waveProgress && typeof value.waveProgress === "object"
+            && Number.isInteger(value.waveProgress.total) && Number.isInteger(value.waveProgress.killed)
+            ? { total: Math.max(0, Math.min(45, value.waveProgress.total)), killed: Math.max(0, Math.min(45, value.waveProgress.killed)) } : null,
         stats: value.stats && typeof value.stats === "object" ? {
             kills: Math.max(0, Math.round(value.stats.kills || 0)),
             healed: Math.max(0, Math.round(value.stats.healed || 0)),
             gatesUsed: Math.max(0, Math.round(value.stats.gatesUsed || 0)) } : { kills: 0, healed: 0, gatesUsed: 0 } };
+}
+
+// 城镇素材：{ M1: 数量 }，每项 0-9999。
+function validateMaterials(value) {
+    if (!value || typeof value !== "object") { return {}; }
+    const out = {};
+    for (const key of ["M1", "M2", "M3", "M4", "M5"]) {
+        const n = value[key];
+        if (Number.isInteger(n) && n >= 0 && n <= 9999) { out[key] = n; }
+    }
+    return out;
+}
+
+// 城镇建筑等级：{ B1: 等级 }，每项 0-5。
+function validateTown(value) {
+    if (!value || typeof value !== "object") { return {}; }
+    const out = {};
+    for (const key of ["B1", "B2", "B3", "B4", "B5"]) {
+        const n = value[key];
+        if (Number.isInteger(n) && n >= 0 && n <= 5) { out[key] = n; }
+    }
+    return out;
 }
 
 export function validateDeck(value) {
@@ -134,6 +162,30 @@ export class CampaignSave {
         if (!this.progress.endlessRun) { return; }
         this.progress.endlessRun = null;
         this.persist();
+    }
+    // 城镇：素材入账（无尽掉落）。
+    grantMaterials(drops) {
+        if (!Array.isArray(drops) || !drops.length) { return; }
+        for (const id of drops) {
+            const known = ["M1", "M2", "M3", "M4", "M5"].includes(id);
+            if (known) { this.progress.materials[id] = Math.min(9999, (this.progress.materials[id] || 0) + 1); }
+        }
+        this.persist();
+    }
+    // 城镇：升级建筑。返回 true 表示扣料并升级成功。
+    upgradeTown(buildingId, costPlan) {
+        const level = this.progress.town[buildingId] || 0;
+        const cost = costPlan?.[level];
+        if (!cost) { return false; }
+        const need = {};
+        for (const id of cost) { need[id] = (need[id] || 0) + 1; }
+        for (const [id, n] of Object.entries(need)) {
+            if ((this.progress.materials[id] || 0) < n) { return false; }
+        }
+        for (const [id, n] of Object.entries(need)) { this.progress.materials[id] -= n; }
+        this.progress.town[buildingId] = level + 1;
+        this.persist();
+        return true;
     }
     persist() {
         if (this.readOnly) { return false; }

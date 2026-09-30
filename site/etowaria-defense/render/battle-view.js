@@ -137,6 +137,13 @@ export class BattleView {
         this.floaters = [];
         this.visualEvents = [];
         this.throttle = new Map();
+        // 原作语音表（units.json 的 voice.cues）按 unit id 缓存；只有带表
+        // 的角色必杀才播语音。pickVoiceCue 轮换取句。
+        this.unitVoice = new Map();
+        this.voicePick = new Map();
+        for (const unit of options.catalogue?.units || []) {
+            if (unit?.voice?.cues && Object.keys(unit.voice.cues).length) { this.unitVoice.set(unit.id, unit.voice); }
+        }
         this.selected = null;
         this.recallMode = false;
         this.ready = false;
@@ -226,6 +233,9 @@ export class BattleView {
         for (const type of types) {
             if (ENEMY_RULES[type].ranged) { names.add(ENEMY_SHOT); }
             if (ENEMY_RULES[type].healer || ENEMY_RULES[type].revive) { names.add("ef_btl_recover_00"); names.add("ef_btl_recover_01"); }
+            // バトルクライ用 buff_ring、クッマッマー低吼用 debuff_line。
+            if (ENEMY_RULES[type].battleCry) { names.add("ef_btl_buff_ring"); names.add("ef_btl_buff_line"); }
+            if (ENEMY_RULES[type].roar) { names.add("ef_btl_debuff_line"); }
         }
         return [...names];
     }
@@ -279,6 +289,8 @@ export class BattleView {
         if (rule.splash || rule.onHit?.splash || rule.special?.type === "wave") { names.push(ELEMENT_BURST[unit.elementId]); }
         if (["healer", "guard"].includes(rule.kind) || rule.selfHeal) { names.push("ef_btl_recover_00", "ef_btl_recover_01"); }
         if (["shielder", "beacon"].includes(rule.kind) || rule.barrier || rule.guardReduction) { names.push("ef_btl_buff_ring", "ef_btl_buff_line"); }
+        // lastStand 免死与 killHaste 击杀提速都要恢复系特效。
+        if (rule.lastStand || rule.hasteOnKill) { names.push("ef_btl_recover_00", "ef_btl_recover_01", "ef_btl_buff_line"); }
         await this.stage.effects.prepare(names, copies);
     }
 
@@ -404,7 +416,7 @@ export class BattleView {
         } else if (UNIT_RULES[type].kind === "gear") {
             // 装备卡是对已部署单位使用的，不在场上种植——随光标的 ghost 让它看起来像悬浮卡牌。
             // 这里只放一个透明占位，让 moveGhost 有目标可移，但不创建模型。
-            const placeholder = new this.THREE.Group();
+            const placeholder = new this.stage.THREE.Group();
             placeholder.name = `ghost-gear-${type}`;
             model = { kind: "ghost-gear", group: placeholder };
         } else {
@@ -556,6 +568,7 @@ export class BattleView {
                 this.clearPreview();
                 this.recallMode = false;
                 this.syncBoard();
+                this.options.audio.se?.("shovel", { volume: 0.6 });
                 this.options.onNotice?.(refunded ? "已召回，费用全额退还。" : "已召回。开战后召回不退还费用。");
             }
             this.consumeEvents(); this.notify();
@@ -716,27 +729,76 @@ export class BattleView {
             this.pickupElements.set(event.id, button);
             break;
         }
-        case "collected": this.pickupElements.get(event.id)?.remove(); this.pickupElements.delete(event.id); break;
-        case "deployed": if (model) { this.emit(BIRTH, model.group.position.clone(), .65); } break;
+        case "collected":
+            this.pickupElements.get(event.id)?.remove(); this.pickupElements.delete(event.id);
+            // 收クリエ：原作 pickup 声。限流一次一声，多路同时收取不成串响。
+            if (this.once("collect", .12)) { this.options.audio.se?.("pickup", { volume: 0.5 }); }
+            break;
+        case "deployed": if (model) { this.emit(BIRTH, model.group.position.clone(), .65); if (model.kind !== "facility") { this.options.audio.se?.("plant", { volume: 0.7 }); } } break;
         case "gearApplied":
             if (model) {
                 this.emit("ef_btl_recover_00", model.group.position.clone(), model.scale || .7);
                 this.emit("ef_btl_recover_01", model.group.position.clone(), model.scale || .7);
                 this.equipGear(model, event.gear);
                 if (event.label) { this.floater(model, event.label, "gear"); }
+                this.options.audio.se?.("gear", { volume: 0.6 });
             }
             break;
         case "unitAction": this.unitAction(event); break;
         case "enemyAttack": this.enemyAttack(event, model); break;
+        // 原作「バトルクライ」：第一次望见同伴时嗥叫，周围来客提速。
+        case "battleCry": {
+            if (model) {
+                model.play("skill_1", false);
+                this.emit("ef_btl_buff_ring", model.group.position.clone(), .9);
+                this.floater(model, "バトルクライ！", "enemy-heal");
+                for (const id of event.boosted.slice(0, 6)) {
+                    const other = this.models.get(id);
+                    if (other) { this.emit("ef_btl_buff_line", other.bodyPoint(), .6); }
+                }
+            }
+            break;
+        }
+        // 原作「クッマッマー」：周期低吼，推迟相邻同伴的出手。
+        case "enemyRoar": {
+            if (model) {
+                model.play("skill_1", false);
+                this.emit("ef_btl_debuff_line", model.group.position.clone(), 1);
+                for (const id of event.affected.slice(0, 6)) {
+                    const other = this.models.get(id);
+                    if (other) { this.floater(other, "迟缓", "hurt"); }
+                }
+            }
+            break;
+        }
+        // 原作「1回だけHPが1残り全回復」：濒死免死一次并全恢复。
+        case "lastStand": {
+            if (model) {
+                this.emit("ef_btl_recover_00", model.group.position.clone(), model.scale || .7);
+                this.emit("ef_btl_recover_01", model.group.position.clone(), model.scale || .7);
+                this.floater(model, "千载一击·挺住了！", "shield");
+            }
+            break;
+        }
+        case "killHaste": {
+            const other = this.models.get(event.id);
+            if (other) { this.emit("ef_btl_buff_line", other.bodyPoint(), .5); }
+            break;
+        }
         case "projectile": this.projectile(event); break;
         case "projectileRemoved": this.projectileRemoved(event); break;
         case "lob": this.lob(event); break;
         case "enemyHurt":
             if (model) {
                 if (event.source !== "burn") { this.emit(IMPACT, model.bodyPoint(), event.critical ? .9 : .6); }
-                if (model.action === "idle" && !model.walking && !model.hop) { model.play("damage", false); }
+                if (event.action === "idle" && !model.walking && !model.hop) { model.play("damage", false); }
                 if (event.amount > 0) { this.floater(model, String(event.amount), event.critical ? "critical" : event.source === "burn" ? "burn" : "damage"); }
                 else if (event.absorbed > 0) { this.floater(model, "护甲", "armor"); }
+                // 战斗命中音：会心一击用 crit，普通伤害用 hit。burn 走 tick
+                // 高频，只在会心时出声，其余交给视觉。10U 类单位出手很密，
+                // hit 用 once() 限流防机枪化。
+                if (event.critical) { this.options.audio.se?.("crit", { volume: 0.55 }); }
+                else if (event.source !== "burn" && this.once(`hit:${event.id}`, .18)) { this.options.audio.se?.("hit", { volume: 0.4 }); }
             }
             break;
         case "unitHurt":
@@ -744,6 +806,9 @@ export class BattleView {
                 this.emit(IMPACT, model.bodyPoint(), .6);
                 if (model.action === "idle" && model.kind !== "facility") { model.play("damage", false); }
                 if (event.kind === "thorns") { this.floater(model, `反伤 ${event.amount}`, "hurt"); }
+                // 敌方攻击同伴：轻微 hit，音量压低避免双倍噪音（敌方攻击
+                // 事件本身也会播 hit 类音效时以低音量区分主体）。
+                if (this.once(`hurt:${event.id}`, .25)) { this.options.audio.se?.("hit", { volume: 0.25 }); }
             }
             break;
         case "healed":
@@ -755,10 +820,10 @@ export class BattleView {
             }
             break;
         case "shielded":
-            if (model) { this.emit("ef_btl_barrier_00", model.bodyPoint(), .7, { facing: model.kind === "enemy" ? 1 : -1 }); this.floater(model, `护盾 ${event.shield}`, "shield"); }
+            if (model) { this.emit("ef_btl_barrier_00", model.bodyPoint(), .7, { facing: model.kind === "enemy" ? 1 : -1 }); this.floater(model, `护盾 ${event.shield}`, "shield"); if (this.once(`shield:${event.id}`, .3)) { this.options.audio.se?.("guard", { volume: 0.4 }); } }
             break;
         case "blocked":
-            if (model && this.ready && this.once(`block:${event.id}`, .35)) { this.emit("ef_btl_barrier_00", model.bodyPoint(), .8, { facing: model.kind === "enemy" ? 1 : -1 }); this.floater(model, "格挡", "shield"); }
+            if (model && this.ready && this.once(`block:${event.id}`, .35)) { this.emit("ef_btl_barrier_00", model.bodyPoint(), .8, { facing: model.kind === "enemy" ? 1 : -1 }); this.floater(model, "格挡", "shield"); this.options.audio.se?.("guard", { volume: 0.5 }); }
             break;
         case "beaconPulse": this.beacon(event, model); break;
         case "status": this.status(event, model); break;
@@ -789,14 +854,19 @@ export class BattleView {
         case "unitRemoved": case "enemyRemoved": this.retire(event.id, event.reason); break;
         case "gate":
             this.emit("ef_btl_barrier_00", this.world(event.row, -.4), 1.2);
+            this.options.audio.se?.("gate", { volume: 0.8 });
             this.options.onNotice?.(`第${event.row + 1}路的紧急结界已消耗。下一次突破将失守。`);
             break;
         case "warning":
             this.options.onWarning?.(event);
             if (this.level.endless) { this.ensureEnemies(); }
             break;
-        case "restockEarned": this.options.onNotice?.(
-            `第${event.wave}波守完，获得一次换卡机会（打开「换卡」按钮使用）。`); break;
+        case "restockEarned":
+            this.options.onNotice?.(
+                `第${event.wave}波守完，获得一次换卡机会（打开「换卡」按钮使用）。`);
+            // 城镇素材：掉落走 onRestock 落库存档，奖励文案随后补上。
+            this.options.onRestock?.(event);
+            break;
         case "waveCleared": this.options.onNotice?.(
             event.modifier
                 ? `第${event.wave}波·${event.modifier === "boss" ? "BOSS" : event.modifier === "elite" ? "精英" : event.modifier === "rush" ? "急袭" : "群袭"}已守完，应援 +${event.bonus || 0}。`
@@ -804,6 +874,8 @@ export class BattleView {
         case "burst": {
             const item = this.spells.get(event.id);
             if (item) { this.stage.items.release(item); this.spells.delete(event.id); }
+            // 爆破术式：低频轰鸣。这是全场最大的动静，音量最高。
+            this.options.audio.se?.("gate", { volume: 1 });
             for (let row = Math.max(0, event.row - 1); row <= Math.min(this.level.rows - 1, event.row + 1); row++) {
                 for (let col = Math.max(0, event.col - 1); col <= Math.min(this.level.cols - 1, event.col + 1); col++) {
                     this.emit(BURST, this.world(row, col, .22), 1);
@@ -828,6 +900,8 @@ export class BattleView {
             this.stage.effects.reset();
             this.stage.items.reset();
             this.pickupElements.forEach(element => element.remove()); this.pickupElements.clear();
+            // 结算提示：胜利是上行 chime，失守低落。
+            this.options.audio.se?.(event.result === "won" ? "chime" : "ui_cancel", { volume: 0.6 });
             for (const player of this.stage.players) {
                 if (!player.retiring && player.actor && event.result === "won") { player.play("win_st_0", false); }
             }
@@ -864,6 +938,14 @@ export class BattleView {
         try { model.play(plan.action, false); } catch { model.play("attack", false); }
         const melee = rule.kind === "fighter" || rule.kind === "guard";
         const supportAction = ["heal", "shield"].includes(event.action);
+        // 挥击音：近战每次出手带短促的破空声（限流 0.2s），远处的
+        // 枪声/魔弹声由 projectile() 负责，这里不重复。
+        if (melee && event.action === "attack" && this.once(`swing:${event.id}`, .2)) {
+            this.options.audio.se?.("swing", { volume: 0.3 });
+        }
+        if (supportAction && this.once(`cast:${event.id}`, .4)) {
+            this.options.audio.se?.("magic", { volume: 0.3 });
+        }
         for (const effect of plan.events) {
             if (/Attach|Trail/.test(effect.kind)) { continue; }
             if (effect.kind === "Support" && supportAction) { continue; }
@@ -884,6 +966,24 @@ export class BattleView {
         }
         if (event.action === "barrier") { this.emit("ef_btl_barrier_00", model.bodyPoint(), .9, { facing: model.kind === "enemy" ? 1 : -1 }); this.floater(model, "屏障×3", "shield"); }
         if (event.special === "critical" || event.special === "power") { this.emit("ef_btl_buff_line", model.group.position.clone(), model.scale, { facing: model.kind === "enemy" ? 1 : -1 }); }
+        // 必杀技配音：action === "skill"（sim 的周期必杀）才播，普攻与
+        // 治疗/屏障等支援动作都不播。同角色 6 秒限流防复读机。
+        if (event.action === "skill" && this.unitVoice?.has(model.unit.id) && this.once(`voice:${event.id}`, 6)) {
+            this.options.audio.playVoice(this.unitVoice.get(model.unit.id), this.pickVoiceCue(model.unit.id));
+        }
+    }
+
+    // 角色原作语音：units.json 里带 voice 表的角色才有。命中的 cue 从
+    // 表里轮换（000→001→…），让每次必杀不重复同一句。
+    unitVoiceFor(unit) {
+        return unit?.voice?.cues ? unit.voice : null;
+    }
+    pickVoiceCue(unitId) {
+        const table = this.unitVoice.get(unitId);
+        const keys = Object.keys(table.cues);
+        const counter = this.voicePick.get(unitId) || 0;
+        this.voicePick.set(unitId, (counter + 1) % keys.length);
+        return keys[counter];
     }
 
     projectile(event) {
@@ -902,6 +1002,13 @@ export class BattleView {
         const scale = model.scale * (event.critical ? 1.6 : event.wave && !penetrate ? 1.5 : 1);
         let destination = this.models.get(event.targetId)?.bodyPoint() || this.world(event.row, this.level.cols, .4);
         const startX = event.x;
+        // 发射音：元素按角色的属性取音色（水更闷、风更利），必杀波
+        // 用低频轰出。限流 0.25s——远程普攻连射很快。
+        {
+            const shot = { fire: "shoot_fire", water: "shoot_water", earth: "shoot_earth", wind: "shoot_wind", moon: "shoot_moon", sun: "shoot_sun" }[["fire", "water", "earth", "wind", "moon", "sun"][model.unit.elementId]] || "shoot_wind";
+            if (event.wave) { if (this.once(`wave:${event.id}`, .5)) { this.options.audio.se?.("shoot_wave", { volume: 0.6 }); } }
+            else if (this.once(`shot:${event.source}`, .25)) { this.options.audio.se?.(shot, { volume: 0.35 }); }
+        }
         const slot = this.stage.effects.emit(graphic.effect, { from, scale, facing: -1,
             position: () => {
                 const projectile = this.battle.projectiles.get(event.id);
@@ -945,11 +1052,16 @@ export class BattleView {
 
     enemyAttack(event, model) {
         if (!model) { return; }
+        // 敌方出手音：远程敌人放弹的吐息声（限流 0.4s，敌群不能齐鸣）；
+        // 近战敌人挥击的破空声比玩家侧更闷。命中那一刻的 hit 在
+        // unitHurt 事件里，这里只是「起手」。
         if (event.ranged) {
+            if (this.once(`eshot:${event.id}`, .4)) { this.options.audio.se?.("shoot_moon", { volume: 0.22 }); }
             model.play("skill_1", false);
             const target = this.models.get(event.target);
             if (target) { this.emit(ENEMY_SHOT, model.bodyPoint(), .75, { to: target.bodyPoint(), flight: Math.max(.2, event.windup - .05), facing: 1 }); }
         } else {
+            if (this.once(`eswing:${event.id}`, .35)) { this.options.audio.se?.("swing", { volume: 0.18 }); }
             model.play("skill_0", false);
         }
     }
@@ -1058,6 +1170,13 @@ export class BattleView {
     retire(id, reason) {
         const model = this.models.get(id);
         if (!model) { return; }
+        // 击退来客：death 短促低落。同伴倒下音量更低——那是失分事件，
+        // 不能比击退来客更响。召回不响（那是玩家自己的决定）。
+        if (model.kind === "enemy" && reason === "defeated" && this.once(`dead:${id}`, .5)) {
+            this.options.audio.se?.("death", { volume: 0.35 });
+        } else if (model.kind === "player" && reason === "defeated" && this.once(`dead:${id}`, .5)) {
+            this.options.audio.se?.("death", { volume: 0.2 });
+        }
         model.retiring = true;
         model.retireTime = this.visualTime;
         model.label?.remove(); model.label = null; model.statusKey = null;
@@ -1182,7 +1301,14 @@ export class BattleView {
         this.options.onState?.(this.battle.snapshot(), { selected: this.selected, recall: this.recallMode,
             loading: this.loading, preview: this.preview, touchConfirm: !!this.touchTarget });
     }
-    start() { if (this.ready && !this.loading && !this.battle.pauses.size && this.battle.start()) { this.options.audio.setTrack("bgm_battle_1"); this.consumeEvents(); this.notify(); } }
+    start() {
+        if (this.ready && !this.loading && !this.battle.pauses.size && this.battle.start()) {
+            // 开打换战斗曲。夜间章用同曲库里更紧张的 battle_2，让三、四章
+            // 和前两章的战斗有听感区别。
+            this.options.audio.setTrack(this.level.theme === "night" ? "bgm_battle_2" : "bgm_battle_1");
+            this.consumeEvents(); this.notify();
+        }
+    }
     collectAll() { this.battle.collectAll(); this.consumeEvents(); this.notify(); }
     // resume-from-cache: rebuild the visual model for a sim-side unit that
     // the auto-cache restored directly into this.battle.units. Mirrors the

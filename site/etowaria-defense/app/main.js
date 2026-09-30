@@ -1,5 +1,21 @@
 import { loadCatalogue, portraitMarkup, siteUrl, uiUrl, classIcons, elementIcons } from "./assets.js";
 import { AudioDirector } from "./audio.js";
+import { se as defenseSE, setSeVolume as setSynthVolume, unlock as unlockSynth } from "../../core/audio.js";
+globalThis.__defenseSE = defenseSE;
+globalThis.__defenseSEVolume = setSynthVolume;
+
+// The synth's se() is silent until core unlock() runs from a gesture — the
+// AudioDirector.unlock() above is a different flag. Arm both from the same
+// first input, same as the rl main does.
+function armSynth() {
+    unlockSynth();
+    window.removeEventListener("pointerdown", armSynth, true);
+    window.removeEventListener("click", armSynth, true);
+    window.removeEventListener("keydown", armSynth, true);
+}
+window.addEventListener("pointerdown", armSynth, { capture: true });
+window.addEventListener("click", armSynth, { capture: true });
+window.addEventListener("keydown", armSynth, { capture: true });
 
 const $ = id => document.getElementById(id);
 const PARTY_KEY = "etowaria-defense.p0.party.v1";
@@ -319,6 +335,8 @@ function syncSettings() {
     $("voice-enabled").checked = audio.settings.voice;
     $("music-volume").value = Math.round(audio.settings.musicVolume * 100);
     $("music-value").value = `${Math.round(audio.settings.musicVolume * 100)}%`;
+    $("se-volume").value = Math.round(audio.settings.seVolume * 100);
+    $("se-value").value = `${Math.round(audio.settings.seVolume * 100)}%`;
     $("reduce-motion").checked = audio.settings.reducedMotion;
     document.body.classList.toggle("reduced-motion", audio.settings.reducedMotion);
 }
@@ -371,6 +389,9 @@ $("music-enabled").addEventListener("change", event => audio.updateSettings({ mu
 $("voice-enabled").addEventListener("change", event => audio.updateSettings({ voice: event.target.checked }));
 $("music-volume").addEventListener("input", event => {
     audio.updateSettings({ musicVolume: Number(event.target.value) / 100 }); $("music-value").value = `${event.target.value}%`;
+});
+$("se-volume").addEventListener("input", event => {
+    audio.updateSettings({ seVolume: Number(event.target.value) / 100 }); $("se-value").value = `${event.target.value}%`;
 });
 $("reduce-motion").addEventListener("change", event => {
     audio.updateSettings({ reducedMotion: event.target.checked }); syncSettings();

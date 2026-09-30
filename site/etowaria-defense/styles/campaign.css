@@ -244,3 +244,12 @@
 .deck-preset { padding: 4px 12px; border-radius: 999px; border: 1.5px solid #c8b37d; background: linear-gradient(#fffdf6, #f4e9c8);
   color: #5a4330; font: 700 .74rem/1 inherit; cursor: pointer; }
 .deck-preset:hover { filter: brightness(1.05); }
+
+/* 城镇建设弹窗 */
+.town-materials p { font-size: .92rem; }
+.town-buildings { display: grid; grid-template-columns: repeat(auto-fill, minmax(210px, 1fr)); gap: 10px; margin-top: 12px; }
+.town-card { display: flex; flex-direction: column; gap: 4px; padding: 10px 12px; border: 1.5px solid #cbbb93; border-radius: 8px; background: #fffdec; }
+.town-card strong { font-size: .95rem; }
+.town-card small { color: var(--muted); font-size: .72rem; }
+.town-card p { font-size: .8rem; margin: 0; }
+.town-card .native-button { align-self: flex-start; margin-top: 6px; }

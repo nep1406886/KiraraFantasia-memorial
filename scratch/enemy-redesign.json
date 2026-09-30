@@ -1,0 +1,23 @@
+{
+ "E01": {
+  "keep": "たいあたり body slam"
+ },
+ "E07": {
+  "add": "rockArmorRecharge: armor refills 60/s after 3s unbroken (原作 ロックアーマー/力をためる)"
+ },
+ "E09": {
+  "add": "battleCry: on first sight of an ally, howls — nearby enemies +20% speed 5s (原作 バトルクライ)"
+ },
+ "E38": {
+  "add": "bearRoar: 159002 呪文 — every 8s roars, delaying adjacent-lane allies nextAction 1s (原作 クッマッマー)"
+ },
+ "E34": {
+  "add": "guardStance: every 12s enters ネガティブガード stance 4s — damage taken -40%; after stance ends next hit is charged 粉砕パンチ ×2 (原作 176015-176017)"
+ },
+ "E33": {
+  "add": "chargeClaw: 162002-4 charge cycle 6s then かいしんの爪撃 — next attack ×2.5 crit; hit resets charge (原作 力を溜めている)"
+ },
+ "E39": {
+  "add": "curse: ranged shots apply weaken -20% dmg 4s (原作 呪いをかけてやるわ); 戦陣展開 already = summon"
+ }
+}

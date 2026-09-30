@@ -1,7 +1,7 @@
 import { siteUrl } from "./assets.js";
 
 const KEY = "etowaria-defense.p0.settings.v1";
-const DEFAULTS = { music: true, musicVolume: 0.35, voice: true, reducedMotion: false };
+const DEFAULTS = { music: true, musicVolume: 0.35, voice: true, seVolume: 0.7, reducedMotion: false };
 const THEMES = { day: "bgm_town_1", camp: "bgm_town_3", water: "bgm_town_2", night: "bgm_town_3" };
 
 export class AudioDirector {
@@ -16,6 +16,9 @@ export class AudioDirector {
                 }
                 if (Number.isFinite(saved.musicVolume)) {
                     this.settings.musicVolume = Math.max(0, Math.min(1, saved.musicVolume));
+                }
+                if (Number.isFinite(saved.seVolume)) {
+                    this.settings.seVolume = Math.max(0, Math.min(1, saved.seVolume));
                 }
             }
         } catch { /* A malformed preference never removes progress from another game. */ }
@@ -48,6 +51,7 @@ export class AudioDirector {
     }
 
     applyVolumes() {
+        // While a voice line plays, BGM ducks to half so the line reads.
         const duck = this.voice.paused ? 1 : 0.5;
         this.bgm.volume = this.settings.musicVolume * duck;
         this.voice.volume = 0.8;
@@ -58,11 +62,32 @@ export class AudioDirector {
         return this.setTrack(THEMES[theme] || THEMES.day);
     }
 
+    // Gapless switch: preload the next BGM so swapping on 开始巡守 doesn't stall.
+    preload(cue) {
+        if (!this.bgmPool) { this.bgmPool = new Map(); }
+        if (!this.bgmPool.has(cue)) {
+            const probe = new Audio();
+            probe.preload = "auto";
+            probe.src = siteUrl(`audio/bgm/${cue}_0.mp3`);
+            this.bgmPool.set(cue, probe);
+        }
+        return this.bgmPool.get(cue);
+    }
+
     async setTrack(cue) {
+        if (cue !== "bgm_battle_win") { this.preload(cue); }
         this.bgm.loop = cue !== "bgm_battle_win";
         if (this.track !== cue) {
             this.track = cue;
-            this.bgm.src = siteUrl(`audio/bgm/${cue}_0.mp3`);
+            const preloaded = this.bgmPool?.get(cue);
+            if (preloaded) {
+                // Swap in the preloaded element. The OLD element must stop:
+                // keeping it playing under the new one doubles the mix, and
+                // leaving it mid-track means returning to that cue later
+                // resumes at a stale offset.
+                if (this.bgm !== preloaded) { this.bgm.pause(); }
+                this.bgm = preloaded;
+            } else { this.bgm.src = siteUrl(`audio/bgm/${cue}_0.mp3`); }
         }
         this.applyVolumes();
         return this.syncPlayback();
@@ -100,6 +125,14 @@ export class AudioDirector {
         this.cinematic = false;
         this.stopVoice();
         this.syncPlayback();
+    }
+
+    // Bridge to the shared synth for PVZ-style defense cues (plant/shovel/gate).
+    // The synth keeps its own volume knob in core/audio.js; mirror the user's
+    // SE slider into it so one slider rules both.
+    se(name, options) {
+        if (globalThis.__defenseSEVolume) { globalThis.__defenseSEVolume(this.settings.seVolume); }
+        if (globalThis.__defenseSE) { globalThis.__defenseSE(name, options); }
     }
 
     async playVoice(row, cue) {

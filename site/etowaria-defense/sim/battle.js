@@ -144,7 +144,8 @@ export class Battle {
         if (remaining > EPS) {
             return { ok: false, reason: this.phase === "setup" ? "这张卡的冷却将在开局后推进" : `还需等待 ${Math.ceil(remaining)} 秒`, cooldown: remaining };
         }
-        if (this.resource < rule.cost) { return { ok: false, reason: `还差 ${rule.cost - this.resource} クリエ`, shortage: rule.cost - this.resource }; }
+        const cost = rule.kind === "gear" ? Math.max(10, Math.round(rule.cost * (this.townGear || 1))) : rule.cost;
+        if (this.resource < cost) { return { ok: false, reason: `还差 ${cost - this.resource} クリエ`, shortage: cost - this.resource }; }
         if (rule.kind === "gear") {
             const host = this.units.get(this.occupancy.get(cellKey(row, col)));
             if (!host) { return { ok: false, reason: "装备要放在已经部署的同伴上" }; }
@@ -272,7 +273,7 @@ export class Battle {
         for (const unit of this.units.values()) {
             const rule = UNIT_RULES[unit.type];
             if (rule.kind === "producer" && this.time + EPS >= unit.nextIncome) {
-                this.createPickup(unit.row, unit.col, rule.income, unit.id);
+                this.createPickup(unit.row, unit.col, Math.round(rule.income * (this.townProducer || 1)), unit.id);
                 unit.nextIncome += rule.incomePeriod;
                 this.emit("produced", { id: unit.id });
             }
@@ -335,6 +336,15 @@ export class Battle {
             }
             return;
         }
+        // 原作「ロックアーマー」：3 秒未被击中就开始自动修补护甲。
+        if (rule.rockArmor && enemy.armor < (enemy.maxArmor ?? enemy.armor)) {
+            if (!enemy.armorBrokenAt) { enemy.armorBrokenAt = this.time; }
+            if (this.time - enemy.armorBrokenAt >= rule.rockArmor.delay) {
+                const before = enemy.armor;
+                enemy.armor = Math.min(enemy.maxArmor ?? before, enemy.armor + rule.rockArmor.regenPerSec * TICK);
+                if (Math.round(enemy.armor) > Math.round(before)) { enemy.armorBrokenAt = this.time - rule.rockArmor.delay; }
+            }
+        }
         if (active(enemy.burnUntil, this.time) && this.time + EPS >= enemy.nextBurn) {
             enemy.nextBurn = this.time + .5;
             this.damageEnemy(enemy, Math.max(1, Math.round(enemy.burnDps * .5)), "burn");
@@ -362,9 +372,40 @@ export class Battle {
             }
             this.emit("summon", { id: enemy.id });
         }
+        // 原作「バトルクライ」：第一次望见同伴时嗥叫，为周围来客提速。
+        if (rule.battleCry && !enemy.cried) {
+            const sight = this.frontUnit(enemy);
+            if (sight) {
+                enemy.cried = true;
+                const boosted = [];
+                for (const other of this.enemies.values()) {
+                    if (other === enemy || other.state === "reviving") { continue; }
+                    if (Math.abs(other.row - enemy.row) <= 1 && Math.abs(other.x - enemy.x) <= rule.battleCry.reach) {
+                        other.cryHaste = Math.max(other.cryHaste || 0, rule.battleCry.haste);
+                        other.cryUntil = Math.max(other.cryUntil || 0, this.time + rule.battleCry.duration);
+                        boosted.push(other.id);
+                    }
+                }
+                this.emit("battleCry", { id: enemy.id, boosted, haste: rule.battleCry.haste, duration: rule.battleCry.duration });
+            }
+        }
+        // 原作「クッマッマー」：周期性低吼，推迟相邻两路同伴的下一次出手。
+        if (rule.roar && this.time + EPS >= (enemy.nextRoar ?? this.time)) {
+            enemy.nextRoar = this.time + rule.roar.period;
+            const affected = [];
+            for (const unit of this.units.values()) {
+                if (Math.abs(unit.row - enemy.row) <= 1 && Math.abs(unit.col - enemy.x) <= 2) {
+                    const uRule = this.unitRule(unit);
+                    if (!uRule.immuneStun) { unit.nextAction = Math.max(unit.nextAction, this.time) + rule.roar.delay; affected.push(unit.id); }
+                }
+            }
+            if (affected.length) { this.emit("enemyRoar", { id: enemy.id, affected, delay: rule.roar.delay }); }
+        }
+        const crySpeed = active(enemy.cryUntil, this.time) ? 1 + (enemy.cryHaste || 0) : 1;
         const slow = active(enemy.slowUntil, this.time) ? 1 - enemy.slowFactor : 1;
+        const speedFactor = slow * crySpeed;
         const blocker = this.frontUnit(enemy);
-        const next = enemy.x - rule.speed * slow * TICK;
+        const next = enemy.x - rule.speed * speedFactor * TICK;
         if (rule.ranged && blocker && enemy.x - (blocker.col + .55) <= rule.ranged.range + EPS) {
             enemy.state = "shooting";
             enemy.targetId = blocker.id;
@@ -458,7 +499,10 @@ export class Battle {
         }
         if (rule.kind === "producer" || rule.kind === "beacon" || unit.nextAction > this.time + EPS) { return; }
         if (rule.kind === "healer") {
-            const candidates = [...this.units.values()].filter(other => other.hp < other.maxHp
+            // 溢出治疗（原作 overheal 装备）：带 overhealCap 的治疗者把
+            // 「已满血」也算作可治疗对象，上限是 maxHp+overhealCap。
+            const capOf = other => rule.overhealCap ? other.hp < other.maxHp + rule.overhealCap : other.hp < other.maxHp;
+            const candidates = [...this.units.values()].filter(other => capOf(other)
                 && (rule.area ? areaContains(unit, other) : healingContains(unit, other, rule)));
             candidates.sort((a, b) => a.hp / a.maxHp - b.hp / b.maxHp || a.id.localeCompare(b.id));
             if (!candidates.length) { return; }
@@ -571,10 +615,11 @@ export class Battle {
         if (action.kind === "heal" || action.kind === "healArea") {
             const primary = this.units.get(action.target);
             const receivers = action.kind === "healArea"
-                ? [...this.units.values()].filter(other => areaContains(unit, other) && other.hp < other.maxHp)
+                ? [...this.units.values()].filter(other => areaContains(unit, other) && (rule.overhealCap ? other.hp < other.maxHp + rule.overhealCap : other.hp < other.maxHp))
                 : primary && healingContains(unit, primary, rule) ? [primary] : [];
             for (const ally of receivers) {
-                const amount = Math.min(rule.healing, ally.maxHp - ally.hp);
+                const healCap = rule.overhealCap ? ally.maxHp + rule.overhealCap - ally.hp : ally.maxHp - ally.hp;
+                const amount = Math.min(Math.round(rule.healing * (this.townHeal || 1)), healCap);
                 if (amount <= 0) { continue; }
                 ally.hp += amount;
                 this.stats.healed += amount;
@@ -636,6 +681,10 @@ export class Battle {
         for (const enemy of victims) {
             const onHit = {};
             this.skillOnHit(special, onHit);
+            if (rule.sleepChance && this.rng && this.rng() < rule.sleepChance) {
+                enemy.stunUntil = Math.max(enemy.stunUntil, this.time + 1.2);
+                this.emit("status", { id: enemy.id, statuses: ["stun"], source: unit.id });
+            }
             this.hitEnemy(enemy, amount, unit.id, { pierceArmor: rule.pierceArmor, pierceBoost: rule.pierceArmorDamageBoost || 1, stunBonus: rule.stunBonus, onHit,
                 critical: special?.type === "critical" });
             const thorns = ENEMY_RULES[enemy.type].thorns;
@@ -655,6 +704,14 @@ export class Battle {
             const absorbed = Math.min(unit.shield, remaining);
             unit.shield -= absorbed; remaining -= absorbed;
             if (unit.shield === 0) { unit.maxShield = 0; }
+        }
+        const uRule = this.unitRule(unit);
+        if (uRule.lastStand && !unit.lastStandUsed && remaining >= unit.hp) {
+            // 原作「1回だけHPが1残り全回復」：濒死免死一次并全恢复。
+            unit.lastStandUsed = true;
+            unit.hp = uRule.maxHp || unit.maxHp;
+            this.emit("lastStand", { id: unit.id, hp: unit.hp });
+            return;
         }
         unit.hp = Math.max(0, unit.hp - remaining);
         this.emit("unitHurt", { id: unit.id, amount, hp: unit.hp, shield: unit.shield, source, kind });
@@ -728,6 +785,11 @@ export class Battle {
             for (const enemy of struck) {
                 projectile.hit.push(enemy.id);
                 const onHit = projectile.onHit ? { ...projectile.onHit } : {};
+                const sleepRule = this.units.has(projectile.source) ? this.unitRule(this.units.get(projectile.source)) : null;
+                if (sleepRule?.sleepChance && this.rng && this.rng() < sleepRule.sleepChance) {
+                    enemy.stunUntil = Math.max(enemy.stunUntil, this.time + 1.2);
+                    this.emit("status", { id: enemy.id, statuses: ["stun"], source: projectile.source });
+                }
                 this.hitEnemy(enemy, projectile.damage, projectile.source, { onHit, critical: projectile.critical, pierceBoost: projectile.pierceBoost || 1 });
                 if (projectile.splash > 0) { this.splash(enemy, projectile.row, projectile.splash, projectile.splashDamage, projectile.source, {}); }
             }
@@ -778,13 +840,15 @@ export class Battle {
         let absorbed = 0;
         if (options.pierceArmor) {
             const boost = options.pierceBoost || 1;
-            if (enemy.armor > 0) { const broken = Math.min(enemy.armor, amount); enemy.armor -= broken; this.emit("armorBroken", { id: enemy.id, source, stripped: broken }); }
+            if (enemy.armor > 0) { const broken = Math.min(enemy.armor, amount); enemy.armor -= broken; enemy.armorBrokenAt = this.time; this.emit("armorBroken", { id: enemy.id, source, stripped: broken }); }
             amount = Math.round(amount * boost);
         } else {
             absorbed = Math.min(enemy.armor, amount);
             enemy.armor -= absorbed;
+            if (absorbed > 0) { enemy.armorBrokenAt = this.time; }
         }
         const dealt = amount - absorbed;
+        enemy.lastHitBy = source;
         enemy.hp = Math.max(0, enemy.hp - dealt);
         this.emit("enemyHurt", { id: enemy.id, amount: dealt, absorbed, hp: enemy.hp, armor: enemy.armor, source, critical: !!options.critical });
         if (enemy.hp === 0) {
@@ -806,9 +870,21 @@ export class Battle {
         if (!this.enemies.has(enemy.id)) { return; }
         this.enemies.delete(enemy.id);
         this.stats.kills++;
+        if (enemy.lastHitBy && this.units.has(enemy.lastHitBy)) {
+            const killer = this.units.get(enemy.lastHitBy);
+            const killerRule = this.unitRule(killer);
+            if (killerRule.hasteOnKill) {
+                // 原作「敵を倒すたび行動速度アップ」：击杀后缩短下一次出手。
+                killer.nextAction = Math.max(this.time, killer.nextAction - killerRule.period * killerRule.hasteOnKill);
+                this.emit("killHaste", { id: killer.id, source: enemy.id });
+            }
+        }
         if (this.level.endless && !enemy.summoned) {
             const bound = this.waveBounds.get(enemy.wave);
-            if (bound && --bound.remaining === 0) {
+            // 断点续玩：断点前已击退的本波成员已把 remaining 预扣过，
+            // 敌人本体却不在存档里——这条击退不能再次计数。
+            if (bound && this._resumeWaveKilled > 0 && enemy.wave === this.wave) { this._resumeWaveKilled--; }
+            else if (bound && --bound.remaining === 0) {
                 this.stats.wavesCleared++;
                 const bonus = 25 + 5 * Math.floor(enemy.wave / 5);
                 this.resource += bonus;
@@ -818,7 +894,14 @@ export class Battle {
                 // runs can rotate the bench without restarting the level.
                 if (enemy.wave > 0 && enemy.wave % 5 === 0) {
                     this.restocks++;
-                    this.emit("restockEarned", { wave: enemy.wave, credits: this.restocks });
+                    // 城镇素材掉落（原作 QuestWaveDrops 概率表折算）：
+                    // 每清 5 波必掉 1 个职业象征，35% 概率再掉 1 个。
+                    const materials = ["M1", "M2", "M3", "M4", "M5"];
+                    const drops = [materials[Math.floor(this.rng() * materials.length)]];
+                    if (this.rng() < .35) { drops.push(materials[Math.floor(this.rng() * materials.length)]); }
+                    this.materials = this.materials || [];
+                    this.materials.push(...drops);
+                    this.emit("restockEarned", { wave: enemy.wave, credits: this.restocks, drops });
                 }
             }
         }
@@ -891,6 +974,25 @@ export class Battle {
             if (gear.guardReductionBonus && base.guardReduction != null) {
                 merged.guardReduction = Math.min(.95, base.guardReduction + gear.guardReductionBonus);
             }
+            if (gear.critBoost && base.special && (base.special.type === "critical" || base.special.type === "power")) {
+                merged.special = { ...merged.special, multiplier: merged.special.multiplier * (1 + gear.critBoost) };
+            }
+            if (gear.stunBonusPct && base.special && base.special.type === "stun") {
+                merged.special = { ...merged.special, duration: merged.special.duration * (1 + gear.stunBonusPct) };
+            }
+            if (gear.knockbackBonusPct && base.special && base.special.type === "knockback") {
+                merged.special = { ...merged.special, distance: merged.special.distance * (1 + gear.knockbackBonusPct) };
+            }
+            if (gear.waveLane) {
+                // 原作「通常攻撃が全体攻撃になる」：第N次的贯穿波同时扫过上下两路。
+                merged.multi = { ...(merged.multi || base.multi || { rows: 0, gap: .12 }), rows: (merged.multi?.rows || base.multi?.rows || 0) + 1 };
+                merged.multi.gap = merged.multi.gap || .12;
+            }
+            if (gear.hasteOnKill) { merged.hasteOnKill = gear.hasteOnKill; }
+            if (gear.sleepChance) { merged.sleepChance = gear.sleepChance; }
+            if (gear.lastStand) { merged.lastStand = true; }
+            if (gear.immuneStun) { merged.immuneStun = true; }
+            if (gear.overheal) { merged.overhealCap = gear.overheal; }
             if (gear.skill) { merged.gearSkill = gear.specialBonus ? this.boostedSkill(gear.skill, gear.specialBonus) : { ...gear.skill }; }
             this._gearRuleCache.set(key, Object.freeze(merged));
         }
@@ -947,6 +1049,46 @@ export class Battle {
             restocks: this.restocks || 0 };
     }
 
+    // 城镇加成：按存档等级折算开局资源、产量、治疗与装备费。数值极小
+    // （每级 6-8%），只改变手感不改变关卡设计。
+    static applyTownBuffs(battle, town) {
+        const lv = id => town?.[id] || 0;
+        battle.resource += 25 * lv("B4");
+        battle.townHeal = 1 + .06 * lv("B3");
+        battle.townProducer = 1 + .08 * lv("B1");
+        battle.townGear = 1 - .06 * lv("B2");
+        // 图书馆：无尽开局多跳过已守过的波次。波次跳跃必须发生在
+        // seed 波形规划之前——plannedWave 从跳过数起算，难度曲线不变。
+        battle.townWaveSkip = Math.max(0, lv("B5"));
+    }
+
+    // 无尽开局按城镇图书馆等级跳过前 N 波：等价于从第 N+1 波开局。
+    // 跳过的波不给掉落、不给换卡（那是打完第 5 波才有的奖励）；只把
+    // wave/planWave 光标推到对应位置。种子掺入跳过数，所以跳过后的
+    // 第一波就是全新的第 N+1 波，而不是复用旧录像。构造器已经规划
+    // 过第 1 波（plannedWave=1），这里从 0 重来。
+    static skipEndlessWaves(battle) {
+        const skip = battle.townWaveSkip || 0;
+        if (!battle.level.endless || skip <= 0 || battle.phase !== "setup") { return false; }
+        battle.rng = mulberry32((battle.seed || 20260926) ^ (0x5a5a5a * skip));
+        battle.plannedWave = 0;
+        battle.spawns = [];
+        battle.spawnIndex = 0;
+        battle.warned.clear();
+        battle.nextWaveAt = 24;
+        while (battle.plannedWave < skip) { battle.planWave(); }
+        battle.wave = skip + 1;
+        // 跳过的波不排队生成。第 skip+1 波仍按原来的节奏在 nextWaveAt
+        // 开打——开局时刻本身就是 24 秒热身，跳过波次不改变波距曲线，
+        // 只是第一条路的热身比从第 1 波开局更短（相对难度已经更高）。
+        battle.spawns = [];
+        battle.spawnIndex = 0;
+        // 波界只保留未跳过的：waveBounds 的 remaining 是清波判据，
+        // 跳过的波永远等不到「最后一只被击退」。
+        for (const n of [...battle.waveBounds.keys()]) { if (n <= skip) { battle.waveBounds.delete(n); } }
+        return true;
+    }
+
     // Endless mid-run checkpoint. Unlike serializeSetup this captures a
     // RUNNING run: the wave clock, the resources, the bench (units + gear),
     // and how many planned waves already fired. Enemies are deliberately NOT
@@ -955,9 +1097,17 @@ export class Battle {
     // counter is restored so the run's difficulty curve stays correct).
     serializeEndless() {
         if (!this.level.endless || this.phase === "lost") { return null; }
+        // 当前波的击杀进度一并带上：恢复时波界 remaining 若不扣掉
+        // 已击退的成员，这一波就永远等不到「全部击退」，第五波的
+        // 换卡/素材奖励会在断点续玩时凭空消失。spawned 统计「本波已
+        // 进场的数量」，alive 是场上还活着的——两者之差就是已击退。
+        const bound = this.waveBounds.get(this.wave);
+        const spawnedThisWave = this.spawns.slice(0, this.spawnIndex).filter(spawn => spawn.wave === this.wave).length;
+        const aliveThisWave = [...this.enemies.values()].filter(enemy => enemy.wave === this.wave && !enemy.summoned).length;
+        const waveProgress = bound ? { total: bound.remaining, killed: Math.max(0, spawnedThisWave - aliveThisWave) } : null;
         return { version: 1, level: this.level.id, seed: this.seed, deck: [...this.deck],
             time: Math.round(this.time * 10) / 10, wave: this.wave, resource: Math.round(this.resource),
-            restocks: this.restocks || 0,
+            restocks: this.restocks || 0, waveProgress,
             units: [...this.units.values()].map(unit => ({ type: unit.type, row: unit.row, col: unit.col, gear: unit.gear || null, hp: unit.hp })),
             stats: { kills: this.stats.kills, healed: this.stats.healed, gatesUsed: this.stats.gatesUsed } };
     }
@@ -975,12 +1125,36 @@ export class Battle {
         battle.deck = deck;
         // Replay the planned waves up to the saved wave so endless state
         // (bounds, next wave time, roster unlocks) matches, then fast-forward
-        // the spawn queue by dropping everything scheduled before the save.
+        // the spawn queue: everything scheduled before the save time is
+        // dropped, and the remaining queue is re-anchored to t=0 so the first
+        // surviving spawn arrives after a normal warm-up, not at the clock
+        // offset it happened to have when saved.
         battle.plannedWave = 0;
         battle.spawns = [];
         battle.nextWaveAt = battle.level.naturalFirst > 0 ? 24 : 24;
         while (battle.plannedWave < data.wave - 1) { battle.planWave(); }
         battle.wave = data.wave;
+        // 重建当前波的波界并扣掉断点前已击退的数量，让「波已守完」
+        // 的判定在续局里仍然可达。剩余人数最低保 1：断点时刻场上
+        // 活着的成员不在重建范围里（敌人不入存档），波界按仍会进场
+        // 的新成员数计算，已击退的扣掉。
+        battle._resumeWaveKilled = 0;
+        const bound = battle.waveBounds.get(data.wave);
+        if (bound && data.waveProgress && Number.isInteger(data.waveProgress.killed)) {
+            const killed = Math.max(0, Math.min(bound.remaining, data.waveProgress.killed));
+            battle._resumeWaveKilled = killed;
+            bound.remaining = Math.max(1, bound.remaining - killed);
+        }
+        const savedAt = Math.max(0, data.time || 0);
+        const future = battle.spawns.filter(spawn => spawn.at > savedAt);
+        // 续局重锚：存留下来的生成点平移到 24 秒热身后开打；存留为空
+        // 时当前波由首次 tick 的 planWave 重排，它读 nextWaveAt，这里
+        // 同步归位到热身节奏。
+        const shift = savedAt > 0 ? Math.max(0, (future[0]?.at ?? savedAt) - 24) : 0;
+        battle.spawns = future.map(spawn => ({ ...spawn, at: spawn.at - shift, index: spawn.index - (battle.spawns.length - future.length) }));
+        battle.nextWaveAt = Math.max(24, battle.nextWaveAt - shift);
+        battle.spawnIndex = 0;
+        battle.warned.clear();
         battle.resource = Math.max(0, data.resource || 0);
         battle.restocks = data.restocks || 0;
         if (data.stats) { Object.assign(battle.stats, data.stats); }

@@ -1,4 +1,4 @@
-import { LEVELS, UNIT_RULES, ENEMY_RULES, DECK_ORDER, GEAR_ORDER, DECK_SIZE, SAVE_KEY, allLevels, levelById } from "../data/campaign.js";
+import { LEVELS, UNIT_RULES, ENEMY_RULES, DECK_ORDER, GEAR_ORDER, DECK_SIZE, SAVE_KEY, TOWN_RULES, allLevels, levelById } from "../data/campaign.js";
 import { CampaignSave } from "./campaign-save.js";
 import { portraitMarkup, siteUrl } from "./assets.js";
 import { ICONS } from "./icons.js";
@@ -8,10 +8,10 @@ const TIME = seconds => `${Math.floor(seconds / 60)}:${String(Math.floor(seconds
 const WAVE_LABEL = level => level.endless ? "不限波次" : `${level.waves}波`;
 const markup = `
   <div class="campaign-map" data-view="map">
-    <header class="panel campaign-header"><button class="native-button compact" data-action="back">返回标题</button><h2>里口花径</h2><span>巡守手记</span><button class="native-button compact" data-action="save">巡守记录</button></header>
+    <header class="panel campaign-header"><button class="native-button compact" data-action="back">返回标题</button><h2>里口花径</h2><span>巡守手记</span><button class="native-button compact" data-action="save">巡守记录</button><button class="native-button compact" data-action="town">城镇</button></header>
     <div class="campaign-map-body">
-      <section class="campaign-chapter panel"><div class="chapter-landscape" aria-hidden="true"></div><div class="chapter-description"><h3>把日常守在身后</h3><p>应援台、同伴与每一条道路，都是布阵图的一部分。</p><div class="campaign-faces" data-role="faces"></div><p class="muted">四章十九关和无尽巡守都可以直接选择。每关重新分配クリエ，不把资源带入下一关。</p></div></section>
-      <section class="panel campaign-selection" aria-label="选择巡守关卡"><div class="campaign-levels" data-role="levels"></div><div class="level-brief"><h3 data-role="level-title"></h3><p data-role="level-subtitle"></p><dl class="level-facts"><div><dt>布阵区域</dt><dd data-role="area"></dd></div><div><dt>初始应援</dt><dd data-role="budget"></dd></div><div><dt>来袭波次</dt><dd data-role="waves"></dd></div></dl><p data-role="enemy"></p><p data-role="objective"></p><p data-role="rewards"></p><p class="muted" data-role="best"></p></div><div class="campaign-map-actions"><p class="muted">所有关卡都可以直接挑战，也可以重玩已完成的关卡。</p><button class="native-button primary" data-action="prepare">选择阵容</button></div><p class="campaign-disclosure">本作同人改编。当前开放四章十九关与无尽巡守。</p></section>
+      <section class="campaign-chapter panel"><div class="chapter-landscape" aria-hidden="true"></div><div class="chapter-description"><h3>把日常守在身后</h3><p>应援台、同伴与每一条道路，都是布阵图的一部分。</p><div class="campaign-faces" data-role="faces"></div><p class="muted">四章二十关和无尽巡守都可以直接选择。每关重新分配クリエ，不把资源带入下一关。</p></div></section>
+      <section class="panel campaign-selection" aria-label="选择巡守关卡"><div class="campaign-levels" data-role="levels"></div><div class="level-brief"><h3 data-role="level-title"></h3><p data-role="level-subtitle"></p><dl class="level-facts"><div><dt>布阵区域</dt><dd data-role="area"></dd></div><div><dt>初始应援</dt><dd data-role="budget"></dd></div><div><dt>来袭波次</dt><dd data-role="waves"></dd></div></dl><p data-role="enemy"></p><p data-role="objective"></p><p data-role="rewards"></p><p class="muted" data-role="best"></p></div><div class="campaign-map-actions"><p class="muted">所有关卡都可以直接挑战，也可以重玩已完成的关卡。</p><button class="native-button primary" data-action="prepare">选择阵容</button></div><p class="campaign-disclosure">本作同人改编。当前开放四章二十关与无尽巡守。</p></section>
       <section class="panel deck-picker" data-role="deck-picker" aria-label="选择本次布阵的卡牌" hidden><header class="deck-picker-head"><div><h3>本次布阵</h3><p class="muted">从巡守图鉴里挑最多${DECK_SIZE}张卡同行；可随时返回换一关。</p></div><p class="deck-count" data-role="deck-count"></p></header>
 <div class="deck-chosen" data-role="deck-chosen" aria-label="已选择的卡牌"></div><div class="deck-presets" data-role="deck-presets"><span class="deck-presets-label">推荐配置</span><div class="deck-preset-buttons" data-role="deck-preset-buttons"></div></div><div class="deck-grid" data-role="deck-grid"></div><p class="deck-detail" data-role="deck-detail"></p><div class="campaign-map-actions"><button class="native-button compact" data-action="deck-back">返回选关</button><button class="native-button primary" data-action="deck-start">开始巡守</button></div></section>
     </div><p class="save-problem" data-role="save-problem" role="status" hidden></p>
@@ -56,6 +56,7 @@ const markup = `
   <dialog class="panel app-dialog campaign-dialog" data-role="save-dialog" aria-labelledby="campaign-save-title"><header><h2 id="campaign-save-title">巡守记录</h2><button class="native-button compact" data-action="save-close">关闭</button></header><p>只导入或导出本作的通关记录，不读取其他游戏的存档。</p><div class="dialog-actions"><button class="native-button compact" data-action="export">导出记录</button><label class="native-button compact import-label">选择记录文件<input data-role="save-file" type="file" accept="application/json,.json"></label></div><p data-role="import-preview" role="status"></p><button class="native-button primary compact" data-action="import-confirm" hidden>确认替换记录</button></dialog>
   <dialog class="panel app-dialog campaign-dialog" data-role="error-dialog" aria-labelledby="campaign-error-title"><h2 id="campaign-error-title">这次巡守已暂停</h2><p data-role="error-text"></p><p>未完成的部署不会扣费，也不会让看不见的模型继续攻击。</p><div class="dialog-actions"><button class="native-button compact" data-action="error-map">返回关卡</button><button class="native-button primary compact" data-action="error-retry">重新准备</button></div></dialog>
   <dialog class="panel app-dialog campaign-dialog codex-dialog" data-role="codex-dialog" aria-labelledby="codex-title"><header><h2 id="codex-title">巡守图鉴</h2><button class="native-button compact" data-action="codex-close">关闭</button></header><div class="codex-tabs" data-role="codex-tabs"></div><div class="codex-grid" data-role="codex-grid"></div><p class="codex-detail" data-role="codex-detail"></p></dialog>
+  <dialog class="panel app-dialog campaign-dialog town-dialog" data-role="town-dialog" aria-labelledby="town-title"><header><h2 id="town-title">城镇建设</h2><button class="native-button compact" data-action="town-close">关闭</button></header><p class="muted">无尽巡守每清 5 波掉落素材；素材与建筑取材原作。每级只给小幅加成，不参与强养成。</p><div class="town-materials" data-role="town-materials"></div><div class="town-buildings" data-role="town-buildings"></div></dialog>
   <dialog class="panel app-dialog campaign-dialog" data-role="restock-dialog" aria-labelledby="restock-title"><header><h2 id="restock-title">换一次卡</h2><button class="native-button compact" data-action="restock-cancel">关闭</button></header><p class="muted">消耗一次换卡机会，从图鉴里换一张卡进卡组（不超过${DECK_SIZE}张）。已部署的同伴和已佩戴的装备不受影响。</p><div class="codex-grid" data-role="restock-grid"></div><p class="codex-detail" data-role="restock-detail"></p><div class="dialog-actions"><button class="native-button primary compact" data-action="restock-confirm" data-role="restock-confirm" disabled>确认换卡</button></div></dialog>
 `;
 
@@ -145,6 +146,7 @@ export class Campaign {
             "result-map": () => this.showMap(), retry: () => this.startLevel(this.levelId),
             next: () => { const index = LEVELS.findIndex(level => level.id === this.levelId); if (LEVELS[index + 1]) { this.startLevel(LEVELS[index + 1].id); } },
             save: () => this.get("save-dialog").showModal(), "save-close": () => this.get("save-dialog").close(),
+            town: () => this.openTown(), "town-close": () => this.get("town-dialog").close(),
             codex: () => this.openCodex(), "codex-close": () => this.closeDialog("codex-dialog", "codex"),
             restock: () => this.openRestock(), "restock-cancel": () => this.closeDialog("restock-dialog", "restock"),
             "restock-confirm": () => this.confirmRestock(),
@@ -403,13 +405,17 @@ export class Campaign {
         this.host.querySelector('[data-view="map"]').hidden = false;
         this.host.querySelector('[data-view="battle"]').hidden = true;
         this.levelId = this.save.progress.lastLevel;
-        this.renderMap(); this.audio.playTheme("day");
+        // 选关界面用原作 bgm_questselect——标题页的城镇曲是「日常」，
+        // 巡守图是「出发前的整备」，两屏听感要有别。cue 是不带 _0 的
+        // 曲名（setTrack 会补 _0.mp3）。
+        this.renderMap(); this.audio.setTrack("bgm_questselect");
         this.button("prepare").focus({ preventScroll: true });
     }
 
     async startLevel(id, options = {}) {
         if (!this.save.canOpen(id)) { return; }
         this.hideDeckPicker();
+        this.audio.preload(levelById(id)?.theme === "night" ? "bgm_battle_2" : "bgm_battle_1");
         const cached = !options.skipCache && this.readSetupCache();
         const resuming = cached && cached.level === id ? cached : null;
         this.releaseBattle();
@@ -449,6 +455,14 @@ export class Campaign {
                     }
                 },
                 onNotice: text => { if (epoch === this.epoch) { this.notice(text); } },
+                onRestock: event => {
+                    if (epoch !== this.epoch) { return; }
+                    const drops = event.drops || [];
+                    this.save.grantMaterials(drops);
+                    if (drops.length) {
+                        this.notice(`素材掉落：${drops.map(id => TOWN_RULES.materials[id]?.name || id).join("、")}（已入账城镇）。`);
+                    }
+                },
                 onWarning: warning => { if (epoch === this.epoch) { this.warnings.set(warning.row, warning); } },
                 onInspect: () => this.inspect(),
                 onError: error => { if (epoch === this.epoch) { this.error(error); } },
@@ -457,7 +471,17 @@ export class Campaign {
             if (epoch !== this.epoch || this.disposed) { view.dispose(); return; }
             this.view = view;
             this.keyboardCell = { row: Math.floor(level.rows / 2), col: 0 };
-            if (!resuming && level.endless && this.save.progress.endlessRun) { await this.resumeEndless(view); }
+            const checkpointResumed = await (async () => {
+                if (resuming || !level.endless || !this.save.progress.endlessRun) { return false; }
+                return this.resumeEndless(view);
+            })();
+            const { Battle: BattleMod } = await import("../sim/battle.js");
+            BattleMod.applyTownBuffs(view.battle, this.save.progress.town);
+            // 图书馆：只有「新开一局」才跳过波次——检查点恢复和布阵缓存
+            // 续局都从各自的存档波次起算，不吃跳过。
+            if (!resuming && !checkpointResumed && level.endless && BattleMod.skipEndlessWaves(view.battle)) {
+                this.notice(`图书馆的记录帮你跳过了前${view.battle.wave - 1}波，从第${view.battle.wave}波开始。`);
+            }
             if (resuming) {
                 const { Battle } = await import("../sim/battle.js");
                 if (epoch !== this.epoch || this.disposed) { view.dispose(); return; }
@@ -713,6 +737,9 @@ export class Campaign {
             this.notice(`已恢复无尽进度：第${checkpoint.wave}波，${checkpoint.units.length} 张卡牌在场。`);
             return true;
         }
+        // 检查点校验失败（关卡/卡组对不上）时清掉它，避免每次进无尽都走
+        // 一遍注定失败的恢复分支。
+        this.save.clearEndlessRun();
         return false;
     }
 
@@ -741,11 +768,20 @@ export class Campaign {
         text.textContent = endless ? (result.newRecord ? "新的无尽记录已写入手记。" : "本次没有超过已有的无尽记录。")
             : won ? "本次巡守结果已写入手记。" : "未改变通关记录。";
         rewardList.append(text);
+        // 无尽结算面补一行本局素材收获，让城镇掉落在结束时也看得见。
+        if (endless && (battle.materials?.length || 0) > 0) {
+            const counts = {};
+            for (const id of battle.materials) { counts[id] = (counts[id] || 0) + 1; }
+            const harvest = document.createElement("p");
+            harvest.textContent = "本局素材收获：" + Object.entries(counts)
+                .map(([id, n]) => `${TOWN_RULES.materials[id]?.name || id}×${n}`).join("　");
+            rewardList.append(harvest);
+        }
         this.text("result-save", this.save.problem || (endless ? (result.newRecord ? "最佳波次已保存。" : "最佳波次保持不变。") : won ? "巡守记录已保存。" : "未改变通关记录。"));
         const index = LEVELS.findIndex(level => level.id === this.levelId);
         this.button("next").hidden = endless || !won || index === LEVELS.length - 1;
         if (won && index === LEVELS.length - 1) {
-            const ending = document.createElement("p"); ending.textContent = "当前两章已完成。紧急爆破术式可在重玩时使用，后续章节仍在制作。"; rewardList.append(ending);
+            const ending = document.createElement("p"); ending.textContent = "四章二十关已全部守住。无尽巡守与城镇建设随时可以继续，后续章节仍在制作。"; rewardList.append(ending);
         }
         this.audio.setTrack(won ? "bgm_battle_win" : "bgm_town_1");
         this.get("result-dialog").showModal();
@@ -863,6 +899,58 @@ export class Campaign {
         view.setPaused("restock", false);
         this.notice(`${UNIT_RULES[this.restockPick].name}已换入卡组。换卡机会剩 ${battle.restocks} 次。`);
         this.restockPick = null;
+    }
+
+    // 城镇：素材库存 + 五栋建筑（原作 TownObjectList 折算）。升级走
+    // save.upgradeTown，立即生效并重渲染。
+    openTown() {
+        const matHost = this.get("town-materials");
+        matHost.replaceChildren();
+        const matLine = document.createElement("p");
+        matLine.className = "town-material-line";
+        matLine.textContent = "持有素材：" + Object.values(TOWN_RULES.materials)
+            .map(m => `${m.name}×${this.save.progress.materials[m.id] || 0}`).join("　");
+        matHost.append(matLine);
+        const grid = this.get("town-buildings");
+        grid.replaceChildren();
+        for (const b of Object.values(TOWN_RULES.buildings)) {
+            const level = this.save.progress.town[b.id] || 0;
+            const card = document.createElement("div");
+            card.className = "town-card";
+            const head = document.createElement("strong");
+            head.textContent = `${b.name}　Lv.${level}/${b.maxLevel}`;
+            const orig = document.createElement("small");
+            orig.textContent = `原作：${b.originalName}`;
+            const desc = document.createElement("p");
+            desc.textContent = b.desc;
+            const cost = b.costPlan[level] || null;
+            const costLine = document.createElement("p");
+            costLine.className = "muted";
+            costLine.textContent = cost
+                ? "升级素材：" + cost.map(id => TOWN_RULES.materials[id].name).join("、")
+                : "已满级";
+            card.append(head, orig, desc, costLine);
+            if (cost) {
+                const up = document.createElement("button");
+                up.className = "native-button primary compact";
+                up.textContent = "升级";
+                up.disabled = !this.canAfford(cost);
+                up.addEventListener("click", () => {
+                    if (this.save.upgradeTown(b.id, b.costPlan)) {
+                        this.notice(`${b.name} 升到 Lv.${(this.save.progress.town[b.id] || 0)}。`);
+                        this.openTown();
+                    } else { this.notice("素材不够，先去无尽巡守里收集。"); }
+                });
+                card.append(up);
+            }
+            grid.append(card);
+        }
+        this.get("town-dialog").showModal();
+    }
+    canAfford(cost) {
+        const need = {};
+        for (const id of cost) { need[id] = (need[id] || 0) + 1; }
+        return Object.entries(need).every(([id, n]) => (this.save.progress.materials[id] || 0) >= n);
     }
 
     inspect() {

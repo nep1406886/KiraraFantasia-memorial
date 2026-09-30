@@ -1,0 +1,405 @@
+1-1 won t=157 kills=8/8 gates=0 lost=0 deployed=9
+1-2 won t=189 kills=15/15 gates=0 lost=0 deployed=15
+1-3 won t=210 kills=16/16 gates=0 lost=0 deployed=18
+1-4 won t=192 kills=18/18 gates=0 lost=0 deployed=18
+1-5 won t=188 kills=19/19 gates=0 lost=0 deployed=14
+1-6 won t=291 kills=41/25 gates=1 lost=2 deployed=24
+1-7 won t=197 kills=19/19 gates=0 lost=0 deployed=13
+2-1 won t=220 kills=18/18 gates=0 lost=0 deployed=17
+2-2 won t=281 kills=19/19 gates=0 lost=0 deployed=23
+2-3 won t=267 kills=38/26 gates=0 lost=2 deployed=24
+3-1 won t=290 kills=36/31 gates=0 lost=0 deployed=25
+3-2 won t=320 kills=49/39 gates=1 lost=1 deployed=21
+3-3 won t=301 kills=42/39 gates=0 lost=0 deployed=26
+3-4 won t=380 kills=57/49 gates=0 lost=0 deployed=29
+4-1 won t=207 kills=22/22 gates=0 lost=0 deployed=17
+4-2 won t=244 kills=22/22 gates=1 lost=2 deployed=25
+4-3 won t=277 kills=29/29 gates=0 lost=0 deployed=25
+4-4 won t=277 kills=30/30 gates=0 lost=0 deployed=22
+4-5 won t=311 kills=35/35 gates=0 lost=0 deployed=27
+4-6 won t=372 kills=51/42 gates=0 lost=0 deployed=30
+{
+  "passed": 63,
+  "runs": [
+    {
+      "level": "1-1",
+      "seconds": 157.23333333333332,
+      "stats": {
+        "kills": 8,
+        "deployed": 9,
+        "recalls": 0,
+        "collected": 734,
+        "generated": 734,
+        "spent": 720,
+        "healed": 0,
+        "shielded": 0,
+        "blocked": 0,
+        "gatesUsed": 0,
+        "defeatedUnits": 0,
+        "breachRow": null,
+        "wavesCleared": 0
+      }
+    },
+    {
+      "level": "1-2",
+      "seconds": 189.3,
+      "stats": {
+        "kills": 15,
+        "deployed": 15,
+        "recalls": 0,
+        "collected": 1246,
+        "generated": 1246,
+        "spent": 1200,
+        "healed": 0,
+        "shielded": 0,
+        "blocked": 0,
+        "gatesUsed": 0,
+        "defeatedUnits": 0,
+        "breachRow": null,
+        "wavesCleared": 0
+      }
+    },
+    {
+      "level": "1-3",
+      "seconds": 209.54999999999998,
+      "stats": {
+        "kills": 16,
+        "deployed": 18,
+        "recalls": 0,
+        "collected": 1381,
+        "generated": 1381,
+        "spent": 1475,
+        "healed": 28,
+        "shielded": 0,
+        "blocked": 0,
+        "gatesUsed": 0,
+        "defeatedUnits": 0,
+        "breachRow": null,
+        "wavesCleared": 0
+      }
+    },
+    {
+      "level": "1-4",
+      "seconds": 192.18333333333334,
+      "stats": {
+        "kills": 18,
+        "deployed": 18,
+        "recalls": 0,
+        "collected": 1246,
+        "generated": 1246,
+        "spent": 1400,
+        "healed": 640,
+        "shielded": 0,
+        "blocked": 0,
+        "gatesUsed": 0,
+        "defeatedUnits": 0,
+        "breachRow": null,
+        "wavesCleared": 0
+      }
+    },
+    {
+      "level": "1-5",
+      "seconds": 188.16666666666666,
+      "stats": {
+        "kills": 19,
+        "deployed": 14,
+        "recalls": 0,
+        "collected": 1246,
+        "generated": 1246,
+        "spent": 1400,
+        "healed": 0,
+        "shielded": 0,
+        "blocked": 0,
+        "gatesUsed": 0,
+        "defeatedUnits": 0,
+        "breachRow": null,
+        "wavesCleared": 0
+      }
+    },
+    {
+      "level": "1-6",
+      "seconds": 291.01666666666665,
+      "stats": {
+        "kills": 41,
+        "deployed": 24,
+        "recalls": 0,
+        "collected": 1814,
+        "generated": 1814,
+        "spent": 2000,
+        "healed": 3366,
+        "shielded": 0,
+        "blocked": 0,
+        "gatesUsed": 1,
+        "defeatedUnits": 2,
+        "breachRow": null,
+        "wavesCleared": 0
+      }
+    },
+    {
+      "level": "1-7",
+      "seconds": 197.2,
+      "stats": {
+        "kills": 19,
+        "deployed": 13,
+        "recalls": 0,
+        "collected": 990,
+        "generated": 990,
+        "spent": 1100,
+        "healed": 0,
+        "shielded": 0,
+        "blocked": 0,
+        "gatesUsed": 0,
+        "defeatedUnits": 0,
+        "breachRow": null,
+        "wavesCleared": 0
+      }
+    },
+    {
+      "level": "2-1",
+      "seconds": 220.48333333333332,
+      "stats": {
+        "kills": 18,
+        "deployed": 17,
+        "recalls": 0,
+        "collected": 1472,
+        "generated": 1472,
+        "spent": 1600,
+        "healed": 0,
+        "shielded": 1238,
+        "blocked": 40,
+        "gatesUsed": 0,
+        "defeatedUnits": 0,
+        "breachRow": null,
+        "wavesCleared": 0
+      }
+    },
+    {
+      "level": "2-2",
+      "seconds": 280.8666666666667,
+      "stats": {
+        "kills": 19,
+        "deployed": 23,
+        "recalls": 0,
+        "collected": 1902,
+        "generated": 1902,
+        "spent": 2125,
+        "healed": 184,
+        "shielded": 0,
+        "blocked": 0,
+        "gatesUsed": 0,
+        "defeatedUnits": 0,
+        "breachRow": null,
+        "wavesCleared": 0
+      }
+    },
+    {
+      "level": "2-3",
+      "seconds": 266.81666666666666,
+      "stats": {
+        "kills": 38,
+        "deployed": 24,
+        "recalls": 0,
+        "collected": 1789,
+        "generated": 1789,
+        "spent": 2100,
+        "healed": 0,
+        "shielded": 0,
+        "blocked": 0,
+        "gatesUsed": 0,
+        "defeatedUnits": 2,
+        "breachRow": null,
+        "wavesCleared": 0
+      }
+    },
+    {
+      "level": "3-1",
+      "seconds": 289.6666666666667,
+      "stats": {
+        "kills": 36,
+        "deployed": 25,
+        "recalls": 0,
+        "collected": 1971,
+        "generated": 1971,
+        "spent": 2225,
+        "healed": 1832,
+        "shielded": 0,
+        "blocked": 0,
+        "gatesUsed": 0,
+        "defeatedUnits": 0,
+        "breachRow": null,
+        "wavesCleared": 0
+      }
+    },
+    {
+      "level": "3-2",
+      "seconds": 319.6166666666667,
+      "stats": {
+        "kills": 49,
+        "deployed": 21,
+        "recalls": 0,
+        "collected": 2027,
+        "generated": 2027,
+        "spent": 2350,
+        "healed": 0,
+        "shielded": 0,
+        "blocked": 0,
+        "gatesUsed": 1,
+        "defeatedUnits": 1,
+        "breachRow": null,
+        "wavesCleared": 0
+      }
+    },
+    {
+      "level": "3-3",
+      "seconds": 300.81666666666666,
+      "stats": {
+        "kills": 42,
+        "deployed": 26,
+        "recalls": 0,
+        "collected": 2087,
+        "generated": 2087,
+        "spent": 2450,
+        "healed": 0,
+        "shielded": 0,
+        "blocked": 0,
+        "gatesUsed": 0,
+        "defeatedUnits": 0,
+        "breachRow": null,
+        "wavesCleared": 0
+      }
+    },
+    {
+      "level": "3-4",
+      "seconds": 379.8333333333333,
+      "stats": {
+        "kills": 57,
+        "deployed": 29,
+        "recalls": 0,
+        "collected": 2727,
+        "generated": 2727,
+        "spent": 3100,
+        "healed": 0,
+        "shielded": 0,
+        "blocked": 0,
+        "gatesUsed": 0,
+        "defeatedUnits": 0,
+        "breachRow": null,
+        "wavesCleared": 0
+      }
+    },
+    {
+      "level": "4-1",
+      "seconds": 206.6,
+      "stats": {
+        "kills": 22,
+        "deployed": 17,
+        "recalls": 0,
+        "collected": 1456,
+        "generated": 1456,
+        "spent": 1650,
+        "healed": 0,
+        "shielded": 0,
+        "blocked": 0,
+        "gatesUsed": 0,
+        "defeatedUnits": 0,
+        "breachRow": null,
+        "wavesCleared": 0
+      }
+    },
+    {
+      "level": "4-2",
+      "seconds": 244.23333333333332,
+      "stats": {
+        "kills": 22,
+        "deployed": 25,
+        "recalls": 0,
+        "collected": 1729,
+        "generated": 1729,
+        "spent": 2040,
+        "healed": 2590,
+        "shielded": 0,
+        "blocked": 0,
+        "gatesUsed": 1,
+        "defeatedUnits": 2,
+        "breachRow": null,
+        "wavesCleared": 0
+      }
+    },
+    {
+      "level": "4-3",
+      "seconds": 276.75,
+      "stats": {
+        "kills": 29,
+        "deployed": 25,
+        "recalls": 0,
+        "collected": 1955,
+        "generated": 1955,
+        "spent": 2200,
+        "healed": 0,
+        "shielded": 0,
+        "blocked": 0,
+        "gatesUsed": 0,
+        "defeatedUnits": 0,
+        "breachRow": null,
+        "wavesCleared": 0
+      }
+    },
+    {
+      "level": "4-4",
+      "seconds": 276.6333333333333,
+      "stats": {
+        "kills": 30,
+        "deployed": 22,
+        "recalls": 0,
+        "collected": 1983,
+        "generated": 1983,
+        "spent": 2325,
+        "healed": 0,
+        "shielded": 0,
+        "blocked": 0,
+        "gatesUsed": 0,
+        "defeatedUnits": 0,
+        "breachRow": null,
+        "wavesCleared": 0
+      }
+    },
+    {
+      "level": "4-5",
+      "seconds": 310.8333333333333,
+      "stats": {
+        "kills": 35,
+        "deployed": 27,
+        "recalls": 0,
+        "collected": 2278,
+        "generated": 2278,
+        "spent": 2650,
+        "healed": 0,
+        "shielded": 0,
+        "blocked": 0,
+        "gatesUsed": 0,
+        "defeatedUnits": 0,
+        "breachRow": null,
+        "wavesCleared": 0
+      }
+    },
+    {
+      "level": "4-6",
+      "seconds": 371.95,
+      "stats": {
+        "kills": 51,
+        "deployed": 30,
+        "recalls": 0,
+        "collected": 2733,
+        "generated": 2733,
+        "spent": 2700,
+        "healed": 0,
+        "shielded": 0,
+        "blocked": 0,
+        "gatesUsed": 0,
+        "defeatedUnits": 0,
+        "breachRow": null,
+        "wavesCleared": 0
+      }
+    }
+  ]
+}

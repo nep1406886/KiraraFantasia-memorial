@@ -434,27 +434,27 @@ export const UNIT_RULES = Object.freeze({
     // ─── 卡牌专属（原作 ★5 专用武器,数值按 weapons-rl.json 最大值折算）───
     G30: { id: "G30", name: "由乃 专用魔棒", originalName: "★5 由乃 専用ロッド", role: "装备·U15 由乃专属", family: "装备", kind: "gear", cost: 150, deployCooldown: 30,
         gearFor: ["U15"],
-        gear: { damage: 4, maxHp: 320, heal: 240, specialBonus: .5, label: "伤害+4，生命+320并恢复240，特殊×1.5", skill: { every: 6, type: "expose", damage: 0, vulnerable: .3, duration: 6, skill: "由乃的祈愈" } }, weapon: { resourceIdR: 1000200 },
+        gear: { damage: 4, maxHp: 320, heal: 240, specialBonus: .5, overheal: 100, label: "伤害+4，生命+320并恢复240，特殊×1.5，治疗可溢出100", skill: { every: 6, type: "expose", damage: 0, vulnerable: .3, duration: 6, skill: "由乃的祈愈" } }, weapon: { resourceIdR: 1000200 },
         help: "★5 由乃的专用魔棒——治疗与恢复双丰收。" },
     G31: { id: "G31", name: "卡莲 专用刃", originalName: "★5 九条 カレン 専用ソード", role: "装备·U09 卡莲专属", family: "装备", kind: "gear", cost: 160, deployCooldown: 32,
         gearFor: ["U09"],
-        gear: { damage: 12, periodScale: .85, label: "伤害+12，出手×0.85", skill: { every: 4, type: "critical", multiplier: 2.5, skill: "卡莲的必杀" } }, weapon: { resourceIdR: 1400200 },
+        gear: { damage: 12, periodScale: .85, critBoost: .25, label: "伤害+12，出手×0.85，会心伤害+25%", skill: { every: 4, type: "critical", multiplier: 2.5, skill: "卡莲的必杀" } }, weapon: { resourceIdR: 1400200 },
         help: "★5 九条卡莲的专用刃——伤害爆发并加速出手。" },
     G32: { id: "G32", name: "透 专用球棒", originalName: "★5 トオル 専用バット", role: "装备·U08 透专属", family: "装备", kind: "gear", cost: 150, deployCooldown: 30,
         gearFor: ["U08"],
-        gear: { damage: 10, specialBonus: .6, label: "伤害+10，特殊×1.6", skill: { every: 5, type: "wave", damage: 90, skill: "透的全垒打" } }, weapon: { resourceIdR: 1300200 },
+        gear: { damage: 10, specialBonus: .6, knockbackBonusPct: .4, label: "伤害+10，特殊×1.6，击退距离+40%", skill: { every: 5, type: "wave", damage: 90, skill: "透的全垒打" } }, weapon: { resourceIdR: 1300200 },
         help: "★5 透的专用球棒——近战震荡。" },
     G33: { id: "G33", name: "千矢 专用盾牌", originalName: "★5 千矢 専用シールド", role: "装备·U11 千矢专属", family: "装备", kind: "gear", cost: 140, deployCooldown: 28,
         gearFor: ["U11"],
-        gear: { maxHp: 480, heal: 240, barrier: 3, label: "生命+480并恢复240，屏障+3层", skill: { every: 8, type: "knockback", distance: .8, skill: "千矢的屏障" } }, weapon: { resourceIdR: 1700200 },
+        gear: { maxHp: 480, heal: 240, barrier: 3, guardReductionBonus: .1, label: "生命+480并恢复240，屏障+3层，减伤姿态+10%", skill: { every: 8, type: "knockback", distance: .8, skill: "千矢的屏障" } }, weapon: { resourceIdR: 1700200 },
         help: "★5 千矢的专用盾牌——重甲之盾,守护顶峰。" },
     G34: { id: "G34", name: "珠辉 专用水晶", originalName: "★5 珠輝 専用クリスタル", role: "装备·U01 珠辉专属", family: "装备", kind: "gear", cost: 150, deployCooldown: 30,
         gearFor: ["U01"],
-        gear: { damage: 6, specialBonus: .8, label: "伤害+6，特殊×1.8", skill: { every: 4, type: "wave", damage: 70, skill: "珠辉的快挥" } }, weapon: { resourceIdR: 1600200 },
+        gear: { damage: 6, specialBonus: .8, waveLane: true, hasteOnKill: .04, label: "伤害+6，特殊×1.8，波及邻路，击杀提速4%", skill: { every: 4, type: "wave", damage: 70, skill: "珠辉的快挥" } }, weapon: { resourceIdR: 1600200 },
         help: "★5 本田珠辉的专用水晶——寻道之力。" },
     G35: { id: "G35", name: "凛 专用水晶", originalName: "★5 志摩 リン 専用クリスタル", role: "装备·U02 凛专属", family: "装备", kind: "gear", cost: 150, deployCooldown: 30,
         gearFor: ["U02"],
-        gear: { damage: 6, specialBonus: .8, label: "伤害+6，特殊×1.8", skill: { every: 4, type: "wave", damage: 60, skill: "凛的冰流" } }, weapon: { resourceIdR: 2300200 },
+        gear: { damage: 6, specialBonus: .8, waveLane: true, hasteOnKill: .04, label: "伤害+6，特殊×1.8，波及邻路，击杀提速4%", skill: { every: 4, type: "wave", damage: 60, skill: "凛的冰流" } }, weapon: { resourceIdR: 2300200 },
         help: "★5 志摩凛的专用水晶——凛冽攻势。" },
     G36: { id: "G36", name: "咏深 专用球", originalName: "★5 武田 咏深 専用ボール", role: "装备·U03 咏深专属", family: "装备", kind: "gear", cost: 150, deployCooldown: 30,
         gearFor: ["U03"],
@@ -462,7 +462,7 @@ export const UNIT_RULES = Object.freeze({
         help: "★5 武田咏深的专用球——波纹之弧。" },
     G37: { id: "G37", name: "智乃 专用水晶", originalName: "★5 智乃 専用クリスタル", role: "装备·U04 智乃专属", family: "装备", kind: "gear", cost: 150, deployCooldown: 30,
         gearFor: ["U04"],
-        gear: { damage: 6, specialBonus: .8, label: "伤害+6，特殊×1.8", skill: { every: 3, type: "critical", multiplier: 2, skill: "智乃的会心" } }, weapon: { resourceIdR: 3001200 },
+        gear: { damage: 6, specialBonus: .8, waveLane: true, periodScale: .92, label: "伤害+6，特殊×1.8，波及邻路，出手×0.92", skill: { every: 3, type: "critical", multiplier: 2, skill: "智乃的会心" } }, weapon: { resourceIdR: 3001200 },
         help: "★5 香风智乃的专用水晶——碧绡之心。" },
     G38: { id: "G38", name: "莓香 专用水晶", originalName: "★5 苺香 専用クリスタル", role: "装备·U05 莓香专属", family: "装备", kind: "gear", cost: 150, deployCooldown: 30,
         gearFor: ["U05"],
@@ -478,11 +478,11 @@ export const UNIT_RULES = Object.freeze({
         help: "★5 保爱心爱的专用刃——炽热一刀。" },
     G41: { id: "G41", name: "梦魔 专用锤", originalName: "★5 マー夢 専用ハンマー", role: "装备·U10 梦魔专属", family: "装备", kind: "gear", cost: 155, deployCooldown: 30,
         gearFor: ["U10"],
-        gear: { damage: 12, specialBonus: .4, label: "伤害+12，特殊×1.4", skill: { every: 4, type: "critical", multiplier: 2.5, skill: "梦魔的特效" } }, weapon: { resourceIdR: 2600200 },
+        gear: { damage: 12, specialBonus: .4, sleepChance: .1, label: "伤害+12，特殊×1.4，10%麻痹", skill: { every: 4, type: "critical", multiplier: 2.5, skill: "梦魔的特效" } }, weapon: { resourceIdR: 2600200 },
         help: "★5 玛莉·梦魔的专用锤——星蚀一击。" },
     G42: { id: "G42", name: "安奈 专用长矛", originalName: "★5 折部 やすな 専用ランス", role: "装备·U12 安奈专属", family: "装备", kind: "gear", cost: 155, deployCooldown: 30,
         gearFor: ["U12"],
-        gear: { maxHp: 360, heal: 200, specialBonus: .5, label: "生命+360并恢复200，特殊×1.5", skill: { every: 6, type: "critical", multiplier: 2, skill: "安奈的突刺" } }, weapon: { resourceIdR: 1800200 },
+        gear: { maxHp: 360, heal: 200, specialBonus: .5, lastStand: true, label: "生命+360并恢复200，特殊×1.5，濒死一次免死并全恢复", skill: { every: 6, type: "critical", multiplier: 2, skill: "安奈的突刺" } }, weapon: { resourceIdR: 1800200 },
         help: "★5 折部安奈的专用长矛——以守为攻。" },
     G43: { id: "G43", name: "遥 专用盾牌", originalName: "★5 大空 遥 専用シールド", role: "装备·U13 遥专属", family: "装备", kind: "gear", cost: 140, deployCooldown: 28,
         gearFor: ["U13"],
@@ -498,7 +498,7 @@ export const UNIT_RULES = Object.freeze({
         help: "★5 丈枪由纪的专用魔棒——文字的祈祷。" },
     G46: { id: "G46", name: "薰子 专用魔棒", originalName: "★5 萌田 薫子 専用ロッド", role: "装备·U17 薰子专属", family: "装备", kind: "gear", cost: 150, deployCooldown: 30,
         gearFor: ["U17"],
-        gear: { damage: 5, maxHp: 280, heal: 200, specialBonus: .5, label: "伤害+5，生命+280并恢复200，特殊×1.5", skill: { every: 6, type: "expose", damage: 0, vulnerable: .3, duration: 5, skill: "薰子的笔落" } }, weapon: { resourceIdR: 2400200 },
+        gear: { damage: 5, maxHp: 280, heal: 200, specialBonus: .5, immuneStun: true, label: "伤害+5，生命+280并恢复200，特殊×1.5，免疫麻痹", skill: { every: 6, type: "expose", damage: 0, vulnerable: .3, duration: 5, skill: "薰子的笔落" } }, weapon: { resourceIdR: 2400200 },
         help: "★5 萌田薰子的专用魔棒——笔落如花。" },
     G47: { id: "G47", name: "鸣 专用魔棒", originalName: "★5 関谷 なる 専用ロッド", role: "装备·U18 鸣专属", family: "装备", kind: "gear", cost: 145, deployCooldown: 28,
         gearFor: ["U18"],
@@ -506,7 +506,7 @@ export const UNIT_RULES = Object.freeze({
         help: "★5 关谷鸣的专用魔棒——可爱应援。" },
     G48: { id: "G48", name: "小春 专用烧瓶", originalName: "★5 小野坂 小春 専用フラスコ", role: "装备·U19 小春专属", family: "装备", kind: "gear", cost: 150, deployCooldown: 30,
         gearFor: ["U19"],
-        gear: { damage: 7, specialBonus: .7, label: "伤害+7，特殊×1.7", skill: { every: 5, type: "expose", damage: 0, vulnerable: .35, duration: 6, skill: "小春的削弱" } }, weapon: { resourceIdR: 4300200 },
+        gear: { damage: 7, specialBonus: .7, waveLane: true, label: "伤害+7，特殊×1.7，波及邻路", skill: { every: 5, type: "expose", damage: 0, vulnerable: .35, duration: 6, skill: "小春的削弱" } }, weapon: { resourceIdR: 4300200 },
         help: "★5 小野坂小春的专用烧瓶——浪漫蒸馏。" },
     G49: { id: "G49", name: "纱路 专用烧瓶", originalName: "★5 沙路 専用フラスコ", role: "装备·U20 纱路专属", family: "装备", kind: "gear", cost: 150, deployCooldown: 30,
         gearFor: ["U20"],
@@ -526,7 +526,7 @@ export const UNIT_RULES = Object.freeze({
         help: "★5 町子凉的专用烧瓶——夜曲之瓶。" },
     G53: { id: "G53", name: "兰普 专用羽毛笔", originalName: "★5 ランプ 専用羽ペン", role: "装备·U24 兰普专属", family: "装备", kind: "gear", cost: 145, deployCooldown: 28,
         gearFor: ["U24"],
-        gear: { damage: 6, specialBonus: .7, periodScale: .9, label: "伤害+6，特殊×1.7，出手×0.9", skill: { every: 6, type: "knockback", distance: .8, skill: "兰普的笔锋" } }, weapon: { resourceIdR: 3201200 },
+        gear: { damage: 6, specialBonus: .7, periodScale: .9, waveLane: true, label: "伤害+6，特殊×1.7，出手×0.9，波及邻路", skill: { every: 6, type: "knockback", distance: .8, skill: "兰普的笔锋" } }, weapon: { resourceIdR: 3201200 },
         help: "★5 兰普的专用羽毛笔——写下自己的灯火。" },
 
     // ─── 十位新伙伴的专用装备（原作 ★5 专用武器） ───────────────────────
@@ -680,6 +680,31 @@ export const GEAR_ORDER = ["G01", "G02", "G03", "G04", "G05", "G06", "G07", "G08
     "G71", "G72", "G73", "G74", "G75", "G76", "G77", "G78", "G79",
     "G80", "G81", "G82", "G83", "G84", "G85", "G86", "G87"];
 // the original enemy table (site/asset/rl/enemies.json nameZh).
+// 城镇建设：素材与建筑全部取材原作（ItemList 职业象征 + TownObjectList）。
+// 无尽模式每清 5 波按概率掉落素材，素材在城镇升级建筑；数值按原作曲线折算，
+// 每级只给小幅加成，绝不参与强养成。
+export const TOWN_RULES = Object.freeze({
+    materials: Object.freeze({
+        M1: { id: "M1", name: "战士的象征", originalName: "せんしのシンボル", rare: 1 },
+        M2: { id: "M2", name: "魔法使的象征", originalName: "まほうつかいのシンボル", rare: 1 },
+        M3: { id: "M3", name: "僧侣的象征", originalName: "そうりょのシンボル", rare: 1 },
+        M4: { id: "M4", name: "骑士的象征", originalName: "ナイトのシンボル", rare: 1 },
+        M5: { id: "M5", name: "炼金术士的象征", originalName: "アルケミストのシンボル", rare: 1 },
+    }),
+    buildings: Object.freeze({
+        B1: { id: "B1", name: "应援广播站", originalName: "ラビットハウス エトワリア店", effect: "producer", maxLevel: 5, desc: "每级：应援采集台产量 +8%。",
+            costPlan: [["M1"],["M1","M3"],["M1","M2","M3"],["M1","M2","M3","M4"],["M1","M2","M3","M4","M5"]] },
+        B2: { id: "B2", name: "工房", originalName: "イーグルジャンプ第2開発室", effect: "gear", maxLevel: 5, desc: "每级：装备佩戴费用 -6%（最多 -30%）。",
+            costPlan: [["M2"],["M2","M5"],["M2","M5","M1"],["M2","M5","M1","M3"],["M2","M5","M1","M3","M4"]] },
+        B3: { id: "B3", name: "医务室", originalName: "ピュアーズガーデン", effect: "heal", maxLevel: 5, desc: "每级：治疗与护盾效果 +6%。",
+            costPlan: [["M3"],["M3","M4"],["M3","M4","M2"],["M3","M4","M2","M5"],["M3","M4","M2","M5","M1"]] },
+        B4: { id: "B4", name: "训练所", originalName: "チアアップハイスクール", effect: "start", maxLevel: 5, desc: "每级：开局クリエ +25。",
+            costPlan: [["M4"],["M4","M1"],["M4","M1","M5"],["M4","M1","M5","M2"],["M4","M1","M5","M2","M3"]] },
+        B5: { id: "B5", name: "图书馆", originalName: "ファンタジアハウス", effect: "codex", maxLevel: 5, desc: "每级：无尽开局波次 +1（跳过已守过的波次）。",
+            costPlan: [["M5"],["M5","M2"],["M5","M2","M4"],["M5","M2","M4","M1"],["M5","M2","M4","M1","M3"]] },
+    })
+});
+
 export const ENEMY_RULES = Object.freeze({
     E01: { id: "E01", resourceId: 10000, name: "小黑怪", hp: 200, speed: .2, threat: 1,
         damage: 20, period: 1.2, windup: .32, height: .82, description: "缓慢前进，接近同伴后停下攻击。" },
@@ -691,12 +716,12 @@ export const ENEMY_RULES = Object.freeze({
         damage: 16, period: 1.1, windup: .3, height: .9, description: "随风飘过遇到的第一位同伴，只有折部安奈这样的高墙能拦住它。" },
     E06: { id: "E06", resourceId: 10900, name: "蘑菇怪", hp: 260, speed: .17, threat: 2, healer: { amount: 30, period: 4, reach: 1.6 },
         damage: 18, period: 1.3, windup: .35, height: .86, description: "每4秒撒出孢子，为附近三路的来客回复30生命。优先击倒它。" },
-    E07: { id: "E07", resourceId: 11100, name: "魔偶", hp: 420, armor: 300, speed: .13, threat: 4,
-        damage: 32, period: 1.5, windup: .4, height: 1.02, description: "身披300点护甲，护甲先吸收伤害。玛莉·梦魔能直接击碎护甲。" },
+    E07: { id: "E07", resourceId: 11100, name: "魔偶", hp: 420, armor: 300, speed: .13, threat: 4, rockArmor: { regenPerSec: 60, delay: 3 },
+        damage: 32, period: 1.5, windup: .4, height: 1.02, description: "身披300点护甲；3秒不被打就会自动修补（原作「ロックアーマー」）。玛莉·梦魔能直接击碎护甲。" },
     E08: { id: "E08", resourceId: 11400, name: "丧丧丧尸", hp: 480, speed: .11, threat: 3.5, revive: { ratio: .4, delay: 1.4 },
         damage: 24, period: 1, windup: .3, height: .98, description: "第一次被击倒后会以40%生命重新站起来。" },
-    E09: { id: "E09", resourceId: 11500, name: "狼", hp: 300, speed: .46, threat: 2,
-        damage: 26, period: 1.05, windup: .28, height: .95, description: "奔跑极快，常在防线还没建好时冲到面前。" },
+    E09: { id: "E09", resourceId: 11500, name: "狼", hp: 300, speed: .46, threat: 2, battleCry: { once: true, haste: .2, duration: 5, reach: 2 },
+        damage: 26, period: 1.05, windup: .28, height: .95, description: "第一次望见同伴时嗥叫「バトルクライ」（原作技能），周围两格的来客提速20%持续5秒；本身也跑得极快。" },
     E10: { id: "E10", resourceId: 10600, name: "光玉", hp: 180, speed: .2, threat: 2, ranged: { range: 2.6, damage: 14, period: 1.8, windup: .5 },
         damage: 14, period: 1.8, windup: .5, height: .8, description: "停在2.6格外发射光弹攻击最前面的同伴，近战够不到它。" },
     E11: { id: "E11", resourceId: 10800, name: "仙人掌怪", hp: 380, speed: .15, threat: 3, thorns: 8,
@@ -765,8 +790,8 @@ export const ENEMY_RULES = Object.freeze({
         summon: { type: "E38", period: 14, count: 2 },
         damage: 52, period: 1.8, windup: .5, height: 1.5,
         description: "无尽巡守的深夜女王。远距离投掷暗影弹，每14秒召唤两名熊兵护卫；护甲240点。" },
-    E38: { id: "E38", resourceId: 15900, name: "熊兵", hp: 400, speed: .22, threat: 3, armor: 80,
-        damage: 28, period: 1.3, windup: .36, height: 1.1, description: "全副武装的小熊兵，铁皮护甲 80 点；力气大，被它咬住会持续掉血。" }
+    E38: { id: "E38", resourceId: 15900, name: "熊兵", hp: 400, speed: .22, threat: 3, armor: 80, roar: { period: 8, delay: 1 },
+        damage: 28, period: 1.3, windup: .36, height: 1.1, description: "全副武装的小熊兵。每8秒低吼「クッマッマー」（原作技能），推迟相邻两路同伴的下一次出手1秒。" }
 });
 
 const spawn = (at, row, type = "E01", wave = 1) => ({ at, row, type, wave });
@@ -875,6 +900,22 @@ export const LEVELS = Object.freeze([
             spawn(190, 2, "E13", 5), ...series(196, 5, [0, 4, 1, 3], ["E04", "E09", "E05", "E06"], 5)],
         objective: "拖住小黑怪王，打碎它的护甲，别让召唤的小黑怪漏过去。",
         optional: "不消耗紧急结界", openingTip: "玛莉·梦魔无视护甲，天王寺渚的易伤能让香风智乃的会心更痛。"
+    },
+    {
+        id: "1-7", chapter: 1, theme: "night", title: "夜路没有应援", subtitle: "夜里不再掉落クリエ，学会自己产经济。",
+        rows: 5, cols: 9, rowOffset: 0, colOffset: 0, startResource: 250,
+        naturalFirst: 999999, naturalPeriod: 999999, naturalAmount: 0, warningLead: 7,
+        waves: 4, estimate: "约4分钟", newEnemy: "E16", recommended: ["F01", "F11", "U01", "U12", "U03", "U19", "U15", "F10"],
+        story: [
+            { name: "千戶", text: "这条路晚上没有天然的クリエ……我带的储备采集台可以顶上！" },
+            { name: "兰普", text: "夜袭的客人脚程不慢。先把两台应援台放下，再谈别的。" }
+        ],
+        spawns: [spawn(26, 2, "E16"), spawn(42, 0), spawn(58, 4, "E02"),
+            ...series(76, 7, [1, 3, 0, 4, 2], ["E16", "E01", "E02", "E16", "E01"], 2),
+            ...series(118, 5, [3, 1, 4, 2, 0], ["E02", "E16", "E01", "E09", "E16"], 3),
+            ...series(158, 4, [2, 0, 4, 1, 3, 2], ["E16", "E09", "E01", "E02", "E16", "E04"], 4)],
+        objective: "夜里没有天然应援，靠采集台自己产经济，守住快脚步的夜袭。",
+        optional: "不消耗紧急结界", openingTip: "开局先放两台应援采集台；夜晚没有天降クリエ，所有经济都要自己产。"
     },
     {
         id: "2-1", chapter: 2, theme: "camp", title: "营灯下的魔偶", subtitle: "披着护甲的魔偶在夜色里前进。",
@@ -1161,5 +1202,4 @@ export function canOpenLevel(id, completed = []) {
     const index = LEVELS.findIndex(level => level.id === id);
     if (index < 0) { return false; }
     return index === 0 || completed.includes(LEVELS[index - 1].id);
-}
-/*U01 MISS*//*U50 MISS*/
+}

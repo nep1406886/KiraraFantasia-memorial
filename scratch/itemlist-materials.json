@@ -1,0 +1,800 @@
+[
+ {
+  "m_ID": 1,
+  "m_sortID": 203000,
+  "m_Name": "せんしのシンボル",
+  "m_Rare": 0,
+  "m_SaleAmount": 100,
+  "m_Type": 3,
+  "m_TypeArgs": [
+   150,
+   0,
+   0,
+   0
+  ],
+  "m_DetailText": "【ぶき素材】\nせんしの力が宿ったシンボル。",
+  "m_Appeal": 0,
+  "category": 300,
+  "type": 3,
+  "isEventBonus": false
+ },
+ {
+  "m_ID": 2,
+  "m_sortID": 203003,
+  "m_Name": "ナイトのシンボル",
+  "m_Rare": 0,
+  "m_SaleAmount": 100,
+  "m_Type": 3,
+  "m_TypeArgs": [
+   150,
+   0,
+   0,
+   0
+  ],
+  "m_DetailText": "【ぶき素材】\nナイトの力が宿ったシンボル。",
+  "m_Appeal": 0,
+  "category": 300,
+  "type": 3,
+  "isEventBonus": false
+ },
+ {
+  "m_ID": 3,
+  "m_sortID": 203001,
+  "m_Name": "まほうつかいのシンボル",
+  "m_Rare": 0,
+  "m_SaleAmount": 100,
+  "m_Type": 3,
+  "m_TypeArgs": [
+   150,
+   0,
+   0,
+   0
+  ],
+  "m_DetailText": "【ぶき素材】\nまほうつかいの力が宿ったシンボル。",
+  "m_Appeal": 0,
+  "category": 300,
+  "type": 3,
+  "isEventBonus": false
+ },
+ {
+  "m_ID": 4,
+  "m_sortID": 203004,
+  "m_Name": "アルケミストのシンボル",
+  "m_Rare": 0,
+  "m_SaleAmount": 100,
+  "m_Type": 3,
+  "m_TypeArgs": [
+   150,
+   0,
+   0,
+   0
+  ],
+  "m_DetailText": "【ぶき素材】\nアルケミストの力が宿ったシンボル。",
+  "m_Appeal": 0,
+  "category": 300,
+  "type": 3,
+  "isEventBonus": false
+ },
+ {
+  "m_ID": 5,
+  "m_sortID": 203002,
+  "m_Name": "そうりょのシンボル",
+  "m_Rare": 0,
+  "m_SaleAmount": 100,
+  "m_Type": 3,
+  "m_TypeArgs": [
+   150,
+   0,
+   0,
+   0
+  ],
+  "m_DetailText": "【ぶき素材】\nそうりょの力が宿ったシンボル。",
+  "m_Appeal": 0,
+  "category": 300,
+  "type": 3,
+  "isEventBonus": false
+ },
+ {
+  "m_ID": 6,
+  "m_sortID": 203100,
+  "m_Name": "木の根",
+  "m_Rare": 0,
+  "m_SaleAmount": 50,
+  "m_Type": 3,
+  "m_TypeArgs": [
+   100,
+   0,
+   0,
+   0
+  ],
+  "m_DetailText": "【ぶき素材】\nどこにでもある木の根。",
+  "m_Appeal": 0,
+  "category": 311,
+  "type": 3,
+  "isEventBonus": false
+ },
+ {
+  "m_ID": 7,
+  "m_sortID": 203101,
+  "m_Name": "硬い石",
+  "m_Rare": 0,
+  "m_SaleAmount": 50,
+  "m_Type": 3,
+  "m_TypeArgs": [
+   100,
+   0,
+   0,
+   0
+  ],
+  "m_DetailText": "【ぶき素材】\n多くの鉱山でとれる鉱石。",
+  "m_Appeal": 0,
+  "category": 311,
+  "type": 3,
+  "isEventBonus": false
+ },
+ {
+  "m_ID": 8,
+  "m_sortID": 203102,
+  "m_Name": "古木の小枝",
+  "m_Rare": 1,
+  "m_SaleAmount": 80,
+  "m_Type": 3,
+  "m_TypeArgs": [
+   200,
+   0,
+   0,
+   0
+  ],
+  "m_DetailText": "【ぶき素材】\n加工に適した古木。\nこのままの状態でも絵を立てかけるのに便利。",
+  "m_Appeal": 0,
+  "category": 311,
+  "type": 3,
+  "isEventBonus": false
+ },
+ {
+  "m_ID": 9,
+  "m_sortID": 203103,
+  "m_Name": "光輝岩",
+  "m_Rare": 2,
+  "m_SaleAmount": 100,
+  "m_Type": 3,
+  "m_TypeArgs": [
+   300,
+   0,
+   0,
+   0
+  ],
+  "m_DetailText": "【ぶき素材】\n白く輝く球体の鉱石。",
+  "m_Appeal": 0,
+  "category": 311,
+  "type": 3,
+  "isEventBonus": false
+ },
+ {
+  "m_ID": 10,
+  "m_sortID": 203104,
+  "m_Name": "怪しい爪",
+  "m_Rare": 0,
+  "m_SaleAmount": 50,
+  "m_Type": 3,
+  "m_TypeArgs": [
+   100,
+   0,
+   0,
+   0
+  ],
+  "m_DetailText": "【ぶき素材】\n鋭い牙を持つ生物の爪。",
+  "m_Appeal": 0,
+  "category": 312,
+  "type": 3,
+  "isEventBonus": false
+ },
+ {
+  "m_ID": 11,
+  "m_sortID": 203105,
+  "m_Name": "銅の繊維",
+  "m_Rare": 0,
+  "m_SaleAmount": 50,
+  "m_Type": 3,
+  "m_TypeArgs": [
+   100,
+   0,
+   0,
+   0
+  ],
+  "m_DetailText": "【ぶき素材】\n広く加工に用いられる特殊な繊維。",
+  "m_Appeal": 0,
+  "category": 312,
+  "type": 3,
+  "isEventBonus": false
+ },
+ {
+  "m_ID": 12,
+  "m_sortID": 203106,
+  "m_Name": "竜の大牙",
+  "m_Rare": 1,
+  "m_SaleAmount": 80,
+  "m_Type": 3,
+  "m_TypeArgs": [
+   200,
+   0,
+   0,
+   0
+  ],
+  "m_DetailText": "【ぶき素材】\n頑丈な竜種の牙。\nお守りとしても使用される。",
+  "m_Appeal": 0,
+  "category": 312,
+  "type": 3,
+  "isEventBonus": false
+ },
+ {
+  "m_ID": 13,
+  "m_sortID": 203107,
+  "m_Name": "ブロンズ塊",
+  "m_Rare": 2,
+  "m_SaleAmount": 100,
+  "m_Type": 3,
+  "m_TypeArgs": [
+   300,
+   0,
+   0,
+   0
+  ],
+  "m_DetailText": "【ぶき素材】\n純度の高い銅の塊。\n変わった形状をしている。",
+  "m_Appeal": 0,
+  "category": 312,
+  "type": 3,
+  "isEventBonus": false
+ },
+ {
+  "m_ID": 14,
+  "m_sortID": 203108,
+  "m_Name": "異界の鉱石",
+  "m_Rare": 0,
+  "m_SaleAmount": 50,
+  "m_Type": 3,
+  "m_TypeArgs": [
+   100,
+   0,
+   0,
+   0
+  ],
+  "m_DetailText": "【ぶき素材】\n鈍く黒光りする鉱石。\n独特な輝き��見る者を惑わす。",
+  "m_Appeal": 0,
+  "category": 313,
+  "type": 3,
+  "isEventBonus": false
+ },
+ {
+  "m_ID": 15,
+  "m_sortID": 203109,
+  "m_Name": "水晶のかけら",
+  "m_Rare": 0,
+  "m_SaleAmount": 50,
+  "m_Type": 3,
+  "m_TypeArgs": [
+   100,
+   0,
+   0,
+   0
+  ],
+  "m_DetailText": "【ぶき素材】\n微量の魔力を秘めた鉱石のかけら。",
+  "m_Appeal": 0,
+  "category": 313,
+  "type": 3,
+  "isEventBonus": false
+ },
+ {
+  "m_ID": 16,
+  "m_sortID": 203110,
+  "m_Name": "角鋼",
+  "m_Rare": 1,
+  "m_SaleAmount": 80,
+  "m_Type": 3,
+  "m_TypeArgs": [
+   200,
+   0,
+   0,
+   0
+  ],
+  "m_DetailText": "【ぶき素材】\n四角型の鉱石。鏡面のような材質は\n数ある鉱石の中でも特に異彩を放つ。",
+  "m_Appeal": 0,
+  "category": 313,
+  "type": 3,
+  "isEventBonus": false
+ },
+ {
+  "m_ID": 17,
+  "m_sortID": 203111,
+  "m_Name": "緑の水晶",
+  "m_Rare": 2,
+  "m_SaleAmount": 100,
+  "m_Type": 3,
+  "m_TypeArgs": [
+   300,
+   0,
+   0,
+   0
+  ],
+  "m_DetailText": "【ぶき素材】\nさわやかな緑色の水晶。",
+  "m_Appeal": 0,
+  "category": 313,
+  "type": 3,
+  "isEventBonus": false
+ },
+ {
+  "m_ID": 18,
+  "m_sortID": 203112,
+  "m_Name": "ぷにぷに石",
+  "m_Rare": 0,
+  "m_SaleAmount": 50,
+  "m_Type": 3,
+  "m_TypeArgs": [
+   100,
+   0,
+   0,
+   0
+  ],
+  "m_DetailText": "【ぶき素��】\n石なのにぷにぷにしている。\n一度触ると癖になる。",
+  "m_Appeal": 0,
+  "category": 314,
+  "type": 3,
+  "isEventBonus": false
+ },
+ {
+  "m_ID": 19,
+  "m_sortID": 203113,
+  "m_Name": "古びた琥珀",
+  "m_Rare": 0,
+  "m_SaleAmount": 50,
+  "m_Type": 3,
+  "m_TypeArgs": [
+   100,
+   0,
+   0,
+   0
+  ],
+  "m_DetailText": "【ぶき素材】\n太古の化石であり、宝石。",
+  "m_Appeal": 0,
+  "category": 314,
+  "type": 3,
+  "isEventBonus": false
+ },
+ {
+  "m_ID": 20,
+  "m_sortID": 203114,
+  "m_Name": "ブラックストーン",
+  "m_Rare": 1,
+  "m_SaleAmount": 80,
+  "m_Type": 3,
+  "m_TypeArgs": [
+   200,
+   0,
+   0,
+   0
+  ],
+  "m_DetailText": "【ぶき素材】\n漆黒の原石。\n比類なき硬度を持つ。",
+  "m_Appeal": 0,
+  "category": 314,
+  "type": 3,
+  "isEventBonus": false
+ },
+ {
+  "m_ID": 21,
+  "m_sortID": 203115,
+  "m_Name": "パステルジュエル",
+  "m_Rare": 2,
+  "m_SaleAmount": 100,
+  "m_Type": 3,
+  "m_TypeArgs": [
+   300,
+   0,
+   0,
+   0
+  ],
+  "m_DetailText": "【ぶき素材】\nカラフルな鉱石。\n持つ者に幸福が訪れるという。",
+  "m_Appeal": 0,
+  "category": 314,
+  "type": 3,
+  "isEventBonus": false
+ },
+ {
+  "m_ID": 22,
+  "m_sortID": 203116,
+  "m_Name": "太古の骨",
+  "m_Rare": 0,
+  "m_SaleAmount": 50,
+  "m_Type": 3,
+  "m_TypeArgs": [
+   100,
+   0,
+   0,
+   0
+  ],
+  "m_DetailText": "【ぶき素材】\n古びた、大きな骨。",
+  "m_Appeal": 0,
+  "category": 315,
+  "type": 3,
+  "isEventBonus": false
+ },
+ {
+  "m_ID": 23,
+  "m_sortID": 203117,
+  "m_Name": "���金の枝",
+  "m_Rare": 0,
+  "m_SaleAmount": 50,
+  "m_Type": 3,
+  "m_TypeArgs": [
+   100,
+   0,
+   0,
+   0
+  ],
+  "m_DetailText": "【ぶき素材】\n黄金に輝く希少な枝。",
+  "m_Appeal": 0,
+  "category": 315,
+  "type": 3,
+  "isEventBonus": false
+ },
+ {
+  "m_ID": 24,
+  "m_sortID": 203118,
+  "m_Name": "銀鉱石",
+  "m_Rare": 1,
+  "m_SaleAmount": 80,
+  "m_Type": 3,
+  "m_TypeArgs": [
+   200,
+   0,
+   0,
+   0
+  ],
+  "m_DetailText": "【ぶき素材】\nひんやりとして頑丈な鉱石。",
+  "m_Appeal": 0,
+  "category": 315,
+  "type": 3,
+  "isEventBonus": false
+ },
+ {
+  "m_ID": 25,
+  "m_sortID": 203119,
+  "m_Name": "古の岩石",
+  "m_Rare": 2,
+  "m_SaleAmount": 100,
+  "m_Type": 3,
+  "m_TypeArgs": [
+   300,
+   0,
+   0,
+   0
+  ],
+  "m_DetailText": "【ぶき素材】\nトゲトゲと尖った岩石。",
+  "m_Appeal": 0,
+  "category": 315,
+  "type": 3,
+  "isEventBonus": false
+ },
+ {
+  "m_ID": 26,
+  "m_sortID": 203120,
+  "m_Name": "泪の石",
+  "m_Rare": 0,
+  "m_SaleAmount": 50,
+  "m_Type": 3,
+  "m_TypeArgs": [
+   100,
+   0,
+   0,
+   0
+  ],
+  "m_DetailText": "【ぶき素材】\nキラキラと透き通った、鮮やかな青い宝石。",
+  "m_Appeal": 0,
+  "category": 316,
+  "type": 3,
+  "isEventBonus": false
+ },
+ {
+  "m_ID": 27,
+  "m_sortID": 203121,
+  "m_Name": "神秘の繊維",
+  "m_Rare": 0,
+  "m_SaleAmount": 50,
+  "m_Type": 3,
+  "m_TypeArgs": [
+   100,
+   0,
+   0,
+   0
+  ],
+  "m_DetailText": "【ぶき素材】\nサラサラとした触り心地の不思議な繊維。\n衣服の素材として人気がある。",
+  "m_Appeal": 0,
+  "category": 316,
+  "type": 3,
+  "isEventBonus": false
+ },
+ {
+  "m_ID": 28,
+  "m_sortID": 203122,
+  "m_Name": "竜のウロコ",
+  "m_Rare": 1,
+  "m_SaleAmount": 80,
+  "m_Type": 3,
+  "m_TypeArgs": [
+   200,
+   0,
+   0,
+   0
+  ],
+  "m_DetailText": "【ぶき素材】\n鈍く光る竜のウロコ。\nぶきの素材として幅広く使用される。",
+  "m_Appeal": 0,
+  "category": 316,
+  "type": 3,
+  "isEventBonus": false
+ },
+ {
+  "m_ID": 29,
+  "m_sortID": 203123,
+  "m_Name": "サンゴ石",
+  "m_Rare": 2,
+  "m_SaleAmount": 100,
+  "m_Type": 3,
+  "m_TypeArgs": [
+   300,
+   0,
+   0,
+   0
+  ],
+  "m_DetailText": "【ぶき素材】\n長い年月を経て石化したサンゴ。\n少しゴツゴツしている。",
+  "m_Appeal": 0,
+  "category": 316,
+  "type": 3,
+  "isEventBonus": false
+ },
+ {
+  "m_ID": 30,
+  "m_sortID": 203124,
+  "m_Name": "電気を帯びた鉱石",
+  "m_Rare": 0,
+  "m_SaleAmount": 50,
+  "m_Type": 3,
+  "m_TypeArgs": [
+   100,
+   0,
+   0,
+   0
+  ],
+  "m_DetailText": "【ぶき素材】\n電気を帯びた不思議な石。\n触れると少しビリビリする。",
+  "m_Appeal": 0,
+  "category": 317,
+  "type": 3,
+  "isEventBonus": false
+ },
+ {
+  "m_ID": 31,
+  "m_sortID": 203125,
+  "m_Name": "神樹の枝",
+  "m_Rare": 0,
+  "m_SaleAmount": 50,
+  "m_Type": 3,
+  "m_TypeArgs": [
+   100,
+   0,
+   0,
+   0
+  ],
+  "m_DetailText": "【ぶき素材】\n真っ白な色をした、神秘的な枝。\nわずかな魔力を宿している。",
+  "m_Appeal": 0,
+  "category": 317,
+  "type": 3,
+  "isEventBonus": false
+ },
+ {
+  "m_ID": 32,
+  "m_sortID": 203126,
+  "m_Name": "ブラッドファング",
+  "m_Rare": 1,
+  "m_SaleAmount": 80,
+  "m_Type": 3,
+  "m_TypeArgs": [
+   200,
+   0,
+   0,
+   0
+  ],
+  "m_DetailText": "【ぶき素材】\n真っ赤な魔物の牙。これを使うと\n強度の高いぶきが作れると人気。",
+  "m_Appeal": 0,
+  "category": 317,
+  "type": 3,
+  "isEventBonus": false
+ },
+ {
+  "m_ID": 33,
+  "m_sortID": 203127,
+  "m_Name": "千里眼",
+  "m_Rare": 2,
+  "m_SaleAmount": 100,
+  "m_Type": 3,
+  "m_TypeArgs": [
+   300,
+   0,
+   0,
+   0
+  ],
+  "m_DetailText": "【ぶき素材】\nまるで瞳のような宝石。独特な見た目が\n一部のマニアから人気らしい。",
+  "m_Appeal": 0,
+  "category": 317,
+  "type": 3,
+  "isEventBonus": false
+ },
+ {
+  "m_ID": 34,
+  "m_sortID": 203128,
+  "m_Name": "未知の岩石",
+  "m_Rare": 0,
+  "m_SaleAmount": 50,
+  "m_Type": 3,
+  "m_TypeArgs": [
+   100,
+   0,
+   0,
+   0
+  ],
+  "m_DetailText": "【ぶき素材】\n鉱石内部がうっすらと光る岩石。\nなぜ光るのかはいまだ解明されていない。",
+  "m_Appeal": 0,
+  "category": 318,
+  "type": 3,
+  "isEventBonus": false
+ },
+ {
+  "m_ID": 35,
+  "m_sortID": 203129,
+  "m_Name": "真実の反射石",
+  "m_Rare": 0,
+  "m_SaleAmount": 50,
+  "m_Type": 3,
+  "m_TypeArgs": [
+   100,
+   0,
+   0,
+   0
+  ],
+  "m_DetailText": "【ぶき素材】\n真実を映すと言われる透明な鉱石。\n大きな石ほどはっきりと映し出すという。",
+  "m_Appeal": 0,
+  "category": 318,
+  "type": 3,
+  "isEventBonus": false
+ },
+ {
+  "m_ID": 36,
+  "m_sortID": 203130,
+  "m_Name": "ファイアロック",
+  "m_Rare": 1,
+  "m_SaleAmount": 80,
+  "m_Type": 3,
+  "m_TypeArgs": [
+   200,
+   0,
+   0,
+   0
+  ],
+  "m_DetailText": "【ぶき素材】\n真紅に染まった綺麗な石。\nぶきの素材だけでなく装飾品にも使用される。",
+  "m_Appeal": 0,
+  "category": 318,
+  "type": 3,
+  "isEventBonus": false
+ },
+ {
+  "m_ID": 37,
+  "m_sortID": 203131,
+  "m_Name": "ホタルの岩",
+  "m_Rare": 2,
+  "m_SaleAmount": 100,
+  "m_Type": 3,
+  "m_TypeArgs": [
+   300,
+   0,
+   0,
+   0
+  ],
+  "m_DetailText": "【ぶき素材】\n幻想的な色合いの鉱石。\n見ていると吸い込まれそうになる。",
+  "m_Appeal": 0,
+  "category": 318,
+  "type": 3,
+  "isEventBonus": false
+ },
+ {
+  "m_ID": 900,
+  "m_sortID": 203005,
+  "m_Name": "せんしのクレスト",
+  "m_Rare": 3,
+  "m_SaleAmount": 400,
+  "m_Type": 3,
+  "m_TypeArgs": [
+   1500,
+   0,
+   0,
+   0
+  ],
+  "m_DetailText": "【ぶき素材】\n強力なせんしの力が宿った紋章。",
+  "m_Appeal": 0,
+  "category": 301,
+  "type": 3,
+  "isEventBonus": false
+ },
+ {
+  "m_ID": 901,
+  "m_sortID": 203008,
+  "m_Name": "ナイトのクレスト",
+  "m_Rare": 3,
+  "m_SaleAmount": 400,
+  "m_Type": 3,
+  "m_TypeArgs": [
+   1500,
+   0,
+   0,
+   0
+  ],
+  "m_DetailText": "【ぶき素材】\n強力なナイトの力が宿った紋章。",
+  "m_Appeal": 0,
+  "category": 301,
+  "type": 3,
+  "isEventBonus": false
+ },
+ {
+  "m_ID": 902,
+  "m_sortID": 203006,
+  "m_Name": "まほうつかいの���レスト",
+  "m_Rare": 3,
+  "m_SaleAmount": 400,
+  "m_Type": 3,
+  "m_TypeArgs": [
+   1500,
+   0,
+   0,
+   0
+  ],
+  "m_DetailText": "【ぶき素材】\n強力なまほうつかいの力が宿った紋章。",
+  "m_Appeal": 0,
+  "category": 301,
+  "type": 3,
+  "isEventBonus": false
+ },
+ {
+  "m_ID": 903,
+  "m_sortID": 203009,
+  "m_Name": "アルケミストのクレスト",
+  "m_Rare": 3,
+  "m_SaleAmount": 400,
+  "m_Type": 3,
+  "m_TypeArgs": [
+   1500,
+   0,
+   0,
+   0
+  ],
+  "m_DetailText": "【ぶき素材】\n強力なアルケミストの力が宿った紋章。",
+  "m_Appeal": 0,
+  "category": 301,
+  "type": 3,
+  "isEventBonus": false
+ },
+ {
+  "m_ID": 904,
+  "m_sortID": 203007,
+  "m_Name": "そうりょのクレスト",
+  "m_Rare": 3,
+  "m_SaleAmount": 400,
+  "m_Type": 3,
+  "m_TypeArgs": [
+   1500,
+   0,
+   0,
+   0
+  ],
+  "m_DetailText": "【ぶき素材】\n強力なそうりょの力が宿った紋章。",
+  "m_Appeal": 0,
+  "category": 301,
+  "type": 3,
+  "isEventBonus": false
+ }
+]

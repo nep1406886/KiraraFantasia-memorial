@@ -406,13 +406,190 @@ test("an endless checkpoint round-trips and rejects corruption", () => {
     const saved = validateProgress({ version: 1, completed: [], best: {}, endlessRun: checkpoint }).endlessRun;
     assert.ok(saved, "validator kept the checkpoint");
     assert.equal(saved.level, "endless");
+    // waveProgress survives the validator and stays bounded.
+    assert.ok(!saved.waveProgress || (Number.isInteger(saved.waveProgress.total) && Number.isInteger(saved.waveProgress.killed)
+        && saved.waveProgress.killed >= 0 && saved.waveProgress.killed <= saved.waveProgress.total + 1), "waveProgress is well-formed");
     const restored = new Battle(ENDLESS, { deck: ["F01", "U07", "U15"], seed: 1 });
     assert.equal(Battle.applyEndless(restored, saved), true);
     assert.equal(restored.wave, checkpoint.wave);
     assert.equal(restored.units.size, checkpoint.units.length);
     assert.equal(restored.stats.kills, checkpoint.stats.kills);
+    // Resume must not resurrect enemies from waves already settled: the queue
+    // is re-anchored to a fresh warm-up, and everything at/before the save is gone.
+    restored.start();
+    const seen = new Set();
+    for (let t = 0; t < 40; t += TICK) {
+        restored.step(TICK);
+        for (const ev of restored.drainEvents()) { if (ev.type === "spawned" && !ev.summoned) { seen.add(ev.wave); } }
+        if (restored.phase !== "running") { break; }
+    }
+    const firstWave = Math.min(...seen);
+    assert.ok(firstWave >= checkpoint.wave, `resumed spawns start at the saved wave or later (saw ${firstWave}, saved ${checkpoint.wave})`);
     assert.equal(Battle.applyEndless(restored, { version: 1, level: "1-1", seed: 1, wave: 3, deck: [], units: [] }), false);
     assert.equal(Battle.applyEndless(restored, { version: 1, level: "endless", seed: "x" }), false);
+});
+test("original skill mechanics land: rock armor regen, battle cry, roar, weapon passives", () => {
+    // E07 rockArmor: armor refills 60/s once unbroken for 3s (原作ロックアーマー).
+    {
+        const battle = new Battle(fixture({ spawns: [{ at: 1, row: 0, type: "E07", wave: 1 }] }), { deck: ["U09"] });
+        battle.budget = () => {};
+        battle.deploy("U09", 0, 3);
+        battle.start();
+        // pull the enemy into range so hits land
+        advance(battle, 3);
+        for (const enemy of battle.enemies.values()) { enemy.x = Math.min(enemy.x, 5); }
+        advance(battle, 6);
+        const enemy = [...battle.enemies.values()][0];
+        assert.ok(enemy, "E07 alive");
+        const stripped = enemy.armor < enemy.maxArmor;
+        assert.ok(stripped || enemy.hp < enemy.maxHp, "sustained fire must strip armor or hp");
+        // remove the attacker; unbroken armor regens to max within (300/60 + 3)s
+        battle.removeUnit([...battle.units.values()][0], "test");
+        advance(battle, 9);
+        const after = [...battle.enemies.values()][0];
+        if (after) { assert.ok(after.armor >= after.maxArmor - 1, `armor regen incomplete: ${after.armor}/${after.maxArmor}`); }
+    }
+    // E09 battleCry: howls once on first sight, boosting nearby enemies (原作バトルクライ).
+    {
+        const battle = new Battle(fixture({ spawns: [{ at: 1, row: 0, type: "E09", wave: 1 }, { at: 1.2, row: 0, type: "E01", wave: 1 }] }), { deck: ["U11"] });
+        battle.budget = () => {};
+        battle.deploy("U11", 0, 3);
+        battle.start();
+        let cries = 0;
+        for (let t = 0; t < 25; t += TICK) { for (const ev of battle.drainEvents()) { if (ev.type === "battleCry") { cries++; } } battle.step(TICK); }
+        assert.equal(cries, 1, "the wolf howls exactly once");
+    }
+    // Weapon passives (原作 PassiveSkillList_WPN):
+    // G31 critBoost: U09 crit 2.5 × 1.25 = 3.125.
+    {
+        const battle = new Battle(fixture({ spawns: [] }), { deck: ["U09", "G31"] });
+        battle.deploy("U09", 0, 3); battle.deploy("G31", 0, 3);
+        assert.equal(battle.unitRule([...battle.units.values()][0]).special.multiplier, 2.5 * 1.25);
+    }
+    // G30 overheal: the merged rule carries a +100 overheal cap.
+    {
+        const battle = new Battle(fixture({ spawns: [] }), { deck: ["U15", "G30"] });
+        battle.deploy("U15", 0, 3); battle.deploy("G30", 0, 3);
+        assert.equal(battle.unitRule([...battle.units.values()][0]).overhealCap, 100);
+    }
+    // ...and the cap is live: a full-hp ally still gets healed up to maxHp+100.
+    {
+        const battle = new Battle(fixture({ spawns: [{ at: 400, row: 0, type: "E01", wave: 1 }] }), { deck: ["U15", "G30", "U11"] });
+        battle.deploy("U11", 0, 2); battle.deploy("U15", 0, 3); battle.deploy("G30", 0, 3);
+        const wall = [...battle.units.values()].find(unit => unit.type === "U11");
+        assert.equal(wall.hp, wall.maxHp, "wall starts full");
+        battle.start();
+        advance(battle, 30);
+        assert.ok(wall.hp >= wall.maxHp + 90, `overheal lands (hp=${wall.hp}, cap=${wall.maxHp + 100})`);
+        assert.ok(wall.hp <= wall.maxHp + 100, "overheal never exceeds its cap");
+    }
+    // G32 knockbackBonusPct: U08 distance 1 × specialBonus 1.6 × knockback 1.4 = 2.24.
+    {
+        const battle = new Battle(fixture({ spawns: [] }), { deck: ["U08", "G32"] });
+        battle.deploy("U08", 0, 3); battle.deploy("G32", 0, 3);
+        const distance = battle.unitRule([...battle.units.values()][0]).special.distance;
+        assert.ok(Math.abs(distance - 2.24) < 1e-9, `G32 distance ${distance}`);
+    }
+});
+test("waveLane, lastStand, immuneStun and sleepChance passives land (原作被动)", () => {
+    const make = deck => new Battle(fixture({ rows: 3, warningLead: 0, spawns: [{ at: 1, row: 1, type: "E38", wave: 1 }] }), { deck });
+    // waveLane: 珠辉's every-5 wave also hits adjacent lanes.
+    {
+        const battle = new Battle(fixture({ rows: 3, spawns: [] }), { deck: ["U01", "G34"] });
+        battle.deploy("U01", 1, 3); battle.deploy("G34", 1, 3);
+        assert.equal(battle.unitRule([...battle.units.values()][0]).multi.rows, 1);
+    }
+    // lastStand: G42 lets 安奈 survive one lethal hit at full hp, once.
+    {
+        const battle = new Battle(fixture({ spawns: [] }), { deck: ["U12", "G42"] });
+        battle.deploy("U12", 0, 3); battle.deploy("G42", 0, 3);
+        const unit = [...battle.units.values()][0];
+        unit.hp = 5;
+        battle.hurtUnit(unit, 999, "test");
+        assert.ok(unit.hp > 900, "survived the first lethal hit at high hp");
+        unit.hp = 5;
+        battle.hurtUnit(unit, 999, "test");
+        assert.ok(!battle.units.has(unit.id), "the second lethal hit kills");
+    }
+    // immuneStun guards the E38 roar delay; without it the delay applies.
+    {
+        const immune = make(["U17", "G46"]);
+        immune.deploy("U17", 1, 3); immune.deploy("G46", 1, 3); immune.start();
+        for (let t = 0; t < 2; t += TICK) { immune.step(TICK); }
+        const e = [...immune.enemies.values()][0];
+        const u = [...immune.units.values()].find(x => x.type === "U17");
+        const na = u.nextAction; e.x = 4; e.nextRoar = immune.time;
+        immune.step(TICK);
+        assert.ok(u.nextAction <= na + 1e-9, "immune unit is not delayed");
+    }
+    // sleepChance: G41's merged rule carries a 10% proc.
+    {
+        const battle = new Battle(fixture({ spawns: [] }), { deck: ["U10", "G41"] });
+        battle.deploy("U10", 0, 3); battle.deploy("G41", 0, 3);
+        assert.equal(battle.unitRule([...battle.units.values()][0]).sleepChance, 0.1);
+    }
+});
+test("the library (B5) skips settled endless waves: start cursor, no phantom spawns, boss cadence intact", () => {
+    // B5 sets townWaveSkip through applyTownBuffs; skipEndlessWaves replans.
+    {
+        const battle = new Battle(ENDLESS, { deck: DECK_ORDER, seed: 99 });
+        Battle.applyTownBuffs(battle, { B5: 3 });
+        assert.equal(battle.townWaveSkip, 3);
+        assert.equal(Battle.skipEndlessWaves(battle), true, "skip applies in setup");
+        assert.equal(battle.wave, 4, "cursor lands on wave 4");
+        assert.equal(battle.spawns.length, 0, "skipped waves leave no spawn queue");
+        battle.start();
+        let phantom = 0;
+        for (let t = 0; t < 120; t += TICK) {
+            battle.step(TICK);
+            for (const ev of battle.drainEvents()) { if (ev.type === "spawned" && !ev.summoned && ev.wave <= 3) { phantom++; } }
+            if (battle.phase !== "running") { break; }
+        }
+        assert.equal(phantom, 0, "no enemy from a skipped wave ever spawns");
+    }
+    // The skip must not mint rewards: restocks/drops only come from real clears.
+    {
+        const battle = new Battle(ENDLESS, { deck: DECK_ORDER, seed: 11 });
+        Battle.applyTownBuffs(battle, { B5: 2 });
+        Battle.skipEndlessWaves(battle);
+        battle.start(); battle.resource = 99999;
+        const lanes = ENDLESS.rows;
+        let restocks = 0, cleared = [];
+        for (let t = 0; t < 400; t += TICK) {
+            battle.step(TICK);
+            for (const ev of battle.drainEvents()) { if (ev.type === "restockEarned") { restocks++; } if (ev.type === "waveCleared") { cleared.push(ev.wave); } }
+            if (battle.phase !== "running") { break; }
+            for (let r = 0; r < lanes; r++) {
+                if (!battle.occupancy.has(r + ":2")) { battle.deploy("U11", r, 2); }
+                if (!battle.occupancy.has(r + ":3")) { battle.deploy("U15", r, 3); }
+            }
+        }
+        assert.ok(!cleared.some(wave => wave <= 2), "cleared waves are only real ones");
+        assert.equal(restocks, cleared.filter(wave => wave % 5 === 0).length,
+            "card-swap credits only come from real fifth-wave clears");
+    }
+    // Boss cadence: skipping to wave 5 still delivers a boss in that wave.
+    {
+        const battle = new Battle(ENDLESS, { deck: DECK_ORDER, seed: 5 });
+        Battle.applyTownBuffs(battle, { B5: 4 });
+        Battle.skipEndlessWaves(battle);
+        battle.start();
+        battle.step(TICK); // the replan on first tick plans wave 5
+        const wave5 = battle.spawns.filter(spawn => spawn.wave === 5).map(spawn => spawn.type);
+        assert.ok(wave5.includes("E13"), `wave 5 keeps its boss (got ${wave5.join(",")})`);
+    }
+    // Checkpoint round-trip still works after a skipped start.
+    {
+        const battle = new Battle(ENDLESS, { deck: DECK_ORDER, seed: 11 });
+        Battle.applyTownBuffs(battle, { B5: 2 });
+        Battle.skipEndlessWaves(battle);
+        battle.start();
+        for (let t = 0; t < 200; t += TICK) { battle.step(TICK); battle.drainEvents(); if (battle.wave >= 4) { break; } }
+        const checkpoint = battle.serializeEndless();
+        const restored = new Battle(ENDLESS, { deck: DECK_ORDER, seed: 1 });
+        assert.equal(Battle.applyEndless(restored, checkpoint), true);
+        assert.equal(restored.wave, checkpoint.wave, "checkpoint restores the post-skip wave");
+    }
 });
 test("endless grants a card swap every five cleared waves and the E39 queen takes wave 20", () => {
     const battle = new Battle(ENDLESS, { deck: DECK_ORDER, seed: 7 });

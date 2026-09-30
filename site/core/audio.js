@@ -355,6 +355,92 @@ const RECIPES = {
     // B.3 首领换阶段: a low drum-and-bell toll — the fight's tempo changing,
     // not a victory fanfare. The drum says "brace", the rising bell pair says
     // "stronger". Two seconds total, ducked under the boss BGM like every cue.
+    // B.4 防卫战（里之守望）战斗提示音。原作 SE 无可用载荷（CRI 镜像只有
+    // BGM/voice），这里全部合成。配方按「瞬态+主体+特征」三层写，比单层
+    // 爆音更像真 SE。增益偏大是测量结果：lowpass 会扔掉白噪大半能量。
+    plant: function (ctx, at, level) {
+        // 种植：两段落土——先软土（闷、慢），再一颗短促的定根「噗」。
+        noiseBurst(ctx, at, { duration: 0.07, frequency: 900, sweepTo: 200, gain: level * 0.8, q: 0.6 });
+        noiseBurst(ctx, at + 0.06, { duration: 0.11, frequency: 320, sweepTo: 100, gain: level * 1.4, q: 0.9 });
+        tone(ctx, at + 0.05, { frequency: 140, glideTo: 70, duration: 0.14, gain: level * 0.5, wave: 'triangle' });
+    },
+    shovel: function (ctx, at, level) {
+        // 铲除：挥铲的掠风（高频带扫上去）+铲头入土的低顿。
+        noiseBurst(ctx, at, { duration: 0.09, frequency: 700, sweepTo: 2600, gain: level * 1.1, type: 'bandpass', q: 0.7 });
+        noiseBurst(ctx, at + 0.1, { duration: 0.13, frequency: 380, sweepTo: 90, gain: level * 1.5, q: 1 });
+        tone(ctx, at + 0.1, { frequency: 120, glideTo: 60, duration: 0.12, gain: level * 0.4, wave: 'triangle' });
+    },
+    gear: function (ctx, at, level) {
+        // 佩戴：金属「叮」两连，第二声更高更轻，像卡扣落位。
+        tone(ctx, at, { frequency: 1245, duration: 0.09, gain: level * 0.4, wave: 'triangle' });
+        noiseBurst(ctx, at, { duration: 0.04, frequency: 5200, gain: level * 0.5, type: 'highpass', q: 1 });
+        tone(ctx, at + 0.07, { frequency: 1865, duration: 0.14, gain: level * 0.28, wave: 'triangle' });
+    },
+    gate: function (ctx, at, level) {
+        // 结界被烧穿：低频爆裂 + 长衰减，像玻璃被砸碎后的轰响。
+        noiseBurst(ctx, at, { duration: 0.18, frequency: 1400, sweepTo: 300, gain: level * 1.2, q: 0.8 });
+        tone(ctx, at, { frequency: 130, glideTo: 45, duration: 0.7, gain: level * 0.6, wave: 'triangle' });
+        noiseBurst(ctx, at + 0.04, { duration: 0.5, frequency: 500, sweepTo: 80, gain: level * 1.1, q: 0.7 });
+    },
+    hit: function (ctx, at, level) {
+        // 击中敌人：短「啪」——高频瞬态 + 低频冲击，攻击手感的核心。
+        noiseBurst(ctx, at, { duration: 0.045, frequency: 3600, sweepTo: 1400, gain: level * 0.9, type: 'bandpass', q: 0.7 });
+        tone(ctx, at, { frequency: 190, glideTo: 90, duration: 0.07, gain: level * 0.55, wave: 'triangle' });
+    },
+    swing: function (ctx, at, level) {
+        // 挥击破空：窄带噪声快速下扫，刀风不是风声。
+        noiseBurst(ctx, at, { duration: 0.1, frequency: 2200, sweepTo: 500, gain: level * 1.2, type: 'bandpass', q: 1.4 });
+    },
+    crit: function (ctx, at, level) {
+        // 会心：比普通击中多一层高频铃 + 更重的低频，一耳朵分辨。
+        noiseBurst(ctx, at, { duration: 0.05, frequency: 5200, sweepTo: 2200, gain: level * 0.8, type: 'bandpass', q: 0.6 });
+        tone(ctx, at, { frequency: 240, glideTo: 70, duration: 0.12, gain: level * 0.7, wave: 'triangle' });
+        tone(ctx, at + 0.01, { frequency: 1319, duration: 0.12, gain: level * 0.16, wave: 'sine' });
+    },
+    shoot_fire: function (ctx, at, level) {
+        // 炎弹：吐息感的嘶声 + 低频推力。
+        noiseBurst(ctx, at, { duration: 0.14, frequency: 2400, sweepTo: 700, gain: level * 0.9, type: 'bandpass', q: 0.8 });
+        tone(ctx, at, { frequency: 220, glideTo: 110, duration: 0.1, gain: level * 0.3, wave: 'sawtooth' });
+    },
+    shoot_water: function (ctx, at, level) {
+        // 水弹：闷泡——低频扫 + 短水花带。
+        tone(ctx, at, { frequency: 420, glideTo: 160, duration: 0.13, gain: level * 0.4, wave: 'sine' });
+        noiseBurst(ctx, at + 0.02, { duration: 0.1, frequency: 1100, sweepTo: 500, gain: level * 0.7, q: 0.8 });
+    },
+    shoot_earth: function (ctx, at, level) {
+        // 土弹：石块磨出的糙声 + 短促低顿。
+        noiseBurst(ctx, at, { duration: 0.09, frequency: 800, sweepTo: 240, gain: level * 1.3, q: 1.1 });
+        tone(ctx, at + 0.04, { frequency: 110, glideTo: 55, duration: 0.09, gain: level * 0.5, wave: 'triangle' });
+    },
+    shoot_wind: function (ctx, at, level) {
+        // 风刃：利落的窄带掠声，频率比挥击更高、更快。
+        noiseBurst(ctx, at, { duration: 0.12, frequency: 3200, sweepTo: 900, gain: level * 0.8, type: 'bandpass', q: 1.8 });
+    },
+    shoot_moon: function (ctx, at, level) {
+        // 月弹：冷感——高频正弦叮 + 尾随暗哑下扫。
+        tone(ctx, at, { frequency: 1568, glideTo: 1175, duration: 0.11, gain: level * 0.3, wave: 'sine' });
+        noiseBurst(ctx, at + 0.02, { duration: 0.12, frequency: 1800, sweepTo: 600, gain: level * 0.5, type: 'bandpass', q: 1.2 });
+    },
+    shoot_sun: function (ctx, at, level) {
+        // 阳弹：亮泽双音上行，暖。
+        tone(ctx, at, { frequency: 660, glideTo: 990, duration: 0.1, gain: level * 0.3, wave: 'sine' });
+        tone(ctx, at + 0.03, { frequency: 1320, glideTo: 1980, duration: 0.09, gain: level * 0.2, wave: 'sine' });
+    },
+    shoot_wave: function (ctx, at, level) {
+        // 贯穿波（周期必杀的越障波）：低频轰鸣横扫，比普攻弹重得多。
+        tone(ctx, at, { frequency: 300, glideTo: 90, duration: 0.35, gain: level * 0.6, wave: 'sawtooth' });
+        noiseBurst(ctx, at, { duration: 0.3, frequency: 1600, sweepTo: 300, gain: level * 0.9, type: 'bandpass', q: 0.9 });
+    },
+    death: function (ctx, at, level) {
+        // 击退来客：短促下坠「呜」+一点散架噪声，不做惨叫。
+        tone(ctx, at, { frequency: 340, glideTo: 80, duration: 0.22, gain: level * 0.45, wave: 'triangle' });
+        noiseBurst(ctx, at + 0.03, { duration: 0.16, frequency: 1400, sweepTo: 260, gain: level * 0.6, q: 0.8 });
+    },
+    pickup: function (ctx, at, level) {
+        // 收取クリエ：清脆双音上行「叮铃」，PVZ 收阳光的爽感。
+        tone(ctx, at, { frequency: 987, duration: 0.07, gain: level * 0.3, wave: 'sine' });
+        tone(ctx, at + 0.05, { frequency: 1318, duration: 0.1, gain: level * 0.25, wave: 'sine' });
+    },
     boss_phase: function (ctx, at, level) {
         tone(ctx, at, { frequency: 98, glideTo: 49, duration: 0.5, gain: level * 0.34, wave: "sine" });
         noiseBurst(ctx, at, { duration: 0.3, frequency: 180, sweepTo: 60, gain: level * 0.5, q: 1.0 });
