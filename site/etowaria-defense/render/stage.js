@@ -72,7 +72,17 @@ export class DefenseStage {
         this.busy = false;
         this.selected = options.units[0]?.id;
         const THREE = this.THREE;
-        this.renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true, powerPreference: "high-performance" });
+        // WebGL contexts are capped per page (~16 in Chrome) and some GPUs
+        // refuse specific attribute combos. A failed creation used to throw
+        // straight out of the constructor as "Error creating WebGL context";
+        // fall back to plainer contexts first so the field still opens.
+        let renderer = null;
+        try {
+            renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true, powerPreference: "high-performance" });
+        } catch {
+            renderer = new THREE.WebGLRenderer({ antialias: false, alpha: true });
+        }
+        this.renderer = renderer;
         this.renderer.outputColorSpace = THREE.SRGBColorSpace;
         this.renderer.toneMapping = THREE.NoToneMapping;
         // 1.5 is the sweet spot for this stylized scene: retina-sharp on phones,
@@ -82,6 +92,16 @@ export class DefenseStage {
         this.renderer.domElement.tabIndex = 0;
         this.renderer.domElement.setAttribute("aria-label", "原生模型场景：点击伙伴选择，点击空格试摆");
         this.host.replaceChildren(this.renderer.domElement);
+        // GPU driver resets / hibernate / tab discard kill the context. The
+        // canvas goes silent with no error — freeze the battle and tell the
+        // player instead of letting a dead field keep ticking.
+        this.onContextLost = event => {
+            event.preventDefault();
+            this.pauseReasons.add("webgl-lost");
+            this.audio.suspend(true);
+            this.options.onNotice?.("显卡上下文丢失（驱动重置或系统休眠）。请刷新页面后继续。");
+        };
+        this.renderer.domElement.addEventListener("webglcontextlost", this.onContextLost);
         assets.anisotropy = Math.min(8, this.renderer.capabilities.getMaxAnisotropy());
         this.scene = new THREE.Scene();
         this.camera = new THREE.OrthographicCamera(-8, 8, 3.2, -3.2, 0.1, 100);
@@ -880,7 +900,14 @@ export class DefenseStage {
         this.renderer.domElement.removeEventListener("pointermove", this.pointerMove);
         this.renderer.domElement.removeEventListener("pointerleave", this.pointerLeave);
         this.renderer.domElement.removeEventListener("contextmenu", this.contextMenu);
+        this.renderer.domElement.removeEventListener("webglcontextlost", this.onContextLost);
         this.renderer.dispose();
+        // renderer.dispose() only frees three's GPU resources; the NATIVE
+        // context stays alive until GC. Browsers hard-cap live contexts
+        // (~16 on Chrome) — a long session that opens a battlefield per level
+        // then hits "Error creating WebGL context" on level 17. Forcing the
+        // loss releases the native context immediately.
+        try { this.renderer.forceContextLoss?.(); } catch { /* already gone */ }
         this.renderer.domElement.remove();
         this.labels.replaceChildren();
     }

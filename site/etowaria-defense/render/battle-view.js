@@ -112,7 +112,8 @@ export class BattleView {
             view.stage = await DefenseStage.createField({ ...options, theme: options.level.theme || "day",
                 onFieldInput: cell => view.input(cell.row, cell.col, cell.event.pointerType),
                 onFieldHover: (cell, point) => view.hover(cell, point),
-                onFieldCancel: () => view.cancelPlacement() });
+                onFieldCancel: () => view.cancelPlacement(),
+                onNotice: text => options.onNotice?.(text) });
             view.range = new RangePreview(view.stage, (row, col, y) => view.world(row, col, y));
             if (options.isCurrent && !options.isCurrent()) { throw new Error("本次素材准备已取消"); }
             await view.load();
