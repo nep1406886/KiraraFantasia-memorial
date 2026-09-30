@@ -268,7 +268,7 @@ export const UNIT_RULES = Object.freeze({
         special: { every: 5, type: "expose", damage: 0, vulnerable: .3, duration: 5, skill: "白纱的祝福" },
         help: "婚礼服的绀。花雨泼洒，每第5瓶让目标5秒内易伤30%。" },
     U60: { id: "U60", name: "小梅（万圣节）", role: "南瓜戏法", family: "僧侣", kind: "healer", cost: 100, deployCooldown: 13,
-        hp: 170, windup: 16 / 30, healing: 65, period: 3.2,
+        hp: 170, windup: 16 / 30, healing: 65, period: 3.2, range: 3.6,
         
         help: "万圣节的小梅。南瓜灯下照护同伴，每次治疗65。" },
     U61: { id: "U61", name: "臣（七夕）", role: "短册祈星", family: "战士", kind: "fighter", cost: 90, deployCooldown: 11,
@@ -292,7 +292,7 @@ export const UNIT_RULES = Object.freeze({
         special: { every: 5, type: "knockback", distance: .5, skill: "白銀の返礼" },
         help: "白色情人节的苍。稳固的高墙，每第5击以回礼把来敌推回。" },
     U66: { id: "U66", name: "爱丽丝（玉桂狗）", role: "三丽鸥治疗", family: "僧侣", kind: "healer", cost: 100, deployCooldown: 13,
-        hp: 165, windup: 16 / 30, healing: 60, period: 3,
+        hp: 165, windup: 16 / 30, healing: 60, period: 3, range: 3.6,
         
         help: "与玉桂狗同行的爱丽丝。玉桂狗包围大家，每次治疗60。" },
     U67: { id: "U67", name: "绫（圣诞节）", role: "铃铛横扫", family: "战士", kind: "fighter", cost: 135, deployCooldown: 11,
