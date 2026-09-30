@@ -14,6 +14,10 @@ const BIRTH = "ef_btl_buff_ring";
 const ENEMY_SHOT = "ef_btl_magician_attack_sun_01";
 const STATUS_EFFECTS = ["ef_btl_debuff_line", "ef_btl_stun_occur", "ef_btl_buff_line"];
 const ELEMENT_BURST = ["fire", "water", "earth", "wind", "moon", "sun"].map(key => `ef_btl_dmg_all_${key}_00`);
+// 原作按攻击者属性走不同的受击特效（ef_btl_dmg_all_{element}_00 就是
+// 原作「全体伤害」的元素图）。命中特效从攻击者的 elementId 取色，
+// 而不是所有人共用一个白色 single_00。
+const ELEMENT_IMPACT = ELEMENT_BURST;
 const LOADING_PAUSES = new Set(["deploy-load", "enemy-load"]);
 const STATUS_BADGES = { slow: ["迟缓", "❄"], stun: ["麻痹", "⚡"], vulnerable: ["易伤", "◆"], weaken: ["虚弱", "▼"], burn: ["灼烧", "✦"] };
 
@@ -195,7 +199,7 @@ export class BattleView {
         if (failure) { throw failure.reason; }
         if (this.disposed) { return; }
         this.options.onProgress?.(.8, "准备原生招式特效");
-        await stage.effects.prepare([IMPACT, BIRTH, "ef_btl_common_dead", "ef_btl_barrier_00", ...STATUS_EFFECTS], 6);
+        await stage.effects.prepare([IMPACT, BIRTH, "ef_btl_common_dead", "ef_btl_barrier_00", ...STATUS_EFFECTS, ...ELEMENT_IMPACT], 6);
         if ([...this.battle.deck].some(type => UNIT_RULES[type].kind === "burst" || UNIT_RULES[type].kind === "lobber")) { await stage.items.prepare(); }
         if (this.battle.deck.has("F10")) { await stage.effects.prepare([BURST], 10); }
         for (const type of this.battle.deck) { await this.prepareUnitEffects(type, type === "U01" ? 5 : 3); }
@@ -752,6 +756,8 @@ export class BattleView {
                 model.play("skill_1", false);
                 this.emit("ef_btl_buff_ring", model.group.position.clone(), .9);
                 this.floater(model, "バトルクライ！", "enemy-heal");
+                // 狼嚎：上行扫频的啸声（原作技能的听感依据），一次一只不叠加。
+                this.options.audio.se?.("whoosh", { volume: 0.5 });
                 for (const id of event.boosted.slice(0, 6)) {
                     const other = this.models.get(id);
                     if (other) { this.emit("ef_btl_buff_line", other.bodyPoint(), .6); }
@@ -764,6 +770,8 @@ export class BattleView {
             if (model) {
                 model.play("skill_1", false);
                 this.emit("ef_btl_debuff_line", model.group.position.clone(), 1);
+                // 低吼：低频下坠的轰声，比狼嚎更沉。
+                this.options.audio.se?.("death", { volume: 0.45 });
                 for (const id of event.affected.slice(0, 6)) {
                     const other = this.models.get(id);
                     if (other) { this.floater(other, "迟缓", "hurt"); }
@@ -777,6 +785,8 @@ export class BattleView {
                 this.emit("ef_btl_recover_00", model.group.position.clone(), model.scale || .7);
                 this.emit("ef_btl_recover_01", model.group.position.clone(), model.scale || .7);
                 this.floater(model, "千载一击·挺住了！", "shield");
+                // 免死时刻：原作 levelup 的上行琶音短促版本，不是胜利号角。
+                this.options.audio.se?.("levelup", { volume: 0.45 });
             }
             break;
         }
@@ -790,7 +800,7 @@ export class BattleView {
         case "lob": this.lob(event); break;
         case "enemyHurt":
             if (model) {
-                if (event.source !== "burn") { this.emit(IMPACT, model.bodyPoint(), event.critical ? .9 : .6); }
+                if (event.source !== "burn") { this.emit(this.impactFor(event.source), model.bodyPoint(), event.critical ? .9 : .6); }
                 if (event.action === "idle" && !model.walking && !model.hop) { model.play("damage", false); }
                 if (event.amount > 0) { this.floater(model, String(event.amount), event.critical ? "critical" : event.source === "burn" ? "burn" : "damage"); }
                 else if (event.absorbed > 0) { this.floater(model, "护甲", "armor"); }
@@ -799,11 +809,18 @@ export class BattleView {
                 // hit 用 once() 限流防机枪化。
                 if (event.critical) { this.options.audio.se?.("crit", { volume: 0.55 }); }
                 else if (event.source !== "burn" && this.once(`hit:${event.id}`, .18)) { this.options.audio.se?.("hit", { volume: 0.4 }); }
+                // 灼烧持续伤害的原作表现：火元素全体伤害图按 tick 抖动，
+                // 音效静默（灼烧的火声在点燃那一下，不在每跳）。
+                if (event.source === "burn" && this.once(`burnfx:${event.id}`, .5)) {
+                    this.emit(ELEMENT_IMPACT[0], model.bodyPoint(), .45);
+                }
             }
             break;
         case "unitHurt":
             if (model) {
-                this.emit(IMPACT, model.bodyPoint(), .6);
+                // 同伴被打：同样按攻击者（来客）属性取元素受击图。原作里
+                // 来客各带属性，受击不应是一张白图。
+                this.emit(this.impactFor(event.source), model.bodyPoint(), .6);
                 if (model.action === "idle" && model.kind !== "facility") { model.play("damage", false); }
                 if (event.kind === "thorns") { this.floater(model, `反伤 ${event.amount}`, "hurt"); }
                 // 敌方攻击同伴：轻微 hit，音量压低避免双倍噪音（敌方攻击
@@ -909,6 +926,19 @@ export class BattleView {
             break;
         default: break;
         }
+    }
+
+    // 命中特效按攻击者属性取原作元素图。玩家单位从 catalogue 拿
+    // elementId；来客模型带的是 ENEMY_RULES 条目（.id 直查），除 E39
+    // （原作土属性）外全部是原作炎属性。查不到攻击者（burn tick、结界
+    // 等无主伤害）才退回通用 single_00。
+    impactFor(sourceId) {
+        const attacker = this.models.get(sourceId);
+        if (!attacker) { return IMPACT; }
+        const element = attacker.unit?.elementId;
+        if (Number.isInteger(element) && element >= 0) { return ELEMENT_IMPACT[element]; }
+        const spec = attacker.unit?.id ? ENEMY_RULES[attacker.unit.id] : null;
+        return spec ? ELEMENT_IMPACT[spec.elementId ?? 0] : IMPACT;
     }
 
     emit(name, point, scale = 1, extra = {}) {
@@ -1044,7 +1074,7 @@ export class BattleView {
         this.stage.items.launch({ model, to: target.bodyPoint(), attached, texture: model.trailTexture,
             onImpact: point => {
                 if (this.disposed) { return; }
-                this.emit(IMPACT, point, .8);
+                this.emit(ELEMENT_BURST[element], point, .8);
                 if (rule.onHit?.splash) { this.emit(ELEMENT_BURST[element], point.clone().setY(.1), .6); }
                 if (event.special === "stun") { this.emit("ef_btl_stun_occur", point, .8); }
             } });
@@ -1080,7 +1110,11 @@ export class BattleView {
     status(event, model) {
         if (!model) { return; }
         for (const status of event.statuses) {
-            if (status === "stun") { this.emit("ef_btl_stun_occur", model.bodyPoint(), .8); this.floater(model, "麻痹", "stun"); }
+            if (status === "stun") {
+                this.emit("ef_btl_stun_occur", model.bodyPoint(), .8); this.floater(model, "麻痹", "stun");
+                // 麻痹：原作击晕的短促「噔」。限流防连发。
+                if (this.once(`stun:${event.id}`, 1)) { this.options.audio.se?.("ui_cancel", { volume: 0.35 }); }
+            }
             else if (["slow", "vulnerable", "weaken"].includes(status) && this.once(`${status}:${event.id}`, 1.4)) {
                 this.emit("ef_btl_debuff_line", model.group.position.clone(), .7);
                 this.floater(model, STATUS_BADGES[status][0], status);

@@ -788,7 +788,7 @@ export const ENEMY_RULES = Object.freeze({
     E39: { id: "E39", resourceId: 7000, name: "罗贝莉亚", hp: 2600, speed: .08, threat: 18, boss: true,
         armor: 240, ranged: { range: 4.2, damage: 34, period: 2.6, windup: .6 },
         summon: { type: "E38", period: 14, count: 2 },
-        damage: 52, period: 1.8, windup: .5, height: 1.5,
+        damage: 52, period: 1.8, windup: .5, height: 1.5, elementId: 2,
         description: "无尽巡守的深夜女王。远距离投掷暗影弹，每14秒召唤两名熊兵护卫；护甲240点。" },
     E38: { id: "E38", resourceId: 15900, name: "熊兵", hp: 400, speed: .22, threat: 3, armor: 80, roar: { period: 8, delay: 1 },
         damage: 28, period: 1.3, windup: .36, height: 1.1, description: "全副武装的小熊兵。每8秒低吼「クッマッマー」（原作技能），推迟相邻两路同伴的下一次出手1秒。" }
