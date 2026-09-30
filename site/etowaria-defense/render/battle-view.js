@@ -1281,7 +1281,19 @@ export class BattleView {
             for (const enemy of this.battle.enemies.values()) {
                 if (held.has(enemy.id)) { continue; }
                 const model = this.models.get(enemy.id);
-                if (!model) { throw new Error("魔物逻辑没有对应模型"); }
+                if (!model) {
+                    // 以前这里直接 throw「魔物逻辑没有对应模型」把整场巡守
+                    // 打进错误弹窗。但这个状态本就有成熟的兜底——装载中
+                    // 的魔物走 heldSpawns 挂起整条战斗。任何情况下 sim 出
+                    // 了敌人而模型不在（装载竞态、断点恢复重建、池瞬间耗
+                    // 尽），都按「正在装载」处理：挂起 + 触发装载 + 下一
+                    // 帧 releaseHeld 接管。绝不为一个可自愈的瞬间杀掉整场。
+                    this.heldSpawns.push({ id: enemy.id, enemyType: enemy.type, row: enemy.row, x: enemy.x });
+                    this.setPaused("enemy-load", true);
+                    this.loadEnemy(enemy.type).then(() => this.releaseHeld())
+                        .catch(error => { if (!this.disposed) { this.options.onError?.(error); } });
+                    continue;
+                }
                 const target = this.world(enemy.row, enemy.x).x;
                 const position = model.group.position;
                 if (model.hop) {
