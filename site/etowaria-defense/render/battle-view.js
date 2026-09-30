@@ -202,6 +202,7 @@ export class BattleView {
         await stage.effects.prepare([IMPACT, BIRTH, "ef_btl_common_dead", "ef_btl_barrier_00", ...STATUS_EFFECTS, ...ELEMENT_IMPACT], 6);
         if ([...this.battle.deck].some(type => UNIT_RULES[type].kind === "burst" || UNIT_RULES[type].kind === "lobber")) { await stage.items.prepare(); }
         if (this.battle.deck.has("F10")) { await stage.effects.prepare([BURST], 10); }
+        if (this.battle.deck.has("F12")) { await stage.effects.prepare([ELEMENT_BURST[1], "ef_btl_stun_occur"], 10); }
         for (const type of this.battle.deck) { await this.prepareUnitEffects(type, type === "U01" ? 5 : 3); }
         // Pre-render the range preview once so the first placement doesn't
         // stall the main thread on a fresh shader; the user sees the grid
@@ -861,13 +862,25 @@ export class BattleView {
         case "enemySpores":
             if (model) {
                 model.play("skill_1", false);
+                // 孢子飘散的原作恢复读法：每只被治的来客亮 recover 粒子。
+                // 只有真治到人才出声（healed 空时不响）。
                 for (const healed of event.healed.slice(0, 4)) {
                     const other = this.models.get(healed.id);
                     if (other) { this.emit("ef_btl_recover_00", other.group.position.clone(), .6); this.floater(other, `+${healed.amount}`, "enemy-heal"); }
                 }
+                if (event.healed.length && this.once(`spores:${event.id}`, 1)) { this.options.audio.se?.("magic", { volume: 0.3 }); }
             }
             break;
-        case "summon": if (model) { model.play("skill_1", false); this.options.onNotice?.(`${ENEMY_RULES[this.battle.enemies.get(event.id)?.type || "E13"].name}召唤了手下！`); } break;
+        case "summon":
+            if (model) {
+                model.play("skill_1", false);
+                // 召唤的原作读法：施法者脚下亮 buff_ring（原作增益环），
+                // 手下从光里冒出来。比一条通知直观。
+                this.emit("ef_btl_buff_ring", model.group.position.clone(), 1.1);
+                this.options.audio.se?.("magic", { volume: 0.4 });
+                this.options.onNotice?.(`${ENEMY_RULES[this.battle.enemies.get(event.id)?.type || "E13"].name}召唤了手下！`);
+            }
+            break;
         case "unitRemoved": case "enemyRemoved": this.retire(event.id, event.reason); break;
         case "gate":
             this.emit("ef_btl_barrier_00", this.world(event.row, -.4), 1.2);
@@ -876,6 +889,9 @@ export class BattleView {
             break;
         case "warning":
             this.options.onWarning?.(event);
+            // 来客预告：一声短促的号角感提示（原作战前注意的听感），
+            // 同一时刻多路预警只响一次。
+            if (this.once("warning", 2.5)) { this.options.audio.se?.("chime", { volume: 0.35 }); }
             if (this.level.endless) { this.ensureEnemies(); }
             break;
         case "restockEarned":
@@ -891,11 +907,21 @@ export class BattleView {
         case "burst": {
             const item = this.spells.get(event.id);
             if (item) { this.stage.items.release(item); this.spells.delete(event.id); }
-            // 爆破术式：低频轰鸣。这是全场最大的动静，音量最高。
-            this.options.audio.se?.("gate", { volume: 1 });
+            // 原作元素图：F10 爆破是火系 dmg_all_fire；F12 冻结走水图
+            // （原作冰属水的视觉家族），冻结再补麻痹星光。轰鸣声对
+            // 冻结改成更「脆」的水爆。
+            const art = event.freeze ? ELEMENT_BURST[1] : BURST;
+            this.options.audio.se?.(event.freeze ? "shoot_water" : "gate", { volume: event.freeze ? 0.8 : 1 });
             for (let row = Math.max(0, event.row - 1); row <= Math.min(this.level.rows - 1, event.row + 1); row++) {
                 for (let col = Math.max(0, event.col - 1); col <= Math.min(this.level.cols - 1, event.col + 1); col++) {
-                    this.emit(BURST, this.world(row, col, .22), 1);
+                    this.emit(art, this.world(row, col, .22), 1);
+                }
+            }
+            if (event.freeze) {
+                for (let row = Math.max(0, event.row - 1); row <= Math.min(this.level.rows - 1, event.row + 1); row++) {
+                    const enemy = [...this.battle.enemies.values()].find(e2 => e2.row === row && Math.abs(e2.x - event.col) <= 1.5);
+                    const other = enemy && this.models.get(enemy.id);
+                    if (other) { this.emit("ef_btl_stun_occur", other.bodyPoint(), .9); this.floater(other, "冻结", "stun"); }
                 }
             }
             break;
