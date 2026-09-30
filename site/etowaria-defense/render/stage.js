@@ -259,7 +259,12 @@ export class DefenseStage {
     makeShadow(model) {
         const shadow = new this.THREE.Mesh(this.shadowGeometry, this.shadowMaterial);
         shadow.rotation.x = -Math.PI / 2;
-        shadow.scale.set(model.kind === "player" ? .7 : .62, .38, 1);
+        // 原作 EnemyResourceList.m_ShadowScale：每只来客的影子是逐体调的
+        // （小怪 1.0-1.75，首领 2.4-5.0）。以 E01 的 1.75 为基准归一，让
+        // 现有小怪不变、首领/巨型来客的影子按原作放大。玩家侧维持 0.7。
+        const perEnemy = model.kind === "enemy" ? (model.unit.shadowScale || 1.75) / 1.75 : 1;
+        const base = model.kind === "player" ? .7 : .62;
+        shadow.scale.set(base * perEnemy, .38 * perEnemy, 1);
         shadow.renderOrder = 900;
         this.environment.add(shadow);
         model.shadow = shadow;
