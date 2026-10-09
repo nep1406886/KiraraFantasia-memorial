@@ -92,6 +92,12 @@
 .campaign-dialog [data-role="opening-tip"] { background: #fff8d9; padding: 13px; border-radius: 7px; }
 .campaign-dialog .dialog-actions { flex-wrap: wrap; }
 .campaign-dialog .native-button { white-space: nowrap; }
+.opening-steps { display: grid; gap: 9px; margin: 14px 0 8px; padding: 0; list-style: none; counter-reset: tutorial; }
+.opening-steps li { display: grid; grid-template-columns: 30px minmax(0, 1fr); gap: 8px; align-items: start; padding: 8px 10px; border: 1px solid #e3d8c5; border-radius: 8px; background: #fffdf1; counter-increment: tutorial; }
+.opening-steps li::before { content: counter(tutorial); display: grid; place-items: center; width: 24px; height: 24px; border-radius: 50%; background: #e7c052; color: #5b4117; font-weight: 800; }
+.opening-steps strong, .opening-steps span { display: block; }
+.opening-steps strong { font-size: .9rem; }
+.opening-steps span { margin-top: 2px; color: var(--muted); font-size: .8rem; line-height: 1.45; }
 .result-stats { grid-template-columns: repeat(4, minmax(0, 1fr)); text-align: center; }
 .reward-list { display: flex; justify-content: center; gap: 20px; flex-wrap: wrap; margin-top: 20px; }
 .reward-list > div { display: flex; flex-direction: column; align-items: center; gap: 8px; }
@@ -195,7 +201,6 @@
   .chapter-description h3 { font-size: 1.1rem; }
   .chapter-description p { font-size: .78rem; }
   .level-choice { min-height: 59px; }
-     status line: the price while usable, otherwise cooldown or shortfall. */
 }
 @media (prefers-reduced-motion: reduce) {
   .resource-pickup, .seed-card { transition: none; }
@@ -210,13 +215,14 @@
 .deck-chosen { display: flex; flex-wrap: wrap; gap: 6px; padding: 8px 2px; min-height: 54px;
   border-block: 1px solid #e3d8c5; }
 .deck-chosen-chip { display: inline-flex; align-items: center; gap: 6px; padding: 3px 9px 3px 5px;
-  border: 1.5px solid #c9b873; border-radius: 999px; background: #fff8d9; cursor: pointer; }
+  border: 1.5px solid #c9b873; border-radius: 999px; background: #fff8d9; cursor: pointer; color: var(--ink); font: inherit; }
 .deck-chosen-chip b { font-size: .68rem; color: #8a6a1c; }
 .deck-chosen-chip .seed-art { width: 30px; height: 30px; display: grid; place-items: center; }
 .deck-chosen-chip .seed-art .portrait-icon, .deck-chosen-chip .seed-art .facility-image { width: 30px; height: 30px; }
 .deck-chosen-chip .deck-chosen-name { font-size: .74rem; font-weight: 700; color: var(--ink); max-width: 7em;
   overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .deck-chosen-chip:hover { border-color: #b3261e; }
+.deck-chosen-chip:focus-visible { outline: 3px solid var(--focus); outline-offset: 3px; }
 
 /* ─── 图鉴与换卡对话框 ───────────────────────────────────────────── */
 .codex-dialog { max-width: min(92vw, 1080px); }

@@ -29,7 +29,7 @@
         <p>选择伙伴，照顾每一条道路。</p>
         <button class="native-button primary" id="start-campaign" disabled>准备资料中…</button>
         <button class="native-button" id="open-roster">角色与招式</button>
-        <div class="menu-tools"><button class="native-button compact" id="enter-scene" disabled>演出观察</button><button class="native-button compact" data-open-settings>声音设置</button></div>
+        <div class="menu-tools"><button class="native-button compact" id="enter-scene" disabled>动作观察（不计分）</button><button class="native-button compact" data-open-settings>声音设置</button></div>
         <button class="text-button" id="open-about">素材与制作说明</button>
         <p class="menu-note">音乐将在首次操作后开始播放</p>
       </nav>
@@ -48,7 +48,7 @@
       <header class="panel screen-header">
         <button class="native-button compact" id="roster-back">返回</button>
         <h2 id="roster-heading">角色与招式</h2>
-        <p>观察模式可带入六位伙伴，不改变巡守解锁</p>
+        <p>动作观察：可带入六位伙伴，不消耗资源、不计入巡守记录</p>
         <button class="native-button primary compact" id="roster-enter">进入场景</button>
       </header>
       <div class="roster-layout">
@@ -87,7 +87,7 @@
       <div id="stage-loadout" class="stage-loadout" aria-label="选择场上的伙伴"></div>
       <div id="stage-viewport" class="stage-viewport" role="group" aria-label="原生模型战场；点选伙伴后可在空格试摆">
         <div id="stage-canvas"></div>
-        <div class="stage-location"><span id="scene-caption">里外的花径</span><span>场景样机</span></div>
+        <div class="stage-location"><span id="scene-caption">里外的花径</span><span>动作观察 · 不计分</span></div>
         <div class="scene-directions" aria-hidden="true"><span>里入口</span><span>来袭方向</span></div>
         <p class="viewport-hint" id="viewport-hint">点选伙伴，再点空格调整位置</p>
         <div id="stage-labels" class="stage-labels" aria-hidden="true"></div>

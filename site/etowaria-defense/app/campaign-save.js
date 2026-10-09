@@ -1,4 +1,4 @@
-import { LEVELS, SAVE_KEY, DECK_KEY, DECK_SIZE, DECK_ORDER, canOpenLevel, levelById, unlockedUnits } from "../data/campaign.js";
+import { LEVELS, UNIT_RULES, SAVE_KEY, DECK_KEY, DECK_SIZE, DECK_ORDER, canOpenLevel, levelById, unlockedUnits } from "../data/campaign.js";
 
 export function emptyProgress() { return { version: 1, completed: [], best: {}, lastLevel: "1-1", endless: null, endlessRun: null, materials: {}, town: {} }; }
 
@@ -38,15 +38,25 @@ function validateEndlessRun(value) {
         || value.wave < 1 || value.wave > 9999 || !Number.isFinite(value.time) || value.time < 0 || value.time > 86400
         || !Number.isFinite(value.resource) || value.resource < 0 || value.resource > 1e7
         || !Number.isInteger(value.restocks) || value.restocks < 0 || value.restocks > 99
-        || !Array.isArray(value.deck) || value.deck.length > 12 || !Array.isArray(value.units) || value.units.length > 45) { return null; }
+        || !Array.isArray(value.deck) || value.deck.length > 12 || value.deck.some(id => !DECK_ORDER.includes(id))
+        || !Array.isArray(value.units) || value.units.length > 45) { return null; }
+    const deck = [...new Set(value.deck)];
+    if (!deck.length || deck.length > DECK_SIZE) { return null; }
     const units = [];
+    const occupied = new Set();
     for (const entry of value.units) {
         if (units.length >= 45) { break; }
-        if (!entry || typeof entry.type !== "string" || !Number.isInteger(entry.row) || !Number.isInteger(entry.col)
+        if (!entry || typeof entry.type !== "string" || !DECK_ORDER.includes(entry.type) || !deck.includes(entry.type) || !Number.isInteger(entry.row) || !Number.isInteger(entry.col)
             || entry.row < 0 || entry.row > 8 || entry.col < 0 || entry.col > 11
             || !Number.isFinite(entry.hp) || entry.hp < 1 || entry.hp > 1e6) { return null; }
+        const position = `${entry.row}:${entry.col}`;
+        if (occupied.has(position)) { return null; }
+        if (entry.gear !== null && typeof entry.gear !== "string") { return null; }
+        const gear = entry.gear ? UNIT_RULES[entry.gear] : null;
+        if (entry.gear && (!gear || gear.kind !== "gear" || gear.gearFor?.length && !gear.gearFor.includes(entry.type))) { return null; }
+        occupied.add(position);
         units.push({ type: entry.type, row: entry.row, col: entry.col,
-            gear: typeof entry.gear === "string" ? entry.gear : null, hp: Math.round(entry.hp) });
+            gear: entry.gear || null, hp: Math.round(entry.hp) });
     }
     return { version: 1, level: typeof value.level === "string" ? value.level : "endless", seed: value.seed, wave: value.wave, time: value.time, resource: value.resource,
         restocks: value.restocks, deck: [...new Set(value.deck)].slice(0, 12), units,

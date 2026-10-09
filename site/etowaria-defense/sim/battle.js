@@ -1,4 +1,4 @@
-import { TICK, UNIT_RULES, ENEMY_RULES, ENDLESS_ROSTER } from "../data/campaign.js";
+import { TICK, UNIT_RULES, ENEMY_RULES, ENDLESS_ROSTER, DECK_ORDER } from "../data/campaign.js";
 import { attackContains, healingContains, burstContains, areaContains, ATTACK_BACK_REACH } from "./targeting.js";
 
 const EPS = 1e-8;
@@ -132,6 +132,12 @@ export class Battle {
         this.nextWaveAt = start + duration + (isRush ? 6 : 10);
     }
 
+    deploymentCost(type) {
+        const rule = UNIT_RULES[type];
+        if (!rule) { return Infinity; }
+        return rule.kind === "gear" ? Math.max(10, Math.round(rule.cost * (this.townGear || 1))) : rule.cost;
+    }
+
     canDeploy(type, row, col) {
         const rule = UNIT_RULES[type];
         if (this.phase !== "setup" && this.phase !== "running") { return { ok: false, reason: "本次巡守已结束" }; }
@@ -144,7 +150,7 @@ export class Battle {
         if (remaining > EPS) {
             return { ok: false, reason: this.phase === "setup" ? "这张卡的冷却将在开局后推进" : `还需等待 ${Math.ceil(remaining)} 秒`, cooldown: remaining };
         }
-        const cost = rule.kind === "gear" ? Math.max(10, Math.round(rule.cost * (this.townGear || 1))) : rule.cost;
+        const cost = this.deploymentCost(type);
         if (this.resource < cost) { return { ok: false, reason: `还差 ${cost - this.resource} クリエ`, shortage: cost - this.resource }; }
         if (rule.kind === "gear") {
             const host = this.units.get(this.occupancy.get(cellKey(row, col)));
@@ -168,8 +174,9 @@ export class Battle {
         const check = this.canDeploy(type, row, col);
         if (!check.ok) { return check; }
         const rule = UNIT_RULES[type];
-        this.resource -= rule.cost;
-        this.stats.spent += rule.cost;
+        const cost = this.deploymentCost(type);
+        this.resource -= cost;
+        this.stats.spent += cost;
         this.stats.deployed++;
         this.readyAt.set(type, this.time + rule.deployCooldown);
         if (rule.kind === "gear") {
@@ -1052,9 +1059,12 @@ export class Battle {
 
     // 城镇加成：按存档等级折算开局资源、产量、治疗与装备费。数值极小
     // （每级 6-8%），只改变手感不改变关卡设计。
-    static applyTownBuffs(battle, town) {
+    static applyTownBuffs(battle, town, applyStartBonus = true) {
         const lv = id => town?.[id] || 0;
-        battle.resource += 25 * lv("B4");
+        if (applyStartBonus && !battle.townStartBonusApplied) {
+            battle.resource += 25 * lv("B4");
+            battle.townStartBonusApplied = true;
+        }
         battle.townHeal = 1 + .06 * lv("B3");
         battle.townProducer = 1 + .08 * lv("B1");
         battle.townGear = 1 - .06 * lv("B2");
@@ -1122,7 +1132,23 @@ export class Battle {
         battle.time = 0;
         // Restore the deck before units so gear validation sees the carriers.
         const deck = new Set(Array.isArray(data.deck) && data.deck.length ? data.deck : [...battle.deck]);
-        for (const id of deck) { if (!UNIT_RULES[id]) { return false; } }
+        for (const id of deck) { if (!DECK_ORDER.includes(id)) { return false; } }
+        if (!Number.isFinite(data.time) || data.time < 0 || data.time > 86400 || !Number.isFinite(data.resource) || data.resource < 0 || data.resource > 1e7
+            || !Number.isInteger(data.restocks) || data.restocks < 0 || data.restocks > 99 || !Array.isArray(data.units)) { return false; }
+        const occupied = new Set();
+        for (const entry of data.units) {
+            const rule = UNIT_RULES[entry?.type];
+            if (!rule || !deck.has(entry.type) || !Number.isInteger(entry.row) || !Number.isInteger(entry.col)
+                || entry.row < 0 || entry.row >= battle.level.rows || entry.col < 0 || entry.col >= battle.level.cols
+                || !Number.isFinite(entry.hp) || entry.hp < 1 || entry.hp > 1e6) { return false; }
+            const cellId = cellKey(entry.row, entry.col);
+            if (occupied.has(cellId)) { return false; }
+            occupied.add(cellId);
+            if (entry.gear) {
+                const gearRule = UNIT_RULES[entry.gear];
+                if (!gearRule || gearRule.kind !== "gear" || gearRule.gearFor?.length && !gearRule.gearFor.includes(entry.type)) { return false; }
+            }
+        }
         battle.deck = deck;
         // Replay the planned waves up to the saved wave so endless state
         // (bounds, next wave time, roster unlocks) matches, then fast-forward
@@ -1157,6 +1183,7 @@ export class Battle {
         battle.spawnIndex = 0;
         battle.warned.clear();
         battle.resource = Math.max(0, data.resource || 0);
+        battle.townStartBonusApplied = true;
         battle.restocks = data.restocks || 0;
         if (data.stats) { Object.assign(battle.stats, data.stats); }
         for (const entry of data.units || []) {
@@ -1203,6 +1230,8 @@ export class Battle {
         if (!data || data.version !== 1 || data.level !== battle.level.id) { return false; }
         if (battle.phase !== "setup") { return false; }
         if (battle.level.endless && data.seed !== null && data.seed !== battle.seed) { return false; }
+        if (!Number.isFinite(data.resource) || data.resource < 0 || data.resource > 1e7) { return false; }
+        if (Array.isArray(data.readyAt) && data.readyAt.some(([type, at]) => typeof type !== "string" || !Number.isFinite(at) || at < 0)) { return false; }
         const units = Array.isArray(data.units) ? data.units : [];
         const deck = new Set(Array.isArray(data.deck) && data.deck.length ? data.deck : [...battle.deck]);
         for (const id of deck) {
@@ -1222,7 +1251,7 @@ export class Battle {
                 nextSelfHeal: rule.selfHeal?.period || 0, hasteUntil: 0, haste: 0 };
             if (entry.gear) {
                 const gearRule = UNIT_RULES[entry.gear];
-                if (!gearRule || gearRule.kind !== "gear") { return false; }
+                if (!gearRule || gearRule.kind !== "gear" || (gearRule.gearFor?.length && !gearRule.gearFor.includes(entry.type))) { return false; }
                 unit.gear = entry.gear;
                 if (gearRule.gear.maxHp) { unit.maxHp += gearRule.gear.maxHp; unit.hp = Math.min(unit.maxHp, unit.hp + (gearRule.gear.heal || 0)); }
                 if (gearRule.gear.barrier) { unit.barrierHits += gearRule.gear.barrier; }

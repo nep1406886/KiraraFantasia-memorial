@@ -10,8 +10,8 @@ const markup = `
   <div class="campaign-map" data-view="map">
     <header class="panel campaign-header"><button class="native-button compact" data-action="back">返回标题</button><h2>里口花径</h2><span>巡守手记</span><button class="native-button compact" data-action="save">巡守记录</button><button class="native-button compact" data-action="town">城镇</button></header>
     <div class="campaign-map-body">
-      <section class="campaign-chapter panel"><div class="chapter-landscape" aria-hidden="true"></div><div class="chapter-description"><h3>把日常守在身后</h3><p>应援台、同伴与每一条道路，都是布阵图的一部分。</p><div class="campaign-faces" data-role="faces"></div><p class="muted">四章二十关和无尽巡守都可以直接选择。每关重新分配クリエ，不把资源带入下一关。</p></div></section>
-      <section class="panel campaign-selection" aria-label="选择巡守关卡"><div class="campaign-levels" data-role="levels"></div><div class="level-brief"><h3 data-role="level-title"></h3><p data-role="level-subtitle"></p><dl class="level-facts"><div><dt>布阵区域</dt><dd data-role="area"></dd></div><div><dt>初始应援</dt><dd data-role="budget"></dd></div><div><dt>来袭波次</dt><dd data-role="waves"></dd></div></dl><p data-role="enemy"></p><p data-role="objective"></p><p data-role="rewards"></p><p class="muted" data-role="best"></p></div><div class="campaign-map-actions"><p class="muted">所有关卡都可以直接挑战，也可以重玩已完成的关卡。</p><button class="native-button primary" data-action="prepare">选择阵容</button></div><p class="campaign-disclosure">本作同人改编。当前开放四章二十关与无尽巡守。</p></section>
+      <section class="campaign-chapter panel"><div class="chapter-landscape" aria-hidden="true"></div><div class="chapter-description"><h3>把日常守在身后</h3><p>应援台、同伴与每一条道路，都是布阵图的一部分。</p><div class="campaign-faces" data-role="faces"></div><p class="muted">关卡按巡守记录逐步开放；每关重新分配クリエ，不把资源带入下一关。</p></div></section>
+      <section class="panel campaign-selection" aria-label="选择巡守关卡"><div class="campaign-levels" data-role="levels"></div><div class="level-brief"><h3 data-role="level-title"></h3><p data-role="level-subtitle"></p><dl class="level-facts"><div><dt>布阵区域</dt><dd data-role="area"></dd></div><div><dt>初始应援</dt><dd data-role="budget"></dd></div><div><dt>来袭波次</dt><dd data-role="waves"></dd></div></dl><p data-role="enemy"></p><p data-role="objective"></p><p data-role="rewards"></p><p class="muted" data-role="best"></p></div><div class="campaign-map-actions"><p class="muted">关卡会按巡守记录逐步开放；完成当前关卡后解锁下一关，无尽巡守始终可挑战。</p><button class="native-button primary" data-action="prepare">选择阵容</button></div><p class="campaign-disclosure">本作同人改编。当前开放四章二十关与无尽巡守。</p></section>
       <section class="panel deck-picker" data-role="deck-picker" aria-label="选择本次布阵的卡牌" hidden><header class="deck-picker-head"><div><h3>本次布阵</h3><p class="muted">从巡守图鉴里挑最多${DECK_SIZE}张卡同行；可随时返回换一关。</p></div><p class="deck-count" data-role="deck-count"></p></header>
 <div class="deck-chosen" data-role="deck-chosen" aria-label="已选择的卡牌"></div><div class="deck-presets" data-role="deck-presets"><span class="deck-presets-label">推荐配置</span><div class="deck-preset-buttons" data-role="deck-preset-buttons"></div></div><div class="deck-grid" data-role="deck-grid"></div><p class="deck-detail" data-role="deck-detail"></p><div class="campaign-map-actions"><button class="native-button compact" data-action="deck-back">返回选关</button><button class="native-button primary" data-action="deck-start">开始巡守</button></div></section>
     </div><p class="save-problem" data-role="save-problem" role="status" hidden></p>
@@ -40,7 +40,7 @@ const markup = `
       <button class="hud-button" data-action="inspect" aria-label="战场详情">${ICONS.list}<span>详情</span></button>
       <button class="hud-button" data-action="checkpoint" data-role="checkpoint" hidden aria-label="保存进度">${ICONS.collect}<span data-role="checkpoint-label">保存</span></button>
     </div>
-    <div class="battle-viewport" data-role="viewport" role="group" aria-label="巡守战场">
+    <div class="battle-viewport" data-role="viewport" role="group" aria-label="巡守战场"><p class="sr-only" data-role="battle-live" aria-live="polite"></p>
       <div class="battle-canvas" data-role="canvas"></div><div class="battle-labels" data-role="labels"></div><div class="battle-overlay" data-role="overlay"></div><div class="lane-indicators" data-role="lanes"></div>
       <div class="battle-tip" data-role="tip" hidden><strong data-role="selected-name"></strong><span data-role="selected-help"></span><span class="range-caption" data-role="range-caption" hidden></span></div>
       <p class="battle-message" data-role="message" role="status"></p>
@@ -49,7 +49,7 @@ const markup = `
       <div class="portrait-notice" data-role="portrait" hidden><div class="panel"><h3>横屏看清整条防线</h3><p>战斗已经暂停。可以旋转屏幕，或返回关卡选择。</p><button class="native-button compact" data-action="leave">返回关卡</button></div></div>
     </div>
   </div>
-  <dialog class="panel app-dialog campaign-dialog" data-role="brief-dialog" aria-labelledby="campaign-brief-title"><h2 id="campaign-brief-title">出发之前</h2><div data-role="story"></div><p data-role="opening-tip"></p><p class="muted">场上身影为练习投影，可按费用和冷却重复召唤。对白与塔防数值是本作同人改编。</p><div class="dialog-actions"><button class="native-button primary compact" data-action="brief-close">开始布阵</button></div></dialog>
+  <dialog class="panel app-dialog campaign-dialog" data-role="brief-dialog" aria-labelledby="campaign-brief-title"><h2 id="campaign-brief-title">出发之前</h2><div data-role="story"></div><p data-role="opening-tip"></p><ol class="opening-steps" aria-label="新手流程"><li><strong>先部署</strong><span>选择卡牌，再点一格；卡牌说明会告诉你费用、射程和作用。</span></li><li><strong>再收集</strong><span>应援台和自然资源会生成クリエ，看到资源徽章就点击“收取”。</span></li><li><strong>开始巡守</strong><span>确认布阵后点击“开始巡守”；波次、冷却和敌人行动才会推进。</span></li><li><strong>遇险处理</strong><span>可以随时暂停查看详情；来客突破时，对应道路的结界会自动触发，争取重新布阵。</span></li></ol><p class="muted">场上身影为练习投影，可按费用和冷却重复召唤。对白与塔防数值是本作同人改编。</p><div class="dialog-actions"><button class="native-button primary compact" data-action="brief-close">开始布阵</button></div></dialog>
   <dialog class="panel app-dialog campaign-dialog" data-role="result-dialog" aria-labelledby="campaign-result-title"><h2 id="campaign-result-title" data-role="result-title"></h2><p data-role="result-copy"></p><dl class="result-stats" data-role="result-stats"></dl><div class="reward-list" data-role="result-rewards"></div><p class="muted" data-role="result-save"></p><div class="dialog-actions"><button class="native-button compact" data-action="result-map">回到关卡</button><button class="native-button compact" data-action="retry">重新挑战</button><button class="native-button primary compact" data-action="next">下一关</button></div></dialog>
   <dialog class="panel app-dialog campaign-dialog" data-role="leave-dialog" aria-labelledby="campaign-leave-title"><h2 id="campaign-leave-title">离开本次巡守？</h2><p>本次布阵不会保留，已经完成的关卡记录不变。</p><div class="dialog-actions"><button class="native-button compact" data-action="leave-cancel">留在战场</button><button class="native-button primary compact" data-action="leave-confirm">返回关卡</button></div></dialog>
   <dialog class="panel app-dialog campaign-dialog" data-role="inspect-dialog" aria-labelledby="campaign-inspect-title"><header><h2 id="campaign-inspect-title">战场详情</h2><button class="native-button compact" data-action="inspect-close">关闭</button></header><p>同伴与来敌的实际生命。危急状态同时显示文字，不只依赖颜色。</p><div class="battle-table-wrap"><table class="battle-table"><caption>当前场上的对象</caption><thead><tr><th scope="col">对象</th><th scope="col">位置</th><th scope="col">生命</th><th scope="col">状态</th></tr></thead><tbody data-role="inspect-body"></tbody></table></div></dialog>
@@ -236,7 +236,7 @@ export class Campaign {
         if (!level) { this.clearSetupCache(); return; }
         const banner = document.createElement("div"); banner.className = "setup-banner panel";
         const copy = document.createElement("p");
-        copy.innerHTML = `上次的布阵还没开始：「${cache.level} ${level.title}」已部署 ${cache.units.length} 张卡牌，要继续吗？`;
+        copy.append("上次的布阵还没开始：「", cache.level, " ", level.title, "」已部署 ", String(cache.units.length), " 张卡牌，要继续吗？");
         const actions = document.createElement("div"); actions.className = "setup-banner-actions";
         const resume = document.createElement("button"); resume.className = "native-button primary compact";
         resume.textContent = "继续布阵";
@@ -267,7 +267,9 @@ export class Campaign {
         const chosen = this.get("deck-chosen"); chosen.replaceChildren();
         this.deckChoice.forEach((id, index) => {
             const rule = UNIT_RULES[id];
-            const chip = document.createElement("span"); chip.className = "deck-chosen-chip";
+            const chip = document.createElement("button"); chip.type = "button"; chip.className = "deck-chosen-chip";
+            chip.setAttribute("aria-pressed", "true");
+            chip.setAttribute("aria-label", `移出${rule.name}`);
             const order = document.createElement("b"); order.textContent = String(index + 1);
             const art = document.createElement("span"); art.className = "seed-art"; art.append(this.unitArt(id));
             const name = document.createElement("span"); name.className = "deck-chosen-name"; name.textContent = rule.name;
@@ -317,7 +319,11 @@ export class Campaign {
         }
         this.renderPresets(level);
         const focus = this.deckFocus && UNIT_RULES[this.deckFocus];
-        this.text("deck-detail", focus ? `${focus.name}：${focus.help}` : DECK_ORDER.length > this.deckChoice.length ? "点一张卡看它的作用，再点一次加入或移出阵容。" : "");
+        const recommendation = level?.recommended?.length
+            ? `推荐搭配：${[...new Map(level.recommended.map(id => [UNIT_RULES[id]?.family || "?", 0])).keys()]
+                .map(family => `${family}×${level.recommended.filter(id => (UNIT_RULES[id]?.family || "?") === family).length}`).join("、")}（${level.recommended.length}张）`
+            : "";
+        this.text("deck-detail", focus ? `${focus.name}：${focus.help}` : recommendation || (DECK_ORDER.length > this.deckChoice.length ? "点一张卡看它的作用，再点一次加入或移出阵容。" : ""));
         this.button("deck-start").disabled = !this.deckChoice.length;
     }
 
@@ -476,7 +482,7 @@ export class Campaign {
                 return this.resumeEndless(view);
             })();
             const { Battle: BattleMod } = await import("../sim/battle.js");
-            BattleMod.applyTownBuffs(view.battle, this.save.progress.town);
+            BattleMod.applyTownBuffs(view.battle, this.save.progress.town, !checkpointResumed && !resuming);
             // 图书馆：只有「新开一局」才跳过波次——检查点恢复和布阵缓存
             // 续局都从各自的存档波次起算，不吃跳过。
             if (!resuming && !checkpointResumed && level.endless && BattleMod.skipEndlessWaves(view.battle)) {
@@ -609,6 +615,12 @@ export class Campaign {
             : Math.min(1, (state.totalSpawns - state.scheduledRemaining) / Math.max(1, state.totalSpawns));
         this.get("wave-fill").style.transform = `scaleX(${progress})`;
         this.text("battle-phase", state.phase === "setup" ? "准备布阵" : state.phase === "running" ? `场上${state.enemies.length}位来客` : state.phase === "won" ? "防线守住了" : "本次失守");
+        const live = this.get("battle-live");
+        if (live && state.time - (this.lastLiveTime || -10) >= 2) {
+            const warning = [...this.warnings.values()].find(item => item.at >= state.time && item.at <= state.time + 3);
+            live.textContent = warning ? `${warning.row + 1}路将在${Math.max(1, Math.ceil(warning.at - state.time))}秒后出现${ENEMY_RULES[warning.enemyType].name}。` : `第${state.wave}波，${state.enemies.length}位来客在场，应援${state.resource}。`;
+            this.lastLiveTime = state.time;
+        }
         this.get("setup").hidden = state.phase !== "setup";
         const paused = state.pauses.includes("manual");
         this.get("pause-overlay").hidden = !paused;
@@ -674,7 +686,8 @@ export class Campaign {
         if (this.view) {
             this.laneNodes.forEach(({ marker, warning }, row) => {
                 marker.classList.toggle("spent", !state.gates[row]);
-                marker.setAttribute("aria-label", `${row + 1}路 ${state.gates[row] ? "紧急结界可用" : "紧急结界已用"}`);
+                marker.setAttribute("role", "img");
+                marker.setAttribute("aria-label", `${row + 1}路 ${state.gates[row] ? "紧急结界自动可用" : "紧急结界已用"}`);
                 marker.title = marker.getAttribute("aria-label");
                 const point = this.view.world(row, -.9).project(this.view.stage.camera);
                 marker.style.left = `${(point.x + 1) * this.view.stage.width / 2}px`;
@@ -696,6 +709,8 @@ export class Campaign {
             block.append(name, document.createTextNode(line.text)); story.append(block);
         }
         this.text("opening-tip", level.openingTip);
+        const gateHint = this.get("brief-dialog").querySelector("[data-role=opening-tip]");
+        if (gateHint && level.id === "1-1") { gateHint.textContent = `${level.openingTip} 结界会在来客突破时自动触发，不需要手动点击。`; }
         this.view.setPaused("brief", true);
         this.get("brief-dialog").showModal();
     }

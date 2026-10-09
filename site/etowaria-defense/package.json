@@ -1,1 +1,10 @@
-{"type":"module","private":true}
+{
+  "type": "module",
+  "private": true,
+  "scripts": {
+    "test": "npm run test:contracts && npm run test:presentation && npm run test:battle",
+    "test:contracts": "node ../../tools/defense_contracts.mjs",
+    "test:presentation": "node ../../tools/defense_presentation_contracts.mjs",
+    "test:battle": "node ../../tools/defense_battle_contracts.mjs"
+  }
+}

@@ -29,7 +29,6 @@ test("burst has exact 3x3 footprint and four cells at a corner", () => {
 test("melee preview represents fractional reach, not two full cells", () => {
     const area = placementCoverage(UNIT_RULES.U07, 2, 4, board);
     assert.deepEqual(area.cells.map(cell => cell.col), [4,5,6]);
-    assert.deepEqual(area.cells.map(cell => cell.col), [4,5,6]);
     assert.equal(area.cells[0].left, 3.8);
     assert.equal(area.cells[2].right, 6.2);
     assert.equal(attackContains(origin, { row: 2, x: 6.201 }, UNIT_RULES.U07), false);

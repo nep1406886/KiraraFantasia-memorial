@@ -294,7 +294,7 @@ async function enterStage() {
         updateOrientation();
         if (document.hidden && !REVIEW_CLOCK) { stage.setPaused("visibility", true); }
         stage.render();
-        $("stage-status").textContent = "P0 场景样机：点选伙伴查看原动作，也可在空格试摆。本阶段不进行经济与胜负结算。";
+        $("stage-status").textContent = "动作观察：点选伙伴查看原动作，也可调整站位；本模式不消耗资源、不计入巡守记录。";
     } catch (error) {
         if (epoch !== state.epoch) { return; }
         showError(error);
@@ -475,7 +475,7 @@ async function boot() {
         state.selected = state.party[0];
         buildTabs();
         $("enter-scene").disabled = false;
-        $("enter-scene").textContent = "演出观察";
+        $("enter-scene").textContent = "动作观察（不计分）";
         $("start-campaign").disabled = false;
         $("start-campaign").textContent = "开始巡守";
     } catch (error) { showError(error); }

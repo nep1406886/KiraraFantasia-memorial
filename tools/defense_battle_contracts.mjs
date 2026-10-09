@@ -397,6 +397,36 @@ test("partner pairings boost both cards and every new card keeps its original cl
         assert.ok(expected.length === 1, `${unit.id} ${rule.name}: kind ${rule.kind} does not match original classId ${unit.classId}`);
     }
 });
+test("town gear discount is charged consistently", () => {
+    const battle = new Battle(fixture({ startResource: 1000, spawns: [] }), { deck: ["U07", "G40"] });
+    Battle.applyTownBuffs(battle, { B2: 5 });
+    battle.deploy("U07", 0, 0);
+    const cost = battle.deploymentCost("G40");
+    battle.resource = cost;
+    const beforeSpent = battle.stats.spent;
+    assert.equal(battle.deploy("G40", 0, 0).ok, true);
+    assert.equal(battle.resource, 0);
+    assert.equal(battle.stats.spent - beforeSpent, cost);
+});
+test("setup restore rejects an exclusive weapon on the wrong host", () => {
+    const battle = new Battle(fixture({ spawns: [] }), { deck: ["U01", "G40"] });
+    assert.equal(Battle.applySetup(battle, { version: 1, level: battle.level.id, deck: ["U01", "G40"], resource: 1000,
+        units: [{ type: "U01", row: 0, col: 0, gear: "G40" }] }), false);
+    assert.equal(battle.units.size, 0);
+});
+test("endless validator rejects unknown cards and duplicate cells", () => {
+    const base = { version: 1, completed: [], best: {}, endlessRun: { version: 1, level: "endless", seed: 1, wave: 2, time: 1, resource: 100,
+        restocks: 0, deck: ["U01"], units: [{ type: "U01", row: 0, col: 0, hp: 100, gear: null }] } };
+    assert.equal(validateProgress({ ...base, endlessRun: { ...base.endlessRun, deck: ["not-a-card"] } }).endlessRun, null);
+    assert.equal(validateProgress({ ...base, endlessRun: { ...base.endlessRun, units: [base.endlessRun.units[0], base.endlessRun.units[0]] } }).endlessRun, null);
+});
+test("town start bonus is not applied twice", () => {
+    const battle = new Battle(ENDLESS, { deck: ["F01"], seed: 1 });
+    Battle.applyTownBuffs(battle, { B4: 1 });
+    const afterFirst = battle.resource;
+    Battle.applyTownBuffs(battle, { B4: 1 });
+    assert.equal(battle.resource, afterFirst);
+});
 test("an endless checkpoint round-trips and rejects corruption", () => {
     const b = new Battle(ENDLESS, { deck: ["F01", "U07", "U15"], seed: 4242 });
     b.deploy("F01", 2, 0); b.deploy("U07", 2, 3); b.start();
