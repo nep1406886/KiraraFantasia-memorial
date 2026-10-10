@@ -2,7 +2,7 @@ import assert from "node:assert/strict";
 import fs from "node:fs/promises";
 import { readFileSync } from "node:fs";
 import { Battle } from "../site/etowaria-defense/sim/battle.js";
-import { LEVELS, UNIT_RULES, ENEMY_RULES, ENDLESS, TICK, DECK_ORDER, GEAR_ORDER, unlockedUnits } from "../site/etowaria-defense/data/campaign.js";
+import { LEVELS, UNIT_RULES, ENEMY_RULES, ENDLESS, TICK, DECK_ORDER, GEAR_ORDER, ACHIEVEMENTS, unlockedUnits } from "../site/etowaria-defense/data/campaign.js";
 import { CampaignSave, validateProgress } from "../site/etowaria-defense/app/campaign-save.js";
 
 const checks = [];
@@ -746,6 +746,40 @@ test("endless keeps the best wave only when it improves", () => {
     const weaker = new Battle(ENDLESS, { deck: DECK_ORDER, seed: 3 }); weaker.start(); advance(weaker, 30); weaker.phase = "lost";
     assert.equal(save.finish("endless-2", weaker).newRecord, false);
     assert.equal(new CampaignSave(storage).progress.endless.wave, early.wave);
+});
+test("achievements unlock once, are idempotent and validate round-trip", () => {
+    const memory2 = new Map();
+    const storage2 = { getItem: key => memory2.get(key) || null, setItem: (key, value) => memory2.set(key, value) };
+    const fresh = new CampaignSave(storage2);
+    // A won ordinary level with gates and healing records first_clear + healer.
+    const win = playWithBudget(LEVELS[0]).battle;
+    win.stats.healed = 50; win.stats.gatesUsed = 1;
+    const first = fresh.finish("ach-1", win);
+    assert.ok(first.achievements.includes("first_clear"));
+    assert.ok(first.achievements.includes("healer"));
+    assert.ok(!first.achievements.includes("zero_gate"));
+    // The same runId never re-grants.
+    assert.deepEqual(fresh.finish("ach-1", win).achievements, []);
+    // A zero-gate win unlocks zero_gate; already-owned ids stay out.
+    const clean = playWithBudget(LEVELS[1]).battle;
+    clean.stats.gatesUsed = 0;
+    const second = fresh.finish("ach-2", clean);
+    assert.ok(second.achievements.includes("zero_gate"));
+    assert.ok(!second.achievements.includes("first_clear"));
+    // A boss level (newEnemy is a boss) unlocks boss_clear. The level must be
+    // openable, so seed the completion record up to its predecessor.
+    const bossLevel = LEVELS.find(level => ENEMY_RULES[level.newEnemy]?.boss);
+    fresh.progress.completed.push(LEVELS[LEVELS.indexOf(bossLevel) - 1].id);
+    const boss = new Battle(bossLevel, { deck: DECK_ORDER });
+    boss.phase = "won";
+    assert.ok(fresh.finish("ach-3", boss).achievements.includes("boss_clear"));
+    // Endless wave thresholds unlock once each.
+    const deep = new Battle(ENDLESS, { deck: DECK_ORDER, seed: 7 }); deep.start(); deep.wave = 21; deep.phase = "lost";
+    const endlessIds = fresh.finish("ach-4", deep).achievements;
+    assert.ok(endlessIds.includes("endless_10") && endlessIds.includes("endless_20"));
+    const reloaded = new CampaignSave(storage2);
+    assert.deepEqual(reloaded.progress.achievements.slice().sort(), fresh.progress.achievements.slice().sort());
+    assert.ok(reloaded.progress.achievements.every(id => ACHIEVEMENTS[id]), "only known ids persist");
 });
 await fs.writeFile(new URL("../docs/etowaria-defense/research/p1-simulation-results.json", import.meta.url),
     JSON.stringify({ date: "2026-09-26", scope: "Pure battle simulation with legal resources; browser and art verification separate", checks, runs }, null, 2) + "\n");

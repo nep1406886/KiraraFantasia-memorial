@@ -102,7 +102,13 @@
 .reward-list { display: flex; justify-content: center; gap: 20px; flex-wrap: wrap; margin-top: 20px; }
 .reward-list > div { display: flex; flex-direction: column; align-items: center; gap: 8px; }
 .reward-list .portrait-icon { width: 64px; }
-.reward-list > p { width: 100%; font-size: .9rem; }
+.challenge-success { color: #216b45; font-weight: 700; }
+.challenge-failed { color: #a0263d; font-weight: 700; }
+.achievement-unlocked { color: #7a5c1e; font-weight: 700; }
+.achievement-card { opacity: .55; }
+.achievement-card.unlocked { opacity: 1; }
+.achievement-card.unlocked .codex-enemy-art { color: #c9a227; }
+
 .battle-table-wrap { overflow-x: auto; margin-top: 15px; }
 .battle-table { width: 100%; border-collapse: collapse; font-size: .84rem; }
 .battle-table caption { text-align: left; margin-bottom: 10px; font-weight: 700; }

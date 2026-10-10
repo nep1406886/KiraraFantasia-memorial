@@ -1,6 +1,6 @@
-import { LEVELS, UNIT_RULES, SAVE_KEY, DECK_KEY, DECK_SIZE, DECK_ORDER, canOpenLevel, levelById, unlockedUnits } from "../data/campaign.js";
+import { LEVELS, UNIT_RULES, ENEMY_RULES, SAVE_KEY, DECK_KEY, DECK_SIZE, DECK_ORDER, ACHIEVEMENTS, canOpenLevel, levelById, unlockedUnits } from "../data/campaign.js";
 
-export function emptyProgress() { return { version: 1, completed: [], best: {}, lastLevel: "1-1", endless: null, endlessRun: null, materials: {}, town: {} }; }
+export function emptyProgress() { return { version: 1, completed: [], best: {}, lastLevel: "1-1", endless: null, endlessRun: null, materials: {}, town: {}, achievements: [] }; }
 
 // Levels are all open; a record only remembers what was cleared and how well.
 // Older saves (which required contiguous progress) remain valid as they are.
@@ -28,7 +28,8 @@ export function validateProgress(value) {
         lastLevel: typeof value.lastLevel === "string" && levelById(value.lastLevel) ? value.lastLevel : "1-1", endless,
         endlessRun: validateEndlessRun(value.endlessRun),
         materials: validateMaterials(value.materials),
-        town: validateTown(value.town) };
+        town: validateTown(value.town),
+        achievements: Array.isArray(value.achievements) ? [...new Set(value.achievements)].filter(id => ACHIEVEMENTS[id]) : [] };
 }
 
 // A mid-run endless checkpoint. Strictly capped so a corrupt or oversized
@@ -134,19 +135,32 @@ export class CampaignSave {
         return true;
     }
 
+    // Achievements: idempotent — returns only the ids newly unlocked this call.
+    // Evaluated once per finished run so a repeated result screen or reload can
+    // never re-grant them.
+    unlockAchievements(ids) {
+        const fresh = [...new Set(ids)].filter(id => ACHIEVEMENTS[id] && !this.progress.achievements.includes(id));
+        if (fresh.length) { this.progress.achievements.push(...fresh); this.persist(); }
+        return fresh;
+    }
+
     finish(runId, battle) {
-        if (this.finishedRuns.has(runId)) { return { newRecord: false }; }
+        if (this.finishedRuns.has(runId)) { return { newRecord: false, achievements: [] }; }
         const id = battle.level.id;
         if (battle.level.endless) {
-            if (battle.phase !== "lost") { return { newRecord: false }; }
+            if (battle.phase !== "lost") { return { newRecord: false, achievements: [] }; }
             this.finishedRuns.add(runId);
             const result = { wave: battle.wave, kills: battle.stats.kills, time: battle.time };
             const old = this.progress.endless;
             const newRecord = !old || result.wave > old.wave || result.wave === old.wave && result.kills > old.kills;
-            if (newRecord) { this.progress.endless = result; this.persist(); }
-            return { newRecord };
+            if (newRecord) { this.progress.endless = result; }
+            const wave = battle.wave;
+            const achievements = this.unlockAchievements([
+                wave >= 10 && "endless_10", wave >= 20 && "endless_20"].filter(Boolean));
+            this.persist();
+            return { newRecord, achievements };
         }
-        if (battle.phase !== "won" || !this.canOpen(id)) { return { newRecord: false }; }
+        if (battle.phase !== "won" || !this.canOpen(id)) { return { newRecord: false, achievements: [] }; }
         this.finishedRuns.add(runId);
         const first = !this.progress.completed.includes(id);
         if (first) { this.progress.completed.push(id); }
@@ -156,9 +170,14 @@ export class CampaignSave {
         if (newRecord) { this.progress.best[id] = result; }
         const index = LEVELS.findIndex(level => level.id === id);
         this.progress.lastLevel = LEVELS[Math.min(index + 1, LEVELS.length - 1)].id;
+        const achievements = this.unlockAchievements([
+            "first_clear",
+            battle.stats.gatesUsed === 0 && "zero_gate",
+            battle.stats.healed > 0 && "healer",
+            ENEMY_RULES[battle.level.newEnemy]?.boss && "boss_clear"].filter(Boolean));
         this.progress = validateProgress(this.progress);
         this.persist();
-        return { newRecord, first };
+        return { newRecord, first, achievements };
     }
 
     // Endless checkpoint, throttled by the caller (campaign.js). Storage

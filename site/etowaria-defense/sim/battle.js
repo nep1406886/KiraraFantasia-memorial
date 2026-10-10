@@ -1,4 +1,4 @@
-import { TICK, UNIT_RULES, ENEMY_RULES, ENDLESS_ROSTER, DECK_ORDER } from "../data/campaign.js";
+import { TICK, UNIT_RULES, ENEMY_RULES, ENDLESS_ROSTER, DECK_ORDER, ENDLESS_MILESTONES } from "../data/campaign.js";
 import { attackContains, healingContains, burstContains, areaContains, ATTACK_BACK_REACH } from "./targeting.js";
 
 const EPS = 1e-8;
@@ -897,7 +897,8 @@ export class Battle {
                 const bonus = 25 + 5 * Math.floor(enemy.wave / 5);
                 this.resource += bonus;
                 this.stats.generated += bonus;
-                this.emit("waveCleared", { wave: enemy.wave, bonus, modifier: bound.modifier?.kind || null });
+                this.emit("waveCleared", { wave: enemy.wave, bonus, modifier: bound.modifier?.kind || null,
+                    milestone: ENDLESS_MILESTONES[enemy.wave] || null });
                 // Every fifth wave cleared grants one card-swap credit, so long
                 // runs can rotate the bench without restarting the level.
                 if (enemy.wave > 0 && enemy.wave % 5 === 0) {

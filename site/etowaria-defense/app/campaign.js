@@ -1,4 +1,4 @@
-import { LEVELS, UNIT_RULES, ENEMY_RULES, DECK_ORDER, GEAR_ORDER, DECK_SIZE, SAVE_KEY, TOWN_RULES, allLevels, levelById } from "../data/campaign.js";
+import { LEVELS, UNIT_RULES, ENEMY_RULES, DECK_ORDER, GEAR_ORDER, DECK_SIZE, SAVE_KEY, TOWN_RULES, ENDLESS_MILESTONES, ACHIEVEMENTS, allLevels, levelById } from "../data/campaign.js";
 import { CampaignSave } from "./campaign-save.js";
 import { portraitMarkup, siteUrl } from "./assets.js";
 import { ICONS } from "./icons.js";
@@ -6,6 +6,34 @@ import { ICONS } from "./icons.js";
 const DEFAULT_DECK = DECK_ORDER.slice(0, DECK_SIZE);
 const TIME = seconds => `${Math.floor(seconds / 60)}:${String(Math.floor(seconds % 60)).padStart(2, "0")}`;
 const WAVE_LABEL = level => level.endless ? "不限波次" : `${level.waves}波`;
+const challengeFor = level => {
+    if (!level || level.endless) { return null; }
+    const optional = level.optional || "";
+    if (optional.includes("有效治疗")) { return { label: optional, type: "healed", target: 1 }; }
+    if (optional.includes("不消耗")) { return { label: optional, type: "gates", target: 0 }; }
+    return null;
+};
+const tacticalHint = rule => {
+    if (rule.healer) { return "优先击倒：会治疗附近来客"; }
+    if (rule.armor) { return "用破甲攻击：护甲会先吸收伤害"; }
+    if (rule.hop) { return "需要高墙：会越过普通前排"; }
+    if (rule.ranged) { return "优先处理：会在远处攻击前排"; }
+    if (rule.revive) { return "不要松懈：倒下后还会复起"; }
+    if (rule.summon) { return "注意首领：会召唤援军"; }
+    if (rule.thorns) { return "避免近战：攻击会受到反伤"; }
+    return "普通来客：保持该路有输出";
+};
+const counterTags = rule => {
+    if (rule?.kind === "gear") { return rule.gear?.label || "改变宿主属性"; }
+    const tags = [];
+    if (rule?.pierceArmor) { tags.push("破甲"); }
+    if (rule?.onHit?.slow || rule?.slow) { tags.push("减速"); }
+    if (rule?.special?.type === "knockback" || rule?.onHit?.knockback) { tags.push("击退"); }
+    if (["healer", "shielder", "beacon"].includes(rule?.kind)) { tags.push("支援"); }
+    if (rule?.kind === "producer") { tags.push("经济"); }
+    if (rule?.kind === "lobber") { tags.push("越障攻击"); }
+    return tags.join("、") || rule?.role || "持续输出";
+};
 const markup = `
   <div class="campaign-map" data-view="map">
     <header class="panel campaign-header"><button class="native-button compact" data-action="back">返回标题</button><h2>里口花径</h2><span>巡守手记</span><button class="native-button compact" data-action="save">巡守记录</button><button class="native-button compact" data-action="town">城镇</button></header>
@@ -40,7 +68,7 @@ const markup = `
       <button class="hud-button" data-action="inspect" aria-label="战场详情">${ICONS.list}<span>详情</span></button>
       <button class="hud-button" data-action="checkpoint" data-role="checkpoint" hidden aria-label="保存进度">${ICONS.collect}<span data-role="checkpoint-label">保存</span></button>
     </div>
-    <div class="battle-viewport" data-role="viewport" role="group" aria-label="巡守战场"><p class="sr-only" data-role="battle-live" aria-live="polite"></p>
+    <div class="battle-viewport" data-role="viewport" role="group" aria-label="巡守战场"><p class="sr-only" data-role="battle-live" aria-live="polite"></p><div class="battle-objectives" data-role="objectives" aria-label="本关目标"></div>
       <div class="battle-canvas" data-role="canvas"></div><div class="battle-labels" data-role="labels"></div><div class="battle-overlay" data-role="overlay"></div><div class="lane-indicators" data-role="lanes"></div>
       <div class="battle-tip" data-role="tip" hidden><strong data-role="selected-name"></strong><span data-role="selected-help"></span><span class="range-caption" data-role="range-caption" hidden></span></div>
       <p class="battle-message" data-role="message" role="status"></p>
@@ -323,7 +351,7 @@ export class Campaign {
             ? `推荐搭配：${[...new Map(level.recommended.map(id => [UNIT_RULES[id]?.family || "?", 0])).keys()]
                 .map(family => `${family}×${level.recommended.filter(id => (UNIT_RULES[id]?.family || "?") === family).length}`).join("、")}（${level.recommended.length}张）`
             : "";
-        this.text("deck-detail", focus ? `${focus.name}：${focus.help}` : recommendation || (DECK_ORDER.length > this.deckChoice.length ? "点一张卡看它的作用，再点一次加入或移出阵容。" : ""));
+        this.text("deck-detail", focus ? `${focus.name}【${counterTags(focus)}】：${focus.help}` : recommendation || (DECK_ORDER.length > this.deckChoice.length ? "点一张卡看它的作用，再点一次加入或移出阵容。" : ""));
         this.button("deck-start").disabled = !this.deckChoice.length;
     }
 
@@ -443,9 +471,12 @@ export class Campaign {
         this.get("load-progress").value = 0;
         this.get("setup").hidden = false;
         this.get("pause-overlay").hidden = true;
+        this.challenge = challengeFor(level);
         this.text("battle-title", `${id}　${level.title}`);
+        this.renderObjectives({ stats: { healed: 0, gatesUsed: 0 } });
         this.text("message", "正在准备本关的原模型与特效。");
         this.warnings.clear(); this.buildBank(deck); this.buildLanes(level);
+        this.seenEnemyHints = new Set();
         this.audio.unlock();
         try {
             const { BattleView } = await import("../render/battle-view.js");
@@ -465,11 +496,25 @@ export class Campaign {
                     if (epoch !== this.epoch) { return; }
                     const drops = event.drops || [];
                     this.save.grantMaterials(drops);
+                    if (event.wave && ENDLESS_MILESTONES[event.wave]) {
+                        const milestone = ENDLESS_MILESTONES[event.wave];
+                        const bonus = Array.from({ length: milestone.bonusMaterials }, (_, index) => `M${(event.wave + index) % 5 + 1}`);
+                        this.save.grantMaterials(bonus);
+                        this.notice(`里程碑：${milestone.label}。额外素材×${milestone.bonusMaterials}`);
+                    }
                     if (drops.length) {
                         this.notice(`素材掉落：${drops.map(id => TOWN_RULES.materials[id]?.name || id).join("、")}（已入账城镇）。`);
                     }
                 },
-                onWarning: warning => { if (epoch === this.epoch) { this.warnings.set(warning.row, warning); } },
+                onWarning: warning => {
+                    if (epoch !== this.epoch) { return; }
+                    this.warnings.set(warning.row, warning);
+                    const rule = ENEMY_RULES[warning.enemyType];
+                    if (rule && !this.seenEnemyHints.has(warning.enemyType)) {
+                        this.seenEnemyHints.add(warning.enemyType);
+                        this.notice(`${rule.name}：${tacticalHint(rule)}`);
+                    }
+                },
                 onInspect: () => this.inspect(),
                 onError: error => { if (epoch === this.epoch) { this.error(error); } },
                 onFinished: event => { if (epoch === this.epoch) { this.finish(event); } }
@@ -600,8 +645,25 @@ export class Campaign {
         }
     }
 
+    renderObjectives(state) {
+        const host = this.get("objectives");
+        if (!host) { return; }
+        const level = levelById(this.levelId);
+        const rows = level?.objective ? [{ label: level.objective, done: state.phase === "won" }] : [];
+        if (this.challenge) {
+            const value = state.stats?.[this.challenge.type] || 0;
+            const done = state.phase === "won" && (this.challenge.type === "gates" ? value === 0 : value >= this.challenge.target);
+            rows.push({ label: `${this.challenge.label}（${this.challenge.type === "gates" ? value : `${value}/${this.challenge.target}`}）`, done });
+        }
+        host.replaceChildren(...rows.map(row => {
+            const item = document.createElement("span"); item.className = row.done ? "objective done" : "objective";
+            item.textContent = `${row.done ? "✓" : "○"} ${row.label}`; return item;
+        }));
+    }
+
     updateHud(state, controls) {
         this.lastState = state;
+        this.renderObjectives(state);
         this.text("crea", String(state.resource)); this.text("time", TIME(state.time));
         if (state.endless) {
             const tag = state.waveModifier?.label;
@@ -630,6 +692,7 @@ export class Campaign {
         this.button("pause").disabled = state.phase !== "setup" && state.phase !== "running";
         this.button("collect").disabled = !state.pickups.length || !!state.pauses.length;
         this.text("collect-label", state.pickups.length ? `收取 ${state.pickups.length}` : "收取");
+        this.button("collect").title = state.pickups.length ? `收取${state.pickups.length}份应援；资源会在8秒后自动收取` : "应援资源会在8秒后自动收取";
         const restockButton = this.button("restock");
         restockButton.hidden = !(state.endless && state.restocks > 0);
         this.text("restock-label", `换卡×${state.restocks || 0}`);
@@ -694,7 +757,11 @@ export class Campaign {
                 marker.style.top = `${(1 - point.y) * this.view.stage.height / 2}px`;
                 const incoming = this.warnings.get(row);
                 warning.hidden = !incoming || incoming.at < state.time;
-                if (!warning.hidden) { warning.textContent = `${ENEMY_RULES[incoming.enemyType].name} ${Math.max(0, Math.ceil(incoming.at - state.time))}秒`; }
+                if (!warning.hidden) {
+                    const rule = ENEMY_RULES[incoming.enemyType];
+                    const ability = rule.healer ? "治疗" : rule.armor ? "护甲" : rule.hop ? "越障" : rule.ranged ? "远程" : rule.revive ? "复起" : rule.summon ? "召唤" : rule.thorns ? "反伤" : "";
+                    warning.textContent = `${rule.name}${ability ? `·${ability}` : ""} ${Math.max(0, Math.ceil(incoming.at - state.time))}秒`;
+                }
                 const entry = this.view.world(row, this.view.level.cols + .1).project(this.view.stage.camera);
                 warning.style.left = `${Math.min(this.view.stage.width - 6, (entry.x + 1) * this.view.stage.width / 2)}px`;
                 warning.style.top = marker.style.top;
@@ -783,6 +850,20 @@ export class Campaign {
         text.textContent = endless ? (result.newRecord ? "新的无尽记录已写入手记。" : "本次没有超过已有的无尽记录。")
             : won ? "本次巡守结果已写入手记。" : "未改变通关记录。";
         rewardList.append(text);
+        for (const achievement of result.achievements || []) {
+            const row = document.createElement("p");
+            row.className = "achievement-unlocked";
+            row.textContent = `成就解锁：${ACHIEVEMENTS[achievement].name} — ${ACHIEVEMENTS[achievement].description}`;
+            rewardList.append(row);
+        }
+        if (!endless && this.challenge) {
+            const value = event.stats?.[this.challenge.type] || 0;
+            const done = won && (this.challenge.type === "gates" ? value === 0 : value >= this.challenge.target);
+            const challengeResult = document.createElement("p");
+            challengeResult.textContent = `${done ? "挑战完成" : "挑战未完成"}：${this.challenge.label}`;
+            challengeResult.className = done ? "challenge-success" : "challenge-failed";
+            rewardList.append(challengeResult);
+        }
         // 无尽结算面补一行本局素材收获，让城镇掉落在结束时也看得见。
         if (endless && (battle.materials?.length || 0) > 0) {
             const counts = {};
@@ -827,7 +908,8 @@ export class Campaign {
             { key: "companion", label: "同伴", rows: DECK_ORDER.filter(id => UNIT_RULES[id].kind !== "producer" && UNIT_RULES[id].kind !== "burst") },
             { key: "facility", label: "设施", rows: DECK_ORDER.filter(id => UNIT_RULES[id].kind === "producer" || UNIT_RULES[id].kind === "burst") },
             { key: "gear", label: "装备", rows: GEAR_ORDER },
-            { key: "enemy", label: "来客", rows: Object.keys(ENEMY_RULES) }
+            { key: "enemy", label: "来客", rows: Object.keys(ENEMY_RULES) },
+            { key: "achievement", label: "成就", rows: Object.keys(ACHIEVEMENTS) }
         ];
     }
     openCodex(section = "companion") {
@@ -844,6 +926,31 @@ export class Campaign {
         }
         const rows = this.codexSections().find(entry => entry.key === section)?.rows || [];
         const grid = this.get("codex-grid"); grid.replaceChildren();
+        if (section === "achievement") {
+            const unlocked = this.save.progress.achievements;
+            this.text("codex-detail", `已解锁 ${unlocked.length} / ${rows.length} 项成就。`);
+            for (const id of rows) {
+                const card = document.createElement("button");
+                card.className = "codex-card achievement-card" + (unlocked.includes(id) ? " unlocked" : "");
+                card.dataset.codex = id;
+                const art = document.createElement("span"); art.className = "seed-art";
+                const label = document.createElement("span"); label.className = "codex-enemy-art";
+                label.textContent = unlocked.includes(id) ? "★" : "?";
+                art.append(label);
+                const name = document.createElement("span"); name.className = "seed-name";
+                name.textContent = unlocked.includes(id) ? ACHIEVEMENTS[id].name : "未解锁";
+                card.append(art, name);
+                card.addEventListener("click", () => {
+                    this.text("codex-detail", unlocked.includes(id)
+                        ? `${ACHIEVEMENTS[id].name}：${ACHIEVEMENTS[id].description}`
+                        : `？？？：${ACHIEVEMENTS[id].description}`);
+                });
+                grid.append(card);
+            }
+            this.get("codex-dialog").showModal();
+            this.view?.setPaused("codex", true);
+            return;
+        }
         this.text("codex-detail", "");
         for (const id of rows) {
             const rule = section === "enemy" ? ENEMY_RULES[id] : UNIT_RULES[id];
@@ -1006,12 +1113,17 @@ export class Campaign {
             const friend = UNIT_RULES[unit.type]; const rule = friend || ENEMY_RULES[unit.type];
             const row = document.createElement("tr");
             const values = [`${friend ? "我方" : "来客"} ${rule.name}`, `${unit.row + 1}路，${friend ? `${unit.col + 1}格` : "行进中"}`,
-                `${Math.ceil(unit.hp)} / ${unit.maxHp}`, unit.hp / unit.maxHp <= .25 ? "危急" : friend ? "在位" : unit.state === "walking" ? "前进" : "攻击中"];
+                `${Math.ceil(unit.hp)} / ${unit.maxHp}`, friend ? (unit.gear ? `装备：${UNIT_RULES[unit.gear]?.name || unit.gear}` : "在位") : this.enemyStatusText(unit, rule)];
             for (const value of values) { const td = document.createElement("td"); td.textContent = value; row.append(td); }
             body.append(row);
         }
         if (!body.children.length) { const row = document.createElement("tr"); const cell = document.createElement("td"); cell.colSpan = 4; cell.textContent = "还没有部署对象。可以先选择应援采集台。"; row.append(cell); body.append(row); }
         this.get("inspect-dialog").showModal();
+    }
+
+    enemyStatusText(enemy, rule) {
+        const ability = rule.healer ? "治疗者" : rule.armor ? `护甲${Math.ceil(enemy.armor)}` : rule.hop ? "越障" : rule.ranged ? "远程" : rule.revive && !enemy.revived ? "可复起" : rule.summon ? "召唤者" : rule.thorns ? "反伤" : enemy.state === "walking" ? "前进" : "攻击中";
+        return enemy.hp / enemy.maxHp <= .25 ? `危急·${ability}` : ability;
     }
 
     key(event) {

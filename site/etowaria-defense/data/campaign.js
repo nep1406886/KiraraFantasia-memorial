@@ -1177,6 +1177,21 @@ export const ENDLESS = Object.freeze({
     optional: "刷新最佳波次", openingTip: "前几波来客较少，趁机多放几台应援采集台。"
 });
 
+export const ACHIEVEMENTS = Object.freeze({
+    first_clear: Object.freeze({ name: "第一班岗", description: "完成任意一关普通巡守" }),
+    zero_gate: Object.freeze({ name: "结界未动", description: "不消耗结界完成普通巡守" }),
+    healer: Object.freeze({ name: "及时援手", description: "完成至少一次有效治疗" }),
+    boss_clear: Object.freeze({ name: "首领退场", description: "完成一关首领巡守" }),
+    endless_10: Object.freeze({ name: "十波之后", description: "无尽巡守达到第10波" }),
+    endless_20: Object.freeze({ name: "深夜常驻", description: "无尽巡守达到第20波" })
+});
+
+export const ENDLESS_MILESTONES = Object.freeze({
+    5: Object.freeze({ label: "守过五波", bonusMaterials: 1 }),
+    10: Object.freeze({ label: "守过十波", bonusMaterials: 2 }),
+    20: Object.freeze({ label: "守过二十波", bonusMaterials: 3 }),
+    30: Object.freeze({ label: "深夜常驻", bonusMaterials: 5 })
+});
 export const ENDLESS_ROSTER = [
     { type: "E01", from: 1 }, { type: "E02", from: 1 }, { type: "E15", from: 2 }, { type: "E05", from: 2 },
     { type: "E16", from: 3 }, { type: "E09", from: 3 }, { type: "E04", from: 3 },
