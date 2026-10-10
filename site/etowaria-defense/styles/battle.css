@@ -26,6 +26,13 @@
 .battle-progress strong[data-modifier="swarm"]  { color: #15803d; }
 .battle-progress span { font-size: .72rem; color: var(--muted); font-variant-numeric: tabular-nums; }
 
+.next-wave { align-self: center; padding: 2px 9px; border-radius: 11px; font-size: .68rem; font-weight: 700; white-space: nowrap;
+  background: #f4ecd6; border: 1px solid #d8c69a; color: #6a573a; }
+.next-wave[data-modifier="boss"]  { background: #f7e0de; border-color: #d99a94; color: #b3261e; }
+.next-wave[data-modifier="elite"] { background: #ebe2fb; border-color: #b9a3e8; color: #7c3aed; }
+.next-wave[data-modifier="rush"]  { background: #fbeed6; border-color: #e0b571; color: #b45309; }
+.next-wave[data-modifier="swarm"] { background: #ddf0e2; border-color: #93c9a3; color: #15803d; }
+
 .hud-button { position: relative; display: inline-flex; align-items: center; justify-content: center; gap: 6px; min-height: 40px; min-width: 40px;
   padding: 0 13px; border: 1.5px solid #c8b37d; border-radius: 21px; background: linear-gradient(#fffef7, #f2e7c5); color: #5a4330;
   font: 700 .86rem/1 inherit; box-shadow: 0 2px 0 #c2aa70, 0 3px 7px #5a43301c; white-space: nowrap; cursor: pointer; touch-action: manipulation; }

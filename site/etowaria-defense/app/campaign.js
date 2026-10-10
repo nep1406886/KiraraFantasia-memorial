@@ -50,6 +50,7 @@ const markup = `
       <div class="battle-heading"><h2 data-role="battle-title"></h2><p data-role="battle-phase">准备布阵</p></div>
       <div class="wave-meter" aria-hidden="true"><span data-role="wave-fill"></span></div>
       <div class="battle-progress"><strong data-role="wave">第1波</strong><span data-role="time">0:00</span></div>
+      <span class="next-wave" data-role="next-wave" hidden></span>
       <button class="hud-button" data-action="settings" aria-label="声音与显示">${ICONS.gear}<span>声音</span></button>
       <button class="hud-button" data-action="codex" aria-label="图鉴">${ICONS.list}<span>图鉴</span></button>
       <button class="hud-button" data-action="pause" aria-pressed="false" aria-label="暂停">${ICONS.pause}<span data-role="pause-label">暂停</span></button>
@@ -672,6 +673,14 @@ export class Campaign {
         } else {
             this.text("wave", `第${state.wave} / ${state.totalWaves}波`);
             this.get("wave").dataset.modifier = "";
+        }
+        // 无尽模式：预告下一波的形态（BOSS/精英/急袭/群袭），让玩家提前布防。
+        const nextWave = this.get("next-wave");
+        const next = state.endless && state.phase === "running" ? state.nextWaveModifier : null;
+        nextWave.hidden = !next?.label;
+        if (next?.label) {
+            nextWave.textContent = `下一波 · ${next.label}`;
+            nextWave.dataset.modifier = next.kind || "";
         }
         const progress = state.endless ? (state.wave - 1 + Math.min(1, state.waveProgress || 0)) % 1 || 0
             : Math.min(1, (state.totalSpawns - state.scheduledRemaining) / Math.max(1, state.totalSpawns));
