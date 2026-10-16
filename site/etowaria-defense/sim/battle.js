@@ -6,15 +6,19 @@ const cellKey = (row, col) => `${row}:${col}`;
 const active = (until, time) => until > time + EPS;
 
 // Seeded PRNG for endless waves; the simulation itself never draws randomness.
-function mulberry32(seed) {
-    let a = seed >>> 0;
-    return () => {
+function mulberry32(seed, state = seed >>> 0) {
+    let a = state >>> 0;
+    const rng = () => {
         a = (a + 0x6D2B79F5) >>> 0;
         let t = Math.imul(a ^ (a >>> 15), 1 | a);
         t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t;
         return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
     };
+    rng.state = () => a;
+    return rng;
 }
+
+let runSequence = 0;
 
 export class Battle {
     constructor(level, options = {}) {
@@ -47,10 +51,13 @@ export class Battle {
         if (level.endless) {
             this.seed = Number.isInteger(options.seed) ? options.seed : 20260926;
             this.rng = mulberry32(this.seed);
+            this.runId = options.runId || `endless-${Date.now().toString(36)}-${++runSequence}`;
             this.plannedWave = 0;
             this.nextWaveAt = 24;
             this.waveBounds = new Map();
-        this.restocks = 0;
+            this.settledWaves = new Set();
+            this.nextSpawnIndex = 0;
+            this.restocks = 0;
             this.planWave();
         }
     }
@@ -120,16 +127,26 @@ export class Battle {
         const isRush = modifier?.kind === "rush";
         const duration = Math.min(40, (16 + n * 1.4) * (isRush ? .55 : 1));
         const hpScale = (n > 9 ? 1 + (n - 9) * .08 : 1) * (isSwarm ? .8 : 1);
-        const base = this.spawns.length;
         picks.forEach((type, index) => {
             const at = +(start + duration * index / Math.max(1, picks.length) + this.rng() * 1.5).toFixed(3);
             const row = Math.floor(this.rng() * this.level.rows);
             const elite = modifier?.kind === "elite" && index === 0;
-            this.spawns.push({ at, row, type, wave: n, hpScale: elite ? hpScale * 2.2 : hpScale, elite, index: base + index });
+            this.spawns.push({ at, row, type, wave: n, hpScale: elite ? hpScale * 2.2 : hpScale, elite, index: this.nextSpawnIndex++ });
         });
         this.spawns.sort((a, b) => a.at - b.at || a.index - b.index);
-        this.waveBounds.set(n, { remaining: picks.length, modifier });
+        this.waveBounds.set(n, { remaining: picks.length, total: picks.length, modifier });
         this.nextWaveAt = start + duration + (isRush ? 6 : 10);
+        this.pruneSettledWaveBounds();
+    }
+
+    pruneSettledWaveBounds() {
+        if (!this.level.endless) { return; }
+        for (const wave of this.settledWaves) {
+            if (wave === this.wave || [...this.enemies.values()].some(enemy => enemy.wave === wave)
+                || this.spawns.slice(this.spawnIndex).some(spawn => spawn.wave === wave)) { continue; }
+            this.waveBounds.delete(wave);
+            this.settledWaves.delete(wave);
+        }
     }
 
     deploymentCost(type) {
@@ -252,6 +269,7 @@ export class Battle {
             nextSpecial: this.time + (rule.healer?.period || rule.summon?.period || 0), summoned: !!entry.summoned };
         this.enemies.set(enemy.id, enemy);
         this.wave = Math.max(this.wave, entry.wave);
+        this.pruneSettledWaveBounds();
         this.emit("spawned", { id: enemy.id, enemyType: enemy.type, row: enemy.row, x: enemy.x, wave: entry.wave,
             summoned: enemy.summoned, boss: !!rule.boss, elite: !!entry.elite });
         return enemy;
@@ -293,7 +311,12 @@ export class Battle {
         for (const pickup of this.pickups.values()) {
             if (this.time + EPS >= pickup.autoAt) { this.collect(pickup.id); }
         }
-        if (this.level.endless && this.spawnIndex >= this.spawns.length) { this.planWave(); }
+        if (this.level.endless && this.spawnIndex >= this.spawns.length) {
+            this.spawns = [];
+            this.spawnIndex = 0;
+            this.warned.clear();
+            this.planWave();
+        }
         for (let i = this.spawnIndex; i < this.spawns.length; i++) {
             const spawn = this.spawns[i];
             if (spawn.at - this.level.warningLead > this.time + EPS) { break; }
@@ -889,28 +912,31 @@ export class Battle {
         }
         if (this.level.endless && !enemy.summoned) {
             const bound = this.waveBounds.get(enemy.wave);
-            // 断点续玩：断点前已击退的本波成员已把 remaining 预扣过，
-            // 敌人本体却不在存档里——这条击退不能再次计数。
-            if (bound && this._resumeWaveKilled > 0 && enemy.wave === this.wave) { this._resumeWaveKilled--; }
-            else if (bound && --bound.remaining === 0) {
+            if (bound && !this.settledWaves.has(enemy.wave)) {
+                bound.remaining = Math.max(0, bound.remaining - 1);
+            }
+            if (bound && bound.remaining === 0 && !this.settledWaves.has(enemy.wave)) {
+                this.settledWaves.add(enemy.wave);
                 this.stats.wavesCleared++;
                 const bonus = 25 + 5 * Math.floor(enemy.wave / 5);
                 this.resource += bonus;
                 this.stats.generated += bonus;
                 this.emit("waveCleared", { wave: enemy.wave, bonus, modifier: bound.modifier?.kind || null,
-                    milestone: ENDLESS_MILESTONES[enemy.wave] || null });
+                    milestone: ENDLESS_MILESTONES[enemy.wave] || null, runId: this.runId });
                 // Every fifth wave cleared grants one card-swap credit, so long
                 // runs can rotate the bench without restarting the level.
                 if (enemy.wave > 0 && enemy.wave % 5 === 0) {
                     this.restocks++;
-                    // 城镇素材掉落（原作 QuestWaveDrops 概率表折算）：
-                    // 每清 5 波必掉 1 个职业象征，35% 概率再掉 1 个。
                     const materials = ["M1", "M2", "M3", "M4", "M5"];
                     const drops = [materials[Math.floor(this.rng() * materials.length)]];
                     if (this.rng() < .35) { drops.push(materials[Math.floor(this.rng() * materials.length)]); }
-                    this.materials = this.materials || [];
-                    this.materials.push(...drops);
-                    this.emit("restockEarned", { wave: enemy.wave, credits: this.restocks, drops });
+                    const milestone = ENDLESS_MILESTONES[enemy.wave] || null;
+                    const bonusDrops = milestone
+                        ? Array.from({ length: milestone.bonusMaterials }, (_, index) => `M${(enemy.wave + index) % 5 + 1}`)
+                        : [];
+                    this.materials = [...(this.materials || []), ...drops, ...bonusDrops].slice(-99);
+                    this.emit("restockEarned", { wave: enemy.wave, credits: this.restocks, drops, bonusDrops,
+                        milestone, runId: this.runId });
                 }
             }
         }
@@ -1086,7 +1112,10 @@ export class Battle {
         battle.plannedWave = 0;
         battle.spawns = [];
         battle.spawnIndex = 0;
+        battle.nextSpawnIndex = 0;
         battle.warned.clear();
+        battle.settledWaves.clear();
+        battle.waveBounds.clear();
         battle.nextWaveAt = 24;
         while (battle.plannedWave < skip) { battle.planWave(); }
         battle.wave = skip + 1;
@@ -1101,32 +1130,121 @@ export class Battle {
         return true;
     }
 
-    // Endless mid-run checkpoint. Unlike serializeSetup this captures a
-    // RUNNING run: the wave clock, the resources, the bench (units + gear),
-    // and how many planned waves already fired. Enemies are deliberately NOT
-    // snapshotted — on resume the endless planner replays the seeded stream,
-    // and spawns whose time already passed simply don't spawn (the wave
-    // counter is restored so the run's difficulty curve stays correct).
+    // Version 2 stores the live endless state rather than reconstructing it from
+    // a wave number. That keeps cross-wave enemies and reward boundaries intact.
     serializeEndless() {
         if (!this.level.endless || this.phase === "lost") { return null; }
-        // 当前波的击杀进度一并带上：恢复时波界 remaining 若不扣掉
-        // 已击退的成员，这一波就永远等不到「全部击退」，第五波的
-        // 换卡/素材奖励会在断点续玩时凭空消失。spawned 统计「本波已
-        // 进场的数量」，alive 是场上还活着的——两者之差就是已击退。
-        const bound = this.waveBounds.get(this.wave);
-        const spawnedThisWave = this.spawns.slice(0, this.spawnIndex).filter(spawn => spawn.wave === this.wave).length;
-        const aliveThisWave = [...this.enemies.values()].filter(enemy => enemy.wave === this.wave && !enemy.summoned).length;
-        const waveProgress = bound ? { total: bound.remaining, killed: Math.max(0, spawnedThisWave - aliveThisWave) } : null;
-        return { version: 1, level: this.level.id, seed: this.seed, deck: [...this.deck],
-            time: Math.round(this.time * 10) / 10, wave: this.wave, resource: Math.round(this.resource),
-            restocks: this.restocks || 0, waveProgress,
-            units: [...this.units.values()].map(unit => ({ type: unit.type, row: unit.row, col: unit.col, gear: unit.gear || null, hp: unit.hp })),
-            stats: { kills: this.stats.kills, healed: this.stats.healed, gatesUsed: this.stats.gatesUsed } };
+        return { version: 2, level: this.level.id, runId: this.runId, seed: this.seed,
+            rngState: this.rng.state(), deck: [...this.deck], time: this.time,
+            wave: this.wave, resource: Math.round(this.resource), restocks: this.restocks || 0,
+            plannedWave: this.plannedWave, nextWaveAt: this.nextWaveAt, spawnIndex: this.spawnIndex,
+            nextSpawnIndex: this.nextSpawnIndex, spawns: this.spawns.map(spawn => ({ ...spawn })),
+            waveBounds: [...this.waveBounds.entries()].map(([wave, bound]) => [wave, { ...bound }]),
+            settledWaves: [...this.settledWaves], warned: [...this.warned], sequence: this.sequence,
+            nextNatural: this.nextNatural, gates: this.gates.slice(), materials: [...(this.materials || [])],
+            units: [...this.units.values()].map(unit => ({ ...unit })),
+            enemies: [...this.enemies.values()].map(enemy => ({ ...enemy })),
+            pending: this.pending.map(action => ({ ...action })),
+            projectiles: [...this.projectiles.values()].map(projectile => ({ ...projectile, hit: projectile.hit.slice() })),
+            lobs: [...this.lobs.values()].map(lob => ({ ...lob })),
+            pickups: [...this.pickups.values()].map(pickup => ({ ...pickup })),
+            readyAt: [...this.readyAt.entries()], stats: { ...this.stats } };
     }
 
     static applyEndless(battle, data) {
-        if (!data || data.version !== 1 || data.level !== battle.level.id || !battle.level.endless) { return false; }
+        if (!data || ![1, 2].includes(data.version) || data.level !== battle.level.id || !battle.level.endless) { return false; }
         if (battle.phase !== "setup") { return false; }
+        if (data.version === 2) {
+            if (!Number.isInteger(data.seed) || !Number.isInteger(data.rngState) || data.rngState < 0 || data.rngState > 0xffffffff
+                || typeof data.runId !== "string" || !data.runId || !Number.isInteger(data.wave) || data.wave < 1
+                || !Number.isFinite(data.time) || data.time < 0 || data.time > 86400 || !Number.isFinite(data.resource) || data.resource < 0
+                || !Number.isInteger(data.plannedWave) || data.plannedWave < data.wave || data.plannedWave > 9999
+                || !Number.isFinite(data.nextWaveAt) || data.nextWaveAt < 0 || !Number.isInteger(data.spawnIndex)
+                || !Number.isInteger(data.nextSpawnIndex) || data.spawnIndex < 0 || data.spawnIndex > data.spawns?.length
+                || data.nextSpawnIndex < data.spawnIndex || !Array.isArray(data.spawns) || data.spawns.length > 400
+                || !Array.isArray(data.waveBounds) || !Array.isArray(data.settledWaves) || !Array.isArray(data.enemies)
+                || !Array.isArray(data.units) || !Array.isArray(data.pending) || !Array.isArray(data.projectiles)
+                || !Array.isArray(data.lobs) || !Array.isArray(data.pickups) || !Array.isArray(data.gates)
+                || data.gates.length !== battle.level.rows || data.gates.some(gate => typeof gate !== "boolean")) { return false; }
+            const deck = new Set(Array.isArray(data.deck) && data.deck.length ? data.deck : [...battle.deck]);
+            if (!deck.size || [...deck].some(id => !DECK_ORDER.includes(id))) { return false; }
+            const finite = value => typeof value !== "number" || Number.isFinite(value);
+            const ids = rows => rows.every(row => row && typeof row.id === "string");
+            if (!data.spawns.every(spawn => spawn && Number.isFinite(spawn.at) && spawn.at >= 0 && Number.isInteger(spawn.row)
+                && spawn.row >= 0 && spawn.row < battle.level.rows && ENEMY_RULES[spawn.type] && Number.isInteger(spawn.wave)
+                && spawn.wave >= 1 && spawn.wave <= data.plannedWave && Number.isInteger(spawn.index) && spawn.index >= 0
+                && spawn.index < data.nextSpawnIndex && Object.values(spawn).every(finite))) { return false; }
+            const spawnIds = new Set(data.spawns.map(spawn => spawn.index));
+            if (spawnIds.size !== data.spawns.length || data.spawnIndex > data.spawns.length) { return false; }
+            const bounds = new Map();
+            for (const row of data.waveBounds) {
+                if (!Array.isArray(row) || row.length !== 2 || !Number.isInteger(row[0]) || row[0] < 1 || row[0] > data.plannedWave
+                    || bounds.has(row[0]) || !row[1] || !Number.isInteger(row[1].remaining) || !Number.isInteger(row[1].total)
+                    || row[1].remaining < 0 || row[1].total < row[1].remaining || row[1].total > 45) { return false; }
+                bounds.set(row[0], { ...row[1] });
+            }
+            const settled = new Set(data.settledWaves);
+            if (settled.size !== data.settledWaves.length || [...settled].some(wave => !bounds.has(wave))) { return false; }
+            if (!ids(data.enemies) || data.enemies.length > 120 || data.enemies.some(enemy => !ENEMY_RULES[enemy.type]
+                || !Number.isInteger(enemy.row) || enemy.row < 0 || enemy.row >= battle.level.rows || !Number.isInteger(enemy.wave)
+                || !bounds.has(enemy.wave) || typeof enemy.summoned !== "boolean" || !Object.values(enemy).every(finite))) { return false; }
+            const enemyIds = new Set(data.enemies.map(enemy => enemy.id));
+            if (enemyIds.size !== data.enemies.length || data.units.length > 45 || data.pending.length > 240
+                || data.projectiles.length > 120 || data.lobs.length > 120 || data.pickups.length > 80) { return false; }
+            const occupied = new Set();
+            for (const entry of data.units) {
+                const rule = UNIT_RULES[entry?.type];
+                if (!rule || !deck.has(entry.type) || !Number.isInteger(entry.row) || !Number.isInteger(entry.col)
+                    || entry.row < 0 || entry.row >= battle.level.rows || entry.col < 0 || entry.col >= battle.level.cols
+                    || !Number.isFinite(entry.hp) || entry.hp < 1 || entry.hp > 1e6 || entry.gear && (!UNIT_RULES[entry.gear]
+                    || UNIT_RULES[entry.gear].kind !== "gear" || UNIT_RULES[entry.gear].gearFor?.length && !UNIT_RULES[entry.gear].gearFor.includes(entry.type))
+                    || occupied.has(cellKey(entry.row, entry.col)) || !Object.values(entry).every(finite)) { return false; }
+                occupied.add(cellKey(entry.row, entry.col));
+            }
+            if (!data.pending.every(action => action && typeof action.kind === "string" && Number.isFinite(action.at) && action.at >= 0 && Object.values(action).every(finite))
+                || !data.projectiles.every(projectile => projectile && typeof projectile.id === "string" && typeof projectile.source === "string"
+                    && Number.isInteger(projectile.row) && projectile.row >= 0 && projectile.row < battle.level.rows && Array.isArray(projectile.hit)
+                    && Object.values(projectile).every(finite))
+                || !data.lobs.every(lob => lob && typeof lob.id === "string" && UNIT_RULES[lob.unitType] && Number.isInteger(lob.row)
+                    && lob.row >= 0 && lob.row < battle.level.rows && Object.values(lob).every(finite))
+                || !data.pickups.every(pickup => pickup && typeof pickup.id === "string" && Number.isInteger(pickup.row)
+                    && pickup.row >= 0 && pickup.row < battle.level.rows && Number.isFinite(pickup.amount) && pickup.amount >= 0
+                    && Object.values(pickup).every(finite))) { return false; }
+            battle.seed = data.seed;
+            battle.rng = mulberry32(data.seed, data.rngState);
+            battle.runId = data.runId;
+            battle.deck = deck;
+            battle.time = data.time;
+            battle.tick = Math.round(data.time / TICK);
+            battle.accumulator = 0;
+            battle.resource = data.resource;
+            battle.wave = data.wave;
+            battle.plannedWave = data.plannedWave;
+            battle.nextWaveAt = data.nextWaveAt;
+            battle.spawnIndex = data.spawnIndex;
+            battle.nextSpawnIndex = data.nextSpawnIndex;
+            battle.spawns = data.spawns.map(spawn => ({ ...spawn }));
+            battle.waveBounds = bounds;
+            battle.settledWaves = settled;
+            battle.warned = new Set(Array.isArray(data.warned) ? data.warned : []);
+            battle.sequence = Number.isInteger(data.sequence) && data.sequence >= 0 ? data.sequence : 0;
+            battle.nextNatural = Number.isFinite(data.nextNatural) ? data.nextNatural : data.time;
+            battle.gates = data.gates.slice();
+            battle.restocks = Number.isInteger(data.restocks) ? data.restocks : 0;
+            battle.materials = Array.isArray(data.materials) ? data.materials.slice() : [];
+            battle.units.clear(); battle.enemies.clear(); battle.pending = data.pending.map(action => ({ ...action }));
+            battle.projectiles.clear(); battle.lobs.clear(); battle.pickups.clear(); battle.occupancy.clear(); battle.readyAt.clear();
+            for (const unit of data.units) { battle.units.set(unit.id, { ...unit }); battle.occupancy.set(cellKey(unit.row, unit.col), unit.id); }
+            for (const enemy of data.enemies) { battle.enemies.set(enemy.id, { ...enemy }); }
+            for (const projectile of data.projectiles) { battle.projectiles.set(projectile.id, { ...projectile, hit: projectile.hit.slice() }); }
+            for (const lob of data.lobs) { battle.lobs.set(lob.id, { ...lob }); }
+            for (const pickup of data.pickups) { battle.pickups.set(pickup.id, { ...pickup }); }
+            for (const row of Array.isArray(data.readyAt) ? data.readyAt : []) {
+                if (Array.isArray(row) && deck.has(row[0]) && Number.isFinite(row[1]) && row[1] >= 0) { battle.readyAt.set(row[0], row[1]); }
+            }
+            if (data.stats && typeof data.stats === "object") { Object.assign(battle.stats, data.stats); }
+            return true;
+        }
         if (!Number.isInteger(data.seed)) { return false; }
         battle.seed = data.seed;
         battle.rng = mulberry32(data.seed);

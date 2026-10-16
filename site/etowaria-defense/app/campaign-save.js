@@ -1,6 +1,7 @@
-import { LEVELS, UNIT_RULES, ENEMY_RULES, SAVE_KEY, DECK_KEY, DECK_SIZE, DECK_ORDER, ACHIEVEMENTS, canOpenLevel, levelById, unlockedUnits } from "../data/campaign.js";
+import { LEVELS, ENDLESS, UNIT_RULES, ENEMY_RULES, SAVE_KEY, DECK_KEY, DECK_SIZE, DECK_ORDER, ACHIEVEMENTS, canOpenLevel, levelById, unlockedUnits } from "../data/campaign.js";
+import { evaluateChallenge } from "./challenge-evaluator.js";
 
-export function emptyProgress() { return { version: 1, completed: [], best: {}, lastLevel: "1-1", endless: null, endlessRun: null, materials: {}, town: {}, achievements: [] }; }
+export function emptyProgress() { return { version: 1, completed: [], best: {}, lastLevel: "1-1", endless: null, endlessRun: null, endlessRewards: null, materials: {}, town: {}, achievements: [] }; }
 
 // Levels are all open; a record only remembers what was cleared and how well.
 // Older saves (which required contiguous progress) remain valid as they are.
@@ -27,48 +28,117 @@ export function validateProgress(value) {
     return { version: 1, completed: LEVELS.filter(level => completed.includes(level.id)).map(level => level.id), best,
         lastLevel: typeof value.lastLevel === "string" && levelById(value.lastLevel) ? value.lastLevel : "1-1", endless,
         endlessRun: validateEndlessRun(value.endlessRun),
+        endlessRewards: validateEndlessRewards(value.endlessRewards),
         materials: validateMaterials(value.materials),
         town: validateTown(value.town),
         achievements: Array.isArray(value.achievements) ? [...new Set(value.achievements)].filter(id => ACHIEVEMENTS[id]) : [] };
 }
 
-// A mid-run endless checkpoint. Strictly capped so a corrupt or oversized
-// blob (the bench is at most the board's cell count) can't bloat storage.
 function validateEndlessRun(value) {
-    if (!value || value.version !== 1 || !Number.isInteger(value.seed) || !Number.isInteger(value.wave)
+    if (!value || ![1, 2].includes(value.version) || !Number.isInteger(value.seed) || !Number.isInteger(value.wave)
         || value.wave < 1 || value.wave > 9999 || !Number.isFinite(value.time) || value.time < 0 || value.time > 86400
         || !Number.isFinite(value.resource) || value.resource < 0 || value.resource > 1e7
-        || !Number.isInteger(value.restocks) || value.restocks < 0 || value.restocks > 99
-        || !Array.isArray(value.deck) || value.deck.length > 12 || value.deck.some(id => !DECK_ORDER.includes(id))
-        || !Array.isArray(value.units) || value.units.length > 45) { return null; }
+        || !Number.isInteger(value.restocks) || value.restocks < 0 || value.restocks > 9999
+        || !Array.isArray(value.deck) || value.deck.length > DECK_SIZE || value.deck.some(id => !DECK_ORDER.includes(id))
+        || !Array.isArray(value.units) || value.units.length > ENDLESS.rows * ENDLESS.cols) { return null; }
     const deck = [...new Set(value.deck)];
     if (!deck.length || deck.length > DECK_SIZE) { return null; }
     const units = [];
     const occupied = new Set();
     for (const entry of value.units) {
-        if (units.length >= 45) { break; }
         if (!entry || typeof entry.type !== "string" || !DECK_ORDER.includes(entry.type) || !deck.includes(entry.type) || !Number.isInteger(entry.row) || !Number.isInteger(entry.col)
-            || entry.row < 0 || entry.row > 8 || entry.col < 0 || entry.col > 11
+            || entry.row < 0 || entry.row >= ENDLESS.rows || entry.col < 0 || entry.col >= ENDLESS.cols
             || !Number.isFinite(entry.hp) || entry.hp < 1 || entry.hp > 1e6) { return null; }
         const position = `${entry.row}:${entry.col}`;
         if (occupied.has(position)) { return null; }
-        if (entry.gear !== null && typeof entry.gear !== "string") { return null; }
+        if (entry.gear != null && typeof entry.gear !== "string") { return null; }
         const gear = entry.gear ? UNIT_RULES[entry.gear] : null;
         if (entry.gear && (!gear || gear.kind !== "gear" || gear.gearFor?.length && !gear.gearFor.includes(entry.type))) { return null; }
         occupied.add(position);
-        units.push({ type: entry.type, row: entry.row, col: entry.col,
-            gear: entry.gear || null, hp: Math.round(entry.hp) });
+        units.push({ ...entry, type: entry.type, row: entry.row, col: entry.col, gear: entry.gear || null, hp: Math.round(entry.hp) });
     }
-    return { version: 1, level: typeof value.level === "string" ? value.level : "endless", seed: value.seed, wave: value.wave, time: value.time, resource: value.resource,
-        restocks: value.restocks, deck: [...new Set(value.deck)].slice(0, 12), units,
-        // 当前波击杀进度（断点续玩时用它扣波界，第五波奖励不凭空消失）。
-        waveProgress: value.waveProgress && typeof value.waveProgress === "object"
-            && Number.isInteger(value.waveProgress.total) && Number.isInteger(value.waveProgress.killed)
-            ? { total: Math.max(0, Math.min(45, value.waveProgress.total)), killed: Math.max(0, Math.min(45, value.waveProgress.killed)) } : null,
+    const base = { version: value.version, level: typeof value.level === "string" ? value.level : "endless", runId: typeof value.runId === "string" ? value.runId : null,
+        seed: value.seed, wave: value.wave, time: value.time, resource: value.resource, restocks: value.restocks, deck, units,
         stats: value.stats && typeof value.stats === "object" ? {
-            kills: Math.max(0, Math.round(value.stats.kills || 0)),
-            healed: Math.max(0, Math.round(value.stats.healed || 0)),
-            gatesUsed: Math.max(0, Math.round(value.stats.gatesUsed || 0)) } : { kills: 0, healed: 0, gatesUsed: 0 } };
+            kills: Math.max(0, Math.round(value.stats.kills || 0)), healed: Math.max(0, Math.round(value.stats.healed || 0)),
+            gatesUsed: Math.max(0, Math.round(value.stats.gatesUsed || 0)), wavesCleared: Math.max(0, Math.round(value.stats.wavesCleared || 0)),
+            generated: Math.max(0, Math.round(value.stats.generated || 0)), collected: Math.max(0, Math.round(value.stats.collected || 0)),
+            spent: Math.max(0, Math.round(value.stats.spent || 0)), deployed: Math.max(0, Math.round(value.stats.deployed || 0)),
+            recalls: Math.max(0, Math.round(value.stats.recalls || 0)), shielded: Math.max(0, Math.round(value.stats.shielded || 0)),
+            blocked: Math.max(0, Math.round(value.stats.blocked || 0)), defeatedUnits: Math.max(0, Math.round(value.stats.defeatedUnits || 0))
+        } : { kills: 0, healed: 0, gatesUsed: 0, wavesCleared: 0, generated: 0, collected: 0, spent: 0, deployed: 0, recalls: 0, shielded: 0, blocked: 0, defeatedUnits: 0 } };
+    if (value.version === 1) {
+        return { ...base, waveProgress: value.waveProgress && typeof value.waveProgress === "object"
+            && Number.isInteger(value.waveProgress.total) && Number.isInteger(value.waveProgress.killed)
+            ? { total: Math.max(0, Math.min(45, value.waveProgress.total)), killed: Math.max(0, Math.min(45, value.waveProgress.killed)) } : null };
+    }
+    if (typeof value.runId !== "string" || value.runId.length < 1 || value.runId.length > 100
+        || !Number.isInteger(value.rngState) || value.rngState < 0 || value.rngState > 0xffffffff
+        || !Number.isInteger(value.plannedWave) || value.plannedWave < 1 || value.plannedWave > 9999
+        || !Number.isFinite(value.nextWaveAt) || value.nextWaveAt < 0 || !Number.isInteger(value.spawnIndex)
+        || !Number.isInteger(value.nextSpawnIndex) || value.spawnIndex < 0 || value.nextSpawnIndex < value.spawnIndex || value.nextSpawnIndex > 100000
+        || !Array.isArray(value.spawns) || value.spawns.length > 400 || value.spawnIndex > value.spawns.length
+        || !Array.isArray(value.waveBounds) || value.waveBounds.length > 128 || value.waveBounds.some(row => !Array.isArray(row) || row.length !== 2)
+        || !Array.isArray(value.settledWaves) || value.settledWaves.length > 128
+        || new Set(value.settledWaves).size !== value.settledWaves.length || value.settledWaves.some(wave => !Number.isInteger(wave) || wave < 1 || wave > value.plannedWave)
+        || !Array.isArray(value.warned) || value.warned.length > 400 || value.warned.some(index => !Number.isInteger(index) || index < 0 || index >= value.nextSpawnIndex)
+        || !Array.isArray(value.enemies) || value.enemies.length > 120 || !Array.isArray(value.pending) || value.pending.length > 240
+        || !Array.isArray(value.projectiles) || value.projectiles.length > 120 || !Array.isArray(value.lobs) || value.lobs.length > 120
+        || !Array.isArray(value.pickups) || value.pickups.length > 80 || !Array.isArray(value.readyAt) || value.readyAt.length > 30
+        || !Array.isArray(value.gates) || value.gates.length !== ENDLESS.rows || value.gates.some(gate => typeof gate !== "boolean")) { return null; }
+    const finiteObject = item => item && Object.values(item).every(part => typeof part !== "number" || Number.isFinite(part));
+    const spawns = [];
+    const spawnIds = new Set();
+    for (const spawn of value.spawns) {
+        if (!finiteObject(spawn) || !Number.isFinite(spawn.at) || spawn.at < 0 || !Number.isInteger(spawn.row) || spawn.row < 0 || spawn.row >= ENDLESS.rows
+            || !ENEMY_RULES[spawn.type] || !Number.isInteger(spawn.wave) || spawn.wave < 1 || spawn.wave > value.plannedWave
+            || !Number.isFinite(spawn.hpScale) || spawn.hpScale <= 0 || !Number.isInteger(spawn.index) || spawn.index < 0 || spawn.index >= value.nextSpawnIndex
+            || spawnIds.has(spawn.index)) { return null; }
+        spawnIds.add(spawn.index); spawns.push({ ...spawn });
+    }
+    const waveBounds = [];
+    const boundWaves = new Set();
+    for (const [wave, bound] of value.waveBounds) {
+        if (!Number.isInteger(wave) || wave < 1 || wave > value.plannedWave || boundWaves.has(wave) || !bound || !Number.isInteger(bound.remaining)
+            || !Number.isInteger(bound.total) || bound.remaining < 0 || bound.total < bound.remaining || bound.total > 45
+            || (bound.modifier !== null && (!bound.modifier || typeof bound.modifier.kind !== "string" || typeof bound.modifier.label !== "string"))) { return null; }
+        boundWaves.add(wave); waveBounds.push([wave, { remaining: bound.remaining, total: bound.total, modifier: bound.modifier || null }]);
+    }
+    if (value.settledWaves.some(wave => !boundWaves.has(wave))) { return null; }
+    const enemies = [];
+    const enemyIds = new Set();
+    const enemyFields = ["hp", "maxHp", "speed", "nextAttack", "x", "armor", "maxArmor", "slowUntil", "slowFactor", "stunUntil", "vulnerableUntil", "vulnerable", "weakenUntil", "weaken", "burnUntil", "burnDps", "nextBurn", "reviveAt", "nextSpecial", "nextRoar", "armorBrokenAt", "cryHaste", "cryUntil"];
+    const finiteOrNull = value => value === null || Number.isFinite(value);
+    for (const enemy of value.enemies) {
+        if (!enemy || typeof enemy.id !== "string" || enemyIds.has(enemy.id) || !ENEMY_RULES[enemy.type] || !Number.isInteger(enemy.row) || enemy.row < 0 || enemy.row >= ENDLESS.rows
+            || !Number.isInteger(enemy.wave) || enemy.wave < 1 || enemy.wave > value.plannedWave || !boundWaves.has(enemy.wave)
+            || typeof enemy.summoned !== "boolean" || !["walking", "attacking", "shooting", "stunned", "reviving"].includes(enemy.state)
+            || enemyFields.some(key => enemy[key] !== undefined && !finiteOrNull(enemy[key]))) { return null; }
+        enemyIds.add(enemy.id); enemies.push({ ...enemy });
+    }
+    const pending = value.pending.map(action => ({ ...action }));
+    if (pending.some(action => !finiteObject(action) || typeof action.kind !== "string" || !Number.isFinite(action.at) || action.at < 0)) { return null; }
+    const projectiles = value.projectiles.map(projectile => ({ ...projectile, hit: [...projectile.hit] }));
+    if (projectiles.some(projectile => !finiteObject(projectile) || typeof projectile.id !== "string" || typeof projectile.source !== "string"
+        || !Array.isArray(projectile.hit) || projectile.hit.length > 120 || !Number.isInteger(projectile.row) || projectile.row < 0 || projectile.row >= ENDLESS.rows)) { return null; }
+    const lobs = value.lobs.map(lob => ({ ...lob }));
+    if (lobs.some(lob => !finiteObject(lob) || typeof lob.id !== "string" || !UNIT_RULES[lob.unitType] || !Number.isInteger(lob.row) || lob.row < 0 || lob.row >= ENDLESS.rows)) { return null; }
+    const pickups = value.pickups.map(pickup => ({ ...pickup }));
+    if (pickups.some(pickup => !finiteObject(pickup) || typeof pickup.id !== "string" || !Number.isInteger(pickup.row) || pickup.row < 0 || pickup.row >= ENDLESS.rows
+        || !Number.isFinite(pickup.amount) || pickup.amount < 0 || !Number.isFinite(pickup.autoAt))) { return null; }
+    const readyAt = value.readyAt.map(row => [row[0], row[1]]);
+    if (readyAt.some(row => !Array.isArray(row) || typeof row[0] !== "string" || !UNIT_RULES[row[0]] || !Number.isFinite(row[1]) || row[1] < 0)) { return null; }
+    return { ...base, runId: value.runId, rngState: value.rngState, plannedWave: value.plannedWave, nextWaveAt: value.nextWaveAt,
+        spawnIndex: value.spawnIndex, nextSpawnIndex: value.nextSpawnIndex, spawns, waveBounds, settledWaves: [...value.settledWaves], enemies, pending,
+        projectiles, lobs, pickups, readyAt, gates: [...value.gates], warned: [...value.warned], sequence: Number.isInteger(value.sequence) && value.sequence >= 0 ? value.sequence : 0,
+        nextNatural: Number.isFinite(value.nextNatural) && value.nextNatural >= value.time ? value.nextNatural : value.time,
+        materials: Array.isArray(value.materials) && value.materials.length <= 99 && value.materials.every(id => ["M1", "M2", "M3", "M4", "M5"].includes(id)) ? [...value.materials] : [] };
+}
+
+function validateEndlessRewards(value) {
+    if (!value || typeof value.runId !== "string" || value.runId.length < 1 || value.runId.length > 100 || !Array.isArray(value.receipts) || value.receipts.length > 9999) { return null; }
+    const receipts = [...new Set(value.receipts.filter(id => typeof id === "string" && /^.{1,100}:wave:[1-9]\d{0,3}$/.test(id)))];
+    return { runId: value.runId, receipts };
 }
 
 // 城镇素材：{ M1: 数量 }，每项 0-9999。
@@ -170,6 +240,7 @@ export class CampaignSave {
         if (newRecord) { this.progress.best[id] = result; }
         const index = LEVELS.findIndex(level => level.id === id);
         this.progress.lastLevel = LEVELS[Math.min(index + 1, LEVELS.length - 1)].id;
+        const challenge = evaluateChallenge(battle.level, battle.stats, battle.phase);
         const achievements = this.unlockAchievements([
             "first_clear",
             battle.stats.gatesUsed === 0 && "zero_gate",
@@ -177,7 +248,7 @@ export class CampaignSave {
             ENEMY_RULES[battle.level.newEnemy]?.boss && "boss_clear"].filter(Boolean));
         this.progress = validateProgress(this.progress);
         this.persist();
-        return { newRecord, first, achievements };
+        return { newRecord, first, achievements, challenge };
     }
 
     // Endless checkpoint, throttled by the caller (campaign.js). Storage
@@ -186,6 +257,42 @@ export class CampaignSave {
         this.progress.endlessRun = validateEndlessRun(data);
         if (this.progress.endlessRun) { this.persist(); }
         return !!this.progress.endlessRun;
+    }
+    settleEndlessReward({ runId, wave, drops, bonusDrops, checkpoint } = {}) {
+        if (typeof runId !== "string" || !runId || runId.length > 100 || !Number.isInteger(wave) || wave < 1 || wave > 9999
+            || !Array.isArray(drops) || !Array.isArray(bonusDrops)
+            || [...drops, ...bonusDrops].some(id => !["M1", "M2", "M3", "M4", "M5"].includes(id))) {
+            return { applied: false, saved: false };
+        }
+        const receipt = `${runId}:wave:${wave}`;
+        const currentRewards = this.progress.endlessRewards;
+        if (currentRewards?.receipts.includes(receipt)) {
+            return { applied: false, saved: true };
+        }
+        const endlessRun = checkpoint === null ? null : validateEndlessRun(checkpoint);
+        if (checkpoint !== null && (!endlessRun || endlessRun.version !== 2 || endlessRun.runId !== runId
+            || !endlessRun.settledWaves.includes(wave))) {
+            return { applied: false, saved: false };
+        }
+        const previous = this.progress;
+        const materials = { ...previous.materials };
+        for (const id of [...drops, ...bonusDrops]) {
+            materials[id] = Math.min(9999, (materials[id] || 0) + 1);
+        }
+        this.progress = {
+            ...previous,
+            endlessRun,
+            endlessRewards: {
+                runId,
+                receipts: [...(currentRewards?.receipts || []), receipt].slice(-9999)
+            },
+            materials
+        };
+        if (!this.persist()) {
+            this.progress = previous;
+            return { applied: false, saved: false };
+        }
+        return { applied: true, saved: true };
     }
     clearEndlessRun() {
         if (!this.progress.endlessRun) { return; }

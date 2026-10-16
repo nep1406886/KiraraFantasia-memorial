@@ -1,18 +1,14 @@
 import { LEVELS, UNIT_RULES, ENEMY_RULES, DECK_ORDER, GEAR_ORDER, DECK_SIZE, SAVE_KEY, TOWN_RULES, ENDLESS_MILESTONES, ACHIEVEMENTS, allLevels, levelById } from "../data/campaign.js";
 import { CampaignSave } from "./campaign-save.js";
+import { evaluateChallenge } from "./challenge-evaluator.js";
 import { portraitMarkup, siteUrl } from "./assets.js";
 import { ICONS } from "./icons.js";
 
 const DEFAULT_DECK = DECK_ORDER.slice(0, DECK_SIZE);
 const TIME = seconds => `${Math.floor(seconds / 60)}:${String(Math.floor(seconds % 60)).padStart(2, "0")}`;
 const WAVE_LABEL = level => level.endless ? "不限波次" : `${level.waves}波`;
-const challengeFor = level => {
-    if (!level || level.endless) { return null; }
-    const optional = level.optional || "";
-    if (optional.includes("有效治疗")) { return { label: optional, type: "healed", target: 1 }; }
-    if (optional.includes("不消耗")) { return { label: optional, type: "gates", target: 0 }; }
-    return null;
-};
+const challengeFor = level => level && !level.endless && level.challenge
+    ? { ...level.challenge, label: level.optional } : null;
 const tacticalHint = rule => {
     if (rule.healer) { return "优先击倒：会治疗附近来客"; }
     if (rule.armor) { return "用破甲攻击：护甲会先吸收伤害"; }
@@ -495,16 +491,29 @@ export class Campaign {
                 onNotice: text => { if (epoch === this.epoch) { this.notice(text); } },
                 onRestock: event => {
                     if (epoch !== this.epoch) { return; }
+                    const battle = this.view?.battle;
+                    if (!battle || battle.runId !== event.runId) { return; }
                     const drops = event.drops || [];
-                    this.save.grantMaterials(drops);
-                    if (event.wave && ENDLESS_MILESTONES[event.wave]) {
-                        const milestone = ENDLESS_MILESTONES[event.wave];
-                        const bonus = Array.from({ length: milestone.bonusMaterials }, (_, index) => `M${(event.wave + index) % 5 + 1}`);
-                        this.save.grantMaterials(bonus);
-                        this.notice(`里程碑：${milestone.label}。额外素材×${milestone.bonusMaterials}`);
+                    const bonusDrops = event.bonusDrops || [];
+                    const milestone = event.milestone || ENDLESS_MILESTONES[event.wave] || null;
+                    const settlement = this.save.settleEndlessReward({
+                        runId: event.runId,
+                        wave: event.wave,
+                        drops,
+                        bonusDrops,
+                        checkpoint: battle.serializeEndless()
+                    });
+                    if (!settlement.saved) {
+                        this.notice(this.save.problem || "奖励和巡守进度未能写入存档。");
+                        return;
                     }
-                    if (drops.length) {
-                        this.notice(`素材掉落：${drops.map(id => TOWN_RULES.materials[id]?.name || id).join("、")}（已入账城镇）。`);
+                    if (!settlement.applied) { return; }
+                    this._lastEndlessSave = battle.spawnIndex * 100000 + Math.floor(battle.time / 30);
+                    this.text("checkpoint-label", "已存");
+                    if (milestone) { this.notice(`里程碑：${milestone.label}。额外素材×${bonusDrops.length}`); }
+                    const earned = [...drops, ...bonusDrops];
+                    if (earned.length) {
+                        this.notice(`素材入账：${earned.map(id => TOWN_RULES.materials[id]?.name || id).join("、")}。`);
                     }
                 },
                 onWarning: warning => {
@@ -651,10 +660,10 @@ export class Campaign {
         if (!host) { return; }
         const level = levelById(this.levelId);
         const rows = level?.objective ? [{ label: level.objective, done: state.phase === "won" }] : [];
-        if (this.challenge) {
-            const value = state.stats?.[this.challenge.type] || 0;
-            const done = state.phase === "won" && (this.challenge.type === "gates" ? value === 0 : value >= this.challenge.target);
-            rows.push({ label: `${this.challenge.label}（${this.challenge.type === "gates" ? value : `${value}/${this.challenge.target}`}）`, done });
+        const challenge = evaluateChallenge(level, state.stats, state.phase);
+        if (challenge) {
+            const value = challenge.value;
+            rows.push({ label: `${challenge.label}（${challenge.type === "gates" ? value : `${value}/${challenge.target}`}）`, done: challenge.complete });
         }
         host.replaceChildren(...rows.map(row => {
             const item = document.createElement("span"); item.className = row.done ? "objective done" : "objective";
@@ -865,13 +874,14 @@ export class Campaign {
             row.textContent = `成就解锁：${ACHIEVEMENTS[achievement].name} — ${ACHIEVEMENTS[achievement].description}`;
             rewardList.append(row);
         }
-        if (!endless && this.challenge) {
-            const value = event.stats?.[this.challenge.type] || 0;
-            const done = won && (this.challenge.type === "gates" ? value === 0 : value >= this.challenge.target);
-            const challengeResult = document.createElement("p");
-            challengeResult.textContent = `${done ? "挑战完成" : "挑战未完成"}：${this.challenge.label}`;
-            challengeResult.className = done ? "challenge-success" : "challenge-failed";
-            rewardList.append(challengeResult);
+        if (!endless) {
+            const challenge = evaluateChallenge(battle.level, event.stats, event.result);
+            if (challenge) {
+                const challengeResult = document.createElement("p");
+                challengeResult.textContent = `${challenge.complete ? "挑战完成" : "挑战未完成"}：${challenge.label}`;
+                challengeResult.className = challenge.complete ? "challenge-success" : "challenge-failed";
+                rewardList.append(challengeResult);
+            }
         }
         // 无尽结算面补一行本局素材收获，让城镇掉落在结束时也看得见。
         if (endless && (battle.materials?.length || 0) > 0) {

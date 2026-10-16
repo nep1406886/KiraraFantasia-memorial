@@ -128,5 +128,7 @@ check("required original room resources are present", () => {
     }
 });
 const report = { date: "2026-09-24", scope: "identity, asset and isolated motion contracts; not gameplay or visual acceptance", results };
-await fs.writeFile(path.join(ROOT, "docs/etowaria-defense/research/p0-contract-results.json"), JSON.stringify(report, null, 2) + "\n");
+const reportPath = path.join(ROOT, "docs/etowaria-defense/research/p0-contract-results.json");
+await fs.mkdir(path.dirname(reportPath), { recursive: true });
+await fs.writeFile(reportPath, JSON.stringify(report, null, 2) + "\n");
 console.log(`${results.length} P0 contracts passed`);

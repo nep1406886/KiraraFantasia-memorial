@@ -2,7 +2,7 @@ import assert from "node:assert/strict";
 import fs from "node:fs/promises";
 import { readFileSync } from "node:fs";
 import { Battle } from "../site/etowaria-defense/sim/battle.js";
-import { LEVELS, UNIT_RULES, ENEMY_RULES, ENDLESS, TICK, DECK_ORDER, GEAR_ORDER, ACHIEVEMENTS, unlockedUnits } from "../site/etowaria-defense/data/campaign.js";
+import { LEVELS, UNIT_RULES, ENEMY_RULES, ENDLESS, TICK, DECK_ORDER, GEAR_ORDER, ACHIEVEMENTS, SAVE_KEY, unlockedUnits } from "../site/etowaria-defense/data/campaign.js";
 import { CampaignSave, validateProgress } from "../site/etowaria-defense/app/campaign-save.js";
 
 const checks = [];
@@ -433,8 +433,10 @@ test("an endless checkpoint round-trips and rejects corruption", () => {
     advance(b, 70);
     const checkpoint = b.serializeEndless();
     assert.ok(checkpoint && checkpoint.wave >= 2 && checkpoint.units.length === 2);
+    checkpoint.nextWaveAt = Math.max(0, checkpoint.time - 1);
     const saved = validateProgress({ version: 1, completed: [], best: {}, endlessRun: checkpoint }).endlessRun;
     assert.ok(saved, "validator kept the checkpoint");
+    assert.deepEqual(saved.warned, checkpoint.warned, "warning indices survive save validation");
     assert.equal(saved.level, "endless");
     // waveProgress survives the validator and stays bounded.
     assert.ok(!saved.waveProgress || (Number.isInteger(saved.waveProgress.total) && Number.isInteger(saved.waveProgress.killed)
@@ -442,6 +444,8 @@ test("an endless checkpoint round-trips and rejects corruption", () => {
     const restored = new Battle(ENDLESS, { deck: ["F01", "U07", "U15"], seed: 1 });
     assert.equal(Battle.applyEndless(restored, saved), true);
     assert.equal(restored.wave, checkpoint.wave);
+    assert.equal(restored.nextWaveAt, checkpoint.nextWaveAt);
+    assert.deepEqual([...restored.warned], checkpoint.warned);
     assert.equal(restored.units.size, checkpoint.units.length);
     assert.equal(restored.stats.kills, checkpoint.stats.kills);
     // Resume must not resurrect enemies from waves already settled: the queue
@@ -719,6 +723,34 @@ for (const { level, run } of played) {
 const memory = new Map();
 const storage = { getItem: key => memory.get(key) || null, setItem: (key, value) => memory.set(key, value) };
 const save = new CampaignSave(storage);
+test("endless reward receipt atomically saves drops, milestone bonus and checkpoint", () => {
+    const rewardMemory = new Map();
+    const rewardStorage = { getItem: key => rewardMemory.get(key) || null, setItem: (key, value) => rewardMemory.set(key, value) };
+    const rewards = new CampaignSave(rewardStorage);
+    const checkpointFor = runId => {
+        const battle = new Battle(ENDLESS, { deck: ["U01"], seed: 37, runId });
+        while (battle.plannedWave < 5) { battle.planWave(); }
+        battle.wave = 5;
+        battle.waveBounds.get(5).remaining = 0;
+        battle.settledWaves.add(5);
+        return battle.serializeEndless();
+    };
+    const checkpointA = checkpointFor("reward-run-A");
+    const receiptA = { runId: "reward-run-A", wave: 5, drops: ["M3"], bonusDrops: ["M1", "M2"], checkpoint: checkpointA };
+    assert.deepEqual(rewards.settleEndlessReward(receiptA), { applied: true, saved: true });
+    assert.deepEqual(rewards.progress.materials, { M1: 1, M2: 1, M3: 1 });
+    assert.equal(rewards.progress.endlessRun.runId, "reward-run-A");
+    assert.ok(rewards.progress.endlessRun.settledWaves.includes(5));
+    assert.deepEqual(new CampaignSave(rewardStorage).settleEndlessReward(receiptA), { applied: false, saved: true });
+    assert.deepEqual(new CampaignSave(rewardStorage).progress.materials, { M1: 1, M2: 1, M3: 1 });
+
+    const receiptB = { ...receiptA, runId: "reward-run-B", checkpoint: checkpointFor("reward-run-B") };
+    const reloaded = new CampaignSave(rewardStorage);
+    assert.deepEqual(reloaded.settleEndlessReward(receiptB), { applied: true, saved: true });
+    assert.deepEqual(reloaded.progress.endlessRewards.receipts, ["reward-run-A:wave:5", "reward-run-B:wave:5"]);
+    assert.deepEqual(reloaded.settleEndlessReward(receiptA), { applied: false, saved: true });
+    assert.deepEqual(reloaded.progress.materials, { M1: 2, M2: 2, M3: 2 });
+});
 test("levels unlock in order and a win is recorded once", () => {
     assert.equal(save.canOpen(LEVELS[0].id), true);
     assert.equal(save.canOpen(LEVELS[1].id), false);
@@ -781,6 +813,8 @@ test("achievements unlock once, are idempotent and validate round-trip", () => {
     assert.deepEqual(reloaded.progress.achievements.slice().sort(), fresh.progress.achievements.slice().sort());
     assert.ok(reloaded.progress.achievements.every(id => ACHIEVEMENTS[id]), "only known ids persist");
 });
+const resultsDir = new URL("../docs/etowaria-defense/research/", import.meta.url);
+await fs.mkdir(resultsDir, { recursive: true });
 await fs.writeFile(new URL("../docs/etowaria-defense/research/p1-simulation-results.json", import.meta.url),
     JSON.stringify({ date: "2026-09-26", scope: "Pure battle simulation with legal resources; browser and art verification separate", checks, runs }, null, 2) + "\n");
 console.log(JSON.stringify({ passed: checks.length, runs: runs.map(run => ({ level: run.level, seconds: run.seconds, stats: run.stats })) }, null, 2));

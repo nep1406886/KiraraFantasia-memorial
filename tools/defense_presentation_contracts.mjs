@@ -237,5 +237,7 @@ await testAsync("board lines fade with frames, and leave at once when frames sto
     const reduced = boardView({ manualClock: false, reducedMotion: true });
     reduced.view.select("F01"); assert.deepEqual(reduced.grid(), [true, .42], "reduced motion skips the fade");
 });
+const resultsDir = new URL("../docs/etowaria-defense/research/", import.meta.url);
+await fs.mkdir(resultsDir, { recursive: true });
 await fs.writeFile(new URL("../docs/etowaria-defense/research/presentation-contracts.json", import.meta.url), JSON.stringify({ scope:"Range, motion and naming contracts; separate browser proof required", results },null,2)+"\n");
 console.log(`${results.length} presentation contracts passed`);

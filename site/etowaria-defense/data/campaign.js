@@ -817,7 +817,7 @@ export const LEVELS = Object.freeze([
         spawns: [spawn(28, 1), spawn(58, 1), spawn(72, 0, "E01", 2), spawn(90, 1, "E01", 2),
             spawn(116, 2, "E01", 2), spawn(144, 0, "E01", 3), spawn(148, 1, "E01", 3), spawn(152, 2, "E01", 3)],
         objective: "守住三条道路。每行有一次紧急驱离结界。",
-        optional: "不消耗紧急结界", openingTip: "建议先在中路后方放应援台，再在它前面放本田珠辉。"
+        challenge: { type: "gates", target: 0 }, optional: "不消耗紧急结界", openingTip: "建议先在中路后方放应援台，再在它前面放本田珠辉。"
     },
     {
         id: "1-2", chapter: 1, theme: "day", title: "多出来的两条路", subtitle: "别只顾着中间，快脚步也需要留意。",
@@ -833,7 +833,7 @@ export const LEVELS = Object.freeze([
             spawn(148, 3, "E15", 3), spawn(170, 2, "E01", 4), spawn(172, 0, "E02", 4), spawn(176, 4, "E15", 4),
             spawn(180, 1, "E02", 4), spawn(184, 3, "E01", 4)],
         objective: "用经济和前排逐步建立五路防线。",
-        optional: "不消耗紧急结界", openingTip: "可以先投两张应援台，再按来袭顺序补足每一路的输出。"
+        challenge: { type: "gates", target: 0 }, optional: "不消耗紧急结界", openingTip: "可以先投两张应援台，再按来袭顺序补足每一路的输出。"
     },
     {
         id: "1-3", chapter: 1, theme: "day", title: "把后背交给同伴", subtitle: "骑士挡在前面，治疗和输出各自做好一件事。",
@@ -849,7 +849,7 @@ export const LEVELS = Object.freeze([
             spawn(146, 3, "E16", 3), spawn(154, 2, "E01", 3), spawn(170, 4, "E04", 4), spawn(175, 0, "E04", 4),
             spawn(181, 1, "E02", 4), spawn(185, 3, "E16", 4), spawn(192, 2, "E01", 4)],
         objective: "前排承伤、同路治疗、后排输出，守住高耐久来敌。",
-        optional: "至少完成一次有效治疗", openingTip: "由乃会照顾同一路受伤的同伴；隔着其他线路不能治疗。"
+        challenge: { type: "healed", target: 1 }, optional: "至少完成一次有效治疗", openingTip: "由乃会照顾同一路受伤的同伴；隔着其他线路不能治疗。"
     },
     {
         id: "1-4", chapter: 1, theme: "day", title: "随风来的客人", subtitle: "蒲公英会飘过前排，狼会抢在布阵之前冲来。",
@@ -865,7 +865,7 @@ export const LEVELS = Object.freeze([
             ...series(112, 6, [3, 0, 2, 4, 1], ["E09", "E20", "E04", "E17", "E05"], 3),
             ...series(160, 4, [2, 1, 3, 0, 4, 2], ["E20", "E09", "E05", "E17", "E09", "E01"], 4)],
         objective: "用高墙拦住越障的蒲公英，用迟缓拖住快腿的狼。",
-        optional: "不消耗紧急结界", openingTip: "折部安奈是唯一能挡住蒲公英的墙；志摩凛和小野坂小春能减慢来敌。"
+        challenge: { type: "gates", target: 0 }, optional: "不消耗紧急结界", openingTip: "折部安奈是唯一能挡住蒲公英的墙；志摩凛和小野坂小春能减慢来敌。"
     },
     {
         id: "1-5", chapter: 1, theme: "day", title: "孢子与光弹", subtitle: "躲在后面的蘑菇怪会治疗同伴，光玉在远处射击。",
@@ -881,7 +881,7 @@ export const LEVELS = Object.freeze([
             ...series(110, 6, [4, 2, 0, 3, 1], ["E21", "E06", "E22", "E01", "E09"], 3),
             ...series(156, 4, [2, 0, 4, 1, 3, 2, 0], ["E06", "E21", "E10", "E22", "E06", "E09", "E21"], 4)],
         objective: "优先击倒治疗同伴的蘑菇怪，别让光玉在远处慢慢消耗前排。",
-        optional: "不消耗紧急结界", openingTip: "贯穿的武田咏深和溅射的风色琴音、桐间纱路，能打到躲在后面的蘑菇怪。"
+        challenge: { type: "gates", target: 0 }, optional: "不消耗紧急结界", openingTip: "贯穿的武田咏深和溅射的风色琴音、桐间纱路，能打到躲在后面的蘑菇怪。"
     },
     {
         id: "1-6", chapter: 1, theme: "day", title: "花径的首领", subtitle: "小黑怪王带着手下来了。",
@@ -899,7 +899,7 @@ export const LEVELS = Object.freeze([
             ...series(146, 5, [1, 3, 0, 4, 2, 1], ["E06", "E24", "E05", "E09", "E10", "E24"], 4),
             spawn(190, 2, "E13", 5), ...series(196, 5, [0, 4, 1, 3], ["E04", "E09", "E05", "E06"], 5)],
         objective: "拖住小黑怪王，打碎它的护甲，别让召唤的小黑怪漏过去。",
-        optional: "不消耗紧急结界", openingTip: "玛莉·梦魔无视护甲，天王寺渚的易伤能让香风智乃的会心更痛。"
+        challenge: { type: "gates", target: 0 }, optional: "不消耗紧急结界", openingTip: "玛莉·梦魔无视护甲，天王寺渚的易伤能让香风智乃的会心更痛。"
     },
     {
         id: "1-7", chapter: 1, theme: "night", title: "夜路没有应援", subtitle: "夜里不再掉落クリエ，学会自己产经济。",
@@ -915,7 +915,7 @@ export const LEVELS = Object.freeze([
             ...series(118, 5, [3, 1, 4, 2, 0], ["E02", "E16", "E01", "E09", "E16"], 3),
             ...series(158, 4, [2, 0, 4, 1, 3, 2], ["E16", "E09", "E01", "E02", "E16", "E04"], 4)],
         objective: "夜里没有天然应援，靠采集台自己产经济，守住快脚步的夜袭。",
-        optional: "不消耗紧急结界", openingTip: "开局先放两台应援采集台；夜晚没有天降クリエ，所有经济都要自己产。"
+        challenge: { type: "gates", target: 0 }, optional: "不消耗紧急结界", openingTip: "开局先放两台应援采集台；夜晚没有天降クリエ，所有经济都要自己产。"
     },
     {
         id: "2-1", chapter: 2, theme: "camp", title: "营灯下的魔偶", subtitle: "披着护甲的魔偶在夜色里前进。",
@@ -931,7 +931,7 @@ export const LEVELS = Object.freeze([
             ...series(110, 6, [4, 2, 0, 3, 1], ["E12", "E07", "E02", "E19", "E07"], 3),
             ...series(158, 4, [2, 0, 4, 1, 3, 2], ["E07", "E18", "E07", "E09", "E19", "E04"], 4)],
         objective: "护甲会先吸收伤害。集中火力，或让玛莉·梦魔击碎它。",
-        optional: "不消耗紧急结界", openingTip: "扁扁的士兵和魔偶都有护甲；樱之宫莓香的连发能快速磨掉护甲。"
+        challenge: { type: "gates", target: 0 }, optional: "不消耗紧急结界", openingTip: "扁扁的士兵和魔偶都有护甲；樱之宫莓香的连发能快速磨掉护甲。"
     },
     {
         id: "2-2", chapter: 2, theme: "camp", title: "还会站起来的", subtitle: "丧丧丧尸倒下一次还会再起来，仙人掌怪会刺伤近战。",
@@ -947,7 +947,7 @@ export const LEVELS = Object.freeze([
             ...series(110, 6, [3, 0, 2, 4, 1], ["E11", "E08", "E23", "E09", "E04"], 3),
             ...series(156, 4, [2, 1, 3, 0, 4, 2, 1], ["E08", "E23", "E08", "E07", "E05", "E08", "E11"], 4)],
         objective: "丧丧丧尸要打倒两次；对付仙人掌怪时，让远程伙伴动手。",
-        optional: "不消耗紧急结界", openingTip: "远程和药瓶不会被仙人掌反伤；木之幡米拉的击退能给后排争取时间。"
+        challenge: { type: "gates", target: 0 }, optional: "不消耗紧急结界", openingTip: "远程和药瓶不会被仙人掌反伤；木之幡米拉的击退能给后排争取时间。"
     },
     {
         id: "2-3", chapter: 2, theme: "camp", title: "营地的长夜", subtitle: "树怪与小黑怪王一起来袭，守到天亮。",
@@ -965,7 +965,7 @@ export const LEVELS = Object.freeze([
             ...series(146, 5, [1, 3, 0, 4, 2, 1], ["E12", "E14", "E19", "E21", "E07", "E08"], 4),
             spawn(188, 2, "E13", 5), spawn(192, 0, "E14", 5), ...series(198, 4, [4, 1, 3, 0], ["E18", "E24", "E17", "E23"], 5)],
         objective: "最终决战：树怪、魔偶与小黑怪王一起来袭。",
-        optional: "不消耗紧急结界", openingTip: "关谷鸣的节奏支援让周围伙伴出手更快；兰普的麻痹能让首领停下。"
+        challenge: { type: "gates", target: 0 }, optional: "不消耗紧急结界", openingTip: "关谷鸣的节奏支援让周围伙伴出手更快；兰普的麻痹能让首领停下。"
     },
     {
         id: "3-1", chapter: 3, theme: "night", title: "夜营新面孔", subtitle: "盗贼和多足怪从黑暗里摸来。",
@@ -984,7 +984,7 @@ export const LEVELS = Object.freeze([
             ...series(196, 4, [1, 3, 0, 4, 2, 1], ["E28", "E25", "E29", "E26", "E25", "E28"], 5),
             spawn(236, 2, "E30", 6), ...series(244, 5, [0, 4, 1, 3], ["E27", "E29", "E25", "E28"], 6)],
         objective: "应对新类型来客，守到第六波。",
-        optional: "不消耗紧急结界", openingTip: "千戶的储备台是后期经济的心腹，哪怕费高也值当初投资。"
+        challenge: { type: "gates", target: 0 }, optional: "不消耗紧急结界", openingTip: "千戶的储备台是后期经济的心腹，哪怕费高也值当初投资。"
     },
     {
         id: "3-2", chapter: 3, theme: "night", title: "紫色迷雾", subtitle: "蓄能的法师最先该击倒。",
@@ -1004,7 +1004,7 @@ export const LEVELS = Object.freeze([
             spawn(228, 2, "E30", 6), spawn(232, 0, "E28", 6), ...series(238, 4, [4, 1, 3, 2], ["E29", "E27", "E25", "E28"], 6),
             spawn(272, 0, "E30", 7), ...series(276, 4, [2, 4, 1, 3], ["E29", "E27", "E28", "E25"], 7)],
         objective: "看住蓄能法师被逼到后期问题。",
-        optional: "不消耗紧急结界", openingTip: "U03 的贯穿魔球能打穿蓄能师的后排，U24 的麻痹能立刻闭蓄能。"
+        challenge: { type: "gates", target: 0 }, optional: "不消耗紧急结界", openingTip: "U03 的贯穿魔球能打穿蓄能师的后排，U24 的麻痹能立刻闭蓄能。"
     },
     {
         id: "3-3", chapter: 3, theme: "night", title: "众石出逊", subtitle: "岩壳魔蟹的加入让任何夜路都贯重。",
@@ -1024,7 +1024,7 @@ export const LEVELS = Object.freeze([
             spawn(220, 2, "E30", 6), spawn(224, 0, "E28", 6), spawn(228, 4, "E28", 6), ...series(232, 4, [1, 3, 2], ["E27", "E28", "E29"], 6),
             spawn(272, 0, "E28", 7), spawn(276, 4, "E28", 7), ...series(280, 4, [2, 1, 3], ["E28", "E29", "E25"], 7)],
         objective: "守住全路线，击退高护甲海。",
-        optional: "不消耗紧急结界", openingTip: "U26 的贯甲蓄力一发可必倒 E28；U10 对连续血下破岩最初安抚它。"
+        challenge: { type: "gates", target: 0 }, optional: "不消耗紧急结界", openingTip: "U26 的贯甲蓄力一发可必倒 E28；U10 对连续血下破岩最初安抚它。"
     },
     {
         id: "3-4", chapter: 3, theme: "night", title: "碎岩巨人", subtitle: "最后的召召士，它带荙它的飞伙伴。",
@@ -1045,7 +1045,7 @@ export const LEVELS = Object.freeze([
             spawn(290, 0, "E28", 7), spawn(294, 4, "E28", 7), spawn(298, 2, "E30", 7), ...series(302, 4, [1, 3, 0, 4, 2], ["E29", "E28", "E25", "E27", "E28"], 7),
             spawn(338, 2, "E30", 8), ...series(344, 4, [0, 4, 1, 3, 2, 0], ["E28", "E29", "E25", "E27", "E28", "E29"], 8)],
         objective: "三场召召士终场袭击，守到天亮。",
-        optional: "不消耗紧急结界", openingTip: "千戶的储备台这时候才真正拙力，记住它没有它是守不下去的。"
+        challenge: { type: "gates", target: 0 }, optional: "不消耗紧急结界", openingTip: "千戶的储备台这时候才真正拙力，记住它没有它是守不下去的。"
     },
     // ─── 第四章　深夜来客 ─────────────────────────────────────────────
     {
@@ -1063,7 +1063,7 @@ export const LEVELS = Object.freeze([
             ...series(148, 4, [2, 0, 4, 3, 1], ["E31", "E35", "E09", "E35", "E31"], 4),
             ...series(184, 4, [1, 3, 0, 4, 2], ["E35", "E31", "E17", "E35", "E31"], 5)],
         objective: "兔子和老鼠都是快腿来客，用连斩和击退打断它们。",
-        optional: "不消耗紧急结界", openingTip: "凉风青叶和九条可怜的近战会心对薄血快客最有效。"
+        challenge: { type: "gates", target: 0 }, optional: "不消耗紧急结界", openingTip: "凉风青叶和九条可怜的近战会心对薄血快客最有效。"
     },
     {
         id: "4-2", chapter: 4, theme: "night", title: "熊兵的前哨", subtitle: "巡逻的熊兵带着铁皮甲。",
@@ -1080,7 +1080,7 @@ export const LEVELS = Object.freeze([
             ...series(152, 4, [2, 0, 4, 3, 1], ["E38", "E19", "E07", "E19", "E38"], 4),
             ...series(188, 4, [1, 3, 0, 4, 2], ["E19", "E38", "E07", "E19", "E38"], 5)],
         objective: "铁皮甲会拦住普通攻击，用会心和贯甲把铁皮剥下来。",
-        optional: "不消耗紧急结界", openingTip: "後藤一里的贯甲和玛莉·梦魔的破甲对铁皮熊兵最有效。"
+        challenge: { type: "gates", target: 0 }, optional: "不消耗紧急结界", openingTip: "後藤一里的贯甲和玛莉·梦魔的破甲对铁皮熊兵最有效。"
     },
     {
         id: "4-3", chapter: 4, theme: "night", title: "影子守门", subtitle: "沉重的守卫和厚甲的金尾魔物一起压来。",
@@ -1098,7 +1098,7 @@ export const LEVELS = Object.freeze([
             ...series(196, 4, [1, 3, 0, 4, 2, 1], ["E32", "E33", "E34", "E32", "E33", "E34"], 5),
             ...series(240, 4, [2, 0, 4, 1, 3], ["E34", "E32", "E33", "E34", "E32"], 6)],
         objective: "高护甲的守门兽会拖住整路，准备充足的破甲输出和补充治疗。",
-        optional: "不消耗紧急结界", openingTip: "用後藤一里贯甲先打掉庭园守卫的护甲，再让输出集火砂肝太郎。"
+        challenge: { type: "gates", target: 0 }, optional: "不消耗紧急结界", openingTip: "用後藤一里贯甲先打掉庭园守卫的护甲，再让输出集火砂肝太郎。"
     },
     {
         id: "4-4", chapter: 4, theme: "night", title: "会治疗的鲨鱼", subtitle: "新的治疗师在水里游，还带着一堵会移动的墙。",
@@ -1116,7 +1116,7 @@ export const LEVELS = Object.freeze([
             ...series(196, 4, [1, 3, 0, 4, 2, 1], ["E34", "E36", "E21", "E34", "E36", "E34"], 5),
             spawn(238, 2, "E34", 6), spawn(242, 0, "E34", 6), ...series(248, 4, [4, 1, 3, 2], ["E36", "E21", "E34", "E36"], 6)],
         objective: "先击倒鲨鱼治疗师，再集火庭园守卫。",
-        optional: "不消耗紧急结界", openingTip: "穿透攻击能绕过前排打到鲨鱼，灼烧能压住它的治疗。"
+        challenge: { type: "gates", target: 0 }, optional: "不消耗紧急结界", openingTip: "穿透攻击能绕过前排打到鲨鱼，灼烧能压住它的治疗。"
     },
     {
         id: "4-5", chapter: 4, theme: "night", title: "水云飘过了门口", subtitle: "水云和金尾魔物一起过来了。",
@@ -1135,7 +1135,7 @@ export const LEVELS = Object.freeze([
             ...series(240, 4, [2, 0, 4, 1, 3, 2], ["E37", "E33", "E05", "E37", "E33", "E37"], 6),
             spawn(280, 2, "E34", 7), ...series(288, 4, [0, 4, 1, 3], ["E37", "E33", "E37", "E33"], 7)],
         objective: "水云和蒲公英都会跳过前排，把高墙和击退放在它们前面。",
-        optional: "不消耗紧急结界", openingTip: "吉田优子的守夜重骑能拦住水云；一井透的击退能把金尾魔物打回去。"
+        challenge: { type: "gates", target: 0 }, optional: "不消耗紧急结界", openingTip: "吉田优子的守夜重骑能拦住水云；一井透的击退能把金尾魔物打回去。"
     },
     {
         id: "4-6", chapter: 4, theme: "night", title: "众影齐聚", subtitle: "今夜所有来客一起出动。",
@@ -1156,7 +1156,7 @@ export const LEVELS = Object.freeze([
             spawn(292, 0, "E30", 7), spawn(296, 4, "E30", 7), ...series(302, 4, [2, 1, 3, 0], ["E38", "E36", "E34", "E38"], 7),
             spawn(340, 2, "E30", 8), ...series(346, 4, [0, 4, 1, 3, 2], ["E38", "E36", "E34", "E38", "E36"], 8)],
         objective: "最终夜袭：众影齐聚，守住最后一班岗。",
-        optional: "不消耗紧急结界", openingTip: "硬胶墙挡不住所有方向，把最强输出集中在首领那一行。"
+        challenge: { type: "gates", target: 0 }, optional: "不消耗紧急结界", openingTip: "硬胶墙挡不住所有方向，把最强输出集中在首领那一行。"
     }
 ]);
 
@@ -1174,7 +1174,7 @@ export const ENDLESS = Object.freeze({
     ],
     spawns: [],
     objective: "守到尽可能多的波次。每5波会有首领来袭。",
-    optional: "刷新最佳波次", openingTip: "前几波来客较少，趁机多放几台应援采集台。"
+    challenge: null, optional: "刷新最佳波次", openingTip: "前几波来客较少，趁机多放几台应援采集台。"
 });
 
 export const ACHIEVEMENTS = Object.freeze({
