@@ -1177,20 +1177,46 @@ export const ENDLESS = Object.freeze({
     challenge: null, optional: "刷新最佳波次", openingTip: "前几波来客较少，趁机多放几台应援采集台。"
 });
 
+// 成就：进度 / 技巧 / 挑战 / 无尽 四类。同类塔防靠这类长期目标留住
+// 玩家，而原来只有 6 条「打完某关」级别的记录。每条都由 finish() 里
+// 已经统计好的 battle.stats 判定，不引入新的运行时状态。
 export const ACHIEVEMENTS = Object.freeze({
+    // —— 进度 ——
     first_clear: Object.freeze({ name: "第一班岗", description: "完成任意一关普通巡守" }),
+    chapter_1: Object.freeze({ name: "花径的尽头", description: "完成第一章全部关卡" }),
+    chapter_2: Object.freeze({ name: "营灯不灭", description: "完成第二章全部关卡" }),
+    chapter_3: Object.freeze({ name: "夜火同行", description: "完成第三章全部关卡" }),
+    chapter_4: Object.freeze({ name: "众影归位", description: "完成第四章全部关卡" }),
+    boss_clear: Object.freeze({ name: "首领退场", description: "完成一关首领巡守" }),
+    // —— 技巧 ——
     zero_gate: Object.freeze({ name: "结界未动", description: "不消耗结界完成普通巡守" }),
     healer: Object.freeze({ name: "及时援手", description: "完成至少一次有效治疗" }),
-    boss_clear: Object.freeze({ name: "首领退场", description: "完成一关首领巡守" }),
+    no_recall: Object.freeze({ name: "一次布阵", description: "不召回任何同伴完成一关" }),
+    keeper: Object.freeze({ name: "全员平安", description: "没有同伴倒下完成一关" }),
+    shield_wall: Object.freeze({ name: "屏障如壁", description: "单关挡下至少 10 次攻击" }),
+    swift: Object.freeze({ name: "速战速决", description: "在 90 秒内完成一关" }),
+    // —— 挑战 ——
+    rich: Object.freeze({ name: "应援如山", description: "单局累计收集 3000 クリエ" }),
+    big_spender: Object.freeze({ name: "倾巢而出", description: "单局部署 30 名同伴" }),
+    // —— 无尽 ——
     endless_10: Object.freeze({ name: "十波之后", description: "无尽巡守达到第10波" }),
-    endless_20: Object.freeze({ name: "深夜常驻", description: "无尽巡守达到第20波" })
+    endless_20: Object.freeze({ name: "深夜常驻", description: "无尽巡守达到第20波" }),
+    endless_30: Object.freeze({ name: "长夜守望", description: "无尽巡守达到第30波" }),
+    endless_50: Object.freeze({ name: "无尽的门槛", description: "无尽巡守达到第50波" })
 });
 
+// 无尽里程碑：每 5 波给一次额外素材，越往后越厚。原来只有 4 档
+// （到 30 波为止），长线跑图没有新的中点目标；补到 60 波并让奖励
+// 递增，配合 18 条成就形成完整的长期曲线。
 export const ENDLESS_MILESTONES = Object.freeze({
     5: Object.freeze({ label: "守过五波", bonusMaterials: 1 }),
     10: Object.freeze({ label: "守过十波", bonusMaterials: 2 }),
+    15: Object.freeze({ label: "守过十五波", bonusMaterials: 2 }),
     20: Object.freeze({ label: "守过二十波", bonusMaterials: 3 }),
-    30: Object.freeze({ label: "深夜常驻", bonusMaterials: 5 })
+    30: Object.freeze({ label: "深夜常驻", bonusMaterials: 5 }),
+    40: Object.freeze({ label: "四波轮回", bonusMaterials: 6 }),
+    50: Object.freeze({ label: "无尽的门槛", bonusMaterials: 8 }),
+    60: Object.freeze({ label: "长夜尽头", bonusMaterials: 10 })
 });
 export const ENDLESS_ROSTER = [
     { type: "E01", from: 1 }, { type: "E02", from: 1 }, { type: "E15", from: 2 }, { type: "E05", from: 2 },

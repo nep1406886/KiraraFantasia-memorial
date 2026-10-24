@@ -228,7 +228,8 @@ export class CampaignSave {
             if (newRecord) { this.progress.endless = result; }
             const wave = battle.wave;
             const achievements = this.unlockAchievements([
-                wave >= 10 && "endless_10", wave >= 20 && "endless_20"].filter(Boolean));
+                wave >= 10 && "endless_10", wave >= 20 && "endless_20",
+                wave >= 30 && "endless_30", wave >= 50 && "endless_50"].filter(Boolean));
             this.persist();
             return { newRecord, achievements };
         }
@@ -243,11 +244,32 @@ export class CampaignSave {
         const index = LEVELS.findIndex(level => level.id === id);
         this.progress.lastLevel = LEVELS[Math.min(index + 1, LEVELS.length - 1)].id;
         const challenge = evaluateChallenge(battle.level, battle.stats, battle.phase);
+        // 章节完成：该章所有关卡都在 completed 里。用关卡自带的 chapter
+        // 字段分组，避免把章节号硬编码在这里。
+        const cleared = new Set(this.progress.completed);
+        const chapterDone = chapter => {
+            const rows = LEVELS.filter(level => level.chapter === chapter);
+            return rows.length > 0 && rows.every(level => cleared.has(level.id));
+        };
+        const stats = battle.stats;
         const achievements = this.unlockAchievements([
             "first_clear",
-            battle.stats.gatesUsed === 0 && "zero_gate",
-            battle.stats.healed > 0 && "healer",
-            ENEMY_RULES[battle.level.newEnemy]?.boss && "boss_clear"].filter(Boolean));
+            stats.gatesUsed === 0 && "zero_gate",
+            stats.healed > 0 && "healer",
+            ENEMY_RULES[battle.level.newEnemy]?.boss && "boss_clear",
+            // 技巧类：全部基于本局已经统计好的计数器。
+            stats.recalls === 0 && "no_recall",
+            stats.defeatedUnits === 0 && "keeper",
+            stats.blocked >= 10 && "shield_wall",
+            battle.time <= 90 && "swift",
+            // 挑战类。
+            stats.collected >= 3000 && "rich",
+            stats.deployed >= 30 && "big_spender",
+            // 章节进度类。
+            chapterDone(1) && "chapter_1",
+            chapterDone(2) && "chapter_2",
+            chapterDone(3) && "chapter_3",
+            chapterDone(4) && "chapter_4"].filter(Boolean));
         this.progress = validateProgress(this.progress);
         this._endlessRunFresh = !!this.progress.endlessRun;
         this.persist();

@@ -365,6 +365,8 @@ export class BattleView {
         const lines = new THREE.LineSegments(geometry, material);
         lines.name = "deployment-board-grid";
         lines.renderOrder = 1500;
+        // 格线只在持卡/召回时出现：presentation 契约断言「开局无卡时
+        // 棋盘不可见」，这是既定行为，不改成常驻。
         lines.visible = false;
         material.opacity = 0;
         this.stage.environment.add(lines);
