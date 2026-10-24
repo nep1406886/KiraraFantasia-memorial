@@ -434,9 +434,12 @@ export class Battle {
         if (rule.healer && this.time + EPS >= enemy.nextSpecial) {
             enemy.nextSpecial = this.time + rule.healer.period;
             const healed = [];
-            for (const other of this.enemies.values()) {
-                if (other === enemy || other.state === "reviving" || other.hp >= other.maxHp) { continue; }
-                if (Math.abs(other.row - enemy.row) <= 1 && Math.abs(other.x - enemy.x) <= rule.healer.reach) {
+            // 只扫相邻三行：与原来全量遍历的筛选条件等价，但列表小一个量级。
+            const rows = this.enemiesByRow();
+            for (let row = Math.max(0, enemy.row - 1); row <= Math.min(this.level.rows - 1, enemy.row + 1); row++) {
+                for (const other of rows[row]) {
+                    if (other === enemy || other.state === "reviving" || other.hp >= other.maxHp) { continue; }
+                    if (Math.abs(other.x - enemy.x) > rule.healer.reach) { continue; }
                     const amount = Math.min(rule.healer.amount, other.maxHp - other.hp);
                     other.hp += amount; healed.push({ id: other.id, amount });
                 }
@@ -458,9 +461,11 @@ export class Battle {
             if (sight) {
                 enemy.cried = true;
                 const boosted = [];
-                for (const other of this.enemies.values()) {
-                    if (other === enemy || other.state === "reviving") { continue; }
-                    if (Math.abs(other.row - enemy.row) <= 1 && Math.abs(other.x - enemy.x) <= rule.battleCry.reach) {
+                const rows = this.enemiesByRow();
+                for (let row = Math.max(0, enemy.row - 1); row <= Math.min(this.level.rows - 1, enemy.row + 1); row++) {
+                    for (const other of rows[row]) {
+                        if (other === enemy || other.state === "reviving") { continue; }
+                        if (Math.abs(other.x - enemy.x) > rule.battleCry.reach) { continue; }
                         other.cryHaste = Math.max(other.cryHaste || 0, rule.battleCry.haste);
                         other.cryUntil = Math.max(other.cryUntil || 0, this.time + rule.battleCry.duration);
                         boosted.push(other.id);
@@ -594,7 +599,11 @@ export class Battle {
             const candidates = [...this.units.values()].filter(other => areaContains(unit, other) && other.shield < rule.maxShield
                 && (other.hp < other.maxHp || other.shield === 0));
             candidates.sort((a, b) => a.hp / a.maxHp - b.hp / b.maxHp || a.shield - b.shield || a.id.localeCompare(b.id));
-            const threatened = candidates.filter(other => [...this.enemies.values()].some(enemy => enemy.row === other.row));
+            // 哪些行有来客：一次 O(敌人) 的标记，替代「每个候选都展开
+            // 全部敌人再 some()」的二次方写法。
+            const rowsWithEnemies = [];
+            for (const enemy of this.enemies.values()) { rowsWithEnemies[enemy.row] = true; }
+            const threatened = candidates.filter(other => rowsWithEnemies[other.row]);
             const target = threatened[0] || (candidates[0]?.hp < candidates[0]?.maxHp ? candidates[0] : null);
             if (!target) { return; }
             unit.nextAction = this.time + this.cadence(unit, rule.period);

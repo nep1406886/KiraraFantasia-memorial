@@ -831,50 +831,10 @@ export class BattleView {
         case "unitAction": this.unitAction(event); break;
         case "enemyAttack": this.enemyAttack(event, model); break;
         // 原作「バトルクライ」：第一次望见同伴时嗥叫，周围来客提速。
-        case "battleCry": {
-            if (model) {
-                model.play("skill_1", false);
-                this.emit("ef_btl_buff_ring", model.group.position.clone(), .9);
-                this.floater(model, "バトルクライ！", "enemy-heal");
-                // 狼嚎：上行扫频的啸声（原作技能的听感依据），一次一只不叠加。
-                this.options.audio.se?.("whoosh", { volume: 0.5 });
-                for (const id of event.boosted.slice(0, 6)) {
-                    const other = this.models.get(id);
-                    if (other) { this.emit("ef_btl_buff_line", other.bodyPoint(), .6); }
-                }
-            }
-            break;
-        }
-        // 原作「クッマッマー」：周期低吼，推迟相邻同伴的出手。
-        case "enemyRoar": {
-            if (model) {
-                model.play("skill_1", false);
-                this.emit("ef_btl_debuff_line", model.group.position.clone(), 1);
-                // 低吼：低频下坠的轰声，比狼嚎更沉。
-                this.options.audio.se?.("death", { volume: 0.45 });
-                for (const id of event.affected.slice(0, 6)) {
-                    const other = this.models.get(id);
-                    if (other) { this.floater(other, "迟缓", "hurt"); }
-                }
-            }
-            break;
-        }
-        // 原作「1回だけHPが1残り全回復」：濒死免死一次并全恢复。
-        case "lastStand": {
-            if (model) {
-                this.emit("ef_btl_recover_00", model.group.position.clone(), model.scale || .7);
-                this.emit("ef_btl_recover_01", model.group.position.clone(), model.scale || .7);
-                this.floater(model, "千载一击·挺住了！", "shield");
-                // 免死时刻：原作 levelup 的上行琶音短促版本，不是胜利号角。
-                this.options.audio.se?.("levelup", { volume: 0.45 });
-            }
-            break;
-        }
-        case "killHaste": {
-            const other = this.models.get(event.id);
-            if (other) { this.emit("ef_btl_buff_line", other.bodyPoint(), .5); }
-            break;
-        }
+        case "battleCry": this.battleCry(event, model); break;
+        case "enemyRoar": this.enemyRoar(event, model); break;
+        case "lastStand": this.lastStand(model); break;
+        case "killHaste": this.killHaste(event); break;
         case "projectile": this.projectile(event); break;
         case "projectileRemoved": this.projectileRemoved(event); break;
         case "lob": this.lob(event); break;
@@ -996,9 +956,15 @@ export class BattleView {
                 }
             }
             if (event.freeze) {
-                for (let row = Math.max(0, event.row - 1); row <= Math.min(this.level.rows - 1, event.row + 1); row++) {
-                    const enemy = [...this.battle.enemies.values()].find(e2 => e2.row === row && Math.abs(e2.x - event.col) <= 1.5);
-                    const other = enemy && this.models.get(enemy.id);
+                // 一次遍历取每行最近的那只（原来每行都展开全部敌人再 find）。
+                const perRow = new Map();
+                for (const enemy of this.battle.enemies.values()) {
+                    if (Math.abs(enemy.row - event.row) > 1 || Math.abs(enemy.x - event.col) > 1.5) { continue; }
+                    const best = perRow.get(enemy.row);
+                    if (!best || Math.abs(enemy.x - event.col) < Math.abs(best.x - event.col)) { perRow.set(enemy.row, enemy); }
+                }
+                for (const enemy of perRow.values()) {
+                    const other = this.models.get(enemy.id);
                     if (other) { this.emit("ef_btl_stun_occur", other.bodyPoint(), .9); this.floater(other, "冻结", "stun"); }
                 }
             }
@@ -1032,6 +998,48 @@ export class BattleView {
             break;
         default: break;
         }
+    }
+
+    // 原作「バトルクライ」：狼嚎为周围同伴提速。
+    battleCry(event, model) {
+        if (!model) { return; }
+        model.play("skill_1", false);
+        this.emit("ef_btl_buff_ring", model.group.position.clone(), .9);
+        this.floater(model, "バトルクライ！", "enemy-heal");
+        // 狼嚎：上行扫频的啸声（原作技能的听感依据），一次一只不叠加。
+        this.options.audio.se?.("whoosh", { volume: 0.5 });
+        for (const id of event.boosted.slice(0, 6)) {
+            const other = this.models.get(id);
+            if (other) { this.emit("ef_btl_buff_line", other.bodyPoint(), .6); }
+        }
+    }
+
+    // 原作「クッマッマー」：周期低吼，推迟相邻同伴的出手。
+    enemyRoar(event, model) {
+        if (!model) { return; }
+        model.play("skill_1", false);
+        this.emit("ef_btl_debuff_line", model.group.position.clone(), 1);
+        // 低吼：低频下坠的轰声，比狼嚎更沉。
+        this.options.audio.se?.("death", { volume: 0.45 });
+        for (const id of event.affected.slice(0, 6)) {
+            const other = this.models.get(id);
+            if (other) { this.floater(other, "迟缓", "hurt"); }
+        }
+    }
+
+    // 原作「1回だけHPが1残り全回復」：濒死免死一次并全恢复。
+    lastStand(model) {
+        if (!model) { return; }
+        this.emit("ef_btl_recover_00", model.group.position.clone(), model.scale || .7);
+        this.emit("ef_btl_recover_01", model.group.position.clone(), model.scale || .7);
+        this.floater(model, "千载一击·挺住了！", "shield");
+        // 免死时刻：原作 levelup 的上行琶音短促版本，不是胜利号角。
+        this.options.audio.se?.("levelup", { volume: 0.45 });
+    }
+
+    killHaste(event) {
+        const other = this.models.get(event.id);
+        if (other) { this.emit("ef_btl_buff_line", other.bodyPoint(), .5); }
     }
 
     // 命中特效按攻击者属性取原作元素图。玩家单位从 catalogue 拿
