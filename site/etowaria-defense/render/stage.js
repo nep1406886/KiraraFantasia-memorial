@@ -15,12 +15,14 @@ const ENEMIES = [
 ];
 const PLACEMENT = { U01: [0, 2], U07: [2, 4], U11: [0, 5], U12: [2, 5], U15: [2, 2], U19: [4, 2] };
 const THEMES = {
-    day: { title: "里口花径", caption: "里外的花径", rows: 5, art: "day" },
-    camp: { title: "星灯营地", caption: "营灯点亮之后", rows: 5, art: "camp" },
-    water: { title: "浅湾合宿", caption: "先准备好落脚的地方", rows: 6, art: "water" },
+    // field: 共享沙地颗粒底图上乘的色调。草地偏暖绿、营地偏土黄、水边偏
+    // 冷青、夜战压暗但保持暖底（原作夜景也是亮的）。
+    day: { title: "里口花径", caption: "里外的花径", rows: 5, art: "day", field: 0xa8cf62 },
+    camp: { title: "星灯营地", caption: "营灯点亮之后", rows: 5, art: "camp", field: 0xc8b273 },
+    water: { title: "浅湾合宿", caption: "先准备好落脚的地方", rows: 6, art: "water", field: 0x9fc9c4 },
     // Chapter 3-4 use the night palette; it shares the camp's art but lights
     // its fire and lantern, so every theme key resolves to real scenery.
-    night: { title: "夜火集结", caption: "深夜的守望", rows: 5, art: "camp" }
+    night: { title: "夜火集结", caption: "深夜的守望", rows: 5, art: "camp", field: 0x8f8467 }
 };
 
 export class DefenseStage {
@@ -342,15 +344,38 @@ export class DefenseStage {
             return [key, texture];
         }));
         this.backgrounds = Object.fromEntries(themes);
-        this.fieldTextures = Object.fromEntries(await Promise.all(Object.keys(THEMES).map(async key => {
-            const art = THEMES[key].art || key;
-            const texture = await textureLoader.loadAsync(new URL(`../assets/stage/${art}-field.webp`, import.meta.url).href);
-            texture.colorSpace = THREE.SRGBColorSpace;
-            texture.anisotropy = this.assets.anisotropy;
-            return [key, texture];
-        })));
+        // 战场地面：原来直接用 `<theme>-field.webp`，但那几张是近乎纯色的
+        // 平涂（day-field 实测只有极淡的横向条纹），铺满整块战场后毫无
+        // 质感。这里改用原作的真实地表素材 sand-surface（1024² 的细沙颗粒
+        // + 散点高光）作为共享底图，再乘上每主题的色调，让草地/营地/水边
+        // 仍然可区分，但表面都有颗粒与光影。
+        const grain = await textureLoader.loadAsync(new URL("../assets/stage/sand-surface.webp", import.meta.url).href);
+        grain.colorSpace = THREE.SRGBColorSpace;
+        grain.wrapS = grain.wrapT = THREE.RepeatWrapping;
+        grain.repeat.set(3, 3);
+        grain.anisotropy = this.assets.anisotropy;
+        this.fieldTextures = {};
+        for (const key of Object.keys(THEMES)) {
+            this.fieldTextures[key] = grain;
+        }
+        this.fieldTints = Object.fromEntries(Object.keys(THEMES).map(key => [key, THEMES[key].field || 0xffffff]));
+        // 战场地面原来是一块硬边矩形，压在背景插画上像贴了一张纸。
+        // 生成一张径向 alpha 遮罩（中心 1、边缘 0，四边留出内收距离），
+        // 让地面从四周柔化进背景的草地/道路里。
+        const fade = document.createElement("canvas");
+        fade.width = fade.height = 256;
+        const fadeCtx = fade.getContext("2d");
+        const ramp = fadeCtx.createRadialGradient(128, 128, 40, 128, 128, 128);
+        ramp.addColorStop(0, "#fff");
+        ramp.addColorStop(0.62, "#fff");
+        ramp.addColorStop(1, "#000");
+        fadeCtx.fillStyle = ramp;
+        fadeCtx.fillRect(0, 0, 256, 256);
+        const fadeMap = new THREE.CanvasTexture(fade);
+        this.fieldFade = fadeMap;
         this.field = new THREE.Mesh(new THREE.PlaneGeometry(11.7, 10.5), new THREE.MeshBasicMaterial({
-            ...premultipliedBlend(THREE), map: this.fieldTextures.day }));
+            ...premultipliedBlend(THREE), map: this.fieldTextures.day,
+            color: this.fieldTints.day, alphaMap: fadeMap, opacity: .96 }));
         this.field.rotation.x = -Math.PI / 2;
         this.field.position.y = .001;
         this.field.renderOrder = -200;
@@ -409,6 +434,10 @@ export class DefenseStage {
         this.host.style.backgroundImage = `url("${new URL(`../assets/stage/${art}.webp`, import.meta.url).href}")`;
         this.water.visible = theme === "water";
         this.field.material.map = this.fieldTextures[art];
+        // 共享沙地底图靠 color 乘出主题色调：MeshBasicMaterial 的 color 与
+        // map 相乘，所以每主题只需一个色调值。
+        this.field.material.color.setHex(this.fieldTints?.[theme] ?? 0xffffff);
+        this.field.material.needsUpdate = true;
         this.field.scale.y = this.rows / 5;
         for (const prop of this.props) {
             prop.group.visible = prop.name !== "float";
@@ -913,7 +942,8 @@ export class DefenseStage {
         for (const model of [...this.players, ...this.enemies]) { model.dispose(); }
         loader.disposeObject(this.environment);
         this.shadowTexture?.dispose();
-        for (const texture of Object.values(this.fieldTextures || {})) { texture.dispose(); }
+        // 四个主题共享同一张沙地底图，按 Set 去重，避免重复 dispose。
+        for (const texture of new Set(Object.values(this.fieldTextures || {}))) { texture.dispose(); }
         for (const background of Object.values(this.backgrounds || {})) { background.dispose(); }
         this.renderer.domElement.removeEventListener("pointerdown", this.pointerDown);
         this.renderer.domElement.removeEventListener("pointerup", this.pointerUp);
