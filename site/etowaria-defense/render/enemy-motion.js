@@ -95,12 +95,17 @@ export function enemyMirrorForLeft(resourceId) {
     return profile.mirrorForLeft;
 }
 
+// 步态相位→偏移写入共享暂存对象：apply 每帧每骨骼调用一次，
+// 不要在这里给 GC 喂一次性对象。
+const stride = { x: 0, y: 0 };
 function strideAt(phase) {
     // In stance the foot travels toward screen-right relative to the body,
     // cancelling the enemy's leftward world movement. The return is lifted.
-    if (phase < 0.5) { return { x: phase * 4 - 1, y: 0 }; }
+    if (phase < 0.5) { stride.x = phase * 4 - 1; stride.y = 0; return stride; }
     const t = (phase - 0.5) * 2;
-    return { x: 1 - 2 * t, y: Math.sin(Math.PI * t) };
+    stride.x = 1 - 2 * t;
+    stride.y = Math.sin(Math.PI * t);
+    return stride;
 }
 
 export function createEnemyMotion(THREE, root, resourceId, scale, mirrorSign = 1) {
@@ -108,10 +113,11 @@ export function createEnemyMotion(THREE, root, resourceId, scale, mirrorSign = 1
     const profile = PROFILES[resourceId];
     if (!profile) { throw new Error(`尚未核验的行进骨架：${resourceId}`); }
     const entries = [];
+    const footNames = new Set(profile.feet.map(([name]) => name));
     for (const [name, phase] of [...profile.feet, ...profile.arms]) {
         const node = root.getObjectByName(name);
         if (!node) { throw new Error(`魔物骨架缺少 ${resourceId}/${name}`); }
-        entries.push({ node, name, phase, position: node.position.clone(), quaternion: node.quaternion.clone() });
+        entries.push({ node, name, phase, isFoot: footNames.has(name), position: node.position.clone(), quaternion: node.quaternion.clone() });
     }
     const hips = root.getObjectByName("Hips");
     const hipPosition = hips?.position.clone();
@@ -138,7 +144,7 @@ export function createEnemyMotion(THREE, root, resourceId, scale, mirrorSign = 1
                 entry.quaternion.copy(entry.node.quaternion);
                 const phase = (elapsed / profile.period + entry.phase) % 1;
                 const stride = strideAt(phase);
-                if (profile.feet.some(([name]) => name === entry.name)) {
+                if (entry.isFoot) {
                     // Compensate in world space even when the paper rig is mirrored.
                     entry.node.position.x += profile.stride * stride.x * mirrorSign;
                     entry.node.position.y += profile.lift * stride.y;

@@ -1,4 +1,4 @@
-import { LEVELS, UNIT_RULES, ENEMY_RULES, DECK_ORDER, GEAR_ORDER, DECK_SIZE, SAVE_KEY, TOWN_RULES, ENDLESS_MILESTONES, ACHIEVEMENTS, allLevels, levelById } from "../data/campaign.js";
+import { LEVELS, CHAPTERS, ENDLESS, UNIT_RULES, ENEMY_RULES, DECK_ORDER, GEAR_ORDER, DECK_SIZE, SAVE_KEY, TOWN_RULES, ENDLESS_MILESTONES, ACHIEVEMENTS, levelById } from "../data/campaign.js";
 import { CampaignSave } from "./campaign-save.js";
 import { evaluateChallenge } from "./challenge-evaluator.js";
 import { portraitMarkup, siteUrl } from "./assets.js";
@@ -34,8 +34,8 @@ const markup = `
   <div class="campaign-map" data-view="map">
     <header class="panel campaign-header"><button class="native-button compact" data-action="back">返回标题</button><h2>里口花径</h2><span>巡守手记</span><button class="native-button compact" data-action="save">巡守记录</button><button class="native-button compact" data-action="town">城镇</button></header>
     <div class="campaign-map-body">
-      <section class="campaign-chapter panel"><div class="chapter-landscape" aria-hidden="true"></div><div class="chapter-description"><h3>把日常守在身后</h3><p>应援台、同伴与每一条道路，都是布阵图的一部分。</p><div class="campaign-faces" data-role="faces"></div><p class="muted">关卡按巡守记录逐步开放；每关重新分配クリエ，不把资源带入下一关。</p></div></section>
-      <section class="panel campaign-selection" aria-label="选择巡守关卡"><div class="campaign-levels" data-role="levels"></div><div class="level-brief"><h3 data-role="level-title"></h3><p data-role="level-subtitle"></p><dl class="level-facts"><div><dt>布阵区域</dt><dd data-role="area"></dd></div><div><dt>初始应援</dt><dd data-role="budget"></dd></div><div><dt>来袭波次</dt><dd data-role="waves"></dd></div></dl><p data-role="enemy"></p><p data-role="objective"></p><p data-role="rewards"></p><p class="muted" data-role="best"></p></div><div class="campaign-map-actions"><p class="muted">关卡会按巡守记录逐步开放；完成当前关卡后解锁下一关，无尽巡守始终可挑战。</p><button class="native-button primary" data-action="prepare">选择阵容</button></div><p class="campaign-disclosure">本作同人改编。当前开放四章二十关与无尽巡守。</p></section>
+      <section class="campaign-chapter panel" data-role="chapter-panel" data-theme="day"><div class="chapter-landscape" aria-hidden="true"></div><div class="chapter-description"><p class="chapter-kicker" data-role="chapter-kicker"></p><h3 data-role="chapter-title"></h3><p data-role="chapter-caption"></p><div class="campaign-faces" data-role="faces"></div><p class="muted">关卡按巡守记录逐步开放；每关重新分配クリエ，不把资源带入下一关。</p></div></section>
+      <section class="panel campaign-selection" aria-label="选择巡守关卡"><div class="setup-banner-slot" data-role="setup-banner-slot"></div><div class="campaign-levels" data-role="levels"></div><div class="level-brief"><h3 data-role="level-title"></h3><p data-role="level-subtitle"></p><dl class="level-facts"><div><dt>布阵区域</dt><dd data-role="area"></dd></div><div><dt>初始应援</dt><dd data-role="budget"></dd></div><div><dt>来袭波次</dt><dd data-role="waves"></dd></div></dl><p data-role="enemy"></p><p data-role="objective"></p><p data-role="rewards"></p><p class="muted" data-role="best"></p></div><div class="campaign-map-actions"><p class="muted">关卡会按巡守记录逐步开放；完成当前关卡后解锁下一关，无尽巡守始终可挑战。</p><button class="native-button primary" data-action="prepare">选择阵容</button></div><p class="campaign-disclosure">本作同人改编。当前开放四章二十关与无尽巡守。</p></section>
       <section class="panel deck-picker" data-role="deck-picker" aria-label="选择本次布阵的卡牌" hidden><header class="deck-picker-head"><div><h3>本次布阵</h3><p class="muted">从巡守图鉴里挑最多${DECK_SIZE}张卡同行；可随时返回换一关。</p></div><p class="deck-count" data-role="deck-count"></p></header>
 <div class="deck-chosen" data-role="deck-chosen" aria-label="已选择的卡牌"></div><div class="deck-presets" data-role="deck-presets"><span class="deck-presets-label">推荐配置</span><div class="deck-preset-buttons" data-role="deck-preset-buttons"></div></div><div class="deck-grid" data-role="deck-grid"></div><p class="deck-detail" data-role="deck-detail"></p><div class="campaign-map-actions"><button class="native-button compact" data-action="deck-back">返回选关</button><button class="native-button primary" data-action="deck-start">开始巡守</button></div></section>
     </div><p class="save-problem" data-role="save-problem" role="status" hidden></p>
@@ -45,6 +45,7 @@ const markup = `
       <button class="hud-button" data-action="leave" aria-label="返回关卡">${ICONS.back}<span>返回</span></button>
       <div class="battle-heading"><h2 data-role="battle-title"></h2><p data-role="battle-phase">准备布阵</p></div>
       <div class="wave-meter" aria-hidden="true"><span data-role="wave-fill"></span></div>
+      <span class="battle-context" data-role="battle-context"></span>
       <div class="battle-progress"><strong data-role="wave">第1波</strong><span data-role="time">0:00</span></div>
       <span class="next-wave" data-role="next-wave" hidden></span>
       <button class="hud-button" data-action="settings" aria-label="声音与显示">${ICONS.gear}<span>声音</span></button>
@@ -100,6 +101,10 @@ export class Campaign {
         this.warnings = new Map();
         this.cards = new Map();
         this.disposed = false;
+        // HUD 壳是静态标记：data-role/data-action 元素只查一次，之后走缓存。
+        // updateHud 每 0.08s 会取 ~30 个引用，querySelector 全子树扫描白费。
+        this._roles = new Map();
+        this._actions = new Map();
         let storage;
         if (options.manualClock) {
             storage = { getItem: key => localStorage.getItem(`${key}.review`), setItem: (key, value) => localStorage.setItem(`${key}.review`, value) };
@@ -118,8 +123,16 @@ export class Campaign {
         document.addEventListener("keydown", this.onKey);
     }
 
-    get(role) { return this.host.querySelector(`[data-role="${role}"]`); }
-    button(action) { return this.host.querySelector(`[data-action="${action}"]`); }
+    get(role) {
+        const cache = this._roles;
+        if (!cache.has(role)) { cache.set(role, this.host.querySelector(`[data-role="${role}"]`)); }
+        return cache.get(role);
+    }
+    button(action) {
+        const cache = this._actions;
+        if (!cache.has(action)) { cache.set(action, this.host.querySelector(`[data-action="${action}"]`)); }
+        return cache.get(action);
+    }
     unit(id) { return this.catalogue.units.find(unit => unit.id === id); }
     unitArt(id) {
         const unit = this.unit(id);
@@ -207,8 +220,28 @@ export class Campaign {
     renderMap() {
         const list = this.get("levels"); list.replaceChildren();
         const faces = this.get("faces"); faces.replaceChildren();
-        for (const id of ["U01", "U11", "U15"]) { faces.append(this.unitArt(id)); }
-        for (const level of allLevels()) {
+        const selected = levelById(this.levelId) || LEVELS[0];
+        const chapter = CHAPTERS.find(item => item.id === selected.chapter);
+        const chapterCopy = {
+            day: ["把日常守在身后", "应援台、同伴与每一条道路，都是布阵图的一部分。"],
+            camp: ["在星灯下整备", "营地的灯亮起之后，防线也要一条一条照看。"],
+            night: ["把夜路守到天亮", "深夜的来客不会等你准备好，先让每一条路有回应。"]
+        };
+        const theme = selected.theme || chapter?.theme || "day";
+        const [chapterTitle, chapterCaption] = selected.endless
+            ? [ENDLESS.title, ENDLESS.subtitle]
+            : (chapterCopy[theme] || chapterCopy.day);
+        const chapterPanel = this.get("chapter-panel");
+        chapterPanel.dataset.theme = theme;
+        this.text("chapter-kicker", selected.endless ? "特别巡守" : chapter?.title || "巡守记录");
+        this.text("chapter-title", chapterTitle);
+        this.text("chapter-caption", chapterCaption);
+        const faceIds = [...(selected.recommended || [])].filter(id => id.startsWith("U"));
+        for (const id of ["U01", "U11", "U15", ...faceIds].filter((id, index, ids) => ids.indexOf(id) === index).slice(0, 3)) {
+            faces.append(this.unitArt(id));
+        }
+
+        const makeButton = level => {
             const completed = !level.endless && this.save.progress.completed.includes(level.id);
             const open = this.save.canOpen(level.id);
             const button = document.createElement("button"); button.className = "level-choice";
@@ -230,18 +263,40 @@ export class Campaign {
                 if (again) { this.startLevel(level.id); return; }
                 if (this.save.canOpen(level.id)) { this.showDeckPicker(); }
             });
-            list.append(button);
+            return button;
+        };
+
+        for (const chapterInfo of CHAPTERS) {
+            const levels = LEVELS.filter(level => level.chapter === chapterInfo.id);
+            const group = document.createElement("section"); group.className = "campaign-chapter-group";
+            group.dataset.chapter = String(chapterInfo.id);
+            const head = document.createElement("header"); head.className = "chapter-group-head";
+            const title = document.createElement("h3"); title.className = "chapter-group-title"; title.textContent = chapterInfo.title;
+            const openCount = levels.filter(level => this.save.canOpen(level.id)).length;
+            const meta = document.createElement("span"); meta.className = "chapter-group-meta"; meta.textContent = `${openCount}/${levels.length} 已开放`;
+            head.append(title, meta);
+            const cards = document.createElement("div"); cards.className = "chapter-levels";
+            for (const level of levels) { cards.append(makeButton(level)); }
+            group.append(head, cards); list.append(group);
         }
-        const level = levelById(this.levelId) || LEVELS[0];
-        this.text("level-title", level.title); this.text("level-subtitle", level.subtitle);
-        this.text("area", `${level.rows}行 × ${level.cols}列`); this.text("budget", `${level.startResource} クリエ`); this.text("waves", WAVE_LABEL(level));
-        this.text("enemy", `来客：${ENEMY_RULES[level.newEnemy].name}。${ENEMY_RULES[level.newEnemy].description}`);
-        this.text("objective", level.objective);
-        this.text("rewards", level.endless ? "记录最佳波次、击退数和坚持时间。" : "完成记录会保存在巡守手记中。");
-        const best = level.endless ? this.save.progress.endless : this.save.progress.best[level.id];
-        this.text("best", level.endless
-            ? best ? `最佳记录：第${best.wave}波，击退${best.kills}，坚持${TIME(best.time)}。` : `额外目标：${level.optional}。`
-            : best ? `最佳记录 ${TIME(best.time)}，消耗${best.gatesUsed}次结界。` : `额外目标：${level.optional}。`);
+
+        const endlessGroup = document.createElement("section"); endlessGroup.className = "campaign-chapter-group endless-group";
+        const endlessHead = document.createElement("header"); endlessHead.className = "chapter-group-head";
+        const endlessTitle = document.createElement("h3"); endlessTitle.className = "chapter-group-title"; endlessTitle.textContent = "无尽巡守";
+        const endlessMeta = document.createElement("span"); endlessMeta.className = "chapter-group-meta"; endlessMeta.textContent = "随时可挑战";
+        endlessHead.append(endlessTitle, endlessMeta);
+        const endlessCards = document.createElement("div"); endlessCards.className = "chapter-levels"; endlessCards.append(makeButton(ENDLESS));
+        endlessGroup.append(endlessHead, endlessCards); list.append(endlessGroup);
+
+        this.text("level-title", selected.title); this.text("level-subtitle", selected.subtitle);
+        this.text("area", `${selected.rows}行 × ${selected.cols}列`); this.text("budget", `${selected.startResource} クリエ`); this.text("waves", WAVE_LABEL(selected));
+        this.text("enemy", `来客：${ENEMY_RULES[selected.newEnemy].name}。${ENEMY_RULES[selected.newEnemy].description}`);
+        this.text("objective", selected.objective);
+        this.text("rewards", selected.endless ? "记录最佳波次、击退数和坚持时间。" : "完成记录会保存在巡守手记中。");
+        const best = selected.endless ? this.save.progress.endless : this.save.progress.best[selected.id];
+        this.text("best", selected.endless
+            ? best ? `最佳记录：第${best.wave}波，击退${best.kills}，坚持${TIME(best.time)}。` : `额外目标：${selected.optional}。`
+            : best ? `最佳记录 ${TIME(best.time)}，消耗${best.gatesUsed}次结界。` : `额外目标：${selected.optional}。`);
         this.get("save-problem").hidden = !this.save.problem;
         this.text("save-problem", this.save.problem || "");
         this.renderSetupBanner();
@@ -253,13 +308,13 @@ export class Campaign {
     // deterministic — the cache always wins or always lost in one renderMap
     // pass, never in inconsistent UI state.
     renderSetupBanner() {
-        const list = this.get("levels");
-        list.querySelectorAll(".setup-banner").forEach(node => node.remove());
+        const slot = this.get("setup-banner-slot");
+        slot.replaceChildren();
         const cache = this.readSetupCache();
         if (!cache) { return; }
         const level = levelById(cache.level);
         if (!level) { this.clearSetupCache(); return; }
-        const banner = document.createElement("div"); banner.className = "setup-banner panel";
+        const banner = document.createElement("div"); banner.className = "setup-banner";
         const copy = document.createElement("p");
         copy.append("上次的布阵还没开始：「", cache.level, " ", level.title, "」已部署 ", String(cache.units.length), " 张卡牌，要继续吗？");
         const actions = document.createElement("div"); actions.className = "setup-banner-actions";
@@ -271,7 +326,7 @@ export class Campaign {
         drop.addEventListener("click", () => { this.clearSetupCache(); this.renderMap(); });
         actions.append(resume, drop);
         banner.append(copy, actions);
-        list.prepend(banner);
+        slot.append(banner);
     }
 
     // The deck step sits between choosing a level and entering it; a run
@@ -413,11 +468,15 @@ export class Campaign {
         try { this.save.storage?.removeItem(this.setupCacheKey()); } catch { /* ignore */ }
     }
     cacheSetupSnapshot(view) {
-        // Throttle to once per placement epoch: writes happen on every notify.
+        // 只在布阵状态版本号变化时序列化（部署/召回/装备会推进版本号），
+        // 过去每次 notify（准备阶段每 0.08s 一次）都全量 serialize+stringify。
         if (!view || view.battle.phase !== "setup") { return; }
+        const revision = view.battle.setupRevision || 0;
+        if (revision === this._lastSetupRevision) { return; }
         const data = view.battle.serializeSetup();
         if (!data) { return; }
         const serialized = JSON.stringify(data);
+        this._lastSetupRevision = revision;
         if (serialized === this._lastSetupCache) { return; }
         this._lastSetupCache = serialized;
         try { this.save.storage?.setItem(this.setupCacheKey(), serialized); } catch { /* ignore */ }
@@ -470,6 +529,10 @@ export class Campaign {
         this.get("pause-overlay").hidden = true;
         this.challenge = challengeFor(level);
         this.text("battle-title", `${id}　${level.title}`);
+        // 新一场战斗的布阵缓存基线归零：revision 计数从新 battle 对象重新开始。
+        this._lastSetupRevision = -1;
+        this._lastSetupCache = null;
+        this._objectivesSig = null;
         this.renderObjectives({ stats: { healed: 0, gatesUsed: 0 } });
         this.text("message", "正在准备本关的原模型与特效。");
         this.warnings.clear(); this.buildBank(deck); this.buildLanes(level);
@@ -659,8 +722,15 @@ export class Campaign {
         const host = this.get("objectives");
         if (!host) { return; }
         const level = levelById(this.levelId);
-        const rows = level?.objective ? [{ label: level.objective, done: state.phase === "won" }] : [];
         const challenge = evaluateChallenge(level, state.stats, state.phase);
+        // 目标行只在进度真正变化时重建：replaceChildren 会丢弃整行 DOM，
+        // 过去每 0.08s 全量重画一次。
+        const sig = `${this.levelId}|${state.phase}|${challenge
+            ? `${challenge.label}|${challenge.type === "gates" ? challenge.value : `${challenge.value}/${challenge.target}`}|${challenge.complete}`
+            : ""}`;
+        if (this._objectivesSig === sig) { return; }
+        this._objectivesSig = sig;
+        const rows = level?.objective ? [{ label: level.objective, done: state.phase === "won" }] : [];
         if (challenge) {
             const value = challenge.value;
             rows.push({ label: `${challenge.label}（${challenge.type === "gates" ? value : `${value}/${challenge.target}`}）`, done: challenge.complete });

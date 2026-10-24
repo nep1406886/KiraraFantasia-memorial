@@ -66,6 +66,7 @@ export class DefenseStage {
         this.pauseReasons = new Set();
         this.time = 0;
         this.frames = 0;
+        this.labelPoint = new this.THREE.Vector3();
         this.demo = false;
         this.epoch = 0;
         this.disposed = false;
@@ -131,13 +132,15 @@ export class DefenseStage {
         };
         this.pointerCancel = () => { this.down = null; };
         this.pointerMove = event => {
+            // 高分鼠标一秒能打几百次 pointermove：只记下最新坐标，
+            // 统一在下一帧的循环里解算（raycast + 布阵预览）。
             if (event.pointerType !== "touch" && !event.buttons && this.options.onFieldHover) {
-                const point = this.groundAt(event.clientX, event.clientY);
-                this.options.onFieldHover(point && this.cellOf(point), point);
+                this.pendingHover = { x: event.clientX, y: event.clientY };
             }
         };
         this.pointerLeave = event => {
             this.down = null;
+            this.pendingHover = null;
             if (event.pointerType !== "touch") { this.options.onFieldHover?.(null, null); }
         };
         this.contextMenu = event => {
@@ -199,11 +202,29 @@ export class DefenseStage {
             if (this.disposed) { return; }
             const dt = Math.min(0.08, Math.max(0, (now - this.lastFrame) / 1000));
             this.lastFrame = now;
+            this.flushPointerHover();
             this.update(dt);
             this.render();
             this.raf = requestAnimationFrame(frame);
         };
         if (!this.options.manualClock) { this.raf = requestAnimationFrame(frame); }
+    }
+
+    // 把合并的 pointermove 解算成盘面悬停事件。每帧至多一次 raycast，
+    // 替代过去每个硬件事件一次。
+    flushPointerHover() {
+        const pending = this.pendingHover;
+        if (!pending) { return; }
+        this.pendingHover = null;
+        const point = this.groundAt(pending.x, pending.y);
+        this.options.onFieldHover?.(point && this.cellOf(point), point);
+    }
+
+    // rAF 循环活跃时事件路径的渲染请求合并到下一帧（循环每帧必渲染）；
+    // 循环未启动（装载中）或 manualClock 模式则立即渲染。
+    requestRender() {
+        if (this.raf) { return; }
+        this.render();
     }
 
     makeGroundHelpers() {
@@ -274,6 +295,8 @@ export class DefenseStage {
         label.textContent = model.unit.name;
         this.labels.append(label);
         model.label = label;
+        // 新标签元素没有旧元素的位置缓存，强制下一次 renderModel 重新写入。
+        model.labelX = undefined; model.labelY = undefined;
     }
 
     makeShadow(model) {
@@ -650,7 +673,10 @@ export class DefenseStage {
         if (!rect.width || !rect.height || clientX < rect.left || clientX > rect.right || clientY < rect.top || clientY > rect.bottom) { return null; }
         this.pointer.set((clientX - rect.left) / rect.width * 2 - 1, 1 - (clientY - rect.top) / rect.height * 2);
         this.ray.setFromCamera(this.pointer, this.camera);
-        return this.ray.ray.intersectPlane(this.ground, new this.THREE.Vector3());
+        // 返回共享暂存向量：调用方都在当帧内立即消费（cellOf/移动鬼影），
+        // 不保存引用。省掉每个硬件事件一次的 Vector3 分配。
+        this.groundPoint ||= new this.THREE.Vector3();
+        return this.ray.ray.intersectPlane(this.ground, this.groundPoint);
     }
 
     cellOf(point) {
@@ -695,7 +721,8 @@ export class DefenseStage {
         this.time += dt;
         if (this.battleTick) {
             this.battleTick(dt);
-            for (const model of [...this.players, ...this.enemies]) { model.update(dt); }
+            for (const model of this.players) { model.update(dt); }
+            for (const model of this.enemies) { model.update(dt); }
             this.items.update(dt);
             this.effects.update(dt);
             this.afterBattleFrame?.(dt);
@@ -772,26 +799,37 @@ export class DefenseStage {
         camera.updateProjectionMatrix();
     }
 
+    renderModel(model) {
+        if (model.shadow) {
+            model.shadow.position.set(model.group.position.x, .019 + model.platformHeight, model.group.position.z);
+        }
+        if (!model.label) { return; }
+        this.labelPoint.copy(model.group.position);
+        if (model.labelAnchor === "head") {
+            const top = (model.height || 1) * 1.04 + .06;
+            this.labelPoint.y += top * Math.cos(PITCH);
+            this.labelPoint.z -= top * Math.sin(PITCH);
+        } else { this.labelPoint.y -= .035; }
+        this.labelPoint.project(this.camera);
+        // 战斗相机是固定正交机位，已部署的同伴根本不动：写入前先比对
+        // 上次值（0.1px 容差），静止的标签就不再产生字符串和样式写入。
+        const left = (this.labelPoint.x + 1) / 2 * this.width;
+        const top = (1 - this.labelPoint.y) / 2 * this.height + (model.labelAnchor === "head" ? 0 : 4);
+        const moved = model.labelX === undefined || model.labelY === undefined
+            || Math.abs(left - model.labelX) > .1 || Math.abs(top - model.labelY) > .1;
+        if (moved) {
+            model.labelX = left; model.labelY = top;
+            model.label.style.left = `${left}px`;
+            model.label.style.top = `${top}px`;
+        }
+    }
+
     render() {
         if (this.disposed) { return; }
         this.frames++;
         if (this.cinematic) { this.cinematic.render(this.renderer); return; }
-        for (const model of [...this.players, ...this.enemies]) {
-            if (model.shadow) {
-                model.shadow.position.set(model.group.position.x, .019 + model.platformHeight, model.group.position.z);
-            }
-            if (model.label) {
-                const point = model.group.position.clone();
-                if (model.labelAnchor === "head") {
-                    const top = (model.height || 1) * 1.04 + .06;
-                    point.y += top * Math.cos(PITCH);
-                    point.z -= top * Math.sin(PITCH);
-                } else { point.y -= .035; }
-                point.project(this.camera);
-                model.label.style.left = `${(point.x + 1) / 2 * this.width}px`;
-                model.label.style.top = `${(1 - point.y) / 2 * this.height + (model.labelAnchor === "head" ? 0 : 4)}px`;
-            }
-        }
+        for (const model of this.players) { this.renderModel(model); }
+        for (const model of this.enemies) { this.renderModel(model); }
         this.renderer.render(this.scene, this.camera);
         this.afterRender?.();
     }

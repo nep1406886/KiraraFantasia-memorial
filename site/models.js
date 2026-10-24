@@ -247,6 +247,9 @@
         indexRequest: 0
     };
 
+    // 搜索串记忆化：模型清单较大，按键过滤时不重拼每个模型的haystack。
+    var modelSearchText = new WeakMap();
+
     var elements = {
         search: document.getElementById("modelSearch"),
         titleFilter: document.getElementById("modelTitleFilter"),
@@ -601,13 +604,19 @@
             if (!query) {
                 return true;
             }
-            var searchText = [
-                model.name,
-                metadata && metadata.title,
-                metadata && metadata.titleZh,
-                metadata && metadata.character,
-                metadata && metadata.characterZh
-            ].filter(Boolean).join(" ").toLowerCase();
+            // 每个模型的搜索串只拼一次（ WeakMap 记忆化）：清单有 2000+ 条，
+            // 每次按键都重拼+lowercase 纯属浪费。同 gacha.js 的 cardSearchText。
+            var searchText = modelSearchText.get(model);
+            if (searchText === undefined) {
+                searchText = [
+                    model.name,
+                    metadata && metadata.title,
+                    metadata && metadata.titleZh,
+                    metadata && metadata.character,
+                    metadata && metadata.characterZh
+                ].filter(Boolean).join(" ").toLowerCase();
+                modelSearchText.set(model, searchText);
+            }
             return searchText.indexOf(query) !== -1;
         });
         state.page = Math.min(state.page, Math.max(1, Math.ceil(state.filteredModels.length / INDEX_PAGE_SIZE)));
@@ -4773,6 +4782,13 @@
                         }
                     });
                     scene.add(modelObject);
+                    // 原子化首帧：本体此刻还不能直接见人——职业动作片段和
+                    // 初始武器是随后异步下载挂载的，过去玩家看到的是「部件
+                    // 逐个拼上去、相机再二次取景」的怪过程。先把整棵模型藏
+                    // 住，等武器挂载、动作合并、最终取景全部完成后一次性揭晓
+                    //（见下方链尾的 visible = true）。取景测量走的是逐网格
+                    // 顶点采样，不依赖根节点可见性，提前 fitModelView 不受影响。
+                    modelObject.visible = false;
                     // Test hook for tools/check_faces.py, which asserts that a
                     // model shows one eye/brow/mouth layer and no overlays.
                     if (new URLSearchParams(window.location.search).get("debug") === "1") {
@@ -5228,8 +5244,8 @@
                     }
                     // Frame the model as soon as it exists; the asynchronous
                     // class-action and weapon downloads must not leave the
-                    // canvas staring at the default camera.
-                    hideModelLoadNote();
+                    // canvas staring at the default camera. 揭晓（撤遮罩、
+                    // 恢复可见）推迟到链尾——见 attachWeaponMode 之后。
                     modelObject.updateMatrixWorld(true);
                     fitModelView(true);
                     // 玩家走职业动作，没自带动作的敌人走同族基础模型。两条路互斥
@@ -5310,10 +5326,21 @@
                         if (disposed) { return; }
                         modelObject.updateMatrixWorld(true);
                         fitModelView();
+                        // 全部组件就位（本体 + 武器 + 动作）才揭晓：整棵模型
+                        // 一次性出现，加载遮罩同时撤下。
+                        modelObject.visible = true;
+                        hideModelLoadNote();
                         host.classList.add("is-ready");
                         // 只查一次索引（约 60 KiB，之后模块内缓存），确认这个
                         // 角色导出过演出场景才把开关放出来。不阻塞首帧。
                         probeCinematic();
+                    }).catch(function (error) {
+                        // 链路上任何一步出意外，也不能把模型永远留在遮罩后面：
+                        // 按老行为把已就位的部分亮出来。
+                        if (disposed) { return; }
+                        modelObject.visible = true;
+                        hideModelLoadNote();
+                        if (window.console && console.warn) { console.warn("模型组件装载未完成", error); }
                     });
                 }, undefined, function (error) {
                     // GLTFLoader 把 onLoad 里抛出的异常也送到这里,所以真正的

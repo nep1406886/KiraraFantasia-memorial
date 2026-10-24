@@ -346,6 +346,13 @@
                 cardArtUrl(card, options.evolved, false)
             ];
         }
+        if (options.compressedFirst) {
+            // 缩略图场景：先要解码快的 jpg，个别缺失时回退高清 png。
+            return [
+                cardArtUrl(card, options.evolved, false),
+                cardArtUrl(card, options.evolved, true)
+            ];
+        }
         return [cardArtUrl(card, options.evolved, false)];
     }
 
@@ -580,7 +587,7 @@
         imageBox.className = "catalog-card-image";
         appendCardImage(imageBox, card, {
             evolved: false,
-            highResolution: true,
+            compressedFirst: true,
             eager: false,
             kind: "card"
         });

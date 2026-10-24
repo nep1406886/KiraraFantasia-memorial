@@ -186,7 +186,7 @@ const boardView = ({ manualClock = true, reducedMotion = false } = {}) => {
     const view = new BattleView({ level, deck: ["F01", "U01"], catalogue, manualClock, audio: { settings: { reducedMotion } } });
     const pauseReasons = new Set();
     view.stage = { THREE, rows: 5, environment: new THREE.Group(), field: new THREE.Group(), scene: new THREE.Group(), grid: new THREE.Group(),
-        players: [], enemies: [], pauseReasons, render() {}, resize() {}, makeShadow() {}, effects: { emit() {}, pools: new Map() }, items: { template: null },
+        players: [], enemies: [], pauseReasons, render() {}, requestRender() { this.render(); }, resize() {}, makeShadow() {}, effects: { emit() {}, pools: new Map() }, items: { template: null },
         setPaused(reason, paused) { if (paused) { pauseReasons.add(reason); } else { pauseReasons.delete(reason); } },
         selection: Object.assign(new THREE.Group(), { material: { color: { set() {} } } }) };
     view.range = { show: () => null, clear() {} };

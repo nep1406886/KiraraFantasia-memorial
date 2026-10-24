@@ -62,19 +62,29 @@ export function applyAuthoredMaterials(root, THREE, anisotropy = 1) {
     });
 }
 
+// posedBounds 每60帧热路径（行走吸附、特效居中）都会调用。结果由调用方
+// 立即消费、不长期持有，所以复用模块级暂存 Box3/Set，消除每帧分配。
+// 注意：返回值是共享实例，调用方不得保存引用跨帧使用。
+let _posedBounds = null;
+let _posedPiece = null;
+const _posedSkeletons = new Set();
+
 export function posedBounds(THREE, root, predicate = () => true) {
-    const bounds = new THREE.Box3();
-    const piece = new THREE.Box3();
+    _posedBounds ||= new THREE.Box3();
+    _posedPiece ||= new THREE.Box3();
+    const bounds = _posedBounds;
+    const piece = _posedPiece;
+    bounds.makeEmpty();
+    _posedSkeletons.clear();
     root.updateWorldMatrix(true, false);
     // updateMatrixWorld dispatches SkinnedMesh's bind-matrix refresh. The
     // Object3D-only updateWorldMatrix path leaves a newly scaled rig stale.
     root.updateMatrixWorld(true);
-    const skeletons = new Set();
     root.traverseVisible(mesh => {
         if (!mesh.isMesh || !mesh.geometry || !predicate(mesh)) { return; }
-        if (mesh.skeleton && !skeletons.has(mesh.skeleton)) {
+        if (mesh.skeleton && !_posedSkeletons.has(mesh.skeleton)) {
             mesh.skeleton.update();
-            skeletons.add(mesh.skeleton);
+            _posedSkeletons.add(mesh.skeleton);
         }
         if (mesh.isSkinnedMesh) {
             mesh.computeBoundingBox();
@@ -235,9 +245,15 @@ export class NativeModel {
         if (this.idleMotion?.apply(dt, this.action === "idle") && this.actor.actionNames.includes("room_idle_L")) {
             this.play("room_idle_L", false);
         }
-        const foot = this.feetBounds();
-        if (!foot.isEmpty()) {
-            const below = this.group.position.y - foot.min.y;
+        // 落地吸附用的脚底高度每两帧采样一次：行走起伏的垂足变化在
+        // 33ms 内远小于一个像素，却能把每帧的全骨骼包围盒重算减半。
+        this._footSkip = !this._footSkip;
+        if (this._footSkip || this._footMin === undefined) {
+            const foot = this.feetBounds();
+            this._footMin = foot.isEmpty() ? null : foot.min.y;
+        }
+        if (this._footMin !== null) {
+            const below = this.group.position.y - this._footMin;
             if (below > 0 || this.action === "idle" || this.walking) { this.lift.position.y += below; }
         }
         if (this.finishedAction === this.action && this.action !== "idle" && this.action !== "dead") { this.play("idle"); }
@@ -256,6 +272,14 @@ export class NativeModel {
         position.y += this.height * 0.52;
         position.z -= Math.sin(PITCH) * this.height * 0.52;
         return position;
+    }
+
+    // 供每帧热路径复用调用方自己的暂存向量（projectile 追踪等）。
+    bodyPointInto(out) {
+        out.copy(this.group.position);
+        out.y += this.height * 0.52;
+        out.z -= Math.sin(PITCH) * this.height * 0.52;
+        return out;
     }
 
     muzzlePoint() {

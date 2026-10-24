@@ -23,14 +23,29 @@
 .campaign-chapter { display: flex; flex-direction: column; min-height: 0; padding: 0; overflow: hidden; }
 .chapter-landscape { flex: 1; min-height: 160px; background: url("../assets/stage/day.webp") center / cover; border-radius: 5px; }
 .chapter-description { padding: 20px 10px 8px; }
+.chapter-kicker { margin-bottom: 4px; color: #92723d; font-size: .72rem; font-weight: 800; letter-spacing: .12em; text-transform: uppercase; }
 .chapter-description h3 { font-family: "KaiTi", "STKaiti", serif; font-size: 1.8rem; margin-bottom: 10px; }
 .chapter-description > p { font-size: .95rem; }
 .chapter-description > p.muted { font-size: .85rem; }
+.campaign-chapter[data-theme="camp"] .chapter-landscape { background-image: url("../assets/stage/camp.webp"); }
+.campaign-chapter[data-theme="night"] .chapter-landscape { background-image: url("../assets/stage/camp.webp"); filter: saturate(.82) brightness(.72); }
+.campaign-chapter[data-theme="water"] .chapter-landscape { background-image: url("../assets/stage/water.webp"); }
 .campaign-faces { display: flex; gap: 15px; margin: 20px 0; }
 .campaign-faces .portrait-icon { width: 66px; margin: 0; }
 .campaign-selection { min-width: 0; padding: 3px 12px; display: flex; flex-direction: column; gap: 14px; overflow-y: auto; scrollbar-width: thin; }
-.campaign-levels { display: flex; flex-direction: column; gap: 10px; flex-shrink: 0; }
-.level-choice { display: grid; grid-template-columns: 56px minmax(0, 1fr) auto; gap: 15px; align-items: center; min-height: 82px; padding: 10px 15px; color: var(--ink); background: #fffdec; border: 2px solid #cbbb93; border-radius: 9px; text-align: left; }
+.setup-banner-slot:empty { display: none; }
+.setup-banner { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 10px 12px; border: 1px solid #c9b873; border-radius: 9px; background: linear-gradient(110deg, #fff8d9, #fffdf0); box-shadow: 0 2px 0 #c9b87355; }
+.setup-banner p { margin: 0; font-size: .82rem; line-height: 1.4; }
+.setup-banner-actions { display: flex; flex-shrink: 0; gap: 6px; }
+.campaign-levels { display: flex; flex-direction: column; gap: 14px; flex-shrink: 0; }
+.campaign-chapter-group { display: grid; gap: 7px; padding: 10px; border: 1px solid #dfd0b0; border-radius: 12px; background: #fffdf4b8; }
+.campaign-chapter-group.endless-group { border-color: #b9a3e8; background: linear-gradient(135deg, #fbf8ff, #fffdf4); }
+.chapter-group-head { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; padding: 0 3px; }
+.chapter-group-title { color: #684e2c; font-size: .98rem; }
+.endless-group .chapter-group-title { color: #60418d; }
+.chapter-group-meta { color: var(--muted); font-size: .72rem; white-space: nowrap; }
+.chapter-levels { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; }
+.level-choice { min-width: 0; }
 .level-choice[aria-pressed="true"] { border-color: var(--focus); background: #f1f7fd; box-shadow: 0 0 0 2px white inset; }
 .level-choice:disabled { background: #f0eee7; color: #6b6963; border-color: #cec9bf; }
 .level-number { font-size: 1.35rem; font-weight: 700; }
@@ -135,6 +150,7 @@
   .campaign-map { padding: 12px; gap: 12px; }
   .campaign-map-body { grid-template-columns: minmax(180px, .55fr) minmax(0, 1fr); gap: 12px; }
   .campaign-map-body:has(.deck-picker:not([hidden])) { display: grid; grid-template-columns: 1fr; }
+  .chapter-levels { grid-template-columns: 1fr; }
   .campaign-map-body:has(.deck-picker:not([hidden])) .campaign-chapter { display: none; }
   .campaign-map-body:has(.deck-picker:not([hidden])) .deck-picker { max-height: calc(100vh - 100px); height: calc(100vh - 100px); }
   .campaign-selection { padding: 0; border-width: 15px; gap: 10px; }
@@ -171,6 +187,12 @@
   .chapter-description > p { font-size: .8rem; }
   .chapter-description > p.muted, .campaign-faces { display: none; }
   .campaign-selection { border-width: 15px; padding: 0; overflow: visible; }
+  .campaign-levels { gap: 10px; }
+  .campaign-chapter-group { padding: 8px; }
+  .chapter-levels { grid-template-columns: 1fr; gap: 6px; }
+  .setup-banner { align-items: flex-start; flex-direction: column; }
+  .setup-banner-actions { width: 100%; }
+  .setup-banner-actions .native-button { flex: 1; }
   .level-choice-copy strong { font-size: .94rem; }
   .level-number { font-size: 1.15rem; }
   .level-state { font-size: .7rem; }

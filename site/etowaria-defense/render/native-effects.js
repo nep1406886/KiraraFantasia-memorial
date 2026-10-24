@@ -13,6 +13,8 @@ export class NativeEffects {
         this.active = new Set();
         this.history = [];
         this.disposed = false;
+        // 飞行插值的每帧暂存向量：placeCentered 只读取不保存。
+        this._flightPoint = new this.THREE.Vector3();
     }
 
     async prepare(names, copies = 2) {
@@ -144,16 +146,27 @@ export class NativeEffects {
         return slot;
     }
 
-    placeCentered(slot, position) {
+    placeCentered(slot, position, recenter) {
         slot.wrapper.position.copy(position);
+        if (!recenter) { return; }
+        // 特效可见质量的中心只在半帧率重算：飞行途中美术主体的
+        // 漂移以 30Hz 跟随已不可辨，但省掉了每帧的整树矩阵更新
+        // 加全特效包围盒。
         slot.pivot.position.set(0, 0, 0);
         slot.wrapper.updateWorldMatrix(true, true);
         const box = posedBounds(this.THREE, slot.root, mesh => {
-            const materials = Array.isArray(mesh.material) ? mesh.material : [mesh.material];
-            return materials.some(material => material.opacity > 0.02);
+            const materials = mesh.material;
+            if (Array.isArray(materials)) {
+                for (let i = 0; i < materials.length; i++) {
+                    if (materials[i].opacity > 0.02) { return true; }
+                }
+                return false;
+            }
+            return materials.opacity > 0.02;
         });
         if (!box.isEmpty()) {
-            const center = box.getCenter(new this.THREE.Vector3());
+            const center = this._flightPoint;
+            box.getCenter(center);
             slot.wrapper.worldToLocal(center);
             slot.pivot.position.sub(center);
         }
@@ -169,15 +182,17 @@ export class NativeEffects {
                 const position = options.position();
                 if (!position) { this.release(slot); continue; }
                 if (slot.player.finished) { slot.player.seek(0); slot.player.play(); }
-                this.placeCentered(slot, position);
+                slot.recenter = !(slot.recenter || false);
+                this.placeCentered(slot, position, slot.recenter);
                 continue;
             }
             if (options.to && options.flight) {
                 const t = Math.min(1, slot.age / options.flight);
-                const desired = options.from.clone().lerp(options.to, t);
+                const desired = this._flightPoint.copy(options.from).lerp(options.to, t);
                 if (options.arc) { desired.y += Math.sin(Math.PI * t) * options.arc; }
                 // Follow the visible mass, not just the original art pivot.
-                this.placeCentered(slot, desired);
+                slot.recenter = !(slot.recenter || false);
+                this.placeCentered(slot, desired, slot.recenter);
                 if (t >= 1 && !slot.impactSent) {
                     slot.impactSent = true;
                     options.onImpact?.();

@@ -5,7 +5,9 @@ export function emptyProgress() { return { version: 1, completed: [], best: {}, 
 
 // Levels are all open; a record only remembers what was cleared and how well.
 // Older saves (which required contiguous progress) remain valid as they are.
-export function validateProgress(value) {
+// `skipEndlessRun` 信任传入的 endlessRun 子树已被 validateEndlessRun 校验过
+// （紧邻的上一步刚做过），让 persist 不必在检查点上双跑最贵的验证器。
+export function validateProgress(value, skipEndlessRun = false) {
     if (!value || value.version !== 1 || !Array.isArray(value.completed)) { throw new Error("不是本版本的巡守记录"); }
     const known = new Set(LEVELS.map(level => level.id));
     if (value.completed.some(id => typeof id !== "string" || !known.has(id))) { throw new Error("记录包含未知关卡"); }
@@ -27,7 +29,7 @@ export function validateProgress(value) {
     }
     return { version: 1, completed: LEVELS.filter(level => completed.includes(level.id)).map(level => level.id), best,
         lastLevel: typeof value.lastLevel === "string" && levelById(value.lastLevel) ? value.lastLevel : "1-1", endless,
-        endlessRun: validateEndlessRun(value.endlessRun),
+        endlessRun: skipEndlessRun && value.endlessRun ? value.endlessRun : validateEndlessRun(value.endlessRun),
         endlessRewards: validateEndlessRewards(value.endlessRewards),
         materials: validateMaterials(value.materials),
         town: validateTown(value.town),
@@ -247,6 +249,7 @@ export class CampaignSave {
             battle.stats.healed > 0 && "healer",
             ENEMY_RULES[battle.level.newEnemy]?.boss && "boss_clear"].filter(Boolean));
         this.progress = validateProgress(this.progress);
+        this._endlessRunFresh = !!this.progress.endlessRun;
         this.persist();
         return { newRecord, first, achievements, challenge };
     }
@@ -255,7 +258,10 @@ export class CampaignSave {
     // churn is bounded: one JSON.stringify of a ≤2KB blob per checkpoint.
     saveEndlessRun(data) {
         this.progress.endlessRun = validateEndlessRun(data);
-        if (this.progress.endlessRun) { this.persist(); }
+        if (this.progress.endlessRun) {
+            this._endlessRunFresh = true;
+            this.persist();
+        }
         return !!this.progress.endlessRun;
     }
     settleEndlessReward({ runId, wave, drops, bonusDrops, checkpoint } = {}) {
@@ -288,6 +294,7 @@ export class CampaignSave {
             },
             materials
         };
+        if (endlessRun) { this._endlessRunFresh = true; }
         if (!this.persist()) {
             this.progress = previous;
             return { applied: false, saved: false };
@@ -327,7 +334,12 @@ export class CampaignSave {
         if (this.readOnly) { return false; }
         try {
             if (!this.storage) { throw new Error("Storage unavailable"); }
-            const serialized = JSON.stringify(validateProgress(this.progress));
+            // 上一步刚对 endlessRun 做过深度校验时（检查点/结算/通关/导入），
+            // 这次 persist 不再重跑 validateEndlessRun——它是存档里最贵的
+            // 验证器，逐字段 Object.values(...).every(finite) 扫全场状态。
+            const freshEndlessRun = this._endlessRunFresh === true;
+            this._endlessRunFresh = false;
+            const serialized = JSON.stringify(validateProgress(this.progress, freshEndlessRun));
             const old = this.storage?.getItem(SAVE_KEY);
             if (old) { this.storage.setItem(`${SAVE_KEY}.previous`, old); }
             this.storage?.setItem(SAVE_KEY, serialized);
@@ -347,6 +359,7 @@ export class CampaignSave {
         this.readOnly = false;
         this.problem = null;
         this.finishedRuns.clear();
+        this._endlessRunFresh = !!progress.endlessRun;
         this.persist();
         return progress;
     }

@@ -20,6 +20,7 @@ const ELEMENT_BURST = ["fire", "water", "earth", "wind", "moon", "sun"].map(key 
 const ELEMENT_IMPACT = ELEMENT_BURST;
 const LOADING_PAUSES = new Set(["deploy-load", "enemy-load"]);
 const STATUS_BADGES = { slow: ["迟缓", "❄"], stun: ["麻痹", "⚡"], vulnerable: ["易伤", "◆"], weaken: ["虚弱", "▼"], burn: ["灼烧", "✦"] };
+const STATUS_KEYS = Object.keys(STATUS_BADGES);
 
 export class Facility {
     constructor(view, type = "F01") {
@@ -141,6 +142,11 @@ export class BattleView {
         this.pickupElements = new Map();
         this.floaters = [];
         this.visualEvents = [];
+        this.visualEventSerial = 0;
+        this.visualEventCursor = 0;
+        this.heldIds = new Set();
+        this.threatenedRows = new Set();
+        this.overlayPoint = null;
         this.throttle = new Map();
         // 原作语音表（units.json 的 voice.cues）按 unit id 缓存；只有带表
         // 的角色必杀才播语音。pickVoiceCue 轮换取句。
@@ -156,9 +162,17 @@ export class BattleView {
         this.loading = false;
         this.visualTime = 0;
         this.lastHud = -1;
+        this._lastStatus = -1;
         this.lastTarget = null;
         this.touchTarget = null;
         this.preview = null;
+        // 每帧热路径的暂存对象：configureIdle 的选项（IdleMotion.configure
+        // 只读字段不保存引用）与悬浮投影的向量，避免 60Hz 分配。
+        this._idleOptions = { enabled: false, relaxed: false };
+        this._overlayPoint = null;
+        this._floaterPoint = null;
+        this._projectilePoint = null;
+        this._previewSig = null;
     }
 
     unitData(type) { return this.catalogue.units.find(row => row.id === type); }
@@ -312,6 +326,10 @@ export class BattleView {
         return new this.stage.THREE.Vector3((col + this.level.colOffset - 4) * 1.3, y,
             (row + this.level.rowOffset - (this.stage.rows - 1) / 2) * 2.1);
     }
+    worldInto(target, row, col, y = 0) {
+        return target.set((col + this.level.colOffset - 4) * 1.3, y,
+            (row + this.level.rowOffset - (this.stage.rows - 1) / 2) * 2.1);
+    }
 
     markBoard() {
         const THREE = this.stage.THREE;
@@ -372,9 +390,11 @@ export class BattleView {
     }
 
     clearPreview() {
+        if (!this.lastTarget && !this.touchTarget && !this.preview) { return; }
         this.lastTarget = null; this.touchTarget = null; this.preview = null;
+        this._previewSig = null;
         this.range?.clear();
-        if (this.stage) { this.stage.selection.visible = false; this.stage.render(); }
+        if (this.stage) { this.stage.selection.visible = false; this.stage.requestRender(); }
     }
 
     // The board lines belong to the act of placing: a held card or the recall
@@ -475,15 +495,20 @@ export class BattleView {
     moveGhost(point) {
         const ghost = this.ghost;
         if (!ghost) { return; }
-        if (!point) { ghost.model.group.visible = false; this.stage.render(); return; }
+        if (!point) { ghost.model.group.visible = false; ghost.lastCell = null; this.stage.requestRender(); return; }
         const rows = this.stage.rows;
         const row = point.z / 2.1 + (rows - 1) / 2;
         const col = point.x / 1.3 + 4;
+        // 悬停/持有期间 afterFrame 每帧都会带着同一个 ghostPoint 进来：
+        // 网格落位只在跨格时重算，浮动起伏只改 position.y。
+        const last = ghost.lastCell;
+        if (!last || last.row !== row || last.col !== col) {
+            ghost.lastCell = { row, col };
+            if (ghost.model.place) { ghost.model.place(row, col, rows); }
+        }
         const lift = .16 + (this.options.audio.settings.reducedMotion ? 0 : Math.sin(this.visualTime * 5) * .04);
-        if (ghost.model.place) { ghost.model.place(row, col, rows); }
         ghost.model.group.position.set(point.x, lift + (ghost.model.kind === "item" ? .45 : 0), point.z);
         ghost.model.group.visible = true;
-        this.stage.render();
     }
 
     // Touch drag from the card bank. Coordinates are client pixels.
@@ -509,7 +534,12 @@ export class BattleView {
         if (!this.ready || this.loading || this.touchTarget || this.battle.pauses.size) { return; }
         this.ghostPoint = point;
         this.moveGhost(point);
-        if (!cell) { this.clearPreview(); this.notify(); return; }
+        if (!cell) {
+            // 指针在盘外移动是最频繁的路径：只有真的有预览要撤时才
+            // 触发 notify（它会深拷贝整场状态给 HUD）。
+            if (this.lastTarget || this.preview || this.touchTarget) { this.clearPreview(); this.notify(); }
+            return;
+        }
         this.pointCell(cell.row - this.level.rowOffset, cell.col - this.level.colOffset);
     }
 
@@ -517,8 +547,19 @@ export class BattleView {
         if (!this.ready || (!this.selected && !this.recallMode)
             || row < 0 || row >= this.level.rows || col < 0 || col >= this.level.cols
             || !["setup", "running"].includes(this.battle.phase)) {
-            this.clearPreview(); this.notify(); return null;
+            if (this.lastTarget || this.preview || this.touchTarget) { this.clearPreview(); this.notify(); }
+            return null;
         }
+        // 高分鼠标一次划过会触发成串的 pointermove：同一格、同一张卡、
+        // 同一资源/冷却状态下结果不变，直接复用上次预览，跳过 canDeploy、
+        // 射程重建、notify（快照）与渲染请求。
+        const sig = `${this.selected || ""}|${this.recallMode}|${row}:${col}|${this.battle.phase}`
+            + `|${this.battle.resource}|${this.battle.pauses.size}`
+            + `|${Math.ceil(Math.max(0, (this.selected && this.battle.readyAt.get(this.selected) || 0) - this.battle.time))}`;
+        if (this.preview && this._previewSig === sig && this.lastTarget?.row === row && this.lastTarget?.col === col) {
+            return this.preview;
+        }
+        this._previewSig = sig;
         this.lastTarget = { row, col };
         this.stage.selection.visible = true;
         this.stage.selection.position.copy(this.world(row, col, .027));
@@ -530,7 +571,7 @@ export class BattleView {
             kind: area?.kind || "recall", text: area?.text || "召回此格的同伴或设施", cells: area?.cells || [] };
         this.stage.selection.material.color.set(check.ok ? 0xffec89 : 0xd48080);
         if (!this.ghostPoint) { this.moveGhost(this.world(row, col)); }
-        this.notify(); this.stage.render();
+        this.notify(); this.stage.requestRender();
         return this.preview;
     }
 
@@ -684,6 +725,9 @@ export class BattleView {
         model.badges = badges;
         model.hpText = text;
         model.statusKey = null;
+        // 新标签元素没有旧元素的位置缓存（模型可能从对象池复用），
+        // 强制下一次 renderModel 重新写入。
+        model.labelX = undefined; model.labelY = undefined;
     }
 
     updateStatus(model) {
@@ -693,7 +737,13 @@ export class BattleView {
         const ratio = Math.max(0, Math.min(1, entity.hp / entity.maxHp));
         const guard = model.kind === "enemy" ? entity.armor : entity.shield + (entity.barrierHits > 0 ? 1 : 0);
         const guardMax = model.kind === "enemy" ? entity.maxArmor : Math.max(entity.maxShield || 0, entity.barrierHits > 0 ? 1 : 0);
-        const statuses = model.kind === "enemy" ? Object.keys(STATUS_BADGES).filter(key => (entity[`${key}Until`] || 0) > time) : [];
+        const statuses = model.statuses || (model.statuses = []);
+        statuses.length = 0;
+        if (model.kind === "enemy") {
+            for (const key of STATUS_KEYS) {
+                if ((entity[`${key}Until`] || 0) > time) { statuses.push(key); }
+            }
+        }
         const hasted = model.kind !== "enemy" && entity.hasteUntil > time;
         const key = `${Math.round(ratio * 200)}:${Math.round(guard || 0)}:${statuses.join()}:${hasted}`;
         if (model.statusKey === key) { return; }
@@ -941,6 +991,8 @@ export class BattleView {
             for (const item of this.spells.values()) { this.stage.items.release(item); }
             this.spells.clear();
             this.visualEvents = [];
+            this.visualEventCursor = 0;
+            this.visualEventSerial = 0;
             this.stage.effects.reset();
             this.stage.items.reset();
             this.pickupElements.forEach(element => element.remove()); this.pickupElements.clear();
@@ -986,6 +1038,26 @@ export class BattleView {
         return this.planCache.get(type);
     }
 
+    scheduleVisualEvent(event) {
+        event.order = this.visualEventSerial++;
+        const queue = this.visualEvents;
+        if (this.visualEventCursor === queue.length) { queue.length = 0; this.visualEventCursor = 0; }
+        const last = queue[queue.length - 1];
+        if (!last || last.at < event.at || last.at === event.at && last.order < event.order) {
+            queue.push(event);
+            return;
+        }
+        let low = this.visualEventCursor;
+        let high = queue.length;
+        while (low < high) {
+            const middle = (low + high) >> 1;
+            const current = queue[middle];
+            if (current.at < event.at || current.at === event.at && current.order < event.order) { low = middle + 1; }
+            else { high = middle; }
+        }
+        queue.splice(low, 0, event);
+    }
+
     unitAction(event) {
         const model = this.models.get(event.id);
         if (!model || model.retiring || !model.actor) { return; }
@@ -1008,7 +1080,7 @@ export class BattleView {
             if (effect.kind === "Support" && supportAction) { continue; }
             const projectile = /Projectile/.test(effect.kind);
             if (projectile && !melee) { continue; }
-            this.visualEvents.push({ at: this.battle.time + effect.frame / 30, run: () => {
+            this.scheduleVisualEvent({ at: this.battle.time + effect.frame / 30, run: () => {
                 const live = this.models.get(event.id);
                 if (!live || live.retiring) { return; }
                 if (projectile) {
@@ -1071,11 +1143,18 @@ export class BattleView {
                 const projectile = this.battle.projectiles.get(event.id);
                 if (!projectile) { return null; }
                 const target = this.battle.enemies.get(event.targetId);
-                if (target && !event.pierce) { destination = this.models.get(target.id)?.bodyPoint() || destination; }
+                if (target && !event.pierce) {
+                    const model = this.models.get(target.id);
+                    if (model) { model.bodyPointInto(destination); }
+                }
                 const logicalEnd = event.pierce ? this.level.cols + 1.4 : target?.x ?? this.level.cols;
                 const fraction = Math.max(0, Math.min(1, (projectile.x - startX) / Math.max(.1, logicalEnd - startX)));
-                const position = from.clone().lerp(destination, Math.min(1, fraction * (event.pierce ? 3 : 1)));
-                position.x = this.world(projectile.row, projectile.x).x;
+                // 每帧每颗子弹跑一次：终点向量在创建时分配一次、此后原地
+                // 更新；路径插值写进本视图共享的暂存向量（placeCentered
+                // 只读取、不保存它）。
+                const position = (this._projectilePoint ||= new this.stage.THREE.Vector3())
+                    .copy(from).lerp(destination, Math.min(1, fraction * (event.pierce ? 3 : 1)));
+                position.x = (projectile.x + this.level.colOffset - 4) * 1.3;
                 return position;
             } });
         // A busy pool now grows on demand (native-effects emit); if this shot
@@ -1184,6 +1263,7 @@ export class BattleView {
         // The rig is still loading: hold the whole battle rather than let an
         // invisible guest walk the lane.
         this.heldSpawns.push(event);
+        this.heldIds.add(event.id);
         this.setPaused("enemy-load", true);
         this.loadEnemy(event.enemyType).then(() => this.releaseHeld()).catch(error => { if (!this.disposed) { this.options.onError?.(error); } });
     }
@@ -1218,10 +1298,11 @@ export class BattleView {
         if (this.disposed) { return; }
         while (this.heldSpawns.length) {
             const event = this.heldSpawns[0];
-            if (!this.battle.enemies.has(event.id)) { this.heldSpawns.shift(); continue; }
+            if (!this.battle.enemies.has(event.id)) { this.heldSpawns.shift(); this.heldIds.delete(event.id); continue; }
             const model = this.enemyPools.get(event.enemyType)?.shift();
             if (!model) { this.loadEnemy(event.enemyType).then(() => this.releaseHeld()).catch(error => this.options.onError?.(error)); return; }
             this.heldSpawns.shift();
+            this.heldIds.delete(event.id);
             this.placeEnemy(event, model);
         }
         this.setPaused("enemy-load", false);
@@ -1266,35 +1347,45 @@ export class BattleView {
         if (!this.ready || this.disposed) { return; }
         this.visualTime += dt;
         try {
+            this.threatenedRows.clear();
+            for (const enemy of this.battle.enemies.values()) { this.threatenedRows.add(enemy.row); }
             for (const model of this.stage.players) {
                 const unit = this.battle.units.get(model.entityId);
-                const threatened = unit && [...this.battle.enemies.values()].some(enemy => enemy.row === unit.row);
-                model.configureIdle?.({ enabled: !this.options.audio.settings.reducedMotion && !model.retiring && !threatened,
-                    relaxed: this.battle.phase === "setup" });
+                const threatened = unit && this.threatenedRows.has(unit.row);
+                this._idleOptions.enabled = !this.options.audio.settings.reducedMotion && !model.retiring && !threatened;
+                this._idleOptions.relaxed = this.battle.phase === "setup";
+                model.configureIdle?.(this._idleOptions);
             }
             this.battle.step(dt);
             this.consumeEvents();
-            const due = this.visualEvents.filter(event => event.at <= this.battle.time);
-            this.visualEvents = this.visualEvents.filter(event => event.at > this.battle.time);
-            due.forEach(event => event.run());
-            const held = new Set(this.heldSpawns.map(event => event.id));
+            const queue = this.visualEvents;
+            while (this.visualEventCursor < queue.length && queue[this.visualEventCursor].at <= this.battle.time) {
+                queue[this.visualEventCursor++].run();
+            }
+            if (this.visualEventCursor > 64 && this.visualEventCursor * 2 >= queue.length) {
+                queue.splice(0, this.visualEventCursor);
+                this.visualEventCursor = 0;
+            }
+            this.heldIds.clear();
+            for (const event of this.heldSpawns) { this.heldIds.add(event.id); }
             for (const enemy of this.battle.enemies.values()) {
-                if (held.has(enemy.id)) { continue; }
+                if (this.heldIds.has(enemy.id)) { continue; }
                 const model = this.models.get(enemy.id);
                 if (!model) {
+                    if (this.heldIds.has(enemy.id)) { continue; }
                     // 以前这里直接 throw「魔物逻辑没有对应模型」把整场巡守
                     // 打进错误弹窗。但这个状态本就有成熟的兜底——装载中
-                    // 的魔物走 heldSpawns 挂起整条战斗。任何情况下 sim 出
-                    // 了敌人而模型不在（装载竞态、断点恢复重建、池瞬间耗
-                    // 尽），都按「正在装载」处理：挂起 + 触发装载 + 下一
-                    // 帧 releaseHeld 接管。绝不为一个可自愈的瞬间杀掉整场。
-                    this.heldSpawns.push({ id: enemy.id, enemyType: enemy.type, row: enemy.row, x: enemy.x });
+                    // 的魔物走 heldSpawns 挂起整条战斗。
+                    const held = { id: enemy.id, enemyType: enemy.type, row: enemy.row, x: enemy.x };
+                    this.heldSpawns.push(held);
+                    this.heldIds.add(enemy.id);
                     this.setPaused("enemy-load", true);
                     this.loadEnemy(enemy.type).then(() => this.releaseHeld())
                         .catch(error => { if (!this.disposed) { this.options.onError?.(error); } });
                     continue;
                 }
-                const target = this.world(enemy.row, enemy.x).x;
+                // 与 world().x 同式：只取 x 就不要为每只魔物分配一个向量。
+                const target = (enemy.x + this.level.colOffset - 4) * 1.3;
                 const position = model.group.position;
                 if (model.hop) {
                     const t = Math.min(1, (this.visualTime - model.hop.start) / model.hop.duration);
@@ -1348,27 +1439,34 @@ export class BattleView {
                 }
             }
         }
-        for (const model of this.models.values()) { this.updateStatus(model); }
-        this.projectOverlay();
+        // updateStatus 与 HUD 同步拍（12.5Hz）跑：血条/状态徽章对 80ms
+        // 延迟不敏感，却免掉每帧每模型的键串构建与 DOM 比对。
+        // 注意用独立时钟——lastHud 在同帧的 tick() 里先被重置。
+        if (this.visualTime - this._lastStatus > .08) {
+            this._lastStatus = this.visualTime;
+            for (const model of this.models.values()) { this.updateStatus(model); }
+        }
     }
 
     projectOverlay() {
         if (!this.stage || this.disposed) { return; }
+        const point = this._overlayPoint ||= new this.stage.THREE.Vector3();
         for (const [id, element] of this.pickupElements) {
             const pickup = this.battle.pickups.get(id);
             if (!pickup) { continue; }
-            const point = this.world(pickup.row, pickup.col, pickup.source === "natural" ? 1 : .9);
+            this.worldInto(point, pickup.row, pickup.col, pickup.source === "natural" ? 1 : .9);
             point.project(this.stage.camera);
             element.style.left = `${(point.x + 1) * this.stage.width / 2}px`;
             element.style.top = `${(1 - point.y) * this.stage.height / 2}px`;
         }
         const still = this.options.audio.settings.reducedMotion;
+        const floatPoint = this._floaterPoint ||= new this.stage.THREE.Vector3();
         this.floaters = this.floaters.filter(floater => {
             const age = this.visualTime - floater.start;
             if (age > .9 || this.disposed) { floater.element.remove(); return false; }
-            const point = floater.point.clone().project(this.stage.camera);
-            floater.element.style.left = `${(point.x + 1) * this.stage.width / 2 + floater.jitter}px`;
-            floater.element.style.top = `${(1 - point.y) * this.stage.height / 2 - (still ? 0 : age * 34)}px`;
+            floatPoint.copy(floater.point).project(this.stage.camera);
+            floater.element.style.left = `${(floatPoint.x + 1) * this.stage.width / 2 + floater.jitter}px`;
+            floater.element.style.top = `${(1 - floatPoint.y) * this.stage.height / 2 - (still ? 0 : age * 34)}px`;
             floater.element.style.opacity = String(Math.min(1, (0.9 - age) * 3.2));
             return true;
         });

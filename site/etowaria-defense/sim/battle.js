@@ -46,6 +46,13 @@ export class Battle {
         this.gates = Array(level.rows).fill(true);
         this.nextNatural = level.naturalFirst;
         this.wave = 1;
+        // 每行敌人/单位索引（懒构建，增量维护）：让 updateProjectiles、
+        // frontUnit 这类 60Hz 热路径按行扫描，而不是每帧全量展开复制。
+        // 批量恢复存档的代码把两者置 null，下次访问时整体重建。
+        this._rowEnemies = null;
+        this._unitsByRow = null;
+        this._dueActions = [];
+        this._scanScratch = [];
         this.stats = { kills: 0, deployed: 0, recalls: 0, collected: 0, generated: 0, spent: 0,
             healed: 0, shielded: 0, blocked: 0, gatesUsed: 0, defeatedUnits: 0, breachRow: null, wavesCleared: 0 };
         if (level.endless) {
@@ -56,6 +63,11 @@ export class Battle {
             this.nextWaveAt = 24;
             this.waveBounds = new Map();
             this.settledWaves = new Set();
+            // 清波判据的 O(1) 版本：alive 统计未阵亡的本波正规军，
+            // queued 统计还没从生成队列消费的本波数量。替代旧的
+            // 「每次 spawn 都展开全部敌人+切片生成队列」的扫描。
+            this.aliveByWave = new Map();
+            this.queuedByWave = new Map();
             this.nextSpawnIndex = 0;
             this.restocks = 0;
             this.planWave();
@@ -132,6 +144,7 @@ export class Battle {
             const row = Math.floor(this.rng() * this.level.rows);
             const elite = modifier?.kind === "elite" && index === 0;
             this.spawns.push({ at, row, type, wave: n, hpScale: elite ? hpScale * 2.2 : hpScale, elite, index: this.nextSpawnIndex++ });
+            this.queuedByWave.set(n, (this.queuedByWave.get(n) || 0) + 1);
         });
         this.spawns.sort((a, b) => a.at - b.at || a.index - b.index);
         this.waveBounds.set(n, { remaining: picks.length, total: picks.length, modifier });
@@ -142,11 +155,26 @@ export class Battle {
     pruneSettledWaveBounds() {
         if (!this.level.endless) { return; }
         for (const wave of this.settledWaves) {
-            if (wave === this.wave || [...this.enemies.values()].some(enemy => enemy.wave === wave)
-                || this.spawns.slice(this.spawnIndex).some(spawn => spawn.wave === wave)) { continue; }
+            if (wave === this.wave || (this.aliveByWave.get(wave) || 0) > 0 || (this.queuedByWave.get(wave) || 0) > 0) { continue; }
             this.waveBounds.delete(wave);
             this.settledWaves.delete(wave);
         }
+    }
+
+    enemiesByRow() {
+        if (!this._rowEnemies) {
+            this._rowEnemies = Array.from({ length: this.level.rows }, () => []);
+            for (const enemy of this.enemies.values()) { this._rowEnemies[enemy.row].push(enemy); }
+        }
+        return this._rowEnemies;
+    }
+
+    unitsByRow() {
+        if (!this._unitsByRow) {
+            this._unitsByRow = Array.from({ length: this.level.rows }, () => []);
+            for (const unit of this.units.values()) { this._unitsByRow[unit.row].push(unit); }
+        }
+        return this._unitsByRow;
     }
 
     deploymentCost(type) {
@@ -213,7 +241,11 @@ export class Battle {
             shield: 0, maxShield: 0, barrierHits: 0, nextBarrier: this.time,
             nextSelfHeal: this.time + (rule.selfHeal?.period || 0), hasteUntil: 0, haste: 0 };
         this.units.set(unit.id, unit);
+        if (this._unitsByRow) { this._unitsByRow[row].push(unit); }
         this.occupancy.set(cellKey(row, col), unit.id);
+        // 布阵状态版本号：setup 缓存（断点续战）只在版本变化时序列化，
+        // 而不是每次 HUD 刷新都 stringify 一遍。
+        this.setupRevision = (this.setupRevision || 0) + 1;
         this.emit("deployed", { id: unit.id, unitType: type, row, col });
         return { ok: true, id: unit.id };
     }
@@ -268,7 +300,12 @@ export class Battle {
             hopped: false, revived: false, reviveAt: null,
             nextSpecial: this.time + (rule.healer?.period || rule.summon?.period || 0), summoned: !!entry.summoned };
         this.enemies.set(enemy.id, enemy);
+        if (this._rowEnemies) { this._rowEnemies[enemy.row].push(enemy); }
         this.wave = Math.max(this.wave, entry.wave);
+        if (this.level.endless && !enemy.summoned) {
+            this.aliveByWave.set(entry.wave, (this.aliveByWave.get(entry.wave) || 0) + 1);
+            this.queuedByWave.set(entry.wave, Math.max(0, (this.queuedByWave.get(entry.wave) || 0) - 1));
+        }
         this.pruneSettledWaveBounds();
         this.emit("spawned", { id: enemy.id, enemyType: enemy.type, row: enemy.row, x: enemy.x, wave: entry.wave,
             summoned: enemy.summoned, boss: !!rule.boss, elite: !!entry.elite });
@@ -328,8 +365,18 @@ export class Battle {
         while (this.spawnIndex < this.spawns.length && this.spawns[this.spawnIndex].at <= this.time + EPS) {
             this.spawn(this.spawns[this.spawnIndex++]);
         }
-        const due = this.pending.filter(action => action.at <= this.time + EPS);
-        this.pending = this.pending.filter(action => action.at > this.time + EPS);
+        // 原地分流到期动作：借用跨 tick 复用的数组收集 due，
+        // 避免每 tick 两次全量 filter 造成的分配。
+        const due = this._dueActions;
+        due.length = 0;
+        const pending = this.pending;
+        let keep = 0;
+        for (let i = 0; i < pending.length; i++) {
+            const action = pending[i];
+            if (action.at <= this.time + EPS) { due.push(action); }
+            else { pending[keep++] = action; }
+        }
+        pending.length = keep;
         for (const action of due) { this.resolveAction(action); }
         for (const enemy of [...this.enemies.values()]) {
             if (this.enemies.has(enemy.id)) { this.updateEnemy(enemy); }
@@ -349,9 +396,11 @@ export class Battle {
 
     frontUnit(enemy) {
         let blocker = null;
-        for (const unit of this.units.values()) {
+        const rowUnits = this.unitsByRow()[enemy.row];
+        for (let i = 0; i < rowUnits.length; i++) {
+            const unit = rowUnits[i];
             const edge = unit.col + .55;
-            if (unit.row === enemy.row && edge <= enemy.x + EPS && (!blocker || unit.col > blocker.col)) { blocker = unit; }
+            if (edge <= enemy.x + EPS && (!blocker || unit.col > blocker.col)) { blocker = unit; }
         }
         return blocker;
     }
@@ -806,14 +855,23 @@ export class Battle {
     }
 
     updateProjectiles() {
-        for (const projectile of [...this.projectiles.values()]) {
+        for (const projectile of this.projectiles.values()) {
             projectile.previousX = projectile.x;
             projectile.x += projectile.speed * TICK;
-            const candidates = [...this.enemies.values()].filter(enemy => enemy.row === projectile.row && enemy.state !== "reviving"
-                && !projectile.hit.includes(enemy.id) && enemy.x + .2 >= projectile.previousX && enemy.x - .2 <= projectile.x);
+            // 只扫本行敌人（复用的暂存数组承载候选），替代过去
+            // 「每颗子弹展开全部敌人 + filter + sort」的 60Hz 热路径。
+            const bucket = this.enemiesByRow()[projectile.row];
+            const candidates = this._scanScratch;
+            candidates.length = 0;
+            for (let i = 0; i < bucket.length; i++) {
+                const enemy = bucket[i];
+                if (enemy.state === "reviving" || projectile.hit.includes(enemy.id)) { continue; }
+                if (enemy.x + .2 >= projectile.previousX && enemy.x - .2 <= projectile.x) { candidates.push(enemy); }
+            }
             candidates.sort((a, b) => a.x - b.x || a.id.localeCompare(b.id));
-            const struck = projectile.pierce ? candidates : candidates.slice(0, 1);
-            for (const enemy of struck) {
+            const strikeCount = projectile.pierce ? candidates.length : Math.min(1, candidates.length);
+            for (let i = 0; i < strikeCount; i++) {
+                const enemy = candidates[i];
                 projectile.hit.push(enemy.id);
                 const onHit = projectile.onHit ? { ...projectile.onHit } : {};
                 const sleepRule = this.units.has(projectile.source) ? this.unitRule(this.units.get(projectile.source)) : null;
@@ -824,9 +882,9 @@ export class Battle {
                 this.hitEnemy(enemy, projectile.damage, projectile.source, { onHit, critical: projectile.critical, pierceBoost: projectile.pierceBoost || 1 });
                 if (projectile.splash > 0) { this.splash(enemy, projectile.row, projectile.splash, projectile.splashDamage, projectile.source, {}); }
             }
-            if (struck.length && !projectile.pierce) {
+            if (strikeCount > 0 && !projectile.pierce) {
                 this.projectiles.delete(projectile.id);
-                this.emit("projectileRemoved", { id: projectile.id, hit: struck[0].id });
+                this.emit("projectileRemoved", { id: projectile.id, hit: candidates[0].id });
             } else if (projectile.x > this.level.cols + 1.4) {
                 this.projectiles.delete(projectile.id);
                 this.emit("projectileRemoved", { id: projectile.id, hit: null });
@@ -835,7 +893,7 @@ export class Battle {
     }
 
     updateLobs() {
-        for (const lob of [...this.lobs.values()]) {
+        for (const lob of this.lobs.values()) {
             const target = this.enemies.get(lob.targetId);
             if (target && target.state !== "reviving") { lob.x = target.x; }
             if (lob.landAt > this.time + EPS) { continue; }
@@ -843,8 +901,18 @@ export class Battle {
             const rule = UNIT_RULES[lob.unitType];
             let victim = target && target.state !== "reviving" ? target : null;
             if (!victim) {
-                victim = [...this.enemies.values()].filter(enemy => enemy.row === lob.row && enemy.state !== "reviving" && Math.abs(enemy.x - lob.x) <= .6)
-                    .sort((a, b) => Math.abs(a.x - lob.x) - Math.abs(b.x - lob.x) || a.id.localeCompare(b.id))[0] || null;
+                // 单趟取最近者，平局取 id 较小者——与旧的 filter+sort 等价。
+                let bestDistance = Infinity;
+                const bucket = this.enemiesByRow()[lob.row];
+                for (let i = 0; i < bucket.length; i++) {
+                    const enemy = bucket[i];
+                    if (enemy.state === "reviving") { continue; }
+                    const distance = Math.abs(enemy.x - lob.x);
+                    if (distance > .6) { continue; }
+                    if (!victim || distance < bestDistance || distance === bestDistance && enemy.id < victim.id) {
+                        victim = enemy; bestDistance = distance;
+                    }
+                }
             }
             this.emit("lobLanded", { id: lob.id, row: lob.row, x: lob.x, hit: victim?.id || null, source: lob.source });
             if (!victim) { continue; }
@@ -858,7 +926,9 @@ export class Battle {
     }
 
     splash(center, row, radius, damage, source, onHit) {
-        for (const other of [...this.enemies.values()]) {
+        // 直接迭代 Map（命中致死会在迭代中删除条目，Map 语义允许），
+        // 省掉每次溅射展开全部敌人的快照数组。
+        for (const other of this.enemies.values()) {
             if (other.id === center.id || other.state === "reviving") { continue; }
             if (Math.abs(other.row - row) <= 1 && Math.abs(other.x - center.x) <= radius) {
                 this.hitEnemy(other, damage, source, { onHit });
@@ -900,6 +970,11 @@ export class Battle {
     killEnemy(enemy, reason) {
         if (!this.enemies.has(enemy.id)) { return; }
         this.enemies.delete(enemy.id);
+        if (this._rowEnemies) {
+            const rowBucket = this._rowEnemies[enemy.row];
+            const at = rowBucket.indexOf(enemy);
+            if (at >= 0) { rowBucket.splice(at, 1); }
+        }
         this.stats.kills++;
         if (enemy.lastHitBy && this.units.has(enemy.lastHitBy)) {
             const killer = this.units.get(enemy.lastHitBy);
@@ -911,6 +986,7 @@ export class Battle {
             }
         }
         if (this.level.endless && !enemy.summoned) {
+            this.aliveByWave.set(enemy.wave, Math.max(0, (this.aliveByWave.get(enemy.wave) || 0) - 1));
             const bound = this.waveBounds.get(enemy.wave);
             if (bound && !this.settledWaves.has(enemy.wave)) {
                 bound.remaining = Math.max(0, bound.remaining - 1);
@@ -945,7 +1021,13 @@ export class Battle {
 
     removeUnit(unit, reason) {
         this.units.delete(unit.id);
+        if (this._unitsByRow) {
+            const rowUnits = this._unitsByRow[unit.row];
+            const at = rowUnits.indexOf(unit);
+            if (at >= 0) { rowUnits.splice(at, 1); }
+        }
         this.occupancy.delete(cellKey(unit.row, unit.col));
+        this.setupRevision = (this.setupRevision || 0) + 1;
         this.emit("unitRemoved", { id: unit.id, unitType: unit.type, reason, row: unit.row, col: unit.col });
     }
 
@@ -954,6 +1036,7 @@ export class Battle {
     // unitRule(unit) so the original rule stays frozen.
     applyGear(unit, gearRule) {
         unit.gear = gearRule.id;
+        this.setupRevision = (this.setupRevision || 0) + 1;
         if (gearRule.gear.maxHp) {
             unit.maxHp += gearRule.gear.maxHp;
             if (gearRule.gear.heal) { unit.hp = Math.min(unit.maxHp, unit.hp + gearRule.gear.heal); }
@@ -1239,6 +1322,17 @@ export class Battle {
             for (const projectile of data.projectiles) { battle.projectiles.set(projectile.id, { ...projectile, hit: projectile.hit.slice() }); }
             for (const lob of data.lobs) { battle.lobs.set(lob.id, { ...lob }); }
             for (const pickup of data.pickups) { battle.pickups.set(pickup.id, { ...pickup }); }
+            // 批量恢复后让行索引失效重建，并按当前场面重算清波判据的计数。
+            battle._rowEnemies = null;
+            battle._unitsByRow = null;
+            battle.aliveByWave = new Map();
+            battle.queuedByWave = new Map();
+            for (const enemy of battle.enemies.values()) {
+                if (!enemy.summoned) { battle.aliveByWave.set(enemy.wave, (battle.aliveByWave.get(enemy.wave) || 0) + 1); }
+            }
+            for (const spawn of battle.spawns.slice(battle.spawnIndex)) {
+                battle.queuedByWave.set(spawn.wave, (battle.queuedByWave.get(spawn.wave) || 0) + 1);
+            }
             for (const row of Array.isArray(data.readyAt) ? data.readyAt : []) {
                 if (Array.isArray(row) && deck.has(row[0]) && Number.isFinite(row[1]) && row[1] >= 0) { battle.readyAt.set(row[0], row[1]); }
             }
@@ -1328,6 +1422,8 @@ export class Battle {
             battle.units.set(unit.id, unit);
             battle.occupancy.set(cellId, unit.id);
         }
+        battle._unitsByRow = null;
+        battle.setupRevision = (battle.setupRevision || 0) + 1;
         return true;
     }
 
@@ -1378,6 +1474,8 @@ export class Battle {
             battle.units.set(unit.id, unit);
             battle.occupancy.set(cellKey(entry.row, entry.col), unit.id);
         }
+        battle._unitsByRow = null;
+        battle.setupRevision = (battle.setupRevision || 0) + 1;
         battle.resource = data.resource;
         for (const [type, at] of Array.isArray(data.readyAt) ? data.readyAt : []) {
             if (deck.has(type) && Number.isFinite(at) && at >= 0) { battle.readyAt.set(type, at); }

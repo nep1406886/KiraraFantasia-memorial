@@ -1207,8 +1207,11 @@ export const ENDLESS_ROSTER = [
     { type: "E39", from: 20 }
 ];
 
-export function allLevels() { return [...LEVELS, ENDLESS]; }
-export function levelById(id) { return allLevels().find(level => level.id === id) || null; }
+// LEVELS/ENDLESS 都是冻结对象，合成数组可以安全地建一次复用
+// （levelById 每 0.08s 会被 HUD 调用，别每次都重新展开）。
+const ALL_LEVELS = [...LEVELS, ENDLESS];
+export function allLevels() { return ALL_LEVELS; }
+export function levelById(id) { return ALL_LEVELS.find(level => level.id === id) || null; }
 export function unlockedUnits() { return [...DECK_ORDER, ...GEAR_ORDER]; }
 // Levels unlock in order: a level opens when the previous one is held in the
 // completion record (endless is always open as a side mode).
