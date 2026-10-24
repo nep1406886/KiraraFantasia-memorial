@@ -950,6 +950,60 @@ export const LEVELS = Object.freeze([
         challenge: { type: "defeated", target: 0 }, optional: "没有同伴倒下", openingTip: "远程和药瓶不会被仙人掌反伤；木之幡米拉的击退能给后排争取时间。"
     },
     {
+        id: "2-2a", chapter: 2, theme: "camp", title: "反伤的锯齿", subtitle: "仙人掌与石鱼把伤害原样送回给近战。",
+        rows: 5, cols: 9, rowOffset: 0, colOffset: 0, startResource: 460,
+        naturalFirst: 6, naturalPeriod: 12, naturalAmount: 32, warningLead: 9,
+        waves: 5, estimate: "约5分钟", newEnemy: "E23", recommended: ["F01", "U03", "U06", "U15", "U03", "U24", "U16", "F11"],
+        story: [
+            { name: "樱之宫莓香", text: "近身会被刺到……那就站远一点，把魔法送过去。" },
+            { name: "宇佐美千夜", text: "让后排先出手，前排只负责拖住它们。" }
+        ],
+        spawns: [spawn(30, 1, "E11"), spawn(46, 3, "E23"), spawn(60, 0), spawn(72, 4),
+            ...series(84, 6, [2, 0, 4, 1, 3], ["E11", "E02", "E15", "E11", "E02"], 2),
+            ...series(126, 5, [3, 1, 0, 4, 2], ["E23", "E02", "E09", "E15", "E02"], 3),
+            ...series(172, 4, [1, 3, 0, 2], ["E23", "E02", "E18", "E02"], 4),
+            ...series(222, 3, [0, 2, 4], ["E15", "E11", "E02"], 5)],
+        objective: "反伤只对近战生效；用远程和术式点掉石鱼，别让前排白白挨刺。",
+        challenge: { type: "kills", target: 30 }, optional: "击退至少 30 位来客",
+        openingTip: "武田咏深的贯穿能越过前排打到后排；香风智乃的会心不受反伤影响。"
+    },
+    {
+        id: "2-2b", chapter: 2, theme: "camp", title: "远处的光", subtitle: "光玉与鱼民在射程外一点点磨掉你的前排。",
+        rows: 5, cols: 9, rowOffset: 0, colOffset: 0, startResource: 400,
+        naturalFirst: 7, naturalPeriod: 14, naturalAmount: 28, warningLead: 8,
+        waves: 5, estimate: "约5分钟", newEnemy: "E22", recommended: ["F01", "U01", "U03", "U15", "U14", "U06", "U17", "F10"],
+        story: [
+            { name: "保登心爱", text: "它们在好远的地方就开始打了！得快点冲过去才行。" },
+            { name: "由乃", text: "我会一直看着前排的血量，别担心。" }
+        ],
+        spawns: [spawn(28, 2, "E10"), spawn(44, 0, "E22"), spawn(56, 4), spawn(66, 1),
+            ...series(76, 7, [3, 1, 4, 0, 2], ["E10", "E22", "E02", "E10", "E22"], 2),
+            ...series(114, 6, [0, 2, 4, 1, 3], ["E22", "E10", "E16", "E22", "E10"], 3),
+            ...series(156, 5, [2, 4, 1, 3, 0], ["E10", "E22", "E18", "E10", "E22"], 4),
+            ...series(208, 3, [4, 0, 2], ["E22", "E10", "E22"], 5)],
+        objective: "远程来客会停在射程边缘。用治疗顶住消耗，再找机会反打。",
+        challenge: { type: "healed", target: 60 }, optional: "累计治疗 60 点生命",
+        openingTip: "由乃的群疗覆盖相邻三格；开着护盾的前排能把远程的节奏顶回去。"
+    },
+    {
+        id: "2-2c", chapter: 2, theme: "camp", title: "营地的精英", subtitle: "巨锤魔偶给同伴加护，护甲与治疗叠在一起。",
+        rows: 5, cols: 9, rowOffset: 0, colOffset: 0, startResource: 430,
+        naturalFirst: 7, naturalPeriod: 13, naturalAmount: 30, warningLead: 8,
+        waves: 5, estimate: "约5分钟", newEnemy: "E21", recommended: ["F01", "U21", "U01", "U15", "U03", "U24", "U17", "F11"],
+        story: [
+            { name: "九条可怜", text: "那个大锤子在给它们补血……先把它敲掉！" },
+            { name: "武田咏深", text: "护甲交给我，剩下的你们跟上。" }
+        ],
+        spawns: [spawn(30, 2, "E21"), spawn(46, 0, "E12"), spawn(58, 4, "E07"), spawn(70, 1),
+            ...series(80, 7, [3, 1, 4, 0, 2], ["E21", "E12", "E07", "E21", "E12"], 2),
+            ...series(120, 6, [2, 4, 0, 3, 1], ["E12", "E21", "E18", "E07", "E21"], 3),
+            ...series(164, 5, [0, 3, 1, 4, 2], ["E21", "E07", "E19", "E21", "E12"], 4),
+            ...series(218, 3, [4, 2, 0], ["E21", "E12", "E21"], 5)],
+        objective: "治疗师和护甲同时在场。先破甲、再斩首，顺序错了就会被拖死。",
+        challenge: { type: "shielded", target: 400 }, optional: "累计护盾吸收 400 伤害",
+        openingTip: "玛莉·梦魔无视护甲；天王寺渚的易伤能放大集火效率。"
+    },
+    {
         id: "2-3", chapter: 2, theme: "camp", title: "营地的长夜", subtitle: "树怪与小黑怪王一起来袭，守到天亮。",
         rows: 5, cols: 9, rowOffset: 0, colOffset: 0, startResource: 375,
         naturalFirst: 8, naturalPeriod: 16, naturalAmount: 25, warningLead: 8,
