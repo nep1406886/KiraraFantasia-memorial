@@ -134,12 +134,50 @@
 .opening-steps strong { font-size: .9rem; }
 .opening-steps span { margin-top: 2px; color: var(--muted); font-size: .8rem; line-height: 1.45; }
 .result-stats { grid-template-columns: repeat(4, minmax(0, 1fr)); text-align: center; }
-.reward-list { display: flex; justify-content: center; gap: 20px; flex-wrap: wrap; margin-top: 20px; }
+.reward-list { display: flex; flex-direction: column; align-items: center; gap: 10px; margin-top: 18px; }
 .reward-list > div { display: flex; flex-direction: column; align-items: center; gap: 8px; }
 .reward-list .portrait-icon { width: 64px; }
-.challenge-success { color: #216b45; font-weight: 700; }
-.challenge-failed { color: #a0263d; font-weight: 700; }
-.achievement-unlocked { color: #7a5c1e; font-weight: 700; }
+
+/* 结算页：胜负徽标 + 成就卡 + 挑战条。整块沿用纸面 token，只靠
+   金色描边与轻轻的内阴影区分层级。 */
+.result-banner {
+  display: flex; align-items: center; gap: 10px;
+  width: 100%; padding: 10px 14px; border-radius: 10px;
+  border: 1px solid #dfd0b0; background: #fffdf4;
+  font-family: "KaiTi", "STKaiti", serif; font-size: 1.15rem; font-weight: 700;
+}
+.result-banner--won { border-color: #c9a94e; background: linear-gradient(100deg, #fff8dc, #fffdf2); box-shadow: inset 0 0 0 1px #fff; }
+.result-banner--lost { border-color: #cbb7a4; background: #faf6ef; color: #6b5a4a; }
+.result-badge {
+  display: grid; place-items: center; flex: none;
+  width: 26px; height: 26px; border-radius: 50%;
+  font-family: var(--font-sans, sans-serif); font-size: .95rem; font-weight: 800;
+}
+.result-banner--won .result-badge { color: #fffdf0; background: #c9a94e; }
+.result-banner--lost .result-badge { color: #fffdf0; background: #b3a294; }
+
+.result-summary { margin: 0; color: var(--muted); font-size: .84rem; text-align: center; }
+
+.result-achievements { display: grid; gap: 6px; width: 100%; }
+.result-achievement {
+  display: flex; align-items: flex-start; gap: 9px;
+  padding: 8px 11px; border-radius: 9px;
+  border: 1px solid #e6d9b8; border-left: 3px solid #c9a94e;
+  background: #fffdf0;
+}
+.result-achievement-star { flex: none; color: #c9a94e; font-size: 1rem; line-height: 1.35; }
+.result-achievement strong { display: block; font-size: .88rem; color: #7a5c1e; }
+.result-achievement small { display: block; margin-top: 2px; font-size: .76rem; color: var(--muted); line-height: 1.45; }
+
+.result-challenge {
+  display: flex; align-items: center; gap: 8px;
+  width: 100%; padding: 8px 12px; border-radius: 9px;
+  border: 1px dashed #d9cdb6; background: #faf7ef;
+  font-size: .82rem; color: #7c7266;
+}
+.result-challenge.is-complete { border: 1px solid #c9a94e; border-style: solid; background: #fffbe8; color: #6b5416; font-weight: 600; }
+.result-challenge-mark { flex: none; font-weight: 800; }
+.result-challenge.is-complete .result-challenge-mark { color: #b98f2c; }
 .achievement-card { opacity: .55; }
 .achievement-card.unlocked { opacity: 1; }
 .achievement-card.unlocked .codex-enemy-art { color: #c9a227; }

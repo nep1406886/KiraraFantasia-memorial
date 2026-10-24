@@ -968,23 +968,61 @@ export class Campaign {
             const dd = document.createElement("dd"); dd.textContent = value; part.append(dt, dd); stats.append(part);
         }
         const rewardList = this.get("result-rewards"); rewardList.replaceChildren();
+        // 结算页的第一印象：胜负徽标 + 一行战报。原本只有一段灰字，
+        // 打赢和打输的画面几乎没有区别，缺少「这一局完成了什么」的仪式感。
+        const banner = document.createElement("div");
+        banner.className = won ? "result-banner result-banner--won" : "result-banner result-banner--lost";
+        const badge = document.createElement("span"); badge.className = "result-badge";
+        badge.textContent = won ? "✓" : "×";
+        badge.setAttribute("aria-hidden", "true");
+        const bannerCopy = document.createElement("span");
+        bannerCopy.className = "result-banner-copy";
+        bannerCopy.textContent = endless ? (result.newRecord ? "新的无尽记录" : "本次无尽战报")
+            : won ? "巡守完成" : "本次失守";
+        banner.append(badge, bannerCopy);
+        rewardList.append(banner);
         const text = document.createElement("p");
+        text.className = "result-summary";
         text.textContent = endless ? (result.newRecord ? "新的无尽记录已写入手记。" : "本次没有超过已有的无尽记录。")
             : won ? "本次巡守结果已写入手记。" : "未改变通关记录。";
         rewardList.append(text);
-        for (const achievement of result.achievements || []) {
-            const row = document.createElement("p");
-            row.className = "achievement-unlocked";
-            row.textContent = `成就解锁：${ACHIEVEMENTS[achievement].name} — ${ACHIEVEMENTS[achievement].description}`;
-            rewardList.append(row);
+        // 成就：一张一条卡片（金星 + 名称 + 说明），而不是一整段长句。
+        if ((result.achievements || []).length) {
+            const group = document.createElement("div");
+            group.className = "result-achievements";
+            for (const achievement of result.achievements || []) {
+                const item = document.createElement("div");
+                item.className = "result-achievement";
+                const star = document.createElement("span");
+                star.className = "result-achievement-star";
+                star.textContent = "★";
+                star.setAttribute("aria-hidden", "true");
+                const body = document.createElement("span");
+                const name = document.createElement("strong");
+                name.textContent = ACHIEVEMENTS[achievement].name;
+                const desc = document.createElement("small");
+                desc.textContent = ACHIEVEMENTS[achievement].description;
+                body.append(name, desc);
+                item.append(star, body);
+                group.append(item);
+            }
+            rewardList.append(group);
         }
         if (!endless) {
             const challenge = evaluateChallenge(battle.level, event.stats, event.result);
             if (challenge) {
-                const challengeResult = document.createElement("p");
-                challengeResult.textContent = `${challenge.complete ? "挑战完成" : "挑战未完成"}：${challenge.label}`;
-                challengeResult.className = challenge.complete ? "challenge-success" : "challenge-failed";
-                rewardList.append(challengeResult);
+                // 挑战做成一条状态条：完成是金勾，未完成是淡墨圈。
+                // 不用刺眼的红字——失守本身标题里已经说清楚了。
+                const row = document.createElement("div");
+                row.className = challenge.complete ? "result-challenge is-complete" : "result-challenge";
+                const mark = document.createElement("span");
+                mark.className = "result-challenge-mark";
+                mark.textContent = challenge.complete ? "✓" : "○";
+                mark.setAttribute("aria-hidden", "true");
+                const label = document.createElement("span");
+                label.textContent = `${challenge.complete ? "挑战完成" : "挑战未完成"}：${challenge.label}`;
+                row.append(mark, label);
+                rewardList.append(row);
             }
         }
         // 无尽结算面补一行本局素材收获，让城镇掉落在结束时也看得见。
