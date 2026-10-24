@@ -38,6 +38,7 @@ import { HEALING_LOCK_INDEX, HEALING_LOCK_TURNS, POISON_INDEX, POISON_TURNS,
     AILMENTS } from "./playerstatus.js";
 import { decodeStatReset, resetStatChanges } from "./statreset.js";
 import { decodeNextCritical } from "./nextcritical.js";
+import { SKILL_NAME_ZH } from "./skillnames.js";
 
 const AILMENT_INDEXES = AILMENTS.map(ailment => ailment.index);
 
@@ -101,7 +102,9 @@ export function decodeSkill(row, id, recastSeconds, skillCards = {}) {
         sceneId: row.sceneId || null,
         action: row.action || null,
         effects: row.effects || [],
-        name: row.nameZh || row.name,
+        // 原作只导出了日文名；SKILL_NAME_ZH 覆盖 41 张可玩卡的 123 个
+        // 技能，其余（图鉴里其余卡）保持原名。
+        name: row.nameZh || SKILL_NAME_ZH[id] || row.name,
         detail: row.detailZh || row.detail,
         nameJa: row.name,
         detailJa: row.detail,

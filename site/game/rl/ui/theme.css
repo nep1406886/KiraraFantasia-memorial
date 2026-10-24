@@ -17,43 +17,83 @@
 
 .rl-ultimate-skip[hidden] { display: none; }
 .hud-skill.hud-hidden { display: none; }
-/* Battle actions: original art, stable key badges, and separate readable state. */
+/* Battle actions: original art, stable key badges, and separate readable state.
+   spec/01 §4.1 要求「不可用状态必须有明确的冷却/锁定反馈，不许只是变灰」，
+   §4 要求圆角纸面板 + 暖金强调。这里把三个状态做成一眼可辨的三档：
+     就绪   —— 纸色 + 金边 + 图标满亮度 + 轻微上浮
+     冷却   —— 图标压暗、扇形遮罩盖住图标、剩余秒数可读
+     封印   —— 纸面偏灰、名称加删除线感（hud-skill-sealed）
+   外层留 constant 尺寸，状态切换不改变布局。 */
 #stage .hud-skill {
+    position:relative;
     box-sizing:border-box; width:clamp(68px,9vw,84px); height:var(--rl-action-height);
-    border:1px solid var(--kf-line); border-radius:var(--ui-radius); padding:6px 5px;
-    display:flex; flex-direction:column; justify-content:flex-start; gap:4px;
+    border:1.5px solid var(--kf-line); border-radius:var(--ui-radius); padding:7px 6px 6px;
+    display:flex; flex-direction:column; align-items:center; justify-content:flex-start; gap:5px;
+    background:var(--kf-paper);
     font-family:var(--font-sans); cursor:pointer; box-shadow:var(--ui-shadow);
+    transition:transform var(--ui-time) var(--ui-ease), border-color var(--ui-time) var(--ui-ease),
+               box-shadow var(--ui-time) var(--ui-ease);
 }
+/* 就绪：金色描边 + 轻微抬起，与「冷却中」形成明确的视觉差。
+   状态类由 hud.js 维护（hud-skill-ready = sk.ready(i)），不要用
+   aria-disabled —— 后者还包含 locked，两者语义不同，
+   用错会让「冷却中」显示成金边、就绪显示成灰边（实测过）。 */
+#stage .hud-skill.hud-skill-ready {
+    border-color:var(--kf-gold);
+    box-shadow:var(--ui-shadow), inset 0 0 0 1px color-mix(in srgb, var(--kf-gold) 26%, transparent);
+}
+#stage .hud-skill.hud-skill-ready:hover { transform:translateY(-2px); }
+#stage .hud-skill:not(.hud-skill-ready) { cursor:default; }
 .hud-skill-icon { display:block; flex:none; width:36px; height:36px;
-    background:center / contain no-repeat var(--skill-art); }
+    background:center / contain no-repeat var(--skill-art);
+    transition:filter var(--ui-time) var(--ui-ease); }
 .hud-skill-icon.silhouette { background:var(--skill-tint);
     mask:var(--skill-art) center / contain no-repeat;
     -webkit-mask:var(--skill-art) center / contain no-repeat; }
+/* 冷却中图标压暗，让「能不能用」一眼可读。 */
+#stage .hud-skill:not(.hud-skill-ready) .hud-skill-icon { filter:saturate(.45) brightness(.86); }
+#stage .hud-skill-sealed .hud-skill-icon { filter:grayscale(.85) brightness(.8); }
+#stage .hud-skill-sealed .hud-skill-name { text-decoration:line-through; opacity:.75; }
 .hud-skill-key { position:absolute; top:5px; left:5px; min-width:18px;
-    padding:1px 2px; border-radius:5px; background:var(--kf-sky);
-    color:var(--kf-ink); font-size:11px; line-height:18px; z-index:2; }
+    padding:1px 3px; border-radius:5px; background:color-mix(in srgb, var(--kf-sky) 88%, var(--kf-paper));
+    border:1px solid color-mix(in srgb, var(--kf-ink-soft) 22%, transparent);
+    color:var(--kf-ink); font-size:11px; line-height:16px; z-index:2; text-align:center; }
 .hud-skill-name { display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical;
-    overflow:hidden; overflow-wrap:anywhere; font-size:11px; font-weight:500; line-height:14px; max-height:28px; }
+    overflow:hidden; overflow-wrap:anywhere; font-size:11px; font-weight:600; line-height:14px;
+    max-height:28px; text-align:center; color:var(--kf-ink); }
 .hud-skill-origin { position:absolute; top:5px; right:5px; width:18px; height:18px; line-height:18px;
     z-index:3; border-radius:4px; background:var(--kf-ink); color:var(--kf-paper); font-size:11px; text-align:center; }
 .hud-skill-origin[hidden] { display:none; }
-#stage .hud-skill-cd { inset:4px auto auto 50%; transform:translateX(-50%);
-    width:40px; height:40px; border-radius:50%;
-    background:conic-gradient(var(--kf-veil) 0deg var(--cooldown-angle,0deg), transparent var(--cooldown-angle,0deg) 360deg); }
-#stage .hud-skill-secs { inset:15px 4px auto; text-align:center; font-size:14px;
-    color:var(--kf-paper); text-shadow:0 1px 3px var(--kf-ink),0 0 3px var(--kf-ink); }
+/* 冷却扇形：盖在图标正上方（图标 36×36、槽内水平居中），
+   原来 inset:4px auto auto 50% 只做了水平居中，垂直贴着槽顶，
+   扇形实际压在名称上而不是图标上。 */
+#stage .hud-skill-cd {
+    position:absolute; top:7px; left:50%; transform:translateX(-50%);
+    width:36px; height:36px; border-radius:50%; pointer-events:none;
+    background:conic-gradient(var(--kf-veil) 0deg var(--cooldown-angle,0deg), transparent var(--cooldown-angle,0deg) 360deg);
+}
+#stage .hud-skill-secs { position:absolute; top:16px; left:50%; transform:translateX(-50%);
+    text-align:center; font-size:14px; font-weight:700; font-variant-numeric:tabular-nums;
+    color:var(--kf-paper); text-shadow:0 1px 3px var(--kf-ink),0 0 3px var(--kf-ink); pointer-events:none; }
 #stage .hud-skill:focus-visible, #stage .hud-gauge:focus-visible {
     outline:2px solid var(--kf-gold); outline-offset:3px;
 }
 #stage .hud-gauge {
+    position:absolute;
     box-sizing:border-box; height:var(--rl-action-height); width:clamp(170px,29vw,300px);
-    border:1px solid var(--kf-line); border-radius:var(--ui-radius); box-shadow:var(--ui-shadow);
+    border:1.5px solid var(--kf-line); border-radius:var(--ui-radius); box-shadow:var(--ui-shadow);
     display:grid; grid-template-columns:26px minmax(0,1fr) auto; grid-template-rows:1fr 1fr;
     align-items:center; gap:4px 8px; padding:10px 12px 13px;
+    background:var(--kf-paper);
     text-align:left; color:var(--kf-ink); font-family:var(--font-sans); cursor:pointer;
+    transition:border-color var(--ui-time) var(--ui-ease), box-shadow var(--ui-time) var(--ui-ease);
 }
 .hud-gauge-icon { display:block; width:26px; height:32px; grid-row:1 / 3;
-    background:url("../../../asset/img/rl/drop/skill-special.webp") center / contain no-repeat; }
+    background:url("../../../asset/img/rl/drop/skill-special.webp") center / contain no-repeat;
+    transition:filter var(--ui-time) var(--ui-ease), opacity var(--ui-time) var(--ui-ease); }
+/* 未充满时图标压暗，满了才亮起来——与技能槽同一套「可读性优先」的语言。
+   状态用 .ready（hud.js 的 ultimateReady），不用 aria-disabled（含 locked）。 */
+#stage .hud-gauge:not(.ready) .hud-gauge-icon { filter:grayscale(.7) brightness(.9); opacity:.72; }
 .hud-gauge-copy { display:contents; }
 #stage .hud-gauge-label { position:static; display:block; font-size:11px;
     grid-column:2; grid-row:1; align-self:end; text-shadow:none; color:var(--kf-ink-soft);
@@ -63,10 +103,17 @@
     font-size:12px; line-height:15px; font-weight:600; max-height:30px; overflow:hidden; overflow-wrap:anywhere; }
 .hud-gauge-readout { grid-column:3; grid-row:1; align-self:end; min-width:3ch; text-align:right;
     font-size:11px; color:var(--kf-ink-soft); font-variant-numeric:tabular-nums; }
-#stage .hud-gauge-fill { position:absolute; bottom:0; left:0; height:4px; width:100%; border-radius:0;
+#stage .hud-gauge-fill { position:absolute; bottom:0; left:0; height:4px; width:100%; border-radius:0 0 var(--ui-radius) var(--ui-radius);
+    background:linear-gradient(90deg, color-mix(in srgb, var(--kf-gold) 76%, var(--kf-paper)), var(--kf-gold));
     transform:scaleX(var(--gauge,0)); transform-origin:left; transition:transform var(--ui-time) var(--ui-ease); animation:none; }
-#stage .hud-gauge.ready { border-color:var(--kf-gold); }
+/* 就绪：金边 + 外发光 + 读数变金，明确「现在可以按 R」。 */
+#stage .hud-gauge.ready {
+    border-color:var(--kf-gold);
+    box-shadow:var(--ui-shadow), 0 0 0 1px color-mix(in srgb, var(--kf-gold) 30%, transparent),
+               0 0 14px -2px color-mix(in srgb, var(--kf-gold) 45%, transparent);
+}
 #stage .hud-gauge.ready .hud-gauge-readout { color:var(--kf-gold); font-weight:700; }
+#stage .hud-gauge.ready .hud-gauge-label { color:color-mix(in srgb, var(--kf-gold) 70%, var(--kf-ink)); }
 /* Only the control rises above the joystick zone; status text stays pass-through. */
 .hud-assist { position:relative; z-index:30; display:flex; flex-wrap:wrap; align-items:center; justify-content:space-between;
     gap:3px 8px; width:100%; min-height:44px; padding:6px 8px; margin-top:8px;
@@ -597,11 +644,12 @@ body.touch-on .hud-menu-key { display:none; }
 #stage .hud-skillbar, #stage .hud-gauge { bottom:var(--rl-control-bottom); }
 #stage .hud-skillbar { gap:10px; left:12px; }
 #stage .hud-gauge, #stage .touch-attack, #stage .touch-dodge { right:12px; }
-#stage .hud-skill.hud-skill-ready { border-color:var(--kf-gold); }
+/* 封印用的角标：沿用上面 .hud-skill-secs 的中心基准（图标正上方），
+   不再用旧的 inset 四边写法——那会把它拉成整条并压住名称。 */
 #stage .hud-skill.hud-skill-sealed { border-style:dashed; }
 #stage .hud-skill.hud-skill-sealed .hud-skill-secs {
-    inset:13px 8px auto; border-radius:4px; line-height:20px; font-size:12px;
-    background:var(--kf-ink); color:var(--kf-paper); text-shadow:none;
+    top:13px; border-radius:4px; line-height:20px; font-size:12px;
+    padding:0 6px; background:var(--kf-ink); color:var(--kf-paper); text-shadow:none;
 }
 #hud, #minimap, #boss-bar, #hint, #boss-voice {
     border:1px solid var(--kf-line); border-radius:var(--ui-radius); box-shadow:var(--ui-shadow);
