@@ -56,8 +56,14 @@
   background: linear-gradient(#6e4a2e, #5a3a22); box-shadow: inset 0 -2px 0 #3d2614, inset 0 1px 0 #a07a4e; }
 .gear-tray-label { flex-shrink: 0; font-size: .72rem; font-weight: 700; color: #f3e2c2; letter-spacing: .1em; }
 .gear-bank { display: flex; gap: 5px; min-width: 0; overflow-x: auto; scrollbar-width: thin; }
-.gear-chip { position: relative; flex: 0 0 auto; width: 62px; height: 54px; display: grid; grid-template-columns: 30px minmax(0, 1fr);
-  grid-template-rows: 1fr auto auto; column-gap: 3px; align-items: center; padding: 2px 4px; border-radius: 8px; border: 1.5px solid #c8b37d;
+/* 装备卡：原来 62×54 的网格里塞了 30px 图标 + 名字 + 费用，名字只剩
+   不到 32px 宽、字号 8px，两个汉字就换行——读起来像一片灰点。
+   改成竖向：图标居中在上，名字一行、费用一行，卡片加宽到 74px，
+   名字 10.5px 能放下四个汉字（原名最长「千戶她的储备采集台」会
+   clamp 到两行）。 */
+.gear-chip { position: relative; flex: 0 0 auto; width: 74px; height: 64px; display: grid;
+  grid-template-rows: 30px auto auto; justify-items: center; align-content: start;
+  row-gap: 1px; padding: 3px 5px; border-radius: 8px; border: 1.5px solid #c8b37d;
   background: var(--paper); cursor: pointer; touch-action: manipulation; overflow: hidden; }
 .gear-chip:hover:not(:disabled) { transform: translateY(-1px); }
 .gear-chip[aria-pressed="true"] { border-color: #ffd24a; box-shadow: 0 0 0 2px #fff, 0 0 10px 2px #ffd24acc; }
@@ -65,12 +71,14 @@
 .gear-chip.cooling .gear-chip-art { filter: saturate(.35) brightness(.94); }
 .gear-chip.poor { filter: saturate(.4); }
 .gear-chip:disabled { cursor: default; }
-.gear-chip-art { grid-row: 1 / 4; display: grid; place-items: center; width: 30px; height: 30px; }
+.gear-chip-art { display: grid; place-items: center; width: 30px; height: 30px; }
 .gear-chip-art .gear-art { width: 30px; height: 30px; display: grid; place-items: center; }
 .gear-chip-art .gear-icon { width: 28px; height: 28px; object-fit: contain; }
-.gear-chip-name { font-size: .5rem; line-height: 1.1; font-weight: 700; color: #4b3423; text-align: left;
-  overflow: hidden; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; }
-.gear-chip-cost { font-size: .6rem; font-weight: 800; line-height: 1; color: #5a3a1c; font-variant-numeric: tabular-nums; text-align: left; }
+.gear-chip-name { width: 100%; font-size: .66rem; line-height: 1.15; font-weight: 700; color: #4b3423;
+  text-align: center; overflow: hidden; display: -webkit-box; -webkit-line-clamp: 1; -webkit-box-orient: vertical;
+  text-overflow: ellipsis; word-break: break-all; }
+.gear-chip-cost { font-size: .62rem; font-weight: 800; line-height: 1; color: #5a3a1c;
+  font-variant-numeric: tabular-nums; }
 .gear-chip-cooldown { position: absolute; left: 0; right: 0; bottom: 0; height: 2px; background: #3b2a1b; transform-origin: left;
   transform: scaleX(0); pointer-events: none; }
 .gear-chip-state { position: absolute; right: 3px; top: 2px; font-size: .5rem; font-weight: 800; color: #fff;

@@ -21,7 +21,16 @@
 .campaign-header h2 { font-size: 1.55rem; }
 .campaign-map-body { display: grid; grid-template-columns: minmax(220px, .72fr) minmax(0, 1.28fr); gap: 22px; flex: 1; min-height: 0; max-width: 1360px; width: 100%; margin: 0 auto; }
 .campaign-chapter { display: flex; flex-direction: column; min-height: 0; padding: 0; overflow: hidden; }
-.chapter-landscape { flex: 1; min-height: 160px; background: url("../assets/stage/day.webp") center / cover; border-radius: 5px; }
+/* 章节插画：原作是 3:2 的手绘场景图（956×640）。原来的 flex:1 会把
+   它按容器高度任意拉伸——宽高比一变，草地的地平线就被压扁、云也被
+   裁成一条。改用固定 3:2 比例 + cover，并给一层内阴影把插画压进纸面
+   （与原作章节卡片一致）。 */
+.chapter-landscape {
+  flex: none; width: 100%; aspect-ratio: 3 / 2; min-height: 0;
+  background: url("../assets/stage/day.webp") center / cover no-repeat;
+  border-radius: 5px;
+  box-shadow: inset 0 0 0 1px rgba(112, 72, 57, .12), 0 1px 3px rgba(112, 72, 57, .10);
+}
 .chapter-description { padding: 20px 10px 8px; }
 .chapter-kicker { margin-bottom: 4px; color: #92723d; font-size: .72rem; font-weight: 800; letter-spacing: .12em; text-transform: uppercase; }
 .chapter-description h3 { font-family: "KaiTi", "STKaiti", serif; font-size: 1.8rem; margin-bottom: 10px; }
@@ -47,7 +56,18 @@
 .chapter-levels { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; }
 .level-choice { min-width: 0; }
 .level-choice[aria-pressed="true"] { border-color: var(--focus); background: #f1f7fd; box-shadow: 0 0 0 2px white inset; }
-.level-choice:disabled { background: #f0eee7; color: #6b6963; border-color: #cec9bf; }
+/* 锁定关卡：原作里锁住的按钮是「压下去的纸」，不是死灰块。保留纸色、
+   降低对比度，用虚线弱化边缘并轻微内缩，让它读起来是「还没揭开」而不是
+   「坏掉了」。 */
+.level-choice:disabled {
+  background: #f6f3e9;
+  color: #8b8578;
+  border-color: #ded5c2;
+  border-style: dashed;
+  box-shadow: inset 0 1px 3px #0000000a;
+}
+.level-choice:disabled .level-number { opacity: .65; }
+.level-choice:disabled .level-state { opacity: .8; }
 .level-number { font-size: 1.35rem; font-weight: 700; }
 .level-choice-copy strong { display: block; font-size: 1.1rem; }
 .level-choice-copy small { display: block; color: var(--muted); margin-top: 5px; font-size: .8rem; }

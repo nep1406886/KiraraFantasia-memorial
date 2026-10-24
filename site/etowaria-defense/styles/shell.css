@@ -63,6 +63,11 @@ p { line-height: 1.65; }
 .native-button.primary:disabled { filter: grayscale(1); }
 .native-button.compact { min-height: 46px; border-width: 12px; padding: 0 10px; font-size: 1rem; }
 .native-button.primary.compact { border-width: 0 30px; padding: 15px 5px; }
+/* 标题页的次级操作（动作观察 / 声音设置）：等宽一行。原来没有布局规则，
+   宽度由文字长度决定——「动作观察（不计分）」被撑长、声音设置缩在旁边，
+   面板的节奏就断了。 */
+.menu-tools { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.menu-tools .native-button.compact { width: 100%; padding: 0 8px; font-size: .92rem; white-space: nowrap; }
 .text-button { border: 0; background: none; padding: 10px; color: var(--blue); text-decoration: underline; text-underline-offset: 4px; min-height: 44px; }
 
 .title-screen { isolation: isolate; display: grid; grid-template-columns: minmax(0, 1fr) minmax(320px, 29%); gap: 6vw; padding: 10vh 5.5vw 12vh; }

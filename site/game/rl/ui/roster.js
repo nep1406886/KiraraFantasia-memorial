@@ -30,7 +30,17 @@ const ROSTER_CSS = `
         inset: 0;
         z-index: 1000;
         overflow-y: auto;
-        background: var(--kf-sky);
+        /* 原作卡面的「空气感」：不是一块平涂的天蓝，而是上方高处偏亮、
+           接近地平线转暖的柔和渐变，再加两团极淡的暖光/薄荷光晕。
+           全部用 token 的 color-mix 派生，不引入新色值。 */
+        background:
+            radial-gradient(120vmax 70vmax at 18% -18%, color-mix(in srgb, var(--kf-paper) 78%, transparent), transparent 60%),
+            radial-gradient(90vmax 60vmax at 88% 8%, color-mix(in srgb, var(--kf-gold) 12%, transparent), transparent 62%),
+            linear-gradient(178deg,
+                color-mix(in srgb, var(--kf-sky) 82%, var(--kf-paper)) 0%,
+                var(--kf-sky) 46%,
+                color-mix(in srgb, var(--kf-mint) 70%, var(--kf-paper)) 100%);
+        background-attachment: fixed;
         display: flex;
         flex-direction: column;
         align-items: center;
@@ -46,6 +56,21 @@ const ROSTER_CSS = `
         letter-spacing: 0.04em;
         color: var(--kf-ink);
         text-align: center;
+        /* 标题下压一道极淡的暖金细线，呼应原作卷首的「书名」排法。 */
+        position: relative;
+        padding-bottom: 10px;
+    }
+    .rl-roster h2::after {
+        content: "";
+        position: absolute;
+        left: 50%;
+        bottom: 0;
+        width: 3.2em;
+        height: 2px;
+        transform: translateX(-50%);
+        border-radius: 2px;
+        background: linear-gradient(90deg,
+            transparent, color-mix(in srgb, var(--kf-gold) 70%, transparent), transparent);
     }
     .rl-roster-grid {
         display: grid;
@@ -57,23 +82,32 @@ const ROSTER_CSS = `
     }
     .rl-roster-card {
         position: relative;
-        background: var(--kf-paper);
-        border: 1.5px solid var(--kf-ink-soft);
-        border-radius: 14px;
+        /* 卡面自己带原作金框（spec/01 §6「卡面是门面」），外层再压一道
+           墨色描边就成了双重边框、把卡面压平。这里外层只做「浮起的纸卡」：
+           米白底、无硬边、靠阴影分层；悬停时暖金描边从阴影里浮出来。 */
+        background: color-mix(in srgb, var(--kf-paper) 92%, var(--kf-sky));
+        border: 1.5px solid transparent;
+        border-radius: 16px;
         padding: 10px;
         cursor: pointer;
         display: flex;
         flex-direction: column;
         align-items: center;
         gap: 8px;
-        box-shadow: 0 2px 0 var(--kf-shadow);
-        transition: transform 0.18s ease-out, box-shadow 0.18s ease-out,
-                    border-color 0.18s ease-out;
+        box-shadow:
+            0 1px 0 color-mix(in srgb, var(--kf-paper) 70%, transparent) inset,
+            0 3px 10px color-mix(in srgb, var(--kf-shadow) 70%, transparent),
+            0 12px 26px -12px color-mix(in srgb, var(--kf-shadow) 80%, transparent);
+        transition: transform 0.18s var(--ui-ease), box-shadow 0.18s var(--ui-ease),
+                    border-color 0.18s var(--ui-ease);
     }
     .rl-roster-card:hover, .rl-roster-card:focus-visible {
-        transform: translateY(-3px);
-        border-color: var(--kf-gold);
-        box-shadow: 0 6px 18px var(--kf-shadow);
+        transform: translateY(-4px);
+        border-color: color-mix(in srgb, var(--kf-gold) 55%, transparent);
+        box-shadow:
+            0 1px 0 color-mix(in srgb, var(--kf-paper) 80%, transparent) inset,
+            0 6px 16px color-mix(in srgb, var(--kf-shadow) 85%, transparent),
+            0 20px 38px -14px color-mix(in srgb, var(--kf-gold) 30%, var(--kf-shadow));
         outline: none;
     }
     .rl-roster-card:focus-visible {
@@ -84,10 +118,13 @@ const ROSTER_CSS = `
     .rl-roster-card .art {
         width: 100%;
         aspect-ratio: 3 / 4;
-        border-radius: 9px;
+        border-radius: 10px;
         background: var(--kf-mint);
         object-fit: cover;
         display: block;
+        /* 卡面自带金框与留白，再叠一层极淡的内阴影让它「嵌进」纸卡。 */
+        box-shadow: 0 0 0 1px color-mix(in srgb, var(--kf-ink-soft) 18%, transparent),
+                    0 2px 8px color-mix(in srgb, var(--kf-shadow) 55%, transparent) inset;
     }
     .rl-roster-card .art.missing {
         display: flex;
@@ -151,12 +188,15 @@ const ROSTER_CSS = `
         font-size: 0.78rem;
         font-weight: 600;
         padding: 4px 16px;
-        background: var(--kf-paper);
+        background: color-mix(in srgb, var(--kf-paper) 92%, var(--kf-sky));
         color: var(--kf-ink);
-        border: 1.5px solid var(--kf-ink-soft);
+        border: 1.5px solid color-mix(in srgb, var(--kf-ink-soft) 40%, transparent);
         border-radius: 999px;
         cursor: pointer;
-        transition: border-color 0.18s ease-out;
+        transition: border-color 0.18s var(--ui-ease), background 0.18s var(--ui-ease);
+    }
+    .rl-roster-card .rl-roster-info:hover {
+        background: var(--kf-paper);
     }
     .rl-roster-card .rl-roster-info:hover,
     .rl-roster-card .rl-roster-info:focus-visible {
@@ -192,12 +232,18 @@ const ROSTER_CSS = `
         align-items: center;
         gap: 6px;
         padding: 5px 14px;
-        background: var(--kf-paper);
+        background: color-mix(in srgb, var(--kf-paper) 88%, transparent);
         color: var(--kf-ink-soft);
-        border: 1.5px solid var(--kf-ink-soft);
+        border: 1.5px solid color-mix(in srgb, var(--kf-ink-soft) 32%, transparent);
         border-radius: 999px;
         cursor: pointer;
-        transition: border-color 0.18s ease-out, color 0.18s ease-out;
+        backdrop-filter: blur(2px);
+        transition: border-color 0.18s var(--ui-ease), color 0.18s var(--ui-ease),
+                    background 0.18s var(--ui-ease);
+    }
+    .rl-roster-filter:hover {
+        background: var(--kf-paper);
+        color: var(--kf-ink);
     }
     .rl-roster-filter:hover, .rl-roster-filter:focus-visible {
         border-color: var(--kf-gold);
