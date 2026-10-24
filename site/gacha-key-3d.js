@@ -164,13 +164,6 @@ export function initGachaKeyRenderer() {
             pivot.scale.setScalar(1.02);
             return;
         }
-        if (phase === "phase-key-flash") {
-            pivot.visible = true;
-            pivot.position.set(0, -0.08, 0);
-            pivot.quaternion.copy(finalQuaternion);
-            pivot.scale.setScalar(1.02);
-            return;
-        }
         pivot.visible = false;
     }
 

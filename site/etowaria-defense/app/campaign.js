@@ -774,18 +774,20 @@ export class Campaign {
         this.button("recall").setAttribute("aria-pressed", String(controls.recall));
         this.button("recall").disabled = !["setup", "running"].includes(state.phase);
         this.button("start").disabled = controls.loading || !!state.pauses.length;
+        const busy = controls.loading || !["setup", "running"].includes(state.phase);
         for (const [id, entry] of this.cards) {
+            const rule = UNIT_RULES[id];
             const remaining = state.cooldowns[id] || 0;
-            const shortage = Math.max(0, UNIT_RULES[id].cost - state.resource);
+            const shortage = Math.max(0, rule.cost - state.resource);
             const status = remaining > .001 ? `${Math.ceil(remaining)}秒` : shortage ? `差${shortage}` : "可部署";
             entry.state.textContent = status;
-            entry.shade.style.transform = `scaleY(${remaining > .001 ? Math.min(1, remaining / UNIT_RULES[id].deployCooldown) : 0})`;
+            entry.shade.style.transform = `scaleY(${remaining > .001 ? Math.min(1, remaining / rule.deployCooldown) : 0})`;
             entry.button.classList.toggle("cooling", remaining > .001);
             entry.button.classList.toggle("poor", !remaining && shortage > 0);
             entry.button.classList.toggle("unavailable", remaining > .001 || shortage > 0);
             entry.button.setAttribute("aria-pressed", String(!controls.recall && controls.selected === id));
-            entry.button.setAttribute("aria-label", `${UNIT_RULES[id].name}，费用${UNIT_RULES[id].cost}，${remaining > .001 ? `冷却${status}` : shortage ? `还差${shortage}` : status}`);
-            entry.button.disabled = controls.loading || !["setup", "running"].includes(state.phase);
+            entry.button.setAttribute("aria-label", `${rule.name}，费用${rule.cost}，${remaining > .001 ? `冷却${status}` : shortage ? `还差${shortage}` : status}`);
+            entry.button.disabled = busy;
         }
         const worn = new Map();
         for (const unit of state.units) { if (unit.gear) { worn.set(unit.gear, UNIT_RULES[unit.type].name); } }
@@ -805,7 +807,7 @@ export class Campaign {
             entry.button.setAttribute("aria-label", holder ? `${rule.name}，${holder}已佩戴`
                 : remaining > .001 ? `${rule.name}，冷却还剩${Math.ceil(remaining)}秒`
                 : `${rule.name}，费用${rule.cost}，${shortage ? `还差${shortage}` : "可佩戴"}`);
-            entry.button.disabled = controls.loading || !["setup", "running"].includes(state.phase);
+            entry.button.disabled = busy;
         }
         const rule = UNIT_RULES[controls.selected];
         const holding = controls.recall || !!rule;
@@ -1004,21 +1006,16 @@ export class Campaign {
             const unlocked = this.save.progress.achievements;
             this.text("codex-detail", `已解锁 ${unlocked.length} / ${rows.length} 项成就。`);
             for (const id of rows) {
-                const card = document.createElement("button");
-                card.className = "codex-card achievement-card" + (unlocked.includes(id) ? " unlocked" : "");
-                card.dataset.codex = id;
-                const art = document.createElement("span"); art.className = "seed-art";
+                const unlockedNow = unlocked.includes(id);
                 const label = document.createElement("span"); label.className = "codex-enemy-art";
-                label.textContent = unlocked.includes(id) ? "★" : "?";
-                art.append(label);
-                const name = document.createElement("span"); name.className = "seed-name";
-                name.textContent = unlocked.includes(id) ? ACHIEVEMENTS[id].name : "未解锁";
-                card.append(art, name);
-                card.addEventListener("click", () => {
-                    this.text("codex-detail", unlocked.includes(id)
+                label.textContent = unlockedNow ? "★" : "?";
+                const card = this.codexCard({ id, art: label,
+                    name: unlockedNow ? ACHIEVEMENTS[id].name : "未解锁",
+                    detail: () => unlockedNow
                         ? `${ACHIEVEMENTS[id].name}：${ACHIEVEMENTS[id].description}`
-                        : `？？？：${ACHIEVEMENTS[id].description}`);
-                });
+                        : `？？？：${ACHIEVEMENTS[id].description}` });
+                if (unlockedNow) { card.classList.add("achievement-card", "unlocked"); }
+                else { card.classList.add("achievement-card"); }
                 grid.append(card);
             }
             this.get("codex-dialog").showModal();
@@ -1028,30 +1025,34 @@ export class Campaign {
         this.text("codex-detail", "");
         for (const id of rows) {
             const rule = section === "enemy" ? ENEMY_RULES[id] : UNIT_RULES[id];
-            const card = document.createElement("button");
-            card.className = "codex-card";
-            card.dataset.codex = id;
-            const art = document.createElement("span"); art.className = "seed-art";
+            let art;
             if (section === "enemy") {
-                const label = document.createElement("span"); label.className = "codex-enemy-art";
-                label.textContent = (rule.name || "?").slice(0, 1);
-                art.append(label);
-            } else { art.append(this.unitArt(id)); }
-            const name = document.createElement("span"); name.className = "seed-name"; name.textContent = rule.name;
-            card.append(art, name);
-            card.addEventListener("click", () => {
-                const help = section === "enemy"
+                art = document.createElement("span"); art.className = "codex-enemy-art";
+                art.textContent = (rule.name || "?").slice(0, 1);
+            } else { art = this.unitArt(id); }
+            grid.append(this.codexCard({ id, art, name: rule.name,
+                detail: () => section === "enemy"
                     ? `${rule.name}：${rule.description || ""}`
-                    : `${rule.name}（${rule.role}）：${rule.help}`;
-                this.text("codex-detail", help);
-            });
-            grid.append(card);
+                    : `${rule.name}（${rule.role}）：${rule.help}` }));
         }
         this.get("codex-dialog").showModal();
         this.view?.setPaused("codex", true);
     }
 
-    // ─── 换卡（无尽每5波一次） ────────────────────────────────────────────
+    // 图鉴/换卡里重复出现的「卡面 = 图标块 + 名字」结构。art 由调用方
+    // 决定（角色立绘、装备图标或一个字母牌），这里只管外壳和点击。
+    codexCard({ id, art, name, detail }) {
+        const card = document.createElement("button");
+        card.className = "codex-card";
+        if (id) { card.dataset.codex = id; }
+        const artSlot = document.createElement("span"); artSlot.className = "seed-art";
+        artSlot.append(art);
+        const nameSlot = document.createElement("span"); nameSlot.className = "seed-name"; nameSlot.textContent = name;
+        card.append(artSlot, nameSlot);
+        card.addEventListener("click", () => this.text("codex-detail", detail()));
+        return card;
+    }
+
     openRestock() {
         const view = this.view;
         if (!view || view.battle.restocks < 1) { return; }

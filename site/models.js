@@ -272,6 +272,17 @@
         });
     }
 
+    // 清单/稀有度/可见性等 JSON 端点共用：非 2xx 直接抛 HTTP 状态，
+    // 与各调用点原先内联的判断完全一致。
+    function fetchJson(url, options) {
+        return fetch(url, options).then(function (response) {
+            if (!response.ok) {
+                throw new Error("HTTP " + response.status);
+            }
+            return response.json();
+        });
+    }
+
     function formatSize(bytes) {
         if (!Number.isFinite(bytes)) {
             return "大小未知";
@@ -694,16 +705,6 @@
         var preview = MODEL_PREVIEWS[model.name];
         var metadata = modelMetadata(model);
         var hasPlayerActions = Boolean(preview && (preview.animations || metadata || parts.kind === "enemy"));
-        // 三种情况要说三句话：自带动作的、跟同族基础模型借到动作的、以及本族没有
-        // 基础号只能用程序化预览的那 58 个。原先只分两种，于是 407 个借到了真动作
-        // 的敌人也被说成「程序化预览」。
-        var borrowedFrom = enemyBaseActionSource(parts.kind, preview);
-        var actionHint = "动作取自游戏原始 AnimationClip，表情按官方表情表跟随。";
-        if (parts.kind === "enemy" && preview && !preview.animations) {
-            actionHint = borrowedFrom
-                ? "该敌人包未附带 AnimationClip，以下动作借自同族基础模型（骨架相同）。"
-                : "该敌人包未附带 AnimationClip，且本族没有基础模型可借，以下为程序化预览。";
-        }
         var actionMarkup = hasPlayerActions
             ? "<div class='model-control-panel' id='modelPanelAction' data-inspector-panel='action' role='tabpanel' aria-labelledby='modelTabAction'><div id='modelActionStrip' class='model-action-groups' role='group' aria-label='游戏动作'></div></div>"
             : "";
@@ -3539,39 +3540,6 @@
                 viewInteracted = true;
             });
 
-            function fetchModel(url) {
-                return fetch(url).then(function (response) {
-                    if (!response.ok) {
-                        throw new Error("HTTP " + response.status);
-                    }
-                    if (!response.body || typeof Response === "undefined") {
-                        return response;
-                    }
-                    var total = Number(response.headers.get("Content-Length") || 0);
-                    if (!total) {
-                        return response;
-                    }
-                    var reader = response.body.getReader();
-                    var chunks = [];
-                    var received = 0;
-                    function pump() {
-                        return reader.read().then(function (result) {
-                            if (result.done) {
-                                return new Response(new Blob(chunks), {
-                                    status: response.status,
-                                    headers: response.headers
-                                });
-                            }
-                            received += result.value.byteLength;
-                            setModelLoadNote(Math.min(99, Math.round((received / total) * 100)) + "%");
-                            chunks.push(result.value);
-                            return pump();
-                        });
-                    }
-                    return pump();
-                });
-            }
-
             function cacheModel(url, compression) {
                 return loadModelLoader().then(function (loader) {
                     return loader.readModelCached(url, compression, function (progress) {
@@ -4018,26 +3986,6 @@
                     return camera.apertureWidth / camera.apertureHeight;
                 }
                 return 1.5;
-            }
-
-            // 面板里那块 3:2 的画面，单位是 CSS 像素（three 自己会乘
-            // pixelRatio）。窄面板上下留边，宽面板左右留边。
-            function cinematicViewport() {
-                var width = Math.max(1, host.clientWidth);
-                var height = Math.max(1, host.clientHeight);
-                var aspect = cinematicAspect();
-                var w = width;
-                var h = Math.round(width / aspect);
-                if (h > height) {
-                    h = height;
-                    w = Math.round(height * aspect);
-                }
-                return {
-                    x: Math.round((width - w) / 2),
-                    y: Math.round((height - h) / 2),
-                    width: w,
-                    height: h
-                };
             }
 
             function enterCinematic() {
@@ -5747,29 +5695,9 @@
                 }
                 if (modelObject) {
                     clearMountedWeapon();
-                    var disposedMaterials = new Set();
-                    var disposedTextures = new Set();
                     scene.remove(modelObject);
-                    modelObject.traverse(function (child) {
-                        if (child.geometry) {
-                            child.geometry.dispose();
-                        }
-                        var materials = Array.isArray(child.material) ? child.material : [child.material];
-                        materials.forEach(function (material) {
-                            if (!material || disposedMaterials.has(material)) {
-                                return;
-                            }
-                            disposedMaterials.add(material);
-                            Object.keys(material).forEach(function (key) {
-                                var value = material[key];
-                                if (value && value.isTexture && !disposedTextures.has(value)) {
-                                    disposedTextures.add(value);
-                                    value.dispose();
-                                }
-                            });
-                            material.dispose();
-                        });
-                    });
+                    // 与失败回滚共用同一套几何/材质/贴图释放规则。
+                    disposeObjectResources(modelObject);
                 }
                 disposeModelRenderOrder();
                 renderer.dispose();
@@ -5806,12 +5734,7 @@
         setHash(model);
         renderList();
         elements.detail.innerHTML = "<div class='model-loading'><span class='model-spinner' aria-hidden='true'></span><h2>正在读取 Sprite 目录</h2><p>" + escapeHtml(model.name) + "</p></div>";
-        fetch(modelIndexUrl(model), { mode: "cors" }).then(function (response) {
-            if (!response.ok) {
-                throw new Error("HTTP " + response.status);
-            }
-            return response.json();
-        }).then(function (spriteNames) {
+        fetchJson(modelIndexUrl(model), { mode: "cors" }).then(function (spriteNames) {
             if (requestId !== state.indexRequest) {
                 return;
             }
@@ -6006,12 +5929,7 @@
     // read racing a rebuild must not leave a model stuck with no face.
     function fetchJsonWithRetry(url, attempt) {
         attempt = attempt || 0;
-        return fetch(url, { cache: "default" }).then(function (response) {
-            if (!response.ok) {
-                throw new Error("HTTP " + response.status);
-            }
-            return response.json();
-        }).catch(function (error) {
+        return fetchJson(url, { cache: "default" }).catch(function (error) {
             if (attempt < 2) {
                 return new Promise(function (resolve) {
                     window.setTimeout(resolve, 900 * (attempt + 1));
@@ -6063,12 +5981,7 @@
             return Promise.resolve();
         }
         attempt = attempt || 0;
-        return fetch(MODEL_MANIFEST_URL).then(function (response) {
-            if (!response.ok) {
-                throw new Error("HTTP " + response.status);
-            }
-            return response.json();
-        }).then(function (manifest) {
+        return fetchJson(MODEL_MANIFEST_URL).then(function (manifest) {
             if (!manifest || !manifest.models || typeof manifest.models !== "object") {
                 throw new Error("invalid manifest");
             }
@@ -6112,12 +6025,7 @@
         if (IS_LOCAL_FILE) {
             return Promise.resolve();
         }
-        return fetch(RARITY_TABLE_URL).then(function (response) {
-            if (!response.ok) {
-                throw new Error("HTTP " + response.status);
-            }
-            return response.json();
-        }).then(function (table) {
+        return fetchJson(RARITY_TABLE_URL).then(function (table) {
             if (!table || !table.models || typeof table.models !== "object") {
                 throw new Error("invalid rarity table");
             }
@@ -6137,12 +6045,7 @@
         if (IS_LOCAL_FILE) {
             return Promise.resolve();
         }
-        return fetch(VISIBILITY_TABLE_URL).then(function (response) {
-            if (!response.ok) {
-                throw new Error("HTTP " + response.status);
-            }
-            return response.json();
-        }).then(function (table) {
+        return fetchJson(VISIBILITY_TABLE_URL).then(function (table) {
             if (!table || !table.clips || typeof table.clips !== "object") {
                 throw new Error("invalid visibility table");
             }
@@ -6153,12 +6056,7 @@
     }
 
     function loadDatabase() {
-        return fetch(DATABASE_URL, { mode: "cors" }).then(function (response) {
-            if (!response.ok) {
-                throw new Error("HTTP " + response.status);
-            }
-            return response.json();
-        }).then(function (entries) {
+        return fetchJson(DATABASE_URL, { mode: "cors" }).then(function (entries) {
             return previewReady.then(function () { return entries; });
         }).then(function (entries) {
             state.allModels = entries.filter(function (entry) {

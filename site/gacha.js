@@ -824,18 +824,6 @@
         }
     }
 
-    function stopSummonBgm() {
-        if (!state.summonBgm) {
-            return;
-        }
-        state.summonBgm.pause();
-        try {
-            state.summonBgm.currentTime = 0;
-        } catch (error) {
-            return;
-        }
-    }
-
     function playSummonBgm() {
         // 原版召唤流程中，克蕾尔台词和卡面演出共用同一段循环 BGM。
         return playSummonAudio("summonBgm", summonAudioFiles.summonBgm, 0.38, true);
