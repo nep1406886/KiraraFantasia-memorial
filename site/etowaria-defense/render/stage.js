@@ -719,9 +719,15 @@ export class DefenseStage {
             this.afterBattleFrame?.(dt);
             return;
         }
-        const ready = this.events.filter(event => event.at <= this.time);
-        this.events = this.events.filter(event => event.at > this.time);
-        for (const event of ready) { event.run(); }
+        // 事件表按 at 升序入队：原地切分已到期的一段，省掉每帧两个
+        // 新数组。到期事件先跑完再截断，run() 里可能追加新事件。
+        let due = 0;
+        while (due < this.events.length && this.events[due].at <= this.time) { due++; }
+        if (due) {
+            const ready = this.events.slice(0, due);
+            this.events.splice(0, due);
+            for (const event of ready) { event.run(); }
+        }
         for (const enemy of this.enemies) {
             if (this.demo && enemy.action === "idle") { enemy.walking = true; }
             if (enemy.walking) {
@@ -732,8 +738,12 @@ export class DefenseStage {
             }
             enemy.update(dt);
         }
+        // 选项对象每帧复用：IdleMotion.configure 只读字段、不保存引用。
+        const idleOptions = this._idleOptions || (this._idleOptions = { enabled: true, relaxed: true });
+        idleOptions.enabled = !this.audio.settings.reducedMotion;
+        idleOptions.relaxed = !this.demo;
         for (const player of this.players) {
-            player.configureIdle?.({ enabled: !this.audio.settings.reducedMotion, relaxed: !this.demo });
+            player.configureIdle?.(idleOptions);
             player.update(dt);
         }
         this.items.update(dt);

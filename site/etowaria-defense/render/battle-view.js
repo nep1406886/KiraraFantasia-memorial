@@ -140,6 +140,7 @@ export class BattleView {
         this.enemyPools = new Map();
         this.enemyLoads = new Map();
         this.heldSpawns = [];
+        this._heldDirty = true;
         this.warming = new Map();
         this.retiring = new Set();
         this.spells = new Map();
@@ -149,7 +150,9 @@ export class BattleView {
         this.visualEventSerial = 0;
         this.visualEventCursor = 0;
         this.heldIds = new Set();
-        this.threatenedRows = new Set();
+        // 每帧重算的「哪几路有敌人」标志。行数固定且很少，用布尔数组
+        // 比 Set 少一次哈希，也省掉每帧 clear()。
+        this.threatenedRows = [];
         this.throttle = new Map();
         // 原作语音表（units.json 的 voice.cues）按 unit id 缓存；只有带表
         // 的角色必杀才播语音。pickVoiceCue 轮换取句。
@@ -728,6 +731,8 @@ export class BattleView {
         model.badges = badges;
         model.hpText = text;
         model.statusKey = null;
+        // 徽章容器是新建的，旧池里的节点已经随旧标签一起被丢弃。
+        model.badgePool = null;
         // 新标签元素没有旧元素的位置缓存（模型可能从对象池复用），
         // 强制下一次 renderModel 重新写入。
         model.labelX = undefined; model.labelY = undefined;
@@ -757,14 +762,34 @@ export class BattleView {
         model.shieldFill.hidden = !(guard > 0);
         model.shieldFill.classList.toggle("armor", model.kind === "enemy");
         if (guard > 0) { model.shieldFill.style.transform = `scaleX(${Math.min(1, guard / Math.max(1, guardMax))})`; }
-        model.badges.replaceChildren(...statuses.map(status => {
-            const badge = document.createElement("i"); badge.className = `badge ${status}`; badge.textContent = STATUS_BADGES[status][1];
-            return badge;
-        }), ...(hasted ? [Object.assign(document.createElement("i"), { className: "badge haste", textContent: "»" })] : []));
+        this.badgeNodes(model, statuses, hasted);
         const states = statuses.map(status => STATUS_BADGES[status][0]).join("、");
         const text = `${model.unit.name}，第${entity.row + 1}路，生命${Math.ceil(entity.hp)} / ${entity.maxHp}${guard > 0 ? `，${model.kind === "enemy" ? "护甲" : "护盾"}${Math.ceil(guard)}` : ""}${states ? `，${states}` : ""}${ratio <= .25 ? "，危急" : ""}`;
         model.label.setAttribute("aria-label", text);
-        model.hpText.textContent = text;
+        if (model.hpText.textContent !== text) { model.hpText.textContent = text; }
+    }
+
+    // 状态徽章按「每个模型自己的小池」复用：状态组合一变就换一批新
+    // 节点，会让战斗最激烈的时候持续产生 DOM 垃圾。池子只增不减，
+    // 长度上限就是状态种类数（5 种 + 加速）。
+    badgeNodes(model, statuses, hasted) {
+        const pool = model.badgePool || (model.badgePool = []);
+        const wanted = statuses.map(status => status).concat(hasted ? ["haste"] : []);
+        while (pool.length < wanted.length) {
+            const node = document.createElement("i");
+            model.badges.append(node);
+            pool.push(node);
+        }
+        for (let i = 0; i < pool.length; i++) {
+            const node = pool[i];
+            if (i >= wanted.length) { node.hidden = true; continue; }
+            const kind = wanted[i];
+            const className = kind === "haste" ? "badge haste" : `badge ${kind}`;
+            const label = kind === "haste" ? "»" : STATUS_BADGES[kind][1];
+            if (node.hidden) { node.hidden = false; }
+            if (node.className !== className) { node.className = className; }
+            if (node.textContent !== label) { node.textContent = label; }
+        }
     }
 
     consumeEvents() {
@@ -1031,7 +1056,19 @@ export class BattleView {
         const last = this.throttle.get(key);
         if (last !== undefined && this.visualTime - last < seconds) { return false; }
         this.throttle.set(key, this.visualTime);
+        // 键里带事件 id（hurt:enemy-123），无尽模式跑几十分钟会累积上万
+        // 条永不再命中的记录。超过阈值就丢掉已过期的那些——仍在节流
+        // 窗口内的保留，行为不变。
+        if (this.throttle.size > 512) { this.pruneThrottle(); }
         return true;
+    }
+
+    pruneThrottle() {
+        // 最长窗口是语音的 6 秒；超过 8 秒的记录再也不可能触发节流。
+        const cutoff = this.visualTime - 8;
+        for (const [key, at] of this.throttle) {
+            if (at < cutoff) { this.throttle.delete(key); }
+        }
     }
 
     // 限流音效：命中/受击/发射这类事件一秒能来十几次，全部走
@@ -1269,6 +1306,7 @@ export class BattleView {
     holdSpawn(event) {
         this.heldSpawns.push(event);
         this.heldIds.add(event.id);
+        this._heldDirty = true;
         this.setPaused("enemy-load", true);
         this.loadEnemy(event.enemyType).then(() => this.releaseHeld())
             .catch(error => { if (!this.disposed) { this.options.onError?.(error); } });
@@ -1310,11 +1348,12 @@ export class BattleView {
         if (this.disposed) { return; }
         while (this.heldSpawns.length) {
             const event = this.heldSpawns[0];
-            if (!this.battle.enemies.has(event.id)) { this.heldSpawns.shift(); this.heldIds.delete(event.id); continue; }
+            if (!this.battle.enemies.has(event.id)) { this.heldSpawns.shift(); this.heldIds.delete(event.id); this._heldDirty = true; continue; }
             const model = this.enemyPools.get(event.enemyType)?.shift();
             if (!model) { this.loadEnemy(event.enemyType).then(() => this.releaseHeld()).catch(error => this.options.onError?.(error)); return; }
             this.heldSpawns.shift();
             this.heldIds.delete(event.id);
+            this._heldDirty = true;
             this.placeEnemy(event, model);
         }
         this.setPaused("enemy-load", false);
@@ -1357,11 +1396,13 @@ export class BattleView {
         if (!this.ready || this.disposed) { return; }
         this.visualTime += dt;
         try {
-            this.threatenedRows.clear();
-            for (const enemy of this.battle.enemies.values()) { this.threatenedRows.add(enemy.row); }
+            const threatenedRows = this.threatenedRows;
+            threatenedRows.length = this.level.rows;
+            threatenedRows.fill(false);
+            for (const enemy of this.battle.enemies.values()) { threatenedRows[enemy.row] = true; }
             for (const model of this.stage.players) {
                 const unit = this.battle.units.get(model.entityId);
-                const threatened = unit && this.threatenedRows.has(unit.row);
+                const threatened = unit && threatenedRows[unit.row];
                 this._idleOptions.enabled = !this.options.audio.settings.reducedMotion && !model.retiring && !threatened;
                 this._idleOptions.relaxed = this.battle.phase === "setup";
                 model.configureIdle?.(this._idleOptions);
@@ -1376,8 +1417,13 @@ export class BattleView {
                 queue.splice(0, this.visualEventCursor);
                 this.visualEventCursor = 0;
             }
-            this.heldIds.clear();
-            for (const event of this.heldSpawns) { this.heldIds.add(event.id); }
+            // heldIds 只在挂起队列真的变动时才重建：正常战斗中它是空的，
+            // 每帧清空+重填纯属白做，而它又挡在热路径最前面。
+            if (this._heldDirty) {
+                this._heldDirty = false;
+                this.heldIds.clear();
+                for (const event of this.heldSpawns) { this.heldIds.add(event.id); }
+            }
             for (const enemy of this.battle.enemies.values()) {
                 if (this.heldIds.has(enemy.id)) { continue; }
                 const model = this.models.get(enemy.id);

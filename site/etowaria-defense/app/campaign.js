@@ -4,6 +4,11 @@ import { evaluateChallenge } from "./challenge-evaluator.js";
 import { portraitMarkup, siteUrl } from "./assets.js";
 import { ICONS } from "./icons.js";
 
+// 战斗模块在进入关卡时按需加载；模块系统自己会缓存，这里只收敛
+// 三处重复的动态导入与解构。
+let battleModule;
+const loadBattle = () => battleModule ||= import("../sim/battle.js");
+
 const DEFAULT_DECK = DECK_ORDER.slice(0, DECK_SIZE);
 const TIME = seconds => `${Math.floor(seconds / 60)}:${String(Math.floor(seconds % 60)).padStart(2, "0")}`;
 const WAVE_LABEL = level => level.endless ? "不限波次" : `${level.waves}波`;
@@ -102,6 +107,10 @@ export class Campaign {
         // updateHud 每 0.08s 会取 ~30 个引用，querySelector 全子树扫描白费。
         this._roles = new Map();
         this._actions = new Map();
+        // text() 的写入去重缓存：元素 → 上次写入的字符串。
+        this._textCache = new WeakMap();
+        this._attrCache = new WeakMap();
+        this._styleCache = new WeakMap();
         let storage;
         if (options.manualClock) {
             storage = { getItem: key => localStorage.getItem(`${key}.review`), setItem: (key, value) => localStorage.setItem(`${key}.review`, value) };
@@ -155,7 +164,45 @@ export class Campaign {
         image.draggable = false;
         return image;
     }
-    text(role, value) { this.get(role).textContent = value; }
+    // HUD 每 0.08 秒刷一次，绝大多数文案其实没变（时间在走，但名字、
+    // 波次标签、按钮标签都是常量）。textContent 赋值即使内容相同也会
+    // 触发样式重算，所以按元素记住上次写入的值，相同就跳过。
+    text(role, value) {
+        const element = this.get(role);
+        if (!element) { return; }
+        const next = String(value);
+        if (this._textCache.get(element) === next) { return; }
+        this._textCache.set(element, next);
+        element.textContent = next;
+    }
+    // 属性/样式写入同样只在值变化时落地：setAttribute 与 style 赋值
+    // 即使新旧值相同也会走一遍 DOM 的样式失效流程。
+    // 直接元素的文本写入去重（text() 走 data-role 查找，这里是热循环
+    // 里已持有的节点引用）。
+    styleText(element, value) {
+        if (!element) { return; }
+        const next = String(value);
+        if (this._textCache.get(element) === next) { return; }
+        this._textCache.set(element, next);
+        element.textContent = next;
+    }
+    attr(element, name, value) {
+        if (!element) { return; }
+        const key = `${name}:${value}`;
+        let last = this._attrCache.get(element);
+        if (!last) { last = new Map(); this._attrCache.set(element, last); }
+        if (last.get(name) === value) { return; }
+        last.set(name, value);
+        element.setAttribute(name, value);
+    }
+    style(element, property, value) {
+        if (!element) { return; }
+        let last = this._styleCache.get(element);
+        if (!last) { last = new Map(); this._styleCache.set(element, last); }
+        if (last.get(property) === value) { return; }
+        last.set(property, value);
+        element.style[property] = value;
+    }
     notice(message) {
         const element = this.get("message");
         element.textContent = message;
@@ -585,7 +632,7 @@ export class Campaign {
                 if (resuming || !level.endless || !this.save.progress.endlessRun) { return false; }
                 return this.resumeEndless(view);
             })();
-            const { Battle: BattleMod } = await import("../sim/battle.js");
+            const BattleMod = (await loadBattle()).Battle;
             BattleMod.applyTownBuffs(view.battle, this.save.progress.town, !checkpointResumed && !resuming);
             // 图书馆：只有「新开一局」才跳过波次——检查点恢复和布阵缓存
             // 续局都从各自的存档波次起算，不吃跳过。
@@ -593,7 +640,7 @@ export class Campaign {
                 this.notice(`图书馆的记录帮你跳过了前${view.battle.wave - 1}波，从第${view.battle.wave}波开始。`);
             }
             if (resuming) {
-                const { Battle } = await import("../sim/battle.js");
+                const { Battle } = await loadBattle();
                 if (epoch !== this.epoch || this.disposed) { view.dispose(); return; }
                 if (Battle.applySetup(view.battle, resuming)) {
                     this.buildBank([...view.battle.deck]);
@@ -748,7 +795,7 @@ export class Campaign {
         }
         const progress = state.endless ? (state.wave - 1 + Math.min(1, state.waveProgress || 0)) % 1 || 0
             : Math.min(1, (state.totalSpawns - state.scheduledRemaining) / Math.max(1, state.totalSpawns));
-        this.get("wave-fill").style.transform = `scaleX(${progress})`;
+        this.style(this.get("wave-fill"), "transform", `scaleX(${progress})`);
         this.text("battle-phase", state.phase === "setup" ? "准备布阵" : state.phase === "running" ? `场上${state.enemies.length}位来客` : state.phase === "won" ? "防线守住了" : "本次失守");
         const live = this.get("battle-live");
         if (live && state.time - (this.lastLiveTime || -10) >= 2) {
@@ -759,8 +806,8 @@ export class Campaign {
         this.get("setup").hidden = state.phase !== "setup";
         const paused = state.pauses.includes("manual");
         this.get("pause-overlay").hidden = !paused;
-        this.button("pause").setAttribute("aria-pressed", String(paused));
-        this.button("pause").setAttribute("aria-label", paused ? "继续" : "暂停");
+        this.attr(this.button("pause"), "aria-pressed", String(paused));
+        this.attr(this.button("pause"), "aria-label", paused ? "继续" : "暂停");
         this.text("pause-label", paused ? "继续" : "暂停");
         this.button("pause").disabled = state.phase !== "setup" && state.phase !== "running";
         this.button("collect").disabled = !state.pickups.length || !!state.pauses.length;
@@ -771,7 +818,7 @@ export class Campaign {
         this.text("restock-label", `换卡×${state.restocks || 0}`);
         this.button("checkpoint").hidden = !state.endless || !["setup", "running"].includes(state.phase);
         if (state.endless && state.phase === "running") { this.maybeAutosaveEndless(state); }
-        this.button("recall").setAttribute("aria-pressed", String(controls.recall));
+        this.attr(this.button("recall"), "aria-pressed", String(controls.recall));
         this.button("recall").disabled = !["setup", "running"].includes(state.phase);
         this.button("start").disabled = controls.loading || !!state.pauses.length;
         const busy = controls.loading || !["setup", "running"].includes(state.phase);
@@ -780,13 +827,13 @@ export class Campaign {
             const remaining = state.cooldowns[id] || 0;
             const shortage = Math.max(0, rule.cost - state.resource);
             const status = remaining > .001 ? `${Math.ceil(remaining)}秒` : shortage ? `差${shortage}` : "可部署";
-            entry.state.textContent = status;
-            entry.shade.style.transform = `scaleY(${remaining > .001 ? Math.min(1, remaining / rule.deployCooldown) : 0})`;
+            this.styleText(entry.state, status);
+            this.style(entry.shade, "transform", `scaleY(${remaining > .001 ? Math.min(1, remaining / rule.deployCooldown) : 0})`);
             entry.button.classList.toggle("cooling", remaining > .001);
             entry.button.classList.toggle("poor", !remaining && shortage > 0);
             entry.button.classList.toggle("unavailable", remaining > .001 || shortage > 0);
-            entry.button.setAttribute("aria-pressed", String(!controls.recall && controls.selected === id));
-            entry.button.setAttribute("aria-label", `${rule.name}，费用${rule.cost}，${remaining > .001 ? `冷却${status}` : shortage ? `还差${shortage}` : status}`);
+            this.attr(entry.button, "aria-pressed", String(!controls.recall && controls.selected === id));
+            this.attr(entry.button, "aria-label", `${rule.name}，费用${rule.cost}，${remaining > .001 ? `冷却${status}` : shortage ? `还差${shortage}` : status}`);
             entry.button.disabled = busy;
         }
         const worn = new Map();
@@ -797,14 +844,14 @@ export class Campaign {
             const remaining = state.cooldowns[id] || 0;
             const shortage = Math.max(0, rule.cost - state.resource);
             entry.holder.hidden = !holder;
-            entry.holder.textContent = holder || "";
-            entry.state.textContent = remaining > .001 ? `${Math.ceil(remaining)}s` : "";
-            entry.shade.style.transform = `scaleX(${remaining > .001 ? Math.min(1, remaining / rule.deployCooldown) : 0})`;
+            this.styleText(entry.holder, holder || "");
+            this.styleText(entry.state, remaining > .001 ? `${Math.ceil(remaining)}s` : "");
+            this.style(entry.shade, "transform", `scaleX(${remaining > .001 ? Math.min(1, remaining / rule.deployCooldown) : 0})`);
             entry.button.classList.toggle("worn", !!holder);
             entry.button.classList.toggle("cooling", remaining > .001);
             entry.button.classList.toggle("poor", !holder && !remaining && shortage > 0);
-            entry.button.setAttribute("aria-pressed", String(!controls.recall && controls.selected === id));
-            entry.button.setAttribute("aria-label", holder ? `${rule.name}，${holder}已佩戴`
+            this.attr(entry.button, "aria-pressed", String(!controls.recall && controls.selected === id));
+            this.attr(entry.button, "aria-label", holder ? `${rule.name}，${holder}已佩戴`
                 : remaining > .001 ? `${rule.name}，冷却还剩${Math.ceil(remaining)}秒`
                 : `${rule.name}，费用${rule.cost}，${shortage ? `还差${shortage}` : "可佩戴"}`);
             entry.button.disabled = busy;
@@ -886,7 +933,7 @@ export class Campaign {
     async resumeEndless(view) {
         const checkpoint = this.save.progress.endlessRun;
         if (!checkpoint || checkpoint.wave < 2) { return false; }
-        const { Battle } = await import("../sim/battle.js");
+        const { Battle } = await loadBattle();
         if (Battle.applyEndless(view.battle, checkpoint)) {
             this.buildBank([...view.battle.deck]);
             for (const unit of view.battle.units.values()) { await view.applyDeploymentVisual(unit); }

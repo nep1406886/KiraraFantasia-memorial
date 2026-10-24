@@ -81,8 +81,14 @@ export class NativeItems {
         model.throwOwner = flight;
         model.actor?.setWeaponVisible(false);
         if (attached) {
+            // 每帧调用：返回共享暂存向量，特效侧 placeCentered 只读不存。
+            flight.attachmentPoint ||= new this.THREE.Vector3();
+            const attachmentPoint = flight.attachmentPoint;
             flight.attachment = this.stage.effects.emit(attached, { from, scale: model.scale, facing: -1,
-                position: () => this.flights.has(flight) ? flight.position.clone() : null });
+                position: () => {
+                    if (!this.flights.has(flight)) { return null; }
+                    return attachmentPoint.copy(flight.position);
+                } });
         }
         this.flights.add(flight);
         this.history.push({ resourceId: model.unit.resourceId, elementId: model.unit.elementId,
@@ -91,7 +97,9 @@ export class NativeItems {
         return flight;
     }
     update(dt) {
-        const up = new this.THREE.Vector3(0, Math.cos(PITCH), -Math.sin(PITCH));
+        const up = this._up ||= new this.THREE.Vector3(0, Math.cos(PITCH), -Math.sin(PITCH));
+        const scratch = this._scratch ||= new this.THREE.Vector3();
+        const sample = this._sample ||= new this.THREE.Vector3();
         for (const flight of this.flights) {
             flight.age += dt;
             const t = Math.min(1, flight.age / flight.duration);
@@ -100,14 +108,20 @@ export class NativeItems {
             flight.item.group.position.copy(flight.position);
             flight.item.turn.rotation.z = -t * Math.PI * 2;
             const trail = flight.trail;
+            // 轨迹采样点是每帧新增的、必须保留的历史位置，只能分配；
+            // 但顶点计算可以复用同一组暂存向量。
             trail.samples.unshift(flight.position.clone());
             if (trail.samples.length > trail.count) { trail.samples.pop(); }
             for (let i = 0; i < trail.count; i++) {
                 const point = trail.samples[Math.min(i, trail.samples.length - 1)];
                 const halfWidth = .09 * (1 - i / trail.count);
                 for (let side = 0; side < 2; side++) {
-                    const vertex = point.clone().addScaledVector(up, side ? halfWidth : -halfWidth);
-                    trail.positions.set(vertex.toArray(), (i * 2 + side) * 3);
+                    sample.copy(point);
+                    scratch.copy(up).multiplyScalar(side ? halfWidth : -halfWidth);
+                    sample.add(scratch);
+                    trail.positions[(i * 2 + side) * 3] = sample.x;
+                    trail.positions[(i * 2 + side) * 3 + 1] = sample.y;
+                    trail.positions[(i * 2 + side) * 3 + 2] = sample.z;
                 }
             }
             trail.geometry.attributes.position.needsUpdate = true;
