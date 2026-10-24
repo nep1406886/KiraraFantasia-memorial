@@ -1,4 +1,5 @@
 import { placementCoverage } from "../sim/targeting.js";
+import { premultipliedBlend } from "./materials.js";
 
 const COLORS = { attack: 0x315d94, healing: 0x278a5b, support: 0x8a4fb5, burst: 0x986127, placement: 0x9d8550 };
 
@@ -13,9 +14,7 @@ export class RangePreview {
         const THREE = stage.THREE;
         this.geometry = new THREE.PlaneGeometry(1, 1);
         this.edges = new THREE.EdgesGeometry(this.geometry);
-        const blend = { transparent: false, depthWrite: false, blending: THREE.CustomBlending,
-            blendSrc: THREE.SrcAlphaFactor, blendDst: THREE.OneMinusSrcAlphaFactor,
-            blendSrcAlpha: THREE.OneFactor, blendDstAlpha: THREE.OneMinusSrcAlphaFactor };
+        const blend = premultipliedBlend(THREE);
         this.fill = new THREE.MeshBasicMaterial({ ...blend, color: COLORS.attack, opacity: .2, side: THREE.DoubleSide });
         this.border = new THREE.LineBasicMaterial({ ...blend, color: COLORS.attack, opacity: .75 });
         this.tiles = [];
@@ -49,7 +48,6 @@ export class RangePreview {
     }
 
     clear() { this.group.visible = false; this.current = null; }
-    snapshot() { return this.current ? { ...this.current, cells: this.current.cells.map(cell => ({ ...cell })) } : null; }
     dispose() {
         this.group.removeFromParent();
         this.geometry.dispose(); this.edges.dispose(); this.fill.dispose(); this.border.dispose();

@@ -136,9 +136,32 @@
         };
     }
 
+    // localStorage 在无痕模式、禁用 Cookie、以及 file:// 下都会直接抛异常。
+    // 每处偏好读写各写一遍 try/catch 只会让调用点变长，统一收到这里：
+    // 读失败按「没存过」处理，写失败静默丢弃（偏好本来就不是关键数据）。
+    function readPreference(key, fallback) {
+        try {
+            var value = window.localStorage.getItem(key);
+            return value === null ? fallback : value;
+        } catch (error) {
+            return fallback;
+        }
+    }
+
+    function writePreference(key, value) {
+        try {
+            window.localStorage.setItem(key, value);
+            return true;
+        } catch (error) {
+            return false;
+        }
+    }
+
     window.kirafanPage = {
         assetUrl: assetUrl,
         bindSearch: bindSearch,
-        visibleInterval: visibleInterval
+        visibleInterval: visibleInterval,
+        readPreference: readPreference,
+        writePreference: writePreference
     };
 })();

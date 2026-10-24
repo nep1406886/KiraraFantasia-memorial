@@ -54,7 +54,7 @@ export class Battle {
         this._dueActions = [];
         this._scanScratch = [];
         this.stats = { kills: 0, deployed: 0, recalls: 0, collected: 0, generated: 0, spent: 0,
-            healed: 0, shielded: 0, blocked: 0, gatesUsed: 0, defeatedUnits: 0, breachRow: null, wavesCleared: 0 };
+            healed: 0, shielded: 0, blocked: 0, gatesUsed: 0, defeatedUnits: 0, wavesCleared: 0 };
         if (level.endless) {
             this.seed = Number.isInteger(options.seed) ? options.seed : 20260926;
             this.rng = mulberry32(this.seed);
@@ -527,7 +527,6 @@ export class Battle {
                 }
             } else {
                 this.phase = "lost";
-                this.stats.breachRow = enemy.row;
                 this.pending = [];
                 this.projectiles.clear();
                 this.lobs.clear();
@@ -626,13 +625,7 @@ export class Battle {
             const lanes = [target.row];
             for (let r = Math.max(0, unit.row - rule.multi.rows); r <= Math.min(this.level.rows - 1, unit.row + rule.multi.rows); r++) {
                 if (r === unit.row) { continue; }
-                let laneTarget = null;
-                for (const enemy of this.enemies.values()) {
-                    if (enemy.state === "reviving" || enemy.row !== r) { continue; }
-                    const distance = enemy.x - unit.col;
-                    if (distance < -ATTACK_BACK_REACH || distance > rule.range) { continue; }
-                    if (!laneTarget || enemy.x < laneTarget.x || enemy.x === laneTarget.x && enemy.id < laneTarget.id) { laneTarget = enemy; }
-                }
+                const laneTarget = this.targetOnRow(unit, rule, r);
                 if (!laneTarget) { continue; }
                 lanes.push(r);
                 const offset = lanes.length - 1;
@@ -761,8 +754,7 @@ export class Battle {
         for (const enemy of victims) {
             const onHit = {};
             this.skillOnHit(special, onHit);
-            if (rule.sleepChance && this.rng && this.rng() < rule.sleepChance) {
-                enemy.stunUntil = Math.max(enemy.stunUntil, this.time + 1.2);
+            if (this.rollSleep(enemy, rule)) {
                 this.emit("status", { id: enemy.id, statuses: ["stun"], source: unit.id });
             }
             this.hitEnemy(enemy, amount, unit.id, { pierceArmor: rule.pierceArmor, pierceBoost: rule.pierceArmorDamageBoost || 1, stunBonus: rule.stunBonus, onHit,
@@ -811,6 +803,13 @@ export class Battle {
         else if (skill.type === "knockback") { scaled.distance = skill.distance * (1 + bonus); }
         else if (skill.type === "stun") { scaled.duration = skill.duration * (1 + bonus); }
         return scaled;
+    }
+    // 睡眠/催眠类：命中时按 sleepChance 掷一次，命中则附加 1.2 秒眩晕。
+    // 近战与弹道两条路都走这里，保证概率与时长只有一处定义。
+    rollSleep(enemy, rule) {
+        if (!rule?.sleepChance || !this.rng || this.rng() >= rule.sleepChance) { return false; }
+        enemy.stunUntil = Math.max(enemy.stunUntil, this.time + 1.2);
+        return true;
     }
     // on-hit statuses; critical/power/wave are already baked into the damage.
     skillOnHit(special, onHit) {
@@ -875,8 +874,7 @@ export class Battle {
                 projectile.hit.push(enemy.id);
                 const onHit = projectile.onHit ? { ...projectile.onHit } : {};
                 const sleepRule = this.units.has(projectile.source) ? this.unitRule(this.units.get(projectile.source)) : null;
-                if (sleepRule?.sleepChance && this.rng && this.rng() < sleepRule.sleepChance) {
-                    enemy.stunUntil = Math.max(enemy.stunUntil, this.time + 1.2);
+                if (this.rollSleep(enemy, sleepRule)) {
                     this.emit("status", { id: enemy.id, statuses: ["stun"], source: projectile.source });
                 }
                 this.hitEnemy(enemy, projectile.damage, projectile.source, { onHit, critical: projectile.critical, pierceBoost: projectile.pierceBoost || 1 });
@@ -1378,11 +1376,9 @@ export class Battle {
         // 的判定在续局里仍然可达。剩余人数最低保 1：断点时刻场上
         // 活着的成员不在重建范围里（敌人不入存档），波界按仍会进场
         // 的新成员数计算，已击退的扣掉。
-        battle._resumeWaveKilled = 0;
         const bound = battle.waveBounds.get(data.wave);
         if (bound && data.waveProgress && Number.isInteger(data.waveProgress.killed)) {
             const killed = Math.max(0, Math.min(bound.remaining, data.waveProgress.killed));
-            battle._resumeWaveKilled = killed;
             bound.remaining = Math.max(1, bound.remaining - killed);
         }
         const savedAt = Math.max(0, data.time || 0);

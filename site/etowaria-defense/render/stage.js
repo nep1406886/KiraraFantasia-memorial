@@ -5,6 +5,8 @@ import { loadRuntimeAssets, siteUrl } from "../app/assets.js";
 import { NativeModel, PITCH, posedBounds } from "./native-model.js";
 import { NativeEffects } from "./native-effects.js";
 import { NativeItems } from "./native-items.js";
+import { createCaptureTarget, readTargetPng, restoreRendererState, saveRendererState } from "./capture.js";
+import { premultipliedBlend } from "./materials.js";
 
 const ENEMIES = [
     { id: "E01", resourceId: 10000, name: "小黑怪", height: 0.82 },
@@ -239,23 +241,15 @@ export class DefenseStage {
         context.fillStyle = shade;
         context.fillRect(0, 0, 64, 64);
         this.shadowTexture = new THREE.CanvasTexture(canvas);
-        this.shadowMaterial = new THREE.MeshBasicMaterial({ map: this.shadowTexture, transparent: false,
-            depthWrite: false, blending: THREE.CustomBlending, blendSrc: THREE.SrcAlphaFactor,
-            blendDst: THREE.OneMinusSrcAlphaFactor, blendSrcAlpha: THREE.OneFactor,
-            blendDstAlpha: THREE.OneMinusSrcAlphaFactor, side: THREE.DoubleSide });
+        this.shadowMaterial = new THREE.MeshBasicMaterial({ ...premultipliedBlend(THREE),
+            map: this.shadowTexture, side: THREE.DoubleSide });
         this.shadowGeometry = new THREE.PlaneGeometry(1, 1);
         this.selection = new THREE.Mesh(new THREE.PlaneGeometry(1.24, 2), new THREE.MeshBasicMaterial({
-            color: 0xffec89, opacity: 0.08, transparent: false, depthWrite: false,
-            blending: THREE.CustomBlending, blendSrc: THREE.SrcAlphaFactor,
-            blendDst: THREE.OneMinusSrcAlphaFactor, blendSrcAlpha: THREE.OneFactor,
-            blendDstAlpha: THREE.OneMinusSrcAlphaFactor, side: THREE.DoubleSide }));
+            ...premultipliedBlend(THREE), color: 0xffec89, opacity: 0.08, side: THREE.DoubleSide }));
         this.selection.rotation.x = -Math.PI / 2;
         this.selection.renderOrder = 1000;
         const outline = new THREE.LineSegments(new THREE.EdgesGeometry(this.selection.geometry),
-            new THREE.LineBasicMaterial({ color: 0xfff4be, opacity: .85, transparent: false,
-                depthWrite: false, blending: THREE.CustomBlending, blendSrc: THREE.SrcAlphaFactor,
-                blendDst: THREE.OneMinusSrcAlphaFactor, blendSrcAlpha: THREE.OneFactor,
-                blendDstAlpha: THREE.OneMinusSrcAlphaFactor }));
+            new THREE.LineBasicMaterial({ ...premultipliedBlend(THREE), color: 0xfff4be, opacity: .85 }));
         outline.renderOrder = 1100;
         this.selection.add(outline);
         this.environment.add(this.selection);
@@ -356,9 +350,7 @@ export class DefenseStage {
             return [key, texture];
         })));
         this.field = new THREE.Mesh(new THREE.PlaneGeometry(11.7, 10.5), new THREE.MeshBasicMaterial({
-            map: this.fieldTextures.day, transparent: false, depthWrite: false, blending: THREE.CustomBlending,
-            blendSrc: THREE.SrcAlphaFactor, blendDst: THREE.OneMinusSrcAlphaFactor,
-            blendSrcAlpha: THREE.OneFactor, blendDstAlpha: THREE.OneMinusSrcAlphaFactor }));
+            ...premultipliedBlend(THREE), map: this.fieldTextures.day }));
         this.field.rotation.x = -Math.PI / 2;
         this.field.position.y = .001;
         this.field.renderOrder = -200;
@@ -621,7 +613,6 @@ export class DefenseStage {
             if (this.disposed || epoch !== this.epoch) { return; }
             this.resetPositions();
             this.demo = true;
-            this.demoStart = this.time;
             for (const enemy of this.enemies) { enemy.beginWalk(); }
             for (let round = 0; round < 3; round++) {
                 plans.forEach(({ model, plan }, index) => {
@@ -839,14 +830,8 @@ export class DefenseStage {
             throw new Error("验收图尺寸超出允许范围");
         }
         const THREE = this.THREE;
-        const target = new THREE.WebGLRenderTarget(width, height, { samples: 4 });
-        target.texture.colorSpace = THREE.SRGBColorSpace;
-        const oldTarget = this.renderer.getRenderTarget();
-        const oldViewport = this.renderer.getViewport(new THREE.Vector4());
-        const oldScissor = this.renderer.getScissor(new THREE.Vector4());
-        const oldScissorTest = this.renderer.getScissorTest();
-        const oldClearColor = this.renderer.getClearColor(new THREE.Color());
-        const oldClearAlpha = this.renderer.getClearAlpha();
+        const target = createCaptureTarget(THREE, width, height);
+        const state = saveRendererState(this.renderer, THREE);
         const scene = this.cinematic?.scene || this.scene;
         const camera = (this.cinematic?.camera || this.camera).clone();
         const background = scene.background?.isTexture ? scene.background : null;
@@ -869,6 +854,8 @@ export class DefenseStage {
             this.renderer.setScissorTest(false);
             this.renderer.setViewport(0, 0, width, height);
             if (this.cinematic) {
+                // 演出自带固定画幅：保留目标的整块背景，把画面按原生比例
+                // 居中 letterbox 进去，两边留深色。
                 const nativeAspect = (camera.right - camera.left) / (camera.top - camera.bottom);
                 const viewWidth = Math.min(width, height * nativeAspect);
                 const viewHeight = viewWidth / nativeAspect;
@@ -879,26 +866,12 @@ export class DefenseStage {
                 this.renderer.setScissorTest(true);
             }
             this.renderer.render(scene, camera);
-            const bytes = new Uint8Array(width * height * 4);
-            this.renderer.readRenderTargetPixels(target, 0, 0, width, height, bytes);
-            const canvas = document.createElement("canvas");
-            canvas.width = width; canvas.height = height;
-            const context = canvas.getContext("2d");
-            const image = context.createImageData(width, height);
-            for (let y = 0; y < height; y++) {
-                image.data.set(bytes.subarray((height - y - 1) * width * 4, (height - y) * width * 4), y * width * 4);
-            }
-            context.putImageData(image, 0, 0);
-            return canvas.toDataURL("image/png");
+            return readTargetPng(this.renderer, target, width, height);
         } finally {
             if (background) {
                 background.repeat.copy(repeat); background.offset.copy(offset); background.updateMatrix();
             }
-            this.renderer.setRenderTarget(oldTarget);
-            this.renderer.setViewport(oldViewport);
-            this.renderer.setScissor(oldScissor);
-            this.renderer.setScissorTest(oldScissorTest);
-            this.renderer.setClearColor(oldClearColor, oldClearAlpha);
+            restoreRendererState(this.renderer, state);
             target.dispose();
             this.render();
         }

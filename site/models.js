@@ -5913,12 +5913,9 @@
             toggle.title = on ? "展开模型目录" : "收起模型目录";
             toggle.innerHTML = modelIcon(on ? "panel-left-open" : "panel-left-close");
         }
-        try {
-            if (persist !== false) {
-                window.localStorage.setItem(LIST_COLLAPSE_KEY, on ? "1" : "0");
-            }
-        } catch (error) {
+        if (persist !== false) {
             // 隐私模式下写不进去，不影响本次会话。
+            window.kirafanPage.writePreference(LIST_COLLAPSE_KEY, on ? "1" : "0");
         }
         // 舞台宽度变了。
         if (typeof viewerResizeHook === "function") {
@@ -5937,12 +5934,7 @@
         if (rail) {
             rail.addEventListener("click", function () { setListCollapsed(false); });
         }
-        var stored = null;
-        try {
-            stored = window.localStorage.getItem(LIST_COLLAPSE_KEY);
-        } catch (error) {
-            stored = null;
-        }
+        var stored = window.kirafanPage.readPreference(LIST_COLLAPSE_KEY, null);
         if (stored === "1" || (stored === null && window.matchMedia("(max-width: 900px)").matches)) {
             setListCollapsed(true, false);
         }

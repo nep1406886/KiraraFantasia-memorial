@@ -157,52 +157,28 @@
     }
 
     function readSoundPreference() {
-        try {
-            return window.localStorage.getItem(soundKey) !== "off";
-        } catch (error) {
-            return true;
-        }
+        return window.kirafanPage.readPreference(soundKey, "on") !== "off";
     }
 
     function writeSoundPreference() {
-        try {
-            window.localStorage.setItem(soundKey, state.soundEnabled ? "on" : "off");
-        } catch (error) {
-            return;
-        }
+        window.kirafanPage.writePreference(soundKey, state.soundEnabled ? "on" : "off");
     }
 
     function readIncludeOriginalPreference() {
-        try {
-            return window.localStorage.getItem(includeOriginalKey) === "on";
-        } catch (error) {
-            return false;
-        }
+        return window.kirafanPage.readPreference(includeOriginalKey, "off") === "on";
     }
 
     function writeIncludeOriginalPreference() {
-        try {
-            window.localStorage.setItem(includeOriginalKey, state.includeOriginal ? "on" : "off");
-        } catch (error) {
-            return;
-        }
+        window.kirafanPage.writePreference(includeOriginalKey, state.includeOriginal ? "on" : "off");
     }
 
     function readLanguagePreference() {
-        try {
-            var language = window.localStorage.getItem(languageKey);
-            return ["zh", "ja", "en"].indexOf(language) !== -1 ? language : "zh";
-        } catch (error) {
-            return "zh";
-        }
+        var language = window.kirafanPage.readPreference(languageKey, "zh");
+        return ["zh", "ja", "en"].indexOf(language) !== -1 ? language : "zh";
     }
 
     function writeLanguagePreference() {
-        try {
-            window.localStorage.setItem(languageKey, state.language);
-        } catch (error) {
-            return;
-        }
+        window.kirafanPage.writePreference(languageKey, state.language);
     }
 
     function updateSoundButton() {

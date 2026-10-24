@@ -936,19 +936,11 @@ var vm = new Vue({
     var activeSmokeCleanup = null;
 
     function readOfferingCount() {
-        try {
-            return Number(window.localStorage.getItem(storageKey)) || 0;
-        } catch (error) {
-            return 0;
-        }
+        return Number(window.kirafanPage.readPreference(storageKey, "0")) || 0;
     }
 
     function writeOfferingCount(count) {
-        try {
-            window.localStorage.setItem(storageKey, String(count));
-        } catch (error) {
-            return;
-        }
+        window.kirafanPage.writePreference(storageKey, String(count));
     }
 
     function pickOfferingIndex() {
@@ -1609,25 +1601,19 @@ var vm = new Vue({
         syncBgmPlayer();
 
         function readBgmPreference(key, fallback) {
-            try {
-                var raw = window.localStorage.getItem(key);
-                if (raw === null) {
-                    return fallback;
-                }
-                if (typeof fallback === "boolean") {
-                    return raw === "on";
-                }
-                var parsed = parseInt(raw, 10);
-                return isNaN(parsed) ? fallback : parsed;
-            } catch (error) {
+            var raw = window.kirafanPage.readPreference(key, null);
+            if (raw === null) {
                 return fallback;
             }
+            if (typeof fallback === "boolean") {
+                return raw === "on";
+            }
+            var parsed = parseInt(raw, 10);
+            return isNaN(parsed) ? fallback : parsed;
         }
 
         function writeBgmPreference(key, value) {
-            try {
-                window.localStorage.setItem(key, value);
-            } catch (error) { /* storage unavailable */ }
+            window.kirafanPage.writePreference(key, value);
         }
 
         function buildTabs() {

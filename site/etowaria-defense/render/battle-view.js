@@ -7,6 +7,7 @@ import * as loader from "../../core/loader.js";
 import { createEnemyMotion } from "./enemy-motion.js";
 import { applyAuthoredMaterials } from "./native-model.js";
 import { ICONS } from "../app/icons.js";
+import { premultipliedBlend } from "./materials.js";
 
 const BURST = "ef_btl_dmg_all_fire_00";
 const IMPACT = "ef_btl_dmg_single_00";
@@ -22,16 +23,33 @@ const LOADING_PAUSES = new Set(["deploy-load", "enemy-load"]);
 const STATUS_BADGES = { slow: ["迟缓", "❄"], stun: ["麻痹", "⚡"], vulnerable: ["易伤", "◆"], weaken: ["虚弱", "▼"], burn: ["灼烧", "✦"] };
 const STATUS_KEYS = Object.keys(STATUS_BADGES);
 
-export class Facility {
-    constructor(view, type = "F01") {
+// 场上的静态设施（应援台 / 稻草人诱饵）：共享网格定位、体心取点、
+// 快照与销毁。子类只负责搭自己的 group 和（如果有）动画。
+class BoardProp {
+    constructor(view, { name, unit, height }) {
         this.THREE = view.stage.THREE;
         this.group = new this.THREE.Group();
-        this.group.name = "defense-support-desk";
+        this.group.name = name;
         this.kind = "facility";
-        this.unit = { id: type, shortName: UNIT_RULES[type].name, name: UNIT_RULES[type].name };
-        this.height = .85;
+        this.unit = unit;
+        this.height = height;
         this.platformHeight = 0;
         this.action = "idle";
+    }
+    place(row, col, rows = 5) {
+        this.cell = { row, col };
+        this.group.position.set((col - 4) * 1.3, 0, (row - (rows - 1) / 2) * 2.1);
+    }
+    bodyPoint(lift) { return this.group.position.clone().add(new this.THREE.Vector3(0, lift, -.2)); }
+    update() {}
+    dispose() { this.group.removeFromParent(); }
+    snapshot() { return { id: this.unit.id, kind: "facility", cell: this.cell, position: this.group.position.toArray() }; }
+}
+
+export class Facility extends BoardProp {
+    constructor(view, type = "F01") {
+        super(view, { name: "defense-support-desk", height: .85,
+            unit: { id: type, shortName: UNIT_RULES[type].name, name: UNIT_RULES[type].name } });
         const desk = view.desk.group.clone(true);
         desk.visible = true; desk.position.set(0, 0, 0);
         this.group.add(desk);
@@ -57,31 +75,23 @@ export class Facility {
         this.root = this.group;
     }
     place(row, col, rows = 5) {
-        this.cell = { row, col };
-        this.group.position.set((col - 4) * 1.3, 0, (row - (rows - 1) / 2) * 2.1);
+        super.place(row, col, rows);
+        // 桌台由多块网格拼成，绘制顺序要跟着所在格子走，避免相邻格
+        // 的设施互相穿插。
         this.group.traverse(node => {
             if (node.isMesh) { node.renderOrder = 100000000 + row * 100000000 + col * 2000000 + node.userData.defenseAuthoredOrder; }
         });
     }
-    bodyPoint() { return this.group.position.clone().add(new this.THREE.Vector3(0, .55, -.2)); }
-    update() {}
-    dispose() { this.group.removeFromParent(); }
-    snapshot() { return { id: "F01", kind: "facility", cell: this.cell, position: this.group.position.toArray() }; }
+    bodyPoint() { return super.bodyPoint(.55); }
 }
 
 // F13 稻草人诱饵: the original training scarecrow (スーパーかかしくん rig 5200)
 // rendered as a static board prop — the pose stays authored; only the straw
 // arms drift, driven by createEnemyMotion's zero-stride profile.
-export class Scarecrow {
+export class Scarecrow extends BoardProp {
     constructor(view) {
-        this.THREE = view.stage.THREE;
-        this.group = new this.THREE.Group();
-        this.group.name = "defense-scarecrow";
-        this.kind = "facility";
-        this.unit = { id: "F13", shortName: "稻草人", name: "稻草人诱饵" };
-        this.height = 1.2;
-        this.platformHeight = 0;
-        this.action = "idle";
+        super(view, { name: "defense-scarecrow", height: 1.2,
+            unit: { id: "F13", shortName: "稻草人", name: "稻草人诱饵" } });
     }
     async load(view) {
         const loaded = await loader.load("model/enemy/model_en_5200.muast", { kind: "enemy" });
@@ -96,14 +106,8 @@ export class Scarecrow {
         // The rig already faces the guests; no mirror needed (mirrorForLeft
         // is false in the profile for exactly this reason).
     }
-    place(row, col, rows = 5) {
-        this.cell = { row, col };
-        this.group.position.set((col - 4) * 1.3, 0, (row - (rows - 1) / 2) * 2.1);
-    }
-    bodyPoint() { return this.group.position.clone().add(new this.THREE.Vector3(0, .7, -.2)); }
+    bodyPoint() { return super.bodyPoint(.7); }
     update(dt) { if (this.motion) { this.motion.apply(dt); } if (this.mixer) { this.mixer.update(dt); } }
-    dispose() { this.group.removeFromParent(); }
-    snapshot() { return { id: "F13", kind: "facility", cell: this.cell, position: this.group.position.toArray() }; }
 }
 
 export class BattleView {
@@ -146,7 +150,6 @@ export class BattleView {
         this.visualEventCursor = 0;
         this.heldIds = new Set();
         this.threatenedRows = new Set();
-        this.overlayPoint = null;
         this.throttle = new Map();
         // 原作语音表（units.json 的 voice.cues）按 unit id 缓存；只有带表
         // 的角色必杀才播语音。pickVoiceCue 轮换取句。
@@ -260,6 +263,15 @@ export class BattleView {
         return [...names];
     }
 
+    // 从对象池取一个角色模型；池空就先补建。三处取模型的地方
+    // （持卡 ghost、部署、续局复原）共用这一个入口。
+    async takeUnitModel(type) {
+        if (this.warming.has(type)) { await this.warming.get(type); }
+        if (!this.unitPools.get(type)?.length) { await this.createUnit(type); }
+        if (this.disposed) { return null; }
+        return this.unitPools.get(type).pop() || null;
+    }
+
     async createUnit(type) {
         const unit = this.unitData(type);
         if (!unit) { throw new Error(`未绑定角色卡：${type}`); }
@@ -346,9 +358,7 @@ export class BattleView {
         this.stage.grid.visible = false;
         const geometry = new THREE.BufferGeometry();
         geometry.setAttribute("position", new THREE.Float32BufferAttribute(points, 3));
-        const material = new THREE.LineBasicMaterial({ color: 0xfff1bf, transparent: false, opacity: .42,
-            depthWrite: false, blending: THREE.CustomBlending, blendSrc: THREE.SrcAlphaFactor,
-            blendDst: THREE.OneMinusSrcAlphaFactor, blendSrcAlpha: THREE.OneFactor, blendDstAlpha: THREE.OneMinusSrcAlphaFactor });
+        const material = new THREE.LineBasicMaterial({ ...premultipliedBlend(THREE), color: 0xfff1bf, opacity: .42 });
         const lines = new THREE.LineSegments(geometry, material);
         lines.name = "deployment-board-grid";
         lines.renderOrder = 1500;
@@ -446,12 +456,10 @@ export class BattleView {
             placeholder.name = `ghost-gear-${type}`;
             model = { kind: "ghost-gear", group: placeholder };
         } else {
-            if (this.warming.has(type)) { await this.warming.get(type); }
-            if (!this.unitPools.get(type)?.length) {
-                try { await this.createUnit(type); } catch (error) { if (!this.disposed) { this.options.onError?.(error); } return; }
-            }
+            try { model = await this.takeUnitModel(type); }
+            catch (error) { if (!this.disposed) { this.options.onError?.(error); } return; }
             if (this.disposed || this.ghostToken !== token) { return; }
-            model = this.unitPools.get(type).pop();
+            if (!model) { return; }
             model.retiring = false;
             model.configureIdle?.({ enabled: false });
             if (model.action !== "idle") { model.play("idle"); }
@@ -639,12 +647,7 @@ export class BattleView {
                 this.allModels.add(model);
             } else if (type.startsWith("U")) {
                 if (held) { model = held; }
-                else {
-                    if (this.warming.has(type)) { await this.warming.get(type); }
-                    if (!this.unitPools.get(type)?.length) { await this.createUnit(type); }
-                    if (this.disposed) { return { ok: false }; }
-                    model = this.unitPools.get(type).pop();
-                }
+                else { model = await this.takeUnitModel(type); }
                 const active = [...this.battle.units.values()].filter(unit => unit.type === type).length;
                 await this.prepareUnitEffects(type, active + 3);
             }
@@ -788,7 +791,7 @@ export class BattleView {
         case "collected":
             this.pickupElements.get(event.id)?.remove(); this.pickupElements.delete(event.id);
             // 收クリエ：原作 pickup 声。限流一次一声，多路同时收取不成串响。
-            if (this.once("collect", .12)) { this.options.audio.se?.("pickup", { volume: 0.5 }); }
+            this.seOnce("collect", .12, "pickup", 0.5);
             break;
         case "deployed": if (model) { this.emit(BIRTH, model.group.position.clone(), .65); if (model.kind !== "facility") { this.options.audio.se?.("plant", { volume: 0.7 }); } } break;
         case "gearApplied":
@@ -853,14 +856,13 @@ export class BattleView {
         case "enemyHurt":
             if (model) {
                 if (event.source !== "burn") { this.emit(this.impactFor(event.source), model.bodyPoint(), event.critical ? .9 : .6); }
-                if (event.action === "idle" && !model.walking && !model.hop) { model.play("damage", false); }
                 if (event.amount > 0) { this.floater(model, String(event.amount), event.critical ? "critical" : event.source === "burn" ? "burn" : "damage"); }
                 else if (event.absorbed > 0) { this.floater(model, "护甲", "armor"); }
                 // 战斗命中音：会心一击用 crit，普通伤害用 hit。burn 走 tick
                 // 高频，只在会心时出声，其余交给视觉。10U 类单位出手很密，
                 // hit 用 once() 限流防机枪化。
                 if (event.critical) { this.options.audio.se?.("crit", { volume: 0.55 }); }
-                else if (event.source !== "burn" && this.once(`hit:${event.id}`, .18)) { this.options.audio.se?.("hit", { volume: 0.4 }); }
+                else { this.seOnce(`hit:${event.id}`, .18, "hit", 0.4); }
                 // 灼烧持续伤害的原作表现：火元素全体伤害图按 tick 抖动，
                 // 音效静默（灼烧的火声在点燃那一下，不在每跳）。
                 if (event.source === "burn" && this.once(`burnfx:${event.id}`, .5)) {
@@ -877,7 +879,7 @@ export class BattleView {
                 if (event.kind === "thorns") { this.floater(model, `反伤 ${event.amount}`, "hurt"); }
                 // 敌方攻击同伴：轻微 hit，音量压低避免双倍噪音（敌方攻击
                 // 事件本身也会播 hit 类音效时以低音量区分主体）。
-                if (this.once(`hurt:${event.id}`, .25)) { this.options.audio.se?.("hit", { volume: 0.25 }); }
+                this.seOnce(`hurt:${event.id}`, .25, "hit", 0.25);
             }
             break;
         case "healed":
@@ -889,7 +891,7 @@ export class BattleView {
             }
             break;
         case "shielded":
-            if (model) { this.emit("ef_btl_barrier_00", model.bodyPoint(), .7, { facing: model.kind === "enemy" ? 1 : -1 }); this.floater(model, `护盾 ${event.shield}`, "shield"); if (this.once(`shield:${event.id}`, .3)) { this.options.audio.se?.("guard", { volume: 0.4 }); } }
+            if (model) { this.emit("ef_btl_barrier_00", model.bodyPoint(), .7, { facing: model.kind === "enemy" ? 1 : -1 }); this.floater(model, `护盾 ${event.shield}`, "shield"); this.seOnce(`shield:${event.id}`, .3, "guard", 0.4); }
             break;
         case "blocked":
             if (model && this.ready && this.once(`block:${event.id}`, .35)) { this.emit("ef_btl_barrier_00", model.bodyPoint(), .8, { facing: model.kind === "enemy" ? 1 : -1 }); this.floater(model, "格挡", "shield"); this.options.audio.se?.("guard", { volume: 0.5 }); }
@@ -919,7 +921,7 @@ export class BattleView {
                     const other = this.models.get(healed.id);
                     if (other) { this.emit("ef_btl_recover_00", other.group.position.clone(), .6); this.floater(other, `+${healed.amount}`, "enemy-heal"); }
                 }
-                if (event.healed.length && this.once(`spores:${event.id}`, 1)) { this.options.audio.se?.("magic", { volume: 0.3 }); }
+                if (event.healed.length) { this.seOnce(`spores:${event.id}`, 1, "magic", 0.3); }
             }
             break;
         case "summon":
@@ -942,7 +944,7 @@ export class BattleView {
             this.options.onWarning?.(event);
             // 来客预告：一声短促的号角感提示（原作战前注意的听感），
             // 同一时刻多路预警只响一次。
-            if (this.once("warning", 2.5)) { this.options.audio.se?.("chime", { volume: 0.35 }); }
+            this.seOnce("warning", 2.5, "chime", 0.35);
             if (this.level.endless) { this.ensureEnemies(); }
             break;
         case "restockEarned":
@@ -1032,6 +1034,14 @@ export class BattleView {
         return true;
     }
 
+    // 限流音效：命中/受击/发射这类事件一秒能来十几次，全部走
+    // once() 的节流后只放行一声。
+    seOnce(key, seconds, name, volume) {
+        if (!this.once(key, seconds)) { return false; }
+        this.options.audio.se?.(name, { volume });
+        return true;
+    }
+
     plan(type) {
         this.planCache ??= new Map();
         if (!this.planCache.has(type)) { this.planCache.set(type, this.plans(type)); }
@@ -1104,9 +1114,6 @@ export class BattleView {
 
     // 角色原作语音：units.json 里带 voice 表的角色才有。命中的 cue 从
     // 表里轮换（000→001→…），让每次必杀不重复同一句。
-    unitVoiceFor(unit) {
-        return unit?.voice?.cues ? unit.voice : null;
-    }
     pickVoiceCue(unitId) {
         const table = this.unitVoice.get(unitId);
         const keys = Object.keys(table.cues);
@@ -1135,8 +1142,8 @@ export class BattleView {
         // 用低频轰出。限流 0.25s——远程普攻连射很快。
         {
             const shot = { fire: "shoot_fire", water: "shoot_water", earth: "shoot_earth", wind: "shoot_wind", moon: "shoot_moon", sun: "shoot_sun" }[["fire", "water", "earth", "wind", "moon", "sun"][model.unit.elementId]] || "shoot_wind";
-            if (event.wave) { if (this.once(`wave:${event.id}`, .5)) { this.options.audio.se?.("shoot_wave", { volume: 0.6 }); } }
-            else if (this.once(`shot:${event.source}`, .25)) { this.options.audio.se?.(shot, { volume: 0.35 }); }
+            if (event.wave) { this.seOnce(`wave:${event.id}`, .5, "shoot_wave", 0.6); }
+            else { this.seOnce(`shot:${event.source}`, .25, shot, 0.35); }
         }
         const slot = this.stage.effects.emit(graphic.effect, { from, scale, facing: -1,
             position: () => {
@@ -1192,12 +1199,12 @@ export class BattleView {
         // 近战敌人挥击的破空声比玩家侧更闷。命中那一刻的 hit 在
         // unitHurt 事件里，这里只是「起手」。
         if (event.ranged) {
-            if (this.once(`eshot:${event.id}`, .4)) { this.options.audio.se?.("shoot_moon", { volume: 0.22 }); }
+            this.seOnce(`eshot:${event.id}`, .4, "shoot_moon", 0.22);
             model.play("skill_1", false);
             const target = this.models.get(event.target);
             if (target) { this.emit(ENEMY_SHOT, model.bodyPoint(), .75, { to: target.bodyPoint(), flight: Math.max(.2, event.windup - .05), facing: 1 }); }
         } else {
-            if (this.once(`eswing:${event.id}`, .35)) { this.options.audio.se?.("swing", { volume: 0.18 }); }
+            this.seOnce(`eswing:${event.id}`, .35, "swing", 0.18);
             model.play("skill_0", false);
         }
     }
@@ -1219,7 +1226,7 @@ export class BattleView {
             if (status === "stun") {
                 this.emit("ef_btl_stun_occur", model.bodyPoint(), .8); this.floater(model, "麻痹", "stun");
                 // 麻痹：原作击晕的短促「噔」。限流防连发。
-                if (this.once(`stun:${event.id}`, 1)) { this.options.audio.se?.("ui_cancel", { volume: 0.35 }); }
+                this.seOnce(`stun:${event.id}`, 1, "ui_cancel", 0.35);
             }
             else if (["slow", "vulnerable", "weaken"].includes(status) && this.once(`${status}:${event.id}`, 1.4)) {
                 this.emit("ef_btl_debuff_line", model.group.position.clone(), .7);
@@ -1257,15 +1264,20 @@ export class BattleView {
         this.floaters.push({ element, point, start: this.visualTime, jitter: (this.floaters.length % 5 - 2) * 7 });
     }
 
-    spawnModel(event) {
-        const model = this.enemyPools.get(event.enemyType)?.shift();
-        if (model) { this.placeEnemy(event, model); return; }
-        // The rig is still loading: hold the whole battle rather than let an
-        // invisible guest walk the lane.
+    // 模型还没就位的来客：挂起整条战斗等它装好，而不是让一个看不见的
+    // 客人照常走道。模型缺失和晚到都走这一条路。
+    holdSpawn(event) {
         this.heldSpawns.push(event);
         this.heldIds.add(event.id);
         this.setPaused("enemy-load", true);
-        this.loadEnemy(event.enemyType).then(() => this.releaseHeld()).catch(error => { if (!this.disposed) { this.options.onError?.(error); } });
+        this.loadEnemy(event.enemyType).then(() => this.releaseHeld())
+            .catch(error => { if (!this.disposed) { this.options.onError?.(error); } });
+    }
+
+    spawnModel(event) {
+        const model = this.enemyPools.get(event.enemyType)?.shift();
+        if (model) { this.placeEnemy(event, model); return; }
+        this.holdSpawn(event);
     }
 
     placeEnemy(event, model) {
@@ -1325,10 +1337,8 @@ export class BattleView {
         if (!model) { return; }
         // 击退来客：death 短促低落。同伴倒下音量更低——那是失分事件，
         // 不能比击退来客更响。召回不响（那是玩家自己的决定）。
-        if (model.kind === "enemy" && reason === "defeated" && this.once(`dead:${id}`, .5)) {
-            this.options.audio.se?.("death", { volume: 0.35 });
-        } else if (model.kind === "player" && reason === "defeated" && this.once(`dead:${id}`, .5)) {
-            this.options.audio.se?.("death", { volume: 0.2 });
+        if (reason === "defeated" && (model.kind === "enemy" || model.kind === "player")) {
+            this.seOnce(`dead:${id}`, .5, "death", model.kind === "enemy" ? 0.35 : 0.2);
         }
         model.retiring = true;
         model.retireTime = this.visualTime;
@@ -1372,16 +1382,10 @@ export class BattleView {
                 if (this.heldIds.has(enemy.id)) { continue; }
                 const model = this.models.get(enemy.id);
                 if (!model) {
-                    if (this.heldIds.has(enemy.id)) { continue; }
                     // 以前这里直接 throw「魔物逻辑没有对应模型」把整场巡守
                     // 打进错误弹窗。但这个状态本就有成熟的兜底——装载中
                     // 的魔物走 heldSpawns 挂起整条战斗。
-                    const held = { id: enemy.id, enemyType: enemy.type, row: enemy.row, x: enemy.x };
-                    this.heldSpawns.push(held);
-                    this.heldIds.add(enemy.id);
-                    this.setPaused("enemy-load", true);
-                    this.loadEnemy(enemy.type).then(() => this.releaseHeld())
-                        .catch(error => { if (!this.disposed) { this.options.onError?.(error); } });
+                    this.holdSpawn({ id: enemy.id, enemyType: enemy.type, row: enemy.row, x: enemy.x });
                     continue;
                 }
                 // 与 world().x 同式：只取 x 就不要为每只魔物分配一个向量。
@@ -1503,10 +1507,8 @@ export class BattleView {
         if (type === "F13") { const scare = new Scarecrow(this); await scare.load(this); model = scare; this.allModels.add(model); }
         else if (rule.kind === "producer") { model = new Facility(this, type); this.allModels.add(model); }
         else if (type.startsWith("U")) {
-            if (this.warming.has(type)) { await this.warming.get(type); }
-            if (!this.unitPools.get(type)?.length) { await this.createUnit(type); }
-            if (this.disposed) { return; }
-            model = this.unitPools.get(type).pop();
+            model = await this.takeUnitModel(type);
+            if (this.disposed || !model) { return; }
             const active = [...this.battle.units.values()].filter(row => row.type === type).length;
             await this.prepareUnitEffects(type, active + 3);
         } else { return; }

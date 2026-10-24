@@ -7,8 +7,6 @@ import { ICONS } from "./icons.js";
 const DEFAULT_DECK = DECK_ORDER.slice(0, DECK_SIZE);
 const TIME = seconds => `${Math.floor(seconds / 60)}:${String(Math.floor(seconds % 60)).padStart(2, "0")}`;
 const WAVE_LABEL = level => level.endless ? "不限波次" : `${level.waves}波`;
-const challengeFor = level => level && !level.endless && level.challenge
-    ? { ...level.challenge, label: level.optional } : null;
 const tacticalHint = rule => {
     if (rule.healer) { return "优先击倒：会治疗附近来客"; }
     if (rule.armor) { return "用破甲攻击：护甲会先吸收伤害"; }
@@ -96,7 +94,6 @@ export class Campaign {
         this.view = null;
         this.epoch = 0;
         this.mode = "map";
-        this.levelId = "1-1";
         this.keyboardCell = { row: 1, col: 0 };
         this.warnings = new Map();
         this.cards = new Map();
@@ -176,7 +173,6 @@ export class Campaign {
             "brief-close": () => this.closeDialog("brief-dialog", "brief"),
             start: () => this.view?.start(), pause: () => this.togglePause(), resume: () => this.togglePause(),
             collect: () => this.view?.collectAll(), recall: () => this.view?.setRecall(!this.view.recallMode),
-            restock: () => this.openRestock(),
             "confirm-placement": () => this.view?.confirmPlacement(),
             "cancel-placement": () => this.view?.cancelPlacement(),
             inspect: () => this.inspect(), checkpoint: () => this.saveCheckpointNow(), "inspect-close": () => this.closeDialog("inspect-dialog", "inspect"),
@@ -387,22 +383,20 @@ export class Campaign {
             grid.append(button);
         }
         this.text("deck-count", `已选 ${this.deckChoice.length} / ${DECK_SIZE}`);
-        // 推荐职业搭配：本关推荐卡的构成一眼可见。
         const level = levelById(this.levelId);
-        if (level?.recommended) {
+        this.renderPresets(level);
+        const focus = this.deckFocus && UNIT_RULES[this.deckFocus];
+        // 推荐职业搭配：按 family 归并成「职业×张数」，一眼看清本关推荐构成。
+        const recommendation = (() => {
+            const recommended = level?.recommended || [];
+            if (!recommended.length) { return ""; }
             const tally = new Map();
-            for (const id of level.recommended) {
+            for (const id of recommended) {
                 const family = UNIT_RULES[id]?.family || "?";
                 tally.set(family, (tally.get(family) || 0) + 1);
             }
-            this.text("deck-detail", `推荐搭配：${[...tally.entries()].map(([family, count]) => `${family}×${count}`).join("、")}（${level.recommended.length}张）`);
-        }
-        this.renderPresets(level);
-        const focus = this.deckFocus && UNIT_RULES[this.deckFocus];
-        const recommendation = level?.recommended?.length
-            ? `推荐搭配：${[...new Map(level.recommended.map(id => [UNIT_RULES[id]?.family || "?", 0])).keys()]
-                .map(family => `${family}×${level.recommended.filter(id => (UNIT_RULES[id]?.family || "?") === family).length}`).join("、")}（${level.recommended.length}张）`
-            : "";
+            return `推荐搭配：${[...tally].map(([family, count]) => `${family}×${count}`).join("、")}（${recommended.length}张）`;
+        })();
         this.text("deck-detail", focus ? `${focus.name}【${counterTags(focus)}】：${focus.help}` : recommendation || (DECK_ORDER.length > this.deckChoice.length ? "点一张卡看它的作用，再点一次加入或移出阵容。" : ""));
         this.button("deck-start").disabled = !this.deckChoice.length;
     }
@@ -456,13 +450,6 @@ export class Campaign {
             const raw = this.save.storage?.getItem(this.setupCacheKey());
             return raw ? JSON.parse(raw) : null;
         } catch { return null; }
-    }
-    writeSetupCache(view) {
-        if (!view) { return; }
-        const data = view.battle.serializeSetup();
-        try {
-            if (data) { this.save.storage?.setItem(this.setupCacheKey(), JSON.stringify(data)); }
-        } catch { /* storage may be unavailable; the cache is best-effort. */ }
     }
     clearSetupCache() {
         try { this.save.storage?.removeItem(this.setupCacheKey()); } catch { /* ignore */ }
@@ -527,7 +514,6 @@ export class Campaign {
         this.get("load-progress").value = 0;
         this.get("setup").hidden = false;
         this.get("pause-overlay").hidden = true;
-        this.challenge = challengeFor(level);
         this.text("battle-title", `${id}　${level.title}`);
         // 新一场战斗的布阵缓存基线归零：revision 计数从新 battle 对象重新开始。
         this._lastSetupRevision = -1;
@@ -742,7 +728,6 @@ export class Campaign {
     }
 
     updateHud(state, controls) {
-        this.lastState = state;
         this.renderObjectives(state);
         this.text("crea", String(state.resource)); this.text("time", TIME(state.time));
         if (state.endless) {
