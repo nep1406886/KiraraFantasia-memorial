@@ -1061,6 +1061,44 @@ export const LEVELS = Object.freeze([
         challenge: { type: "gates", target: 0 }, optional: "不消耗紧急结界", openingTip: "U03 的贯穿魔球能打穿蓄能师的后排，U24 的麻痹能立刻闭蓄能。"
     },
     {
+        id: "3-1a", chapter: 3, theme: "night", title: "夜里的飞行队", subtitle: "飞翼盗账人成群掠过，双足小妖会跳过前排。",
+        rows: 5, cols: 9, rowOffset: 0, colOffset: 0, startResource: 440,
+        naturalFirst: 7, naturalPeriod: 13, naturalAmount: 30, warningLead: 8,
+        waves: 6, estimate: "约6分钟", newEnemy: "E25", recommended: ["F01", "U01", "U03", "U15", "U29", "U06", "U17", "F11"],
+        story: [
+            { name: "一井透", text: "天上也有！这些东西不按道路走……" },
+            { name: "九条可怜", text: "跳过来的交给我，我会把它们推回去。" }
+        ],
+        spawns: [spawn(26, 2, "E25"), spawn(38, 0, "E27"), spawn(48, 4, "E25"), spawn(58, 1),
+            ...series(68, 7, [3, 1, 4, 0, 2], ["E25", "E27", "E09", "E25", "E27"], 2),
+            ...series(104, 6, [0, 2, 4, 1, 3], ["E27", "E25", "E16", "E27", "E25"], 3),
+            ...series(142, 6, [2, 4, 1, 3, 0], ["E25", "E27", "E18", "E25", "E27"], 4),
+            ...series(184, 5, [4, 0, 2, 3, 1], ["E27", "E25", "E19", "E27", "E25"], 5),
+            ...series(228, 4, [1, 3, 0, 4], ["E25", "E27", "E25", "E27"], 6)],
+        objective: "飞行与跳跃两种快攻叠在一起。前排要有人挡，后排要跟得上。",
+        challenge: { type: "blocked", target: 18 }, optional: "挡下至少 18 次攻击",
+        openingTip: "折部安奈的高墙能挡住跳跃；远程伙伴要放在能覆盖多条路的位置。"
+    },
+    {
+        id: "3-1b", chapter: 3, theme: "night", title: "蓄能与守护", subtitle: "迷雾蓄能师在远处治疗同伴，岩壳魔蟹顶在最前面。",
+        rows: 5, cols: 9, rowOffset: 0, colOffset: 0, startResource: 450,
+        naturalFirst: 7, naturalPeriod: 13, naturalAmount: 30, warningLead: 8,
+        waves: 6, estimate: "约6分钟", newEnemy: "E29", recommended: ["F01", "U21", "U01", "U15", "U03", "U24", "U16", "F11"],
+        story: [
+            { name: "香风智乃", text: "那个在后面的……它在给前面的大螃蟹补血。" },
+            { name: "武田咏深", text: "我来处理护甲，你们把治疗师点掉。" }
+        ],
+        spawns: [spawn(28, 2, "E29"), spawn(42, 0, "E28"), spawn(54, 4, "E29"), spawn(66, 1),
+            ...series(76, 7, [3, 1, 4, 0, 2], ["E29", "E28", "E25", "E29", "E28"], 2),
+            ...series(112, 6, [0, 2, 4, 1, 3], ["E28", "E29", "E18", "E28", "E29"], 3),
+            ...series(152, 6, [2, 4, 1, 3, 0], ["E29", "E28", "E19", "E29", "E28"], 4),
+            ...series(194, 5, [4, 0, 2, 3, 1], ["E28", "E29", "E26", "E28", "E29"], 5),
+            ...series(238, 4, [1, 3, 0, 4], ["E29", "E28", "E29", "E28"], 6)],
+        objective: "治疗在护甲后面。先破甲打开缺口，再越过前排去点掉蓄能师。",
+        challenge: { type: "kills", target: 50 }, optional: "击退至少 50 位来客",
+        openingTip: "玛莉·梦魔无视护甲；天王寺渚的易伤能让集火更快打穿岩壳。"
+    },
+    {
         id: "3-3", chapter: 3, theme: "night", title: "众石出逊", subtitle: "岩壳魔蟹的加入让任何夜路都贯重。",
         rows: 5, cols: 9, rowOffset: 0, colOffset: 0, startResource: 500,
         naturalFirst: 8, naturalPeriod: 14, naturalAmount: 25, warningLead: 7,
@@ -1135,6 +1173,25 @@ export const LEVELS = Object.freeze([
             ...series(188, 4, [1, 3, 0, 4, 2], ["E19", "E38", "E07", "E19", "E38"], 5)],
         objective: "铁皮甲会拦住普通攻击，用会心和贯甲把铁皮剥下来。",
         challenge: { type: "deployed", target: 14 }, optional: "单局部署 14 名同伴", openingTip: "後藤一里的贯甲和玛莉·梦魔的破甲对铁皮熊兵最有效。"
+    },
+    {
+        id: "4-2a", chapter: 4, theme: "night", title: "金尾的疾走", subtitle: "金尾魔物贴着地面疾走，熊兵在后方低吼压节奏。",
+        rows: 5, cols: 9, rowOffset: 0, colOffset: 0, startResource: 470,
+        naturalFirst: 7, naturalPeriod: 12, naturalAmount: 32, warningLead: 8,
+        waves: 6, estimate: "约6分钟", newEnemy: "E33", recommended: ["F01", "U01", "U21", "U15", "U29", "U03", "U24", "F11"],
+        story: [
+            { name: "平泽唯", text: "好快！而且后面还有在吼的……手都慢半拍了。" },
+            { name: "琴吹紬", text: "快的交给减速，吼的交给人多。" }
+        ],
+        spawns: [spawn(28, 2, "E33"), spawn(44, 0, "E35"), spawn(56, 4, "E33"), spawn(68, 1, "E38"),
+            ...series(78, 7, [3, 1, 4, 0, 2], ["E33", "E35", "E31", "E33", "E35"], 2),
+            ...series(116, 6, [0, 2, 4, 1, 3], ["E35", "E33", "E32", "E35", "E33"], 3),
+            ...series(156, 6, [2, 4, 1, 3, 0], ["E33", "E35", "E34", "E33", "E35"], 4),
+            ...series(198, 5, [4, 0, 2, 3, 1], ["E35", "E33", "E32", "E35", "E33"], 5),
+            ...series(240, 4, [1, 3, 0, 4], ["E33", "E35", "E33", "E35"], 6)],
+        objective: "疾走的金尾魔物配上远处低吼的熊兵：一边考验减速，一边考验出手余量。",
+        challenge: { type: "shielded", target: 500 }, optional: "累计护盾吸收 500 伤害",
+        openingTip: "志摩凛与小野坂小春能减慢快腿；被吼到只是延后一次出手，不是停摆。"
     },
     {
         id: "4-3", chapter: 4, theme: "night", title: "影子守门", subtitle: "沉重的守卫和厚甲的金尾魔物一起压来。",

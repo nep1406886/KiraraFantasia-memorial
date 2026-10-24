@@ -651,8 +651,10 @@ test("endless grants a card swap every five cleared waves and the E39 queen take
 });
 test("chapter four uses balanced new enemy mechanics", () => {
     const chapter = LEVELS.filter(level => level.chapter === 4);
-    assert.equal(chapter.length, 6);
-    assert.deepEqual(chapter.map(level => level.newEnemy), ["E31", "E38", "E32", "E36", "E37", "E34"]);
+    // 4-2a rounds out the roster (roar is only carried by E38), so the
+    // chapter covers every new mechanic before the finale.
+    assert.deepEqual(chapter.map(level => level.id), ["4-1", "4-2", "4-2a", "4-3", "4-4", "4-5", "4-6"]);
+    assert.deepEqual(chapter.map(level => level.newEnemy), ["E31", "E38", "E33", "E32", "E36", "E37", "E34"]);
     for (const id of ["E31", "E32", "E33", "E34", "E35", "E36", "E37", "E38"]) {
         const rule = ENEMY_RULES[id];
         assert.ok(rule && rule.hp > 0 && rule.damage > 0, `${id} has usable combat stats`);
