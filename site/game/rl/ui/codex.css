@@ -1,0 +1,174 @@
+/* 图鉴弹层（残页 / 敌人 / 故事）。
+   这套类名一直存在（codex.js 建的 DOM），但样式从未落地——只有
+   story.css 里针对「故事」标签页的几条局部规则。实测打开图鉴时，
+   内容贴在屏幕左缘、右侧大片空白、残页图标退化成无样式竖条。
+   这里按 spec/01 §4 的纸面板基准补齐：居中卷轴、纸张卡片、
+   金色分区标题、锁定态明确可辨。 */
+
+.codex-overlay {
+    position: fixed;
+    inset: 0;
+    z-index: 1100;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 12px;
+    padding: clamp(16px, 4vh, 40px) 16px;
+    box-sizing: border-box;
+    overflow: hidden;
+    background:
+        radial-gradient(120vmax 70vmax at 20% -20%, color-mix(in srgb, var(--kf-paper) 76%, transparent), transparent 62%),
+        linear-gradient(178deg, color-mix(in srgb, var(--kf-sky) 86%, var(--kf-paper)), var(--kf-sky));
+    font-family: var(--font-sans);
+    color: var(--kf-ink);
+}
+
+/* 顶部：标题 / 标签页 / 计数 */
+.codex-head {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: center;
+    gap: 10px 16px;
+    width: min(1100px, 100%);
+    flex: none;
+}
+.codex-head h3 {
+    margin: 0;
+    font-family: var(--font-serif);
+    font-size: clamp(1.15rem, 2.4vw, 1.6rem);
+    letter-spacing: .06em;
+    color: var(--kf-ink);
+}
+.codex-tabs { display: flex; gap: 6px; }
+.codex-tab {
+    min-height: 44px;
+    padding: 6px 16px;
+    border: 1.5px solid color-mix(in srgb, var(--kf-ink-soft) 34%, transparent);
+    border-radius: 999px;
+    background: color-mix(in srgb, var(--kf-paper) 86%, transparent);
+    color: var(--kf-ink-soft);
+    font: 600 .86rem var(--font-sans);
+    cursor: pointer;
+    transition: border-color var(--ui-time) var(--ui-ease), color var(--ui-time) var(--ui-ease),
+                background var(--ui-time) var(--ui-ease);
+}
+.codex-tab:hover { color: var(--kf-ink); background: var(--kf-paper); }
+.codex-tab[aria-selected="true"], .codex-tab[aria-pressed="true"] {
+    color: var(--kf-ink);
+    border-color: var(--kf-gold);
+    background: var(--kf-paper);
+    box-shadow: inset 0 -2px 0 var(--kf-gold);
+}
+.codex-count { color: var(--kf-ink-soft); font-size: .82rem; font-variant-numeric: tabular-nums; }
+
+/* 主体：一页纸卷，内容区可滚动 */
+.codex-scroll {
+    flex: 1;
+    min-height: 0;
+    width: min(1100px, 100%);
+    overflow-y: auto;
+    padding: 18px 22px;
+    box-sizing: border-box;
+    border: 1.5px solid var(--kf-line);
+    border-radius: var(--ui-radius);
+    background: var(--kf-paper);
+    box-shadow: var(--ui-shadow);
+    scrollbar-width: thin;
+}
+
+.codex-section {
+    margin: 18px 0 8px;
+    font-size: .88rem;
+    font-weight: 700;
+    letter-spacing: .04em;
+    color: color-mix(in srgb, var(--kf-gold) 58%, var(--kf-ink));
+    border-bottom: 1px solid color-mix(in srgb, var(--kf-gold) 26%, transparent);
+    padding-bottom: 5px;
+}
+.codex-section:first-child { margin-top: 0; }
+
+.codex-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(96px, 1fr));
+    gap: 10px;
+}
+
+/* 条目卡：纸底、圆角、悬停浮起；锁定态用虚线 + 压暗，与塔防的锁定关一致。 */
+.codex-entry {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 5px;
+    padding: 8px 6px;
+    border: 1.5px solid color-mix(in srgb, var(--kf-ink-soft) 24%, transparent);
+    border-radius: 10px;
+    background: color-mix(in srgb, var(--kf-paper) 94%, var(--kf-sky));
+    color: var(--kf-ink);
+    font: inherit;
+    font-size: .74rem;
+    line-height: 1.35;
+    text-align: center;
+    cursor: pointer;
+    transition: transform var(--ui-time) var(--ui-ease), border-color var(--ui-time) var(--ui-ease),
+                box-shadow var(--ui-time) var(--ui-ease);
+}
+.codex-entry:hover, .codex-entry:focus-visible {
+    transform: translateY(-2px);
+    border-color: color-mix(in srgb, var(--kf-gold) 58%, transparent);
+    box-shadow: 0 6px 14px -6px var(--kf-shadow);
+    outline: none;
+}
+.codex-entry:focus-visible { outline: 2px solid var(--kf-gold); outline-offset: 2px; }
+.codex-entry img {
+    width: 52px;
+    height: 52px;
+    object-fit: contain;
+    border-radius: 6px;
+    background: color-mix(in srgb, var(--kf-mint) 60%, var(--kf-paper));
+}
+.codex-entry.locked {
+    border-style: dashed;
+    background: color-mix(in srgb, var(--kf-paper) 82%, #d8d2c4);
+    color: var(--kf-ink-soft);
+}
+.codex-entry.locked img { filter: grayscale(1) opacity(.35); }
+.codex-entry.story-record { min-height: 68px; justify-content: center; padding: 10px; overflow-wrap: anywhere; }
+
+/* 底部：阅读区 + 关闭 */
+.codex-detail {
+    flex: none;
+    width: min(1100px, 100%);
+    min-height: 56px;
+    box-sizing: border-box;
+    padding: 12px 16px;
+    border: 1.5px solid var(--kf-line);
+    border-radius: var(--ui-radius);
+    background: var(--kf-paper);
+    color: var(--kf-ink-soft);
+    font-size: .86rem;
+    line-height: 1.7;
+    overflow-wrap: anywhere;
+}
+.codex-detail.is-readable { color: var(--kf-ink); }
+.codex-close {
+    flex: none;
+    min-height: 44px;
+    padding: 8px 26px;
+    border: 1.5px solid var(--kf-gold);
+    border-radius: 999px;
+    background: var(--kf-paper);
+    color: var(--kf-ink);
+    font: 700 .9rem var(--font-sans);
+    cursor: pointer;
+    box-shadow: var(--ui-shadow);
+}
+.codex-close:hover { background: color-mix(in srgb, var(--kf-paper) 80%, var(--kf-gold)); }
+
+@media (max-width: 620px) {
+    .codex-overlay { padding: 10px 8px; gap: 8px; }
+    .codex-scroll { padding: 12px 12px; }
+    .codex-grid { grid-template-columns: repeat(auto-fill, minmax(78px, 1fr)); gap: 8px; }
+    .codex-entry img { width: 42px; height: 42px; }
+    .codex-head h3 { font-size: 1.05rem; }
+}
