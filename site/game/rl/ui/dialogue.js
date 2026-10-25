@@ -23,6 +23,7 @@ export function createDialoguePresenter(options) {
     let skipped = false;
     let currentBust = "";
     let outTimer = null;
+    let moreEl = null;
 
     function build() {
         box = document.createElement("div");
@@ -42,10 +43,13 @@ export function createDialoguePresenter(options) {
             box-sizing: border-box;
             max-height: 92vh;
             overflow-y: auto;
-            background: var(--kf-paper);
-            border: 1.5px solid var(--kf-ink-soft);
+            background:
+                linear-gradient(var(--kf-paper), var(--kf-paper)) padding-box,
+                linear-gradient(180deg, color-mix(in srgb, var(--kf-gold) 55%, var(--kf-line)),
+                                          var(--kf-line)) border-box;
+            border: 1.5px solid transparent;
             border-radius: 14px;
-            padding: 14px 18px 18px;
+            padding: 14px 18px 20px;
             display: flex;
             gap: 14px;
             align-items: flex-end;
@@ -77,30 +81,35 @@ export function createDialoguePresenter(options) {
             height: 136px;
             object-fit: cover;
             object-position: top;
-            border-radius: 8px;
-            border: 1.5px solid var(--kf-ink-soft);
+            border-radius: 10px;
+            border: 2px solid color-mix(in srgb, var(--kf-gold) 52%, transparent);
             background: var(--kf-mint);
+            box-shadow: 0 2px 6px var(--kf-shadow);
             flex: none;
         `;
         const body = document.createElement("div");
         body.style.cssText = "flex: 1; min-width: 0;";
         nameEl = document.createElement("div");
         nameEl.style.cssText = `
-            display: inline-block;
-            background: var(--kf-mint);
-            color: var(--kf-ink);
-            font-weight: 600;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            background: color-mix(in srgb, var(--kf-paper) 70%, var(--kf-gold));
+            color: color-mix(in srgb, var(--kf-gold) 55%, var(--kf-ink));
+            font-weight: 700;
             font-size: 0.9rem;
-            padding: 2px 12px;
+            padding: 3px 13px;
             border-radius: 999px;
-            margin-bottom: 8px;
+            border: 1px solid color-mix(in srgb, var(--kf-gold) 42%, transparent);
+            margin-bottom: 9px;
         `;
         textEl = document.createElement("div");
         textEl.style.cssText = `
             color: var(--kf-ink);
+            font-family: var(--font-serif);
             font-size: 1rem;
-            line-height: 1.55;
-            min-height: 3.1em;
+            line-height: 1.68;
+            min-height: 3.4em;
             white-space: pre-wrap;
             word-break: break-word;
         `;
@@ -118,8 +127,28 @@ export function createDialoguePresenter(options) {
             if (inputResolve) { const resolve = inputResolve; inputResolve = null; resolve(); }
         });
         body.appendChild(skip);
+        // 继续提示：打字结束后才出现，给玩家一个明确的「还有下一句」信号。
+        // 用 CSS 三角而非字符，缩放时不糊。
+        const more = document.createElement("span");
+        more.id = "dialogue-more";
+        more.setAttribute("aria-hidden", "true");
+        more.style.cssText = `
+            position: absolute;
+            right: 16px;
+            bottom: 9px;
+            width: 0; height: 0;
+            border-left: 5px solid transparent;
+            border-right: 5px solid transparent;
+            border-top: 6px solid color-mix(in srgb, var(--kf-gold) 70%, var(--kf-ink));
+            opacity: 0;
+            transition: opacity 120ms ease-out;
+            pointer-events: none;
+        `;
+        moreEl = more;
         box.appendChild(imgEl);
         box.appendChild(body);
+        box.appendChild(more);
+        box.style.position = "fixed";   // 已有；显式一次让 absolute 子元素有基准
         document.body.appendChild(box);
 
         box.addEventListener("click", advance);
@@ -161,6 +190,8 @@ export function createDialoguePresenter(options) {
             clearInterval(typeTimer);
             typeTimer = null;
         }
+        // 打字结束后才显示「还有下一句」的三角提示。
+        if (moreEl) { moreEl.style.opacity = "1"; }
     }
 
     function stopAll() {
@@ -206,6 +237,8 @@ export function createDialoguePresenter(options) {
             document.addEventListener("keydown", keyHandler, true);
 
             stopTyping(); // clear any prior line's interval before re-arming
+            // stopTyping 会把提示点亮；新一句开始时要先熄灭。
+            if (moreEl) { moreEl.style.opacity = "0"; }
             typing = true;
             let i = 0;
             typeTimer = setInterval(function () {
@@ -225,6 +258,7 @@ export function createDialoguePresenter(options) {
 
         finish: function () {
             stopAll();
+            if (moreEl) { moreEl.style.opacity = "0"; }
             if (inputResolve) {
                 const r = inputResolve;
                 inputResolve = null;
