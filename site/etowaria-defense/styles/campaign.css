@@ -337,18 +337,58 @@
   color: #5a4330; font: 700 .74rem/1 inherit; cursor: pointer; }
 .deck-preset:hover { filter: brightness(1.05); }
 
-/* 城镇建设弹窗 */
-.town-materials p { font-size: .92rem; }
-.town-buildings { display: grid; grid-template-columns: repeat(auto-fill, minmax(210px, 1fr)); gap: 10px; margin-top: 12px; }
-.town-card { display: flex; flex-direction: column; gap: 4px; padding: 10px 12px; border: 1.5px solid #cbbb93; border-radius: 8px; background: #fffdec; }
-.town-card strong { font-size: .95rem; }
-.town-card small { color: var(--muted); font-size: .72rem; }
-.town-card p { font-size: .8rem; margin: 0; }
-.town-card .native-button { align-self: flex-start; margin-top: 6px; }
+/* 城镇建设弹窗：素材做成芯片，建筑卡带等级进度与满级徽章。
+   原来素材是一段「名字×0 名字×0…」挤在一起，建筑只有白底细边，
+   看不出养成进度，也看不出为什么不能升级。 */
+.town-material-title { margin: 0 0 6px; font-size: .78rem; font-weight: 700; color: var(--muted); letter-spacing: .06em; }
+.town-material-chips { display: flex; flex-wrap: wrap; gap: 6px; }
+.town-material-chip {
+  display: inline-flex; align-items: center; gap: 5px;
+  padding: 4px 9px; border-radius: 999px;
+  border: 1px solid #dccfae; background: #fffdf4;
+  font-size: .76rem; color: #5a4330;
+}
+.town-material-chip b { font-variant-numeric: tabular-nums; color: #7a5c1e; }
+.town-material-dot { width: 8px; height: 8px; border-radius: 50%; border: 1px solid #b09b74; background: #d9c9a5; }
+.town-material-dot.mat-M1 { background: #e09a7a; }
+.town-material-dot.mat-M2 { background: #7ab8d9; }
+.town-material-dot.mat-M3 { background: #e0c17a; }
+.town-material-dot.mat-M4 { background: #9ecf8f; }
+.town-material-dot.mat-M5 { background: #a89ac9; }
+
+.town-buildings { display: grid; grid-template-columns: repeat(auto-fill, minmax(232px, 1fr)); gap: 12px; margin-top: 14px; }
+.town-card {
+  display: flex; flex-direction: column; gap: 7px;
+  padding: 12px 13px; border: 1.5px solid #cbbb93; border-radius: 10px;
+  background: #fffdec;
+  box-shadow: 0 1px 0 #fff inset, 0 2px 6px #a08a5a14;
+}
+.town-card.is-maxed { border-color: #c9a94e; background: linear-gradient(150deg, #fff8dc, #fffdf2); }
+.town-card-head { display: flex; align-items: baseline; justify-content: space-between; gap: 8px; }
+.town-card-head strong { font-size: .96rem; }
+.town-card-level { flex: none; font-size: .74rem; font-weight: 700; color: #8a6a2e; font-variant-numeric: tabular-nums; }
+.town-card.is-maxed .town-card-level { color: #b98f2c; }
+/* 等级刻度：一格一级，已达填金。 */
+.town-card-track { display: flex; gap: 3px; }
+.town-card-track i { flex: 1; height: 4px; border-radius: 2px; background: #e3d8c0; }
+.town-card-track i.is-filled { background: linear-gradient(90deg, #d9b14e, #c9a94e); }
+.town-card-origin { color: var(--muted); font-size: .72rem; }
+.town-card-desc { font-size: .8rem; margin: 0; line-height: 1.55; color: #5a4a3a; }
+.town-card-cost { font-size: .76rem; margin: 0; color: var(--muted); line-height: 1.5; }
+.town-card.is-maxed .town-card-cost { color: #8a6a2e; }
+.town-card-upgrade { align-self: flex-start; margin-top: 2px; }
+.town-card-badge { align-self: flex-start; font-size: .74rem; font-weight: 700; color: #b98f2c; }
 
 /* 换卡满编：换出选择行 */
-.restock-drop-row { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; margin: 0 0 8px; font-size: .8rem; }
+/* 换卡：当前卡组 / 可换入 两段分区。原来两块卡平铺在一起，分不清哪边
+   是「换出的」哪边是「换进的」。 */
+.restock-section { display: flex; flex-direction: column; gap: 7px; margin: 0 0 10px; padding: 9px 11px;
+  border: 1px solid #dfd0b0; border-radius: 10px; background: #fffdf4; }
+.restock-section-title { margin: 0; font-size: .78rem; font-weight: 700; color: #7a6244; letter-spacing: .04em; }
+.restock-pool-title { margin: 12px 0 6px; font-size: .78rem; font-weight: 700; color: #7a6244; letter-spacing: .04em; }
+.restock-drop-row { display: flex; flex-direction: column; gap: 7px; font-size: .8rem; }
 .restock-drop-grid { display: flex; flex-wrap: wrap; gap: 6px; }
-.restock-drop-chip { padding: 3px 10px; border-radius: 999px; border: 1.5px solid #c8b37d; background: #fffdf6;
+.restock-drop-chip { padding: 3px 10px; border-radius: 999px; border: 1.5px solid #c8b37d; background: #fffdf6; font-size: .76rem; cursor: pointer; }
+.restock-drop-chip:disabled { cursor: default; opacity: .72; }
   color: #5a4330; font: 700 .74rem/1 inherit; cursor: pointer; }
 .restock-drop-chip.active { background: #f4e9c8; border-color: #8a6a3c; }

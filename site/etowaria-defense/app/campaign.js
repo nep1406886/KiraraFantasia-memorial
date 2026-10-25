@@ -1152,25 +1152,38 @@ export class Campaign {
         // 满编时必须先选一张要换出的卡（已部署的不受影响，只动卡组槽位）。
         // 旧提示行先清掉——每次打开都会重建。
         this.host.querySelectorAll(".restock-drop-row").forEach(node => node.remove());
-        const dropRow = document.createElement("p");
-        dropRow.className = "muted restock-drop-row";
-        dropRow.textContent = full ? `卡组已满${DECK_SIZE}张：先点一张要换出的卡。` : "";
-        if (full) {
-            const dropGrid = document.createElement("div"); dropGrid.className = "restock-drop-grid";
-            for (const id of deck) {
-                const rule = UNIT_RULES[id];
-                const chip = document.createElement("button");
-                chip.className = "restock-drop-chip";
-                chip.textContent = rule.name;
+        // 换卡界面分三段：当前卡组（满编时选一张换出）→ 可换入的卡 → 确认。
+        // 原来这三块只是平铺在一起，没有标题也没有容器，看不出哪边是「要换掉的」、
+        // 哪边是「能换进来的」。
+        const dropRow = document.createElement("section");
+        dropRow.className = "restock-section restock-drop-row";
+        const dropTitle = document.createElement("p");
+        dropTitle.className = "restock-section-title";
+        dropTitle.textContent = full
+            ? `当前卡组 · 已满 ${deck.length}/${DECK_SIZE}，先点一张换出`
+            : `当前卡组 · ${deck.length}/${DECK_SIZE}（有空位，直接选新卡即可）`;
+        const dropGrid = document.createElement("div"); dropGrid.className = "restock-drop-grid";
+        for (const id of deck) {
+            const rule = UNIT_RULES[id];
+            const chip = document.createElement("button");
+            chip.className = "restock-drop-chip";
+            chip.textContent = rule.name;
+            if (!full) { chip.disabled = true; }
+            else {
                 chip.addEventListener("click", () => {
                     this.restockDrop = id;
                     dropGrid.querySelectorAll(".restock-drop-chip").forEach(node => node.classList.toggle("active", node === chip));
                 });
-                dropGrid.append(chip);
             }
-            dropRow.append(dropGrid);
+            dropGrid.append(chip);
         }
+        dropRow.append(dropTitle, dropGrid);
         grid.before(dropRow);
+
+        const poolTitle = document.createElement("p");
+        poolTitle.className = "restock-section-title restock-pool-title";
+        poolTitle.textContent = "可换入的卡";
+        grid.before(poolTitle);
         const pool = DECK_ORDER.filter(id => !deck.includes(id));
         for (const id of pool) {
             const rule = UNIT_RULES[id];
@@ -1214,38 +1227,90 @@ export class Campaign {
 
     // 城镇：素材库存 + 五栋建筑（原作 TownObjectList 折算）。升级走
     // save.upgradeTown，立即生效并重渲染。
+    // 城镇：素材做成带数量的芯片（原来是一行「战士的象征×0 魔法使的象征×0…」
+    // 挤成一段），建筑卡补上等级进度条、满级徽章与「缺多少素材」的明确提示。
+    // spec/01 §4.1：不可用状态必须有原因，不能只是变灰。
     openTown() {
         const matHost = this.get("town-materials");
         matHost.replaceChildren();
-        const matLine = document.createElement("p");
-        matLine.className = "town-material-line";
-        matLine.textContent = "持有素材：" + Object.values(TOWN_RULES.materials)
-            .map(m => `${m.name}×${this.save.progress.materials[m.id] || 0}`).join("　");
-        matHost.append(matLine);
+        const matTitle = document.createElement("p");
+        matTitle.className = "town-material-title";
+        matTitle.textContent = "持有素材";
+        const chipRow = document.createElement("div");
+        chipRow.className = "town-material-chips";
+        for (const m of Object.values(TOWN_RULES.materials)) {
+            const chip = document.createElement("span");
+            chip.className = "town-material-chip";
+            const dot = document.createElement("i");
+            dot.className = `town-material-dot mat-${m.id}`;
+            dot.setAttribute("aria-hidden", "true");
+            const name = document.createElement("span");
+            name.textContent = m.name;
+            const count = document.createElement("b");
+            count.textContent = String(this.save.progress.materials[m.id] || 0);
+            chip.append(dot, name, count);
+            chipRow.append(chip);
+        }
+        matHost.append(matTitle, chipRow);
+
         const grid = this.get("town-buildings");
         grid.replaceChildren();
         for (const b of Object.values(TOWN_RULES.buildings)) {
             const level = this.save.progress.town[b.id] || 0;
+            const maxed = level >= b.maxLevel;
             const card = document.createElement("div");
-            card.className = "town-card";
-            const head = document.createElement("strong");
-            head.textContent = `${b.name}　Lv.${level}/${b.maxLevel}`;
+            card.className = maxed ? "town-card is-maxed" : "town-card";
+            card.dataset.level = String(level);
+
+            const head = document.createElement("header");
+            head.className = "town-card-head";
+            const name = document.createElement("strong");
+            name.textContent = b.name;
+            const lv = document.createElement("span");
+            lv.className = "town-card-level";
+            lv.textContent = maxed ? "满级" : `Lv.${level} / ${b.maxLevel}`;
+            head.append(name, lv);
+
+            // 等级进度：每级一格，已达等级填金，未达留空。
+            const track = document.createElement("div");
+            track.className = "town-card-track";
+            track.setAttribute("aria-hidden", "true");
+            for (let i = 0; i < b.maxLevel; i++) {
+                const pip = document.createElement("i");
+                if (i < level) { pip.className = "is-filled"; }
+                track.append(pip);
+            }
+
             const orig = document.createElement("small");
+            orig.className = "town-card-origin";
             orig.textContent = `原作：${b.originalName}`;
             const desc = document.createElement("p");
+            desc.className = "town-card-desc";
             desc.textContent = b.desc;
+
             const cost = b.costPlan[level] || null;
             const costLine = document.createElement("p");
-            costLine.className = "muted";
-            costLine.textContent = cost
-                ? "升级素材：" + cost.map(id => TOWN_RULES.materials[id].name).join("、")
-                : "已满级";
-            card.append(head, orig, desc, costLine);
-            if (cost) {
+            costLine.className = "town-card-cost";
+            if (maxed) {
+                costLine.textContent = "已满级，这栋建筑不会再需要素材。";
+            } else if (cost) {
+                const need = {};
+                for (const id of cost) { need[id] = (need[id] || 0) + 1; }
+                const parts = Object.entries(need).map(([id, n]) => {
+                    const have = this.save.progress.materials[id] || 0;
+                    const label = `${TOWN_RULES.materials[id].name} ${have}/${n}`;
+                    return have >= n ? label : `${label}（缺${n - have}）`;
+                });
+                costLine.textContent = "升级需要：" + parts.join("、");
+            }
+            card.append(head, track, orig, desc, costLine);
+
+            if (cost && !maxed) {
+                const affordable = this.canAfford(cost);
                 const up = document.createElement("button");
-                up.className = "native-button primary compact";
-                up.textContent = "升级";
-                up.disabled = !this.canAfford(cost);
+                up.className = "native-button primary compact town-card-upgrade";
+                up.textContent = affordable ? "升级" : "素材不足";
+                up.disabled = !affordable;
                 up.addEventListener("click", () => {
                     if (this.save.upgradeTown(b.id, b.costPlan)) {
                         this.notice(`${b.name} 升到 Lv.${(this.save.progress.town[b.id] || 0)}。`);
@@ -1253,6 +1318,11 @@ export class Campaign {
                     } else { this.notice("素材不够，先去无尽巡守里收集。"); }
                 });
                 card.append(up);
+            } else if (maxed) {
+                const badge = document.createElement("span");
+                badge.className = "town-card-badge";
+                badge.textContent = "★ 已完成";
+                card.append(badge);
             }
             grid.append(card);
         }
