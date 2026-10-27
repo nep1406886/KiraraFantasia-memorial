@@ -89,9 +89,16 @@
 .deck-picker-head h3 { font-size: 1.2rem; }
 .deck-picker-head .muted { font-size: .8rem; margin-top: 4px; }
 .deck-count { flex-shrink: 0; font-size: 1rem; font-weight: 700; background: var(--paper-sunken); border: 1px solid var(--line-gold); border-radius: 999px; padding: 6px 14px; }
-.deck-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 7px; flex: 1; min-height: 0; overflow-y: auto; scrollbar-width: thin; align-content: start; }
-@media (min-width: 900px) { .deck-grid { grid-template-columns: repeat(4, minmax(0, 1fr)); } }
-@media (min-width: 1280px) { .deck-grid { grid-template-columns: repeat(5, minmax(0, 1fr)); } }
+/* 编队卡网格：列数由 minmax 自适应，不靠断点硬切换。
+   原来 1280px 就切到 5 列，但卡片内是「图标 + 名字 + 费用」三项横排，
+   5 列时每格只剩约 250px，第 5 列被推出容器、右侧出现横向裁切。
+   改成 auto-fill + 最小 240px，窄屏自动降列，任何宽度都不会溢出。 */
+.deck-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(min(240px, 100%), 1fr));
+  gap: 7px; flex: 1; min-height: 0;
+  overflow-y: auto; overflow-x: hidden; scrollbar-width: thin; align-content: start;
+}
 .deck-card { position: relative; display: grid; grid-template-columns: 44px auto minmax(0, 1fr) auto; align-items: center; column-gap: 7px; padding: 5px 8px 5px 4px; background: var(--paper-warm); border: 2px solid var(--line-strong); border-radius: 9px; color: var(--ink); text-align: left; }
 .deck-card:hover { border-color: #ab9668; }
 .deck-card[aria-pressed="true"] { border-color: var(--focus); background: #f1f7fd; box-shadow: 0 0 0 2px white inset; }
