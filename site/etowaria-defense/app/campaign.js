@@ -1114,10 +1114,25 @@ export class Campaign {
             if (section === "enemy") {
                 art = document.createElement("span"); art.className = "codex-enemy-art";
                 art.textContent = (rule.name || "?").slice(0, 1);
+                // 来客没有立绘资源，原来每张卡只有「名字首字」，读不出威胁类型。
+                // 在卡背补一排特性徽章（护甲/治疗/召唤/越障/远程/复起/反伤/首领），
+                // 让图鉴真正能当战术参考。
+                const traits = this.enemyTraits(rule);
+                if (traits.length) {
+                    const strip = document.createElement("span");
+                    strip.className = "codex-traits";
+                    for (const trait of traits) {
+                        const chip = document.createElement("i");
+                        chip.className = `codex-trait trait-${trait.key}`;
+                        chip.textContent = trait.label;
+                        strip.append(chip);
+                    }
+                    art.append(strip);
+                }
             } else { art = this.unitArt(id); }
             grid.append(this.codexCard({ id, art, name: rule.name,
                 detail: () => section === "enemy"
-                    ? `${rule.name}：${rule.description || ""}`
+                    ? `${rule.name}：${rule.description || ""}${this.enemyTraitText(rule)}`
                     : `${rule.name}（${rule.role}）：${rule.help}` }));
         }
         this.get("codex-dialog").showModal();
@@ -1136,6 +1151,28 @@ export class Campaign {
         card.append(artSlot, nameSlot);
         card.addEventListener("click", () => this.text("codex-detail", detail()));
         return card;
+    }
+
+    // 来客的特性清单：图鉴徽章与详情文案共用同一份定义，避免两处漂移。
+    enemyTraits(rule) {
+        if (!rule) { return []; }
+        const traits = [];
+        if (rule.boss) { traits.push({ key: "boss", label: "首领" }); }
+        if (rule.healer) { traits.push({ key: "healer", label: "治疗" }); }
+        if (rule.summon) { traits.push({ key: "summon", label: "召唤" }); }
+        if (rule.armor) { traits.push({ key: "armor", label: "护甲" }); }
+        if (rule.hop) { traits.push({ key: "hop", label: "越障" }); }
+        if (rule.ranged) { traits.push({ key: "ranged", label: "远程" }); }
+        if (rule.revive) { traits.push({ key: "revive", label: "复起" }); }
+        if (rule.thorns) { traits.push({ key: "thorns", label: "反伤" }); }
+        if (rule.battleCry) { traits.push({ key: "cry", label: "加速" }); }
+        if (rule.roar) { traits.push({ key: "roar", label: "压制" }); }
+        return traits;
+    }
+    enemyTraitText(rule) {
+        const traits = this.enemyTraits(rule);
+        if (!traits.length) { return ""; }
+        return `　特性：${traits.map(trait => trait.label).join("、")}`;
     }
 
     openRestock() {

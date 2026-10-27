@@ -323,8 +323,24 @@
 .codex-card .seed-art { width: 44px; height: 44px; display: grid; place-items: center; }
 .codex-card .seed-art .portrait-icon, .codex-card .seed-art .facility-image { width: 44px; height: 44px; }
 .codex-card .seed-art .gear-icon { width: 40px; height: 40px; object-fit: contain; }
-.codex-enemy-art { width: 44px; height: 44px; display: grid; place-items: center; border-radius: 8px;
+.codex-enemy-art { position: relative; width: 44px; height: 44px; display: grid; place-items: center; border-radius: 8px;
   background: linear-gradient(135deg, #e9d8b8, #a8823f); color: #fff; font-size: 1.2rem; font-weight: 800; }
+/* 来客特性徽章：贴在卡背右上，颜色按威胁类型区分，图鉴可当战术速查。 */
+.codex-traits { position: absolute; top: -6px; right: -8px; display: flex; flex-wrap: wrap;
+  justify-content: flex-end; gap: 2px; max-width: 74px; pointer-events: none; }
+.codex-trait { display: inline-block; padding: 0 3px; border-radius: 3px;
+  font-size: .56rem; font-style: normal; font-weight: 800; line-height: 13px;
+  color: #fff; background: #8a6a3c; border: 1px solid #fff8; white-space: nowrap; }
+.codex-trait.trait-boss { background: #8b2f4a; }
+.codex-trait.trait-healer { background: #3f8a5c; }
+.codex-trait.trait-summon { background: #6a4a94; }
+.codex-trait.trait-armor { background: #6b6f7a; }
+.codex-trait.trait-hop { background: #b07a24; }
+.codex-trait.trait-ranged { background: #35688f; }
+.codex-trait.trait-revive { background: #7a5470; }
+.codex-trait.trait-thorns { background: #9a5a30; }
+.codex-trait.trait-cry { background: #a2662e; }
+.codex-trait.trait-roar { background: #6e4a2e; }
 .codex-detail { min-height: 2.6em; margin-top: 10px; font-size: .84rem; background: #fff8d9;
   border-radius: 7px; padding: 7px 12px; }
 
