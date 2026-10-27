@@ -10,9 +10,11 @@ const RESULT_CSS = `
         overflow: hidden;
         color: var(--kf-ink);
         background: var(--kf-paper);
-        border: 1px solid var(--kf-ink-soft);
-        border-radius: 8px;
-        font: 14px/1.5 var(--font-sans);
+        /* spec/01 §4: 纸面板统一 12–16px 圆角 + 1.5px 墨边；结算页原来是
+           8px/1px，与菜单、图鉴、对白盒不是同一套壳体。 */
+        border: 1.5px solid var(--kf-line);
+        border-radius: var(--ui-radius);
+        font: 14px/1.55 var(--font-sans);
         box-shadow: 0 8px 32px var(--kf-shadow);
     }
     #rl-result[open] { display: flex; flex-direction: column; gap: 12px; }

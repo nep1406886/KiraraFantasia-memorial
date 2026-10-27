@@ -5,7 +5,9 @@ const CSS = `
         width: min(520px, calc(100% - 32px)); max-height: calc(100dvh - 32px);
         margin: auto; padding: 24px; overflow: hidden;
         color: var(--kf-ink); background: var(--kf-paper);
-        border: 1px solid var(--kf-ink-soft); border-radius: 8px;
+        /* spec/01 §4：纸面板统一 12–16px 圆角 + 1.5px 墨边，与菜单/图鉴/
+           对白盒/结算页同一套壳体（原来这里是 8px/1px）。 */
+        border: 1.5px solid var(--kf-line); border-radius: var(--ui-radius);
         font: 14px/1.55 var(--font-sans); box-shadow: 0 8px 32px var(--kf-shadow);
     }
     #rl-floor-load[open] { display: flex; flex-direction: column; gap: 14px; }
@@ -18,20 +20,20 @@ const CSS = `
     #rl-floor-load p { margin: 0; overflow-wrap: anywhere; }
     #rl-floor-load img { width: 100%; aspect-ratio: 3/4; object-fit: contain; }
     #rl-floor-load .floor-load-target { color: var(--kf-ink-soft); }
-    #rl-floor-load progress { width: 100%; height: 8px; accent-color: var(--kf-ink-soft); margin: 16px 0 10px; }
+    #rl-floor-load progress { width: 100%; height: 8px; accent-color: var(--kf-gold); margin: 16px 0 10px; }
     #floor-load-message { margin-top: 14px !important; }
     #floor-load-save { margin-top: 10px !important; font-size: 13px; }
     #floor-load-save[data-saved="false"] { font-weight: 600; }
     #rl-floor-load .floor-load-actions { display: flex; flex-wrap: wrap; gap: 8px; flex-shrink: 0; }
     #rl-floor-load button {
         flex: 1 1 120px; min-width: 0; min-height: 44px; padding: 9px 12px;
-        border: 1px solid var(--kf-ink-soft); border-radius: 8px;
+        border: 1.5px solid var(--kf-line); border-radius: 10px;
         background: var(--kf-paper); color: var(--kf-ink); font: 600 14px/1.5 var(--font-sans);
-        cursor: pointer;
+        cursor: pointer; transition: border-color var(--ui-time) var(--ui-ease);
     }
-    #rl-floor-load button.primary { background: var(--kf-mint); }
+    #rl-floor-load button.primary { background: var(--kf-mint); border-color: var(--kf-gold); }
     #rl-floor-load button:hover { border-color: var(--kf-gold); }
-    #rl-floor-load button:focus-visible { outline: 2px solid var(--kf-ink); outline-offset: 2px; }
+    #rl-floor-load button:focus-visible { outline: 2px solid var(--kf-gold); outline-offset: 2px; }
     #rl-floor-load button:disabled { opacity: .6; cursor: default; }
     @media (max-width: 430px) {
         #rl-floor-load { padding: 18px; }

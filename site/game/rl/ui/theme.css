@@ -307,7 +307,8 @@
     overflow-y: auto;
     color: var(--kf-ink);
     background: var(--kf-paper);
-    border: 1px solid var(--kf-line);
+    /* spec/01 §4：纸面板的墨边统一 1.5px（原来 1px，比菜单/图鉴细一档）。 */
+    border: 1.5px solid var(--kf-line);
     border-radius: var(--ui-radius);
     box-shadow: 0 8px 32px var(--kf-shadow);
     font: 14px/1.5 var(--font-sans);
