@@ -317,9 +317,24 @@
 .codex-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(96px, 1fr)); gap: 8px;
   max-height: min(52vh, 460px); overflow-y: auto; scrollbar-width: thin; align-content: start;
   border-block: 1px solid #e3d8c5; padding: 8px 2px; }
-.codex-card { display: flex; flex-direction: column; align-items: center; gap: 4px; padding: 7px 4px;
-  border: 1.5px solid #cbbb93; border-radius: 9px; background: #fffdec; cursor: pointer; text-align: center; }
-.codex-card:hover { border-color: var(--focus); }
+/* 图鉴卡片：固定「图标 + 单行名称」的最小高度，避免头像还没解码时
+   卡片塌成一条、网格高低不齐（截图实测过）。名称统一两行高度，
+   长短名字都不会改变卡片尺寸。 */
+.codex-card {
+  display: flex; flex-direction: column; align-items: center; justify-content: flex-start;
+  gap: 4px; padding: 7px 4px; min-height: 76px;
+  border: 1.5px solid #cbbb93; border-radius: 9px; background: #fffdec;
+  cursor: pointer; text-align: center;
+  transition: border-color .15s ease-out, background .15s ease-out, transform .15s ease-out;
+}
+.codex-card:hover { border-color: var(--focus); background: #fffdf4; transform: translateY(-1px); }
+.codex-card:focus-visible { outline: 2px solid var(--focus); outline-offset: 2px; }
+.codex-card .seed-name {
+  display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical;
+  overflow: hidden; overflow-wrap: anywhere;
+  font-size: .74rem; line-height: 1.25; min-height: 1.9em; max-height: 2.5em;
+}
+.codex-card .seed-art { flex: none; }
 .codex-card .seed-art { width: 44px; height: 44px; display: grid; place-items: center; }
 .codex-card .seed-art .portrait-icon, .codex-card .seed-art .facility-image { width: 44px; height: 44px; }
 .codex-card .seed-art .gear-icon { width: 40px; height: 40px; object-fit: contain; }
