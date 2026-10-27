@@ -9,6 +9,20 @@
   --focus: #649de8;
   --gold: #e6bf26;
   --pink: #f16ca3;
+  /* 纸面板体系：campaign.css / battle.css 里原本散落着 #fffdf4 #fffdf0
+     #fffdec #fff8d9 #c9a94e #c9b873 #cbbb93 #dfd0b0 #e3d8c5 等裸值，
+     同一类「纸底 / 纸边 / 暖金强调」出现了十几遍且偶尔漂移。
+     这里收敛成一组语义 token，新样式一律引用它们。 */
+  --paper-raised: #fffdf4;   /* 比 --paper 更亮的浮起纸面 */
+  --paper-sunken: #fff8d9;   /* 阅读条 / 提示条 */
+  --paper-warm: #fffdec;     /* 卡片底 */
+  --line-soft: #e3d8c5;      /* 细分隔线 */
+  --line-paper: #dfd0b0;     /* 纸卡描边 */
+  --line-strong: #cbbb93;    /* 需要更明确边界的纸卡 */
+  --line-gold: #c9b873;      /* 金色描边 */
+  --gold-deep: #c9a94e;      /* 强调金（比 --gold 沉，用于描边/进度） */
+  --gold-ink: #b98f2c;       /* 金色文字 */
+  --ink-warm: #5a4330;       /* 纸面上的深棕文字 */
   font-family: "Noto Sans SC", "Microsoft YaHei", "PingFang SC", sans-serif;
   font-size: 16px;
   color: var(--ink);

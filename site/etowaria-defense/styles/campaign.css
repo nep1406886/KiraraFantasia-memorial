@@ -43,12 +43,12 @@
 .campaign-faces .portrait-icon { width: 66px; margin: 0; }
 .campaign-selection { min-width: 0; padding: 3px 12px; display: flex; flex-direction: column; gap: 14px; overflow-y: auto; scrollbar-width: thin; }
 .setup-banner-slot:empty { display: none; }
-.setup-banner { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 10px 12px; border: 1px solid #c9b873; border-radius: 9px; background: linear-gradient(110deg, #fff8d9, #fffdf0); box-shadow: 0 2px 0 #c9b87355; }
+.setup-banner { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 10px 12px; border: 1px solid var(--line-gold); border-radius: 9px; background: linear-gradient(110deg, var(--paper-sunken), var(--paper-raised)); box-shadow: 0 2px 0 var(--line-gold)55; }
 .setup-banner p { margin: 0; font-size: .82rem; line-height: 1.4; }
 .setup-banner-actions { display: flex; flex-shrink: 0; gap: 6px; }
 .campaign-levels { display: flex; flex-direction: column; gap: 14px; flex-shrink: 0; }
-.campaign-chapter-group { display: grid; gap: 7px; padding: 10px; border: 1px solid #dfd0b0; border-radius: 12px; background: #fffdf4b8; }
-.campaign-chapter-group.endless-group { border-color: #b9a3e8; background: linear-gradient(135deg, #fbf8ff, #fffdf4); }
+.campaign-chapter-group { display: grid; gap: 7px; padding: 10px; border: 1px solid var(--line-paper); border-radius: 12px; background: var(--paper-raised)b8; }
+.campaign-chapter-group.endless-group { border-color: #b9a3e8; background: linear-gradient(135deg, #fbf8ff, var(--paper-raised)); }
 .chapter-group-head { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; padding: 0 3px; }
 .chapter-group-title { color: #684e2c; font-size: .98rem; }
 .endless-group .chapter-group-title { color: #60418d; }
@@ -75,24 +75,24 @@
 .level-brief { padding: 5px 3px; }
 .level-brief h3 { font-size: 1.2rem; margin-bottom: 6px; }
 .level-brief p { font-size: .85rem; margin-top: 5px; }
-.level-facts, .result-stats { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 14px; margin: 15px 0; padding: 12px 0; border-block: 1px solid #e3d8c5; }
+.level-facts, .result-stats { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 14px; margin: 15px 0; padding: 12px 0; border-block: 1px solid var(--line-soft); }
 .level-facts dt, .result-stats dt { color: var(--muted); font-size: .76rem; }
 .level-facts dd, .result-stats dd { margin: 5px 0 0; font-size: 1.05rem; font-weight: 700; }
 .campaign-map-actions { display: flex; align-items: center; gap: 15px; margin-top: auto; }
 .campaign-map-actions p { font-size: .8rem; flex: 1; }
 .campaign-map-actions .native-button { white-space: nowrap; font-size: 1.2rem; min-height: 62px; padding-block: 18px; }
 .campaign-disclosure { font-size: .73rem; color: var(--muted); text-align: center; }
-.save-problem { flex-shrink: 0; font-size: .86rem; background: #fffce5; border: 1px solid #c9b873; padding: 10px 14px; border-radius: 7px; }
+.save-problem { flex-shrink: 0; font-size: .86rem; background: #fffce5; border: 1px solid var(--line-gold); padding: 10px 14px; border-radius: 7px; }
 
 .deck-picker { min-width: 0; min-height: 0; max-height: 100%; padding: 3px 12px; display: flex; flex-direction: column; gap: 12px; overflow-y: auto; scrollbar-width: thin; flex-shrink: 0; }
 .deck-picker-head { display: flex; align-items: flex-end; justify-content: space-between; gap: 14px; }
 .deck-picker-head h3 { font-size: 1.2rem; }
 .deck-picker-head .muted { font-size: .8rem; margin-top: 4px; }
-.deck-count { flex-shrink: 0; font-size: 1rem; font-weight: 700; background: #fff8d9; border: 1px solid #c9b873; border-radius: 999px; padding: 6px 14px; }
+.deck-count { flex-shrink: 0; font-size: 1rem; font-weight: 700; background: var(--paper-sunken); border: 1px solid var(--line-gold); border-radius: 999px; padding: 6px 14px; }
 .deck-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 7px; flex: 1; min-height: 0; overflow-y: auto; scrollbar-width: thin; align-content: start; }
 @media (min-width: 900px) { .deck-grid { grid-template-columns: repeat(4, minmax(0, 1fr)); } }
 @media (min-width: 1280px) { .deck-grid { grid-template-columns: repeat(5, minmax(0, 1fr)); } }
-.deck-card { position: relative; display: grid; grid-template-columns: 44px auto minmax(0, 1fr) auto; align-items: center; column-gap: 7px; padding: 5px 8px 5px 4px; background: #fffdec; border: 2px solid #cbbb93; border-radius: 9px; color: var(--ink); text-align: left; }
+.deck-card { position: relative; display: grid; grid-template-columns: 44px auto minmax(0, 1fr) auto; align-items: center; column-gap: 7px; padding: 5px 8px 5px 4px; background: var(--paper-warm); border: 2px solid var(--line-strong); border-radius: 9px; color: var(--ink); text-align: left; }
 .deck-card:hover { border-color: #ab9668; }
 .deck-card[aria-pressed="true"] { border-color: var(--focus); background: #f1f7fd; box-shadow: 0 0 0 2px white inset; }
 .deck-card[aria-pressed="true"]::after { content: "✓"; position: absolute; top: -7px; right: -6px; width: 20px; height: 20px; border-radius: 50%; background: var(--focus); color: #fff; font-size: .8rem; font-weight: 700; display: grid; place-items: center; }
@@ -119,16 +119,16 @@
 .deck-card .seed-name { font-size: .78rem; font-weight: 700; line-height: 1.2; }
 .deck-card .seed-cost { display: inline-flex; align-items: center; gap: 3px; font-size: .76rem; font-weight: 700; white-space: nowrap; }
 .deck-card .seed-cost svg { width: 12px; height: 12px; }
-.deck-detail { min-height: 2.4em; font-size: .8rem; background: #fff8d9; border-radius: 7px; padding: 7px 12px; }
+.deck-detail { min-height: 2.4em; font-size: .8rem; background: var(--paper-sunken); border-radius: 7px; padding: 7px 12px; }
 
 
 .campaign-dialog > h2 { font-size: 1.55rem; margin-bottom: 16px; }
 .campaign-dialog [data-role="story"] > p { padding: 12px 0; font-size: 1.04rem; line-height: 1.85; }
-.campaign-dialog [data-role="opening-tip"] { background: #fff8d9; padding: 13px; border-radius: 7px; }
+.campaign-dialog [data-role="opening-tip"] { background: var(--paper-sunken); padding: 13px; border-radius: 7px; }
 .campaign-dialog .dialog-actions { flex-wrap: wrap; }
 .campaign-dialog .native-button { white-space: nowrap; }
 .opening-steps { display: grid; gap: 9px; margin: 14px 0 8px; padding: 0; list-style: none; counter-reset: tutorial; }
-.opening-steps li { display: grid; grid-template-columns: 30px minmax(0, 1fr); gap: 8px; align-items: start; padding: 8px 10px; border: 1px solid #e3d8c5; border-radius: 8px; background: #fffdf1; counter-increment: tutorial; }
+.opening-steps li { display: grid; grid-template-columns: 30px minmax(0, 1fr); gap: 8px; align-items: start; padding: 8px 10px; border: 1px solid var(--line-soft); border-radius: 8px; background: var(--paper-raised); counter-increment: tutorial; }
 .opening-steps li::before { content: counter(tutorial); display: grid; place-items: center; width: 24px; height: 24px; border-radius: 50%; background: #e7c052; color: #5b4117; font-weight: 800; }
 .opening-steps strong, .opening-steps span { display: block; }
 .opening-steps strong { font-size: .9rem; }
@@ -143,18 +143,18 @@
 .result-banner {
   display: flex; align-items: center; gap: 10px;
   width: 100%; padding: 10px 14px; border-radius: 10px;
-  border: 1px solid #dfd0b0; background: #fffdf4;
+  border: 1px solid var(--line-paper); background: var(--paper-raised);
   font-family: "KaiTi", "STKaiti", serif; font-size: 1.15rem; font-weight: 700;
 }
-.result-banner--won { border-color: #c9a94e; background: linear-gradient(100deg, #fff8dc, #fffdf2); box-shadow: inset 0 0 0 1px #fff; }
+.result-banner--won { border-color: var(--gold-deep); background: linear-gradient(100deg, var(--paper-sunken), var(--paper-raised)); box-shadow: inset 0 0 0 1px #fff; }
 .result-banner--lost { border-color: #cbb7a4; background: #faf6ef; color: #6b5a4a; }
 .result-badge {
   display: grid; place-items: center; flex: none;
   width: 26px; height: 26px; border-radius: 50%;
   font-family: var(--font-sans, sans-serif); font-size: .95rem; font-weight: 800;
 }
-.result-banner--won .result-badge { color: #fffdf0; background: #c9a94e; }
-.result-banner--lost .result-badge { color: #fffdf0; background: #b3a294; }
+.result-banner--won .result-badge { color: var(--paper-raised); background: var(--gold-deep); }
+.result-banner--lost .result-badge { color: var(--paper-raised); background: #b3a294; }
 
 .result-summary { margin: 0; color: var(--muted); font-size: .84rem; text-align: center; }
 
@@ -162,10 +162,10 @@
 .result-achievement {
   display: flex; align-items: flex-start; gap: 9px;
   padding: 8px 11px; border-radius: 9px;
-  border: 1px solid #e6d9b8; border-left: 3px solid #c9a94e;
-  background: #fffdf0;
+  border: 1px solid #e6d9b8; border-left: 3px solid var(--gold-deep);
+  background: var(--paper-raised);
 }
-.result-achievement-star { flex: none; color: #c9a94e; font-size: 1rem; line-height: 1.35; }
+.result-achievement-star { flex: none; color: var(--gold-deep); font-size: 1rem; line-height: 1.35; }
 .result-achievement strong { display: block; font-size: .88rem; color: #7a5c1e; }
 .result-achievement small { display: block; margin-top: 2px; font-size: .76rem; color: var(--muted); line-height: 1.45; }
 
@@ -175,9 +175,9 @@
   border: 1px dashed #d9cdb6; background: #faf7ef;
   font-size: .82rem; color: #7c7266;
 }
-.result-challenge.is-complete { border: 1px solid #c9a94e; border-style: solid; background: #fffbe8; color: #6b5416; font-weight: 600; }
+.result-challenge.is-complete { border: 1px solid var(--gold-deep); border-style: solid; background: #fffbe8; color: #6b5416; font-weight: 600; }
 .result-challenge-mark { flex: none; font-weight: 800; }
-.result-challenge.is-complete .result-challenge-mark { color: #b98f2c; }
+.result-challenge.is-complete .result-challenge-mark { color: var(--gold-ink); }
 .achievement-card { opacity: .55; }
 .achievement-card.unlocked { opacity: 1; }
 .achievement-card.unlocked .codex-enemy-art { color: #c9a227; }
@@ -299,9 +299,9 @@
 
 /* ─── 已选卡牌条（选阵容页顶部） ──────────────────────────────────── */
 .deck-chosen { display: flex; flex-wrap: wrap; gap: 6px; padding: 8px 2px; min-height: 54px;
-  border-block: 1px solid #e3d8c5; }
+  border-block: 1px solid var(--line-soft); }
 .deck-chosen-chip { display: inline-flex; align-items: center; gap: 6px; padding: 3px 9px 3px 5px;
-  border: 1.5px solid #c9b873; border-radius: 999px; background: #fff8d9; cursor: pointer; color: var(--ink); font: inherit; }
+  border: 1.5px solid var(--line-gold); border-radius: 999px; background: var(--paper-sunken); cursor: pointer; color: var(--ink); font: inherit; }
 .deck-chosen-chip b { font-size: .68rem; color: #8a6a1c; }
 .deck-chosen-chip .seed-art { width: 30px; height: 30px; display: grid; place-items: center; }
 .deck-chosen-chip .seed-art .portrait-icon, .deck-chosen-chip .seed-art .facility-image { width: 30px; height: 30px; }
@@ -316,18 +316,18 @@
 .codex-tab[aria-pressed="true"] { background: linear-gradient(#ffe98c, #f3b23e); border-color: #c98a1f; color: #5b3508; }
 .codex-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(96px, 1fr)); gap: 8px;
   max-height: min(52vh, 460px); overflow-y: auto; scrollbar-width: thin; align-content: start;
-  border-block: 1px solid #e3d8c5; padding: 8px 2px; }
+  border-block: 1px solid var(--line-soft); padding: 8px 2px; }
 /* 图鉴卡片：固定「图标 + 单行名称」的最小高度，避免头像还没解码时
    卡片塌成一条、网格高低不齐（截图实测过）。名称统一两行高度，
    长短名字都不会改变卡片尺寸。 */
 .codex-card {
   display: flex; flex-direction: column; align-items: center; justify-content: flex-start;
   gap: 4px; padding: 7px 4px; min-height: 76px;
-  border: 1.5px solid #cbbb93; border-radius: 9px; background: #fffdec;
+  border: 1.5px solid var(--line-strong); border-radius: 9px; background: var(--paper-warm);
   cursor: pointer; text-align: center;
   transition: border-color .15s ease-out, background .15s ease-out, transform .15s ease-out;
 }
-.codex-card:hover { border-color: var(--focus); background: #fffdf4; transform: translateY(-1px); }
+.codex-card:hover { border-color: var(--focus); background: var(--paper-raised); transform: translateY(-1px); }
 .codex-card:focus-visible { outline: 2px solid var(--focus); outline-offset: 2px; }
 .codex-card .seed-name {
   display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical;
@@ -345,7 +345,7 @@
   justify-content: flex-end; gap: 2px; max-width: 74px; pointer-events: none; }
 .codex-trait { display: inline-block; padding: 0 3px; border-radius: 3px;
   font-size: .56rem; font-style: normal; font-weight: 800; line-height: 13px;
-  color: #fff; background: #8a6a3c; border: 1px solid #fff8; white-space: nowrap; }
+  color: #fff; background: var(--ink-warm); border: 1px solid #fff8; white-space: nowrap; }
 .codex-trait.trait-boss { background: #8b2f4a; }
 .codex-trait.trait-healer { background: #3f8a5c; }
 .codex-trait.trait-summon { background: #6a4a94; }
@@ -356,7 +356,7 @@
 .codex-trait.trait-thorns { background: #9a5a30; }
 .codex-trait.trait-cry { background: #a2662e; }
 .codex-trait.trait-roar { background: #6e4a2e; }
-.codex-detail { min-height: 2.6em; margin-top: 10px; font-size: .84rem; background: #fff8d9;
+.codex-detail { min-height: 2.6em; margin-top: 10px; font-size: .84rem; background: var(--paper-sunken);
   border-radius: 7px; padding: 7px 12px; }
 
 
@@ -364,8 +364,8 @@
 .deck-presets { display: flex; align-items: center; gap: 8px; margin: 2px 0 8px; flex-wrap: wrap; }
 .deck-presets-label { font-size: .74rem; font-weight: 700; color: var(--muted); flex-shrink: 0; }
 .deck-preset-buttons { display: flex; gap: 6px; flex-wrap: wrap; }
-.deck-preset { padding: 4px 12px; border-radius: 999px; border: 1.5px solid #c8b37d; background: linear-gradient(#fffdf6, #f4e9c8);
-  color: #5a4330; font: 700 .74rem/1 inherit; cursor: pointer; }
+.deck-preset { padding: 4px 12px; border-radius: 999px; border: 1.5px solid var(--line-gold); background: linear-gradient(var(--paper-raised), var(--paper-sunken));
+  color: var(--ink-warm); font: 700 .74rem/1 inherit; cursor: pointer; }
 .deck-preset:hover { filter: brightness(1.05); }
 
 /* 城镇建设弹窗：素材做成芯片，建筑卡带等级进度与满级徽章。
@@ -376,8 +376,8 @@
 .town-material-chip {
   display: inline-flex; align-items: center; gap: 5px;
   padding: 4px 9px; border-radius: 999px;
-  border: 1px solid #dccfae; background: #fffdf4;
-  font-size: .76rem; color: #5a4330;
+  border: 1px solid #dccfae; background: var(--paper-raised);
+  font-size: .76rem; color: var(--ink-warm);
 }
 .town-material-chip b { font-variant-numeric: tabular-nums; color: #7a5c1e; }
 .town-material-dot { width: 8px; height: 8px; border-radius: 50%; border: 1px solid #b09b74; background: #d9c9a5; }
@@ -390,36 +390,36 @@
 .town-buildings { display: grid; grid-template-columns: repeat(auto-fill, minmax(232px, 1fr)); gap: 12px; margin-top: 14px; }
 .town-card {
   display: flex; flex-direction: column; gap: 7px;
-  padding: 12px 13px; border: 1.5px solid #cbbb93; border-radius: 10px;
-  background: #fffdec;
+  padding: 12px 13px; border: 1.5px solid var(--line-strong); border-radius: 10px;
+  background: var(--paper-warm);
   box-shadow: 0 1px 0 #fff inset, 0 2px 6px #a08a5a14;
 }
-.town-card.is-maxed { border-color: #c9a94e; background: linear-gradient(150deg, #fff8dc, #fffdf2); }
+.town-card.is-maxed { border-color: var(--gold-deep); background: linear-gradient(150deg, var(--paper-sunken), var(--paper-raised)); }
 .town-card-head { display: flex; align-items: baseline; justify-content: space-between; gap: 8px; }
 .town-card-head strong { font-size: .96rem; }
-.town-card-level { flex: none; font-size: .74rem; font-weight: 700; color: #8a6a2e; font-variant-numeric: tabular-nums; }
-.town-card.is-maxed .town-card-level { color: #b98f2c; }
+.town-card-level { flex: none; font-size: .74rem; font-weight: 700; color: var(--gold-ink); font-variant-numeric: tabular-nums; }
+.town-card.is-maxed .town-card-level { color: var(--gold-ink); }
 /* 等级刻度：一格一级，已达填金。 */
 .town-card-track { display: flex; gap: 3px; }
 .town-card-track i { flex: 1; height: 4px; border-radius: 2px; background: #e3d8c0; }
-.town-card-track i.is-filled { background: linear-gradient(90deg, #d9b14e, #c9a94e); }
+.town-card-track i.is-filled { background: linear-gradient(90deg, #d9b14e, var(--gold-deep)); }
 .town-card-origin { color: var(--muted); font-size: .72rem; }
 .town-card-desc { font-size: .8rem; margin: 0; line-height: 1.55; color: #5a4a3a; }
 .town-card-cost { font-size: .76rem; margin: 0; color: var(--muted); line-height: 1.5; }
-.town-card.is-maxed .town-card-cost { color: #8a6a2e; }
+.town-card.is-maxed .town-card-cost { color: var(--gold-ink); }
 .town-card-upgrade { align-self: flex-start; margin-top: 2px; }
-.town-card-badge { align-self: flex-start; font-size: .74rem; font-weight: 700; color: #b98f2c; }
+.town-card-badge { align-self: flex-start; font-size: .74rem; font-weight: 700; color: var(--gold-ink); }
 
 /* 换卡满编：换出选择行 */
 /* 换卡：当前卡组 / 可换入 两段分区。原来两块卡平铺在一起，分不清哪边
    是「换出的」哪边是「换进的」。 */
 .restock-section { display: flex; flex-direction: column; gap: 7px; margin: 0 0 10px; padding: 9px 11px;
-  border: 1px solid #dfd0b0; border-radius: 10px; background: #fffdf4; }
+  border: 1px solid var(--line-paper); border-radius: 10px; background: var(--paper-raised); }
 .restock-section-title { margin: 0; font-size: .78rem; font-weight: 700; color: #7a6244; letter-spacing: .04em; }
 .restock-pool-title { margin: 12px 0 6px; font-size: .78rem; font-weight: 700; color: #7a6244; letter-spacing: .04em; }
 .restock-drop-row { display: flex; flex-direction: column; gap: 7px; font-size: .8rem; }
 .restock-drop-grid { display: flex; flex-wrap: wrap; gap: 6px; }
-.restock-drop-chip { padding: 3px 10px; border-radius: 999px; border: 1.5px solid #c8b37d; background: #fffdf6; font-size: .76rem; cursor: pointer; }
+.restock-drop-chip { padding: 3px 10px; border-radius: 999px; border: 1.5px solid var(--line-gold); background: var(--paper-raised); font-size: .76rem; cursor: pointer; }
 .restock-drop-chip:disabled { cursor: default; opacity: .72; }
-  color: #5a4330; font: 700 .74rem/1 inherit; cursor: pointer; }
-.restock-drop-chip.active { background: #f4e9c8; border-color: #8a6a3c; }
+  color: var(--ink-warm); font: 700 .74rem/1 inherit; cursor: pointer; }
+.restock-drop-chip.active { background: var(--paper-sunken); border-color: var(--ink-warm); }
