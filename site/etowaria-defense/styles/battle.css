@@ -131,7 +131,16 @@
 .seed-card[aria-pressed="true"] { transform: translateY(-4px); border-color: #ffd24a;
   box-shadow: 0 0 0 2px #fff, 0 0 14px 3px #ffd24acc, 0 3px 0 var(--wood-edge); }
 .seed-card:disabled { cursor: wait; }
-.seed-card kbd { position: absolute; top: 2px; left: 4px; font: 700 .56rem/1 system-ui, sans-serif; color: #a08c6c; }
+/* 快捷键徽章：原来只有一层淡褐文字，压在彩色头像上几乎看不见。
+   改成带纸底的小圆角牌，与装备卡的 key 徽章同一套语言。 */
+.seed-card kbd {
+  position: absolute; top: 3px; left: 3px; z-index: 2;
+  min-width: 15px; padding: 0 3px; border-radius: 4px;
+  background: color-mix(in srgb, var(--paper-warm) 88%, transparent);
+  border: 1px solid color-mix(in srgb, var(--ink-warm) 26%, transparent);
+  font: 700 .58rem/15px var(--font-sans, system-ui, sans-serif);
+  color: var(--ink-warm); text-align: center;
+}
 
 .battle-viewport { grid-area: view; position: relative; min-width: 0; min-height: 0; overflow: hidden; isolation: isolate; background: #95b93b; }
 .battle-canvas, .battle-labels, .battle-overlay, .lane-indicators, .run-labels, .run-overlay { position: absolute; inset: 0; }
