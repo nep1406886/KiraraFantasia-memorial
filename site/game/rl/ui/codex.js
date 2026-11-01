@@ -24,8 +24,40 @@ import { renderEnemyThumb } from "./enemythumb.js";
 // Module-relative (this file lives at game/rl/ui/): a page-relative "../.."
 // would escape a /kirafan-timer/ deployment subpath.
 const BUST_BASE = new URL("../../../asset/img/rl/bust/", import.meta.url).href;
+// 大立绘彩蛋：asset/img/rl/illust/ 的 34 张原作 750×1000 立绘此前全站
+// 零运行时引用（asset 盘点）。按目录实名建档，命中集合的已收集页才在
+// 详情里揭示大图；未命中与 404（onerror 摘除）都不打扰排版。
+const ILLUST_BASE = new URL("../../../asset/img/rl/illust/", import.meta.url).href;
+const ILLUST_IDS = new Set([
+    "10000000", "11010000", "12000000", "13000000", "14000000", "14010000",
+    "15000000", "16000000", "17000000", "18000000", "19000000", "20000000",
+    "21000000", "22000000", "23001000", "23011000", "24001000", "26000000",
+    "27001000", "28001000", "29001000", "30001000", "31001000", "32002000",
+    "32172000", "34001000", "35001000", "37002000", "38001000", "39001000",
+    "40002000", "45002000", "46002000", "47002000"
+]);
 const ELEMENT_CHAR = ["炎", "水", "土", "風", "月", "日"];
 const ROLE_LABEL = { mob: "杂兵", elite: "精英", boss: "首领" };
+
+// 条目详情的第一人称短吐槽（首批 12 条，图鉴顺位 = 卷一 7 页 + 卷二前 5 页）。
+// 图鉴保持哑渲染：命中 entry.id 才追加一行文本与一张大立绘 <img>（上方
+// ILLUST_IDS 静态集合查表）——仍不读存档、不写存档、不触碰 main.js 装
+// 配端；未命中的条目不渲染任何占位。gate 对详情文本（who/text）的断言
+// 是子串匹配，追加节点（含无文本的 img）不影响。
+const CODEX_QUIPS = {
+    "29001000": "站位改了八遍，其实是想多看几眼搭档吧。",
+    "47002000": "这一枚毛钩……下次一定要带她试试。",
+    "28001000": "走运清单只有一条，但那一条就够了。",
+    "31001000": "害怕的话先拍两下手——真的会管用哦。",
+    "21000000": "「慢慢来也没关系」，我描了两遍才敢信。",
+    "11010000": "议题是空的，可要点记得比谁都全。",
+    "19000000": "红圈是我画的，不许擦掉。",
+    "37002000": "步骤三行、感想一整页——很均衡，没问题。",
+    "34001000": "路记不清没关系，指路人我记得很牢。",
+    "39001000": "纸上的凹痕，就是我签过名的证据。",
+    "25021000": "页边那个得意的小人，画的是我。",
+    "26000000": "名字要趁醒来之前描清楚，这是规矩。"
+};
 
 export function createCodexUI(options) {
     const opts = options || {};
@@ -158,6 +190,41 @@ export function createCodexUI(options) {
         text.textContent = entry.text;
         detail.appendChild(who);
         detail.appendChild(text);
+        // 大立绘彩蛋：命中 ILLUST_IDS 才插 <img>，收在吐槽前。alt 置空——
+        // 画面信息与相邻正文重复，读屏不必念两遍；onerror 摘除防 404 占位。
+        // 揭示用 clip-path 两态斜切 ≤400ms（spec/01 §1 柔和缓动）；减动效
+        // 走 OS matchMedia（result.js 同款先例），直接全显。
+        if (ILLUST_IDS.has(String(entry.id))) {
+            const reduceMotion = typeof window.matchMedia === "function"
+                && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+            const illust = document.createElement("img");
+            illust.className = "codex-illust";
+            illust.alt = "";
+            illust.decoding = "async";
+            illust.addEventListener("error", function () { illust.remove(); });
+            if (reduceMotion) {
+                illust.className = "codex-illust codex-illust-open";
+            } else {
+                // 解码完成后隔两帧再展开：斜切揭示的是图，不是空占位框。
+                illust.addEventListener("load", function () {
+                    requestAnimationFrame(function () {
+                        requestAnimationFrame(function () {
+                            illust.classList.add("codex-illust-open");
+                        });
+                    });
+                });
+            }
+            illust.src = ILLUST_BASE + entry.id + ".webp";
+            detail.appendChild(illust);
+        }
+        // 收集吐槽：按 entry.id 命中才渲染，serif 小字收在详情底部。
+        const quip = CODEX_QUIPS[String(entry.id)];
+        if (quip) {
+            const line = document.createElement("p");
+            line.className = "codex-quip";
+            line.textContent = quip;
+            detail.appendChild(line);
+        }
     }
 
     // --- enemies grid (T22f) --------------------------------------------------

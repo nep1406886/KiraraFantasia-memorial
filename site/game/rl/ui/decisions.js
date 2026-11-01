@@ -151,7 +151,8 @@ function passiveWords(item) {
     return words;
 }
 
-function equipmentDetails(item, options = {}) {
+// 导出给战斗HUD工作流复用（装备芯片行的展开详情），行为不变。
+export function equipmentDetails(item, options = {}) {
     const { weapons, cards } = options;
     const skillNames = options.skillLoadout?.slots.map(slot => slot.name) || options.skillNames;
     const content = node("div", "equipment-detail");
@@ -226,11 +227,24 @@ export function showEquipmentComparison(options) {
     summary.setAttribute("aria-labelledby", name.id);
     copy.append(name, node("p", "comparison-summary-meta", (SLOTS[options.item?.slot] || "装备")
         + "槽 · " + (view?.equipped ? "替换：" + equipmentName(view.equipped, options.weapons, options.cards) : "当前未装备")));
+    // 稀有度徽章：只描边+文字（普通/稀有 mint 边、史诗/传说 gold 边），
+    // 不加任何 img——item-art 浏览器对比较区 img 有严格单元素断言。
+    const rarity = equipmentRarity(options.item);
+    if (rarity && RARITIES[rarity]) {
+        const badge = node("span", "comparison-rarity", RARITIES[rarity]);
+        badge.dataset.tier = rarity === "epic" || rarity === "legendary" ? "high" : "low";
+        copy.appendChild(badge);
+    }
     summary.appendChild(copy);
     ui.dialog.appendChild(summary);
     const scroll = node("div", "comparison-scroll");
     const brief = equipmentBrief(view);
     if (view) {
+        // 换/留结论行：与简述同一份候选 read model，放进 identity 区
+        // （矮屏 grid 里 summary 占 identity，不再多占一行）。
+        copy.appendChild(node("p", "comparison-verdict", "结论：" + (brief.costs.length
+            ? (brief.benefits.length ? "可换，收益与代价并存" : "暂留，没有新增收益")
+            : (brief.benefits.length ? "可换，只增不减" : "暂留，属性没有变化"))));
         const changes = node("section", "equipment-brief");
         changes.setAttribute("aria-label", "装备简述");
         changes.appendChild(node("p", "equipment-brief-benefit", brief.benefits.join(" · ")

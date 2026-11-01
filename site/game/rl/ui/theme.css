@@ -123,17 +123,68 @@
 .hud-assist[aria-disabled="true"] { opacity:.65; cursor:default; }
 .hud-assist-state { color:var(--kf-ink-soft); font-size:10px; }
 .hud-assist:focus-visible { outline:3px solid var(--kf-gold); outline-offset:2px; }
+/* 战斗HUD 配套（与 hud.js 同批联调的样式落点）：装备芯片行 + 量谱四芒星。
+   spec/01 §4.2：星形点缀每面板至多一处；芯片行 flex 折行、clamp 基宽，
+   375 宽档（#hud 约 209px，内容 185px）44% 基宽自然两枚一行 → 2×2，
+   不设断点跳变；矮屏 grid（下方 max-height:480px 块）整行隐藏。 */
+.hud-equip { display:flex; flex-wrap:wrap; align-items:stretch; gap:6px; margin-top:8px; min-width:0; }
+.hud-equip[hidden] { display:none; }
+.hud-equip-chip { flex:1 1 clamp(84px, 44%, 150px); min-width:0; min-height:44px; box-sizing:border-box;
+    display:flex; align-items:center; gap:6px; padding:4px 8px;
+    border:1.5px solid var(--kf-line); border-radius:10px; background:var(--kf-paper);
+    color:var(--kf-ink); font:11px/1.4 var(--font-sans); overflow-wrap:anywhere; }
+.hud-equip-chip img { width:28px; height:28px; flex:0 0 28px; object-fit:contain; }
+.hud-equip-chip[aria-disabled="true"], .hud-equip-chip:disabled { opacity:.55; cursor:not-allowed; }
+/* 战斗HUD（hud.js 同批联调）补充：#hud 本体是 pointer-events:none
+   （roguelike.html 内联），芯片照 .hud-assist 的模式 opt-in——z-index:30
+   抬到摇杆区(.touch-zone z-20)之上、pointer-events:auto 收回点击；
+   键盘可达（focus-visible 金描边，spec/01 §4.1）。触屏降级：body.touch-on
+   下芯片缩为 44×44 纯图标钮（名字让位），行本体继续穿透——摇杆起点
+   不被芯片行遮挡，仅图标钮保留点击开简报。 */
+.hud-equip-chip { position:relative; z-index:30; pointer-events:auto; cursor:pointer; touch-action:none; -webkit-tap-highlight-color:transparent; }
+.hud-equip-chip:focus-visible { outline:2px solid var(--kf-gold); outline-offset:3px; }
+@media (hover:hover) and (pointer:fine) {
+    #stage .hud-equip-chip:not([aria-disabled="true"]):hover { border-color:var(--kf-gold); }
+}
+#stage .hud-equip-chip:not([aria-disabled="true"]):active { background-color:var(--kf-sky); }
+body.touch-on .hud-equip-chip { flex:0 0 auto; width:44px; height:44px; min-height:0;
+    padding:0; justify-content:center; }
+body.touch-on .hud-equip-chip .hud-equip-chip-name { display:none; }
+/* 装备简报弹层（hud.js）：壳层与 .hud-skill-tooltip 共用同一套规则（见
+   theme.css 尾部的选择器并列），但类名各自独立——交互门禁把
+   .hud-skill-tooltip 当作技能悬停卡的唯一定位器。这里只把装备图标
+   收小到弹层尺度，词条文本仍走 .equipment-detail 全局样式。 */
+.hud-equip-brief .equipment-icon { width:44px; height:44px; }
+/* 量谱四芒星子元素：绝对定位在量谱右上角（量谱是 grid，绝对定位保证
+   星子元素绝不参与网格排布）；本体是 hud.js 挂载的 inline SVG 描边星形，
+   未就绪静置 --kf-ink-soft 半透明描边，就绪转金。就绪脉冲不随 .ready
+   常驻循环（spec/01 §1：UI 层动效 150–250ms 柔和缓动、禁止大幅弹跳），
+   由 hud.js 在转好边沿挂单发类：.hud-ready-pulse 只给技能槽用（220ms
+   单发、50% 帧仅放大 1.05 ≤1.06），量谱面板本体不参与任何缩放——
+   transform 恒 identity，300px 面板不会顶出 right:12px 边距；
+   .hud-star-pulse 是星形专用单发一轮 1→1.35→1（12px 星上 1.05 不可辨），
+   摘类后静置金色。SVG 的 transform-box 默认按视箱取 50% 50% 居中。 */
+.hud-gauge-star { position:absolute; top:5px; right:8px; width:12px; height:12px;
+    pointer-events:none; overflow:visible; transform-origin:50% 50%; }
+.hud-gauge-star polygon { fill:none; stroke:var(--kf-ink-soft); stroke-width:2.5;
+    stroke-linejoin:round; opacity:.5; }
+#stage .hud-gauge.ready .hud-gauge-star polygon { stroke:var(--kf-gold); opacity:1; }
+.hud-ready-pulse { animation:kf-ready-pulse 220ms var(--ui-ease) 1 both; }
+.hud-star-pulse { animation:kf-star-pulse 220ms var(--ui-ease) 1 both; }
+@keyframes kf-ready-pulse { 0%,100% { transform:scale(1); } 50% { transform:scale(1.05); } }
+@keyframes kf-star-pulse { 0%,100% { transform:scale(1); } 50% { transform:scale(1.35); } }
 .gadget-benefit, .gadget-cost { font-size:12px; line-height:1.65; }
+/* 神龛标记的暖纸色全部来自 :root 的 --kf-shrine-* 族，这里不写裸值。 */
 .floor-shrine-marker { position:absolute; z-index:4; transform:translate(-50%,-100%);
     display:flex; flex-direction:column; gap:3px; width:max-content; max-width:200px;
-    padding:7px 12px; border:1px solid #cfbd9a; border-radius:12px;
-    background:rgba(255,249,236,.93); box-shadow:0 2px 12px #42352220;
-    color:#66513d; text-align:center; font:12px/1.45 var(--font-sans); pointer-events:none; }
+    padding:7px 12px; border:1px solid var(--kf-shrine-line); border-radius:12px;
+    background:var(--kf-shrine-bg); box-shadow:0 2px 12px var(--kf-shrine-shadow);
+    color:var(--kf-shrine-ink); text-align:center; font:12px/1.45 var(--font-sans); pointer-events:none; }
 .floor-shrine-marker[hidden] { display:none; }
 .floor-shrine-marker strong { font-weight:600; letter-spacing:.08em; }
-.floor-shrine-marker span { font-size:10px; color:#756956; }
+.floor-shrine-marker span { font-size:10px; color:var(--kf-shrine-ink-soft); }
 .floor-shrine-marker[data-state="dormant"] { opacity:.75; }
-.floor-shrine-marker[data-state="nearby"] { border-color:#ae8539; box-shadow:0 2px 16px #efcd8070; }
+.floor-shrine-marker[data-state="nearby"] { border-color:var(--kf-shrine-gold); box-shadow:0 2px 16px var(--kf-shrine-glow); }
 .departure-loot { list-style:none; padding:0; max-height:32vh; overflow:auto; overscroll-behavior:contain; }
 .departure-loot li { display:flex; align-items:center; gap:10px; padding:8px 0; font-size:13px; }
 .departure-loot .equipment-icon { width:44px; height:44px; flex:0 0 44px; object-fit:contain; }
@@ -276,6 +327,18 @@
     /* 覆墨：CD 扇形遮罩/按压态用的半透明墨色（组件内以 var() 引用，
        不写裸色值——hud.js 的 conic-gradient 从这里取色） */
     --kf-veil: rgba(43, 43, 51, 0.4);
+    /* 神龛标记的暖纸色族（floor-shrine-marker 专用，实测自原作地图 UI；
+       组件内只引用 token，裸值只允许出现在 :root） */
+    --kf-shrine-line: #cfbd9a;
+    --kf-shrine-bg: rgba(255, 249, 236, 0.93);
+    --kf-shrine-shadow: rgba(66, 53, 34, 0.125);
+    --kf-shrine-ink: #66513d;
+    --kf-shrine-ink-soft: #756956;
+    --kf-shrine-gold: #ae8539;
+    --kf-shrine-glow: rgba(239, 205, 128, 0.44);
+    /* 全站唯一纯白：B.3 首领换阶段白闪本体，D.1 门涟漪取其半透明派生 */
+    --kf-flash: #ffffff;
+    --kf-ripple: color-mix(in srgb, var(--kf-flash) 50%, transparent);
 
     /* 字体（spec/01 §3） */
     --font-serif: "Noto Serif SC", "STSong", "SimSun", serif;
@@ -328,11 +391,24 @@
 .comparison-summary-copy { min-width:0; }
 .rl-decision .comparison-summary-name { margin:0; color:var(--kf-ink); font-size:15px; line-height:1.4; overflow-wrap:anywhere; }
 .rl-decision .comparison-summary-meta { margin:3px 0 0; font-size:12px; line-height:1.4; color:var(--kf-ink-soft); }
+/* 稀有度徽章（decisions.js 比较弹层）：只描边+文字，不加任何 img——
+   item-art 浏览器对 .comparison-columns 的 img 有严格单元素断言。
+   普通/稀有 mint 边，史诗/传说 gold 边（data-tier="high"）。 */
+.comparison-rarity { display:inline-block; margin-top:2px; padding:0 8px;
+    border:1.5px solid var(--kf-mint); border-radius:999px;
+    color:var(--kf-ink); font-size:11px; line-height:18px; }
+.comparison-rarity[data-tier="high"] { border-color:var(--kf-gold); }
+/* 换/留结论行：放进 comparison-summary 内部（矮屏 identity 区），加粗墨字
+   与 stat-up 同一语言；有 --kf-cost-ink 的代价行保持派生莓墨。 */
+.comparison-verdict { margin:3px 0 0; font-size:12px; line-height:1.5;
+    font-weight:700; color:var(--kf-ink); overflow-wrap:anywhere; }
 @media (max-height:480px) {
     .comparison-summary { padding:6px 8px; margin-bottom:8px; gap:8px; }
     .comparison-summary-icon { width:40px; height:40px; }
     .rl-decision .comparison-summary-name { font-size:13px; }
     .rl-decision .comparison-summary-meta { font-size:11px; }
+    .comparison-rarity { line-height:16px; }
+    .comparison-verdict { margin-top:2px; font-size:11px; line-height:1.4; }
 }
 .comparison-scroll { min-height: 0; overflow-y: auto; overscroll-behavior: contain; }
 #rl-equipment-choice { width:min(520px,calc(100% - 24px)); }
@@ -340,7 +416,7 @@
 #rl-equipment-choice > h2 { font-size:13px; font-weight:500; color:var(--kf-ink-soft); margin-bottom:12px; }
 #rl-equipment-choice > h2:focus { outline:none; }
 .equipment-brief { padding:0 4px 8px; }
-.rl-decision .equipment-brief-benefit { font-weight:600; font-size:14px; line-height:1.6; margin:4px 0; }
+.rl-decision .equipment-brief-benefit { font-weight:700; font-size:14px; line-height:1.6; margin:4px 0; color:var(--kf-ink); }
 .rl-decision .equipment-brief-cost { font-size:12px; line-height:1.65; color:var(--kf-cost-ink); margin:6px 0; }
 .rl-decision .equipment-brief-note { font-size:12px; color:var(--kf-ink-soft); margin:4px 0; }
 .equipment-more { border-top:1px solid var(--kf-line); }
@@ -581,7 +657,7 @@
     position: absolute;
     inset: 0;
     z-index: 6;
-    background: #fff;
+    background: var(--kf-flash);
     opacity: 0.55;
     pointer-events: none;
     animation: kf-phase-flash 260ms ease-out both;
@@ -596,7 +672,7 @@
    the tone the page_fade cue set. Pure decoration over the opaque cover. */
 #room-fade .door-ripple {
     position: absolute;
-    border: 2px solid rgba(255, 255, 255, 0.5);
+    border: 2px solid var(--kf-ripple);
     border-radius: 50%;
     pointer-events: none;
     animation: kf-door-ripple 500ms ease-out both;
@@ -622,6 +698,27 @@
 .room-load-actions button { flex:1 1 150px; min-height:44px; padding:8px 12px; border:1px solid var(--kf-ink-soft);
     border-radius:8px; background:var(--kf-paper); color:var(--kf-ink); cursor:pointer; font:inherit; }
 .room-load-actions button:focus-visible { outline:2px solid var(--kf-gold); outline-offset:2px; }
+/* 载入骨架（spec/01 §4 纸面语言）：层载入（floorload.js）与房间装配
+   （roomload.js）共用同一套占位组件。--kf-sky 底 + 1.5px --kf-line 墨边
+   圆角；shimmer 是 token 明度动画（sky 在原地脉动到掺纸色的浅一档），
+   不用位移渐变；reduced-motion 由下方统一清单静止。 */
+.paper-skeleton {
+    box-sizing: border-box;
+    min-height: 14px;
+    border: 1.5px solid var(--kf-line);
+    border-radius: 8px;
+    background: var(--kf-sky);
+    animation: kf-skeleton-shimmer 1.3s var(--ui-ease) infinite alternate;
+}
+@keyframes kf-skeleton-shimmer {
+    from { background-color: var(--kf-sky); }
+    to { background-color: color-mix(in srgb, var(--kf-paper) 72%, var(--kf-sky)); }
+}
+/* 房间装配 busy 相位的两行骨架线（roomload.js），failed 相位隐藏。 */
+.room-load-skeleton { display:grid; gap:8px; margin:12px 0 2px; }
+.room-load-skeleton[hidden] { display:none; }
+.room-load-skeleton .paper-skeleton { height:14px; }
+.room-load-skeleton .paper-skeleton:last-child { width:64%; }
 @media (prefers-reduced-motion: reduce) {
     #room-fade,
     #room-fade.on {
@@ -703,6 +800,9 @@ body.touch-on #hint:not([hidden]) { display:block; max-width:calc(100% - clamp(6
         overscroll-behavior:contain; touch-action:pan-y; pointer-events:auto; position:relative; z-index:30; }
     #hud .hud-assist { grid-area:assist; box-sizing:border-box; margin-top:0; padding:4px;
         flex-direction:column; justify-content:center; gap:1px; }
+    /* 装备芯片行不进矮屏 grid：显式 grid-area 会再吃一行宝贵的纵向空间，
+       直接整行隐藏（与 minimap-graph 同一取舍），普通高度不受影响。 */
+    #hud .hud-equip { display:none; }
 }
 #stage .touch-btn { border:1px solid var(--kf-line); box-shadow:var(--ui-shadow); font-family:var(--font-sans); }
 #stage .touch-btn[aria-disabled="true"] { opacity:.5; }
@@ -778,19 +878,23 @@ body.touch-on #hint:not([hidden]) { display:block; max-width:calc(100% - clamp(6
 }
 @media (prefers-reduced-motion:reduce) {
     :is(.hud-skill,.hud-gauge,.hud-gauge-fill,.hud-assist,.touch-btn,.player-health-track i,
-        .rl-save-status button,.rl-decision,.rl-decision button,.panel,.panel button,#achv-toast) {
+        .rl-save-status button,.rl-decision,.rl-decision button,.panel,.panel button,#achv-toast,
+        .paper-skeleton,.hud-equip,.hud-equip-chip,.hud-gauge-star,.hud-ready-pulse,.hud-star-pulse) {
         animation:none !important; transition:none !important;
     }
 }
 
-.hud-skill-tooltip { position:absolute; z-index:200; box-sizing:border-box; width:min(320px,calc(100% - 24px));
+/* 技能悬停卡与装备简报共用一套纸面壳层；类名保持各自独立，.hud-skill-tooltip
+   是技能悬停卡的唯一定位器（交互门禁按它解析唯一元素）。 */
+.hud-skill-tooltip, .hud-equip-brief { position:absolute; z-index:200; box-sizing:border-box;
+    width:min(320px,calc(100% - 24px));
     max-height:calc(100% - 24px); overflow:auto; padding:14px 16px; border:1px solid var(--kf-line);
     border-radius:var(--ui-radius); background:var(--kf-paper); color:var(--kf-ink); box-shadow:var(--ui-shadow);
     font:12px/1.65 var(--font-sans); overflow-wrap:anywhere; animation:kf-panel-appear 150ms var(--ui-ease); }
-.hud-skill-tooltip[hidden] { display:none; }
-.hud-skill-tooltip h3 { font-size:14px; line-height:1.5; margin:0 0 4px; }
-.hud-skill-tooltip p { margin:6px 0 0; }
-.hud-skill-tooltip ul { margin:8px 0; padding-left:18px; }
+.hud-skill-tooltip[hidden], .hud-equip-brief[hidden] { display:none; }
+.hud-skill-tooltip h3, .hud-equip-brief h3 { font-size:14px; line-height:1.5; margin:0 0 4px; }
+.hud-skill-tooltip p, .hud-equip-brief p { margin:6px 0 0; }
+.hud-skill-tooltip ul, .hud-equip-brief ul { margin:8px 0; padding-left:18px; }
 .skill-tooltip-scope, .skill-tooltip-note { color:var(--kf-ink-soft); font-size:11px; }
 .skill-tooltip-source { padding:6px 8px; border-radius:6px; background:var(--kf-mint); color:var(--kf-ink); font-size:11px; }
 .skill-tooltip-state { border-top:1px solid var(--kf-line); padding-top:8px; font-variant-numeric:tabular-nums; }
@@ -817,4 +921,4 @@ body.touch-on #hint:not([hidden]) { display:block; max-width:calc(100% - clamp(6
 .landscape-sheet button:disabled { opacity:.5; cursor:wait; }
 .landscape-status { color:var(--kf-ink-soft); font-size:12px; }
 body.landscape-required :is(#stage,#roster-overlay) { visibility:hidden; }
-@media (prefers-reduced-motion:reduce) { .hud-skill-tooltip { animation:none; } }
+@media (prefers-reduced-motion:reduce) { .hud-skill-tooltip, .hud-equip-brief { animation:none; } }

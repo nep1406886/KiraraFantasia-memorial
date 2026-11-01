@@ -514,6 +514,11 @@ function setup(modules) {
     // the pause button can be wired before its definition reads.
     hud = createHud({ input: input, onMenu: toggleMenu, onInteract: handleInteract, parent: stage,
         isShrineVisible: function () { return !!currentFloorShrine(); },
+        // 装备芯片简报（ui/hud.js）的数据面：与菜单装备视图同一批表，只在
+        // 打开/刷新简报时调用，不进每帧路径。
+        equipmentContext: function () {
+            return { weapons: weaponsData, cards: tables && tables.stats ? tables.stats.all() : [] };
+        },
         menuParent: document.querySelector(".save-status-actions"), floorsPerVolume: VOLUME_FLOORS });
     createLandscapeGuard({ onChange(blocked) {
         landscapeBlocked = blocked;
@@ -1221,6 +1226,11 @@ function consumeEvents() {
                     y: target.y,
                     crit: event.crit || false,
                     hitFlag: event.hitFlag || 0,
+                    // 击杀讨伐标（damagetext 渲染）：event.died 由 world 原生
+                    // 携带；玩家死亡与召唤物死亡都不打讨伐签（对齐 world.js
+                    // 击杀掉落语义：召唤物是血包不是战功）——守卫与下方死亡
+                    // 爆发同款写法。
+                    killed: !!event.died && event.target.kind !== "player" && !event.target.summoned,
                     element: event.attacker ? event.attacker.element : null,
                     side: event.attacker && event.attacker.kind === "player" ? "player" : "enemy",
                     camera: camera,

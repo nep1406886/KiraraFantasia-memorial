@@ -151,6 +151,36 @@
     overflow-wrap: anywhere;
 }
 .codex-detail.is-readable { color: var(--kf-ink); }
+/* 收集吐槽（codex.js 按 entry.id 命中才渲染）：serif 斜体小字收在详情
+   底部，一道金虚线与正文轻轻分开；未命中的条目不渲染本节点。 */
+.codex-quip {
+    margin: 6px 0 0;
+    padding-top: 6px;
+    border-top: 1px dashed color-mix(in srgb, var(--kf-gold) 34%, transparent);
+    font: italic 500 .8rem/1.6 var(--font-serif);
+    color: var(--kf-ink-soft);
+}
+/* 大立绘彩蛋（codex.js 命中 ILLUST_IDS 才插）：原作 750×1000 立绘。
+   限高 34vh/340px + width:auto——.codex-overlay overflow:hidden、
+   .codex-detail flex:none，原尺寸会把关闭钮顶出屏；max-width:100%
+   兜窄屏。揭示用 clip-path 两态斜切（收拢为左缘斜楔，展开时斜边先走、
+   到底全显）≤400ms；prefers-reduced-motion 直出全显（JS 端也按
+   matchMedia 直接挂 open 类，双保险）。 */
+.codex-illust {
+    display: block;
+    max-height: min(34vh, 340px);
+    width: auto;
+    max-width: 100%;
+    margin: 8px auto 2px;
+    border-radius: 8px;
+    background: color-mix(in srgb, var(--kf-mint) 45%, var(--kf-paper));
+    clip-path: polygon(0 0, 12% 0, 0 100%, 0 100%);
+    transition: clip-path 380ms var(--ui-ease);
+}
+.codex-illust-open { clip-path: polygon(0 0, 100% 0, 100% 100%, 0 100%); }
+@media (prefers-reduced-motion: reduce) {
+    .codex-illust { transition: none; clip-path: none; }
+}
 .codex-close {
     flex: none;
     min-height: 44px;

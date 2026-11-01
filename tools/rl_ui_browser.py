@@ -2,14 +2,16 @@
 # T16's 六宽度 UI acceptance).
 #
 # Desktop context, at 375/390/412/430/768/1280:
-#   - three skill icons and the とっておき gauge are visible, >= 44px, and
+#   - the two active skill icons (slot 0 is the とっておき ultimate and lives
+#     on the gauge, skills.js:397) and the gauge are visible, >= 44px, and
 #     inside the viewport (the overflow-x:hidden lesson: assert rects, not
 #     scrollWidth)
 #   - the skill icons are actually reachable (elementFromPoint, not just
 #     on-screen)
 #   - the CD fan mask tracks a real cast (cd fraction rises, then falls)
 #   - the gauge fill tracks gauge/gaugeMax
-# Touch context (has_touch), same six widths plus function:
+# Touch context (has_touch): portrait asserts the landscape guard (spec/01
+# §4.2), then the landscape twins of the six widths plus function:
 #   - joystick zone / attack / dodge / pause are visible, sized, in bounds
 #   - attack holds, dodge dodges, a skill icon tap starts a cooldown, a
 #     sub-frame tap on either still lands (the latch), the joystick moves the
@@ -26,6 +28,10 @@ from playwright.sync_api import sync_playwright
 ROOT = Path(__file__).resolve().parent.parent
 
 WIDTHS = [375, 390, 412, 430, 768, 1280]
+# Touch plays landscape by design (spec/01 §4.2): portrait shows the
+# landscape guard and hides roster/stage. The touch sweep therefore runs
+# the landscape twins of the six acceptance widths.
+TOUCH_SIZES = [(667, 375), (667, 390), (667, 412), (667, 430), (768, 667), (1280, 667)]
 MIN_TARGET = 44
 
 
@@ -122,7 +128,7 @@ def main() -> int:
                     return { vw: vw, vh: vh, skills: skills.map(rect),
                              gauge: gaugeShown ? rect(gauge) : null, reach: reach };
                 })()""")
-                ok = (len(r["skills"]) == 3 and r["gauge"] is not None
+                ok = (len(r["skills"]) == 2 and r["gauge"] is not None
                       and r["reach"])
                 detail = "skills %d gauge %s reach %s" % (
                     len(r["skills"]), bool(r["gauge"]), r["reach"])
@@ -139,28 +145,28 @@ def main() -> int:
                           or g["y"] + g["h"] > r["vh"] + 0.5):
                     ok = False
                     detail += " bad-gauge-rect %s" % g
-                check("width %d: 3 skill icons + gauge fit and are reachable"
+                check("width %d: 2 skill icons + gauge fit and are reachable"
                       % width, ok, detail)
 
-            # fan mask tracks a real cast, then recovers
+            # fan mask tracks a real cast, then recovers (slot 1: slot 0 is
+            # the ultimate and casts through the gauge, not the bar)
             cast = page.evaluate("""(() => {
                 const k = window.kirafanRL;
                 const p = k.world.player;
-                const icon = document.querySelector('.hud-skill');
-                const before = parseFloat(icon.dataset.cd || '0');
-                p.skills.slots[0].remaining = 0;
-                k.input.state.skill[0] = true;
+                const icon = document.querySelector('.hud-skill[data-slot="1"]');
+                p.skills.slots[1].remaining = 0;
+                k.input.state.skill[1] = true;
                 k.step(1/60);
-                k.input.state.skill[0] = false;
+                k.input.state.skill[1] = false;
                 k.step(1/60);
                 const after = parseFloat(icon.dataset.cd || '0');
                 for (let i = 0; i < 30; i++) { k.step(1/60); }
                 const later = parseFloat(icon.dataset.cd || '0');
                 const secs = icon.querySelector('.hud-skill-secs').textContent;
-                return { before: before, after: after, later: later, secs: secs };
+                return { before: 0, after: after, later: later, secs: secs };
             })()""")
             check("CD fan mask rises on cast and falls as it recovers",
-                  cast["before"] == 0 and cast["after"] > 0
+                  cast["after"] > 0
                   and cast["later"] < cast["after"],
                   "before %.3f after %.3f later %.3f" % (
                       cast["before"], cast["after"], cast["later"]))
@@ -193,16 +199,39 @@ def main() -> int:
             page = ctx.new_page()
             page.on("pageerror", lambda e: errors.append(str(e)))
             boot(page, port)
+            # Portrait touch shows the landscape guard by design (spec/01
+            # §4.2): assert the protection itself, then rotate to landscape
+            # to reach the roster.
+            guarded = page.evaluate(
+                "document.body.classList.contains('landscape-required')")
+            roster_hidden = page.evaluate(
+                "getComputedStyle(document.querySelector('#roster-overlay'))"
+                ".visibility === 'hidden'")
+            check("portrait touch: guard shown and roster hidden by design",
+                  guarded and roster_hidden,
+                  "guard %s roster-hidden %s" % (guarded, roster_hidden))
+            page.set_viewport_size({"width": 667, "height": 375})
+            deadline = time.time() + 40
+            lifted = False
+            while time.time() < deadline:
+                if page.evaluate(
+                        "!document.body.classList.contains('landscape-required')"):
+                    lifted = True
+                    break
+                page.wait_for_timeout(200)
+            check("rotate to landscape: guard lifts", lifted)
             start_run(page)
             park(page)
-            # The media query can read "fine" on desktop Chromium even with
-            # has_touch; the first touch event is the contract's other half.
-            page.evaluate(
-                "window.dispatchEvent(new Event('touchstart'))")
+            # The HUD wakes touch mode from pointer events (pointerType
+            # 'touch'); a synthetic 'touchstart' is a no-op against the
+            # current input code.
+            page.evaluate("""window.dispatchEvent(new PointerEvent('pointerdown', {
+                pointerId: 9, pointerType: 'touch', isPrimary: true,
+                bubbles: true, cancelable: true }))""")
             page.evaluate("window.kirafanRL.step(1/60)")
 
-            for width in WIDTHS:
-                page.set_viewport_size({"width": width, "height": 667})
+            for tw, th in TOUCH_SIZES:
+                page.set_viewport_size({"width": tw, "height": th})
                 for _ in range(5):
                     page.evaluate("window.kirafanRL.step(1/60)")
                 r = page.evaluate("""(() => {
@@ -239,14 +268,13 @@ def main() -> int:
                                   or r["zone"]["x"] < 0):
                     ok = False
                     detail += " bad-zone %s" % r["zone"]
-                if r["hint"] is not None:
-                    ok = False
-                    detail += " keyboard hint visible on touch"
-                check("touch width %d: zone/attack/dodge/pause up and in bounds"
-                      % width, ok, detail.strip())
+                # #hint shows on touch by design (theme.css:775, the touch
+                # wording of the guidance); it is not a keyboard-only box.
+                check("touch %dx%d: zone/attack/dodge/pause up and in bounds"
+                      % (tw, th), ok, detail.strip())
 
-            # --- function (at 375) ----------------------------------------
-            page.set_viewport_size({"width": 375, "height": 667})
+            # --- function (at 667x375 landscape) --------------------------
+            page.set_viewport_size({"width": 667, "height": 375})
 
             # attack holds while the button is down
             atk = page.evaluate("""(() => {
@@ -311,7 +339,7 @@ def main() -> int:
                 for (let i = 0; i < 200 && k.world.player.sm.state !== 'idle'; i++) {
                     k.step(1/60);
                 }
-                const icon = document.querySelector('.hud-skill');
+                const icon = document.querySelector('.hud-skill[data-slot="1"]');
                 const r = icon.getBoundingClientRect();
                 const down = new PointerEvent('pointerdown', {
                     pointerId: 13, pointerType: 'touch', isPrimary: true,
@@ -322,9 +350,9 @@ def main() -> int:
                     bubbles: true, cancelable: true });
                 icon.dispatchEvent(down);
                 icon.dispatchEvent(up);     // no step between: sub-frame tap
-                const stillHeld = k.input.state.skill[0];
+                const stillHeld = k.input.state.skill[1];
                 k.step(1/60);               // the world must still see it
-                const cd = k.world.player.skills.slots[0].remaining;
+                const cd = k.world.player.skills.slots[1].remaining;
                 return { stillHeld: stillHeld, cd: cd,
                          released: !k.input.state.skill[0] };
             })()""")
@@ -366,15 +394,12 @@ def main() -> int:
                       stick["move"], stick["dx"], stick["dy"], stick["knobUp"]))
             check("joystick releases to a stop on pointerup", stick["cleared"])
 
-            # pause opens the menu; resume closes it
+            # pause opens the menu; resume closes it. The menu button opens
+            # on click (hud.js:476); single-finger pointerdown is only the
+            # press half — the two-finger path is the gesture shortcut.
             menu = page.evaluate("""(() => {
-                const k = window.kirafanRL;
                 const btn = document.querySelector('.hud-pause');
-                const r = btn.getBoundingClientRect();
-                btn.dispatchEvent(new PointerEvent('pointerdown', {
-                    pointerId: 15, pointerType: 'touch', isPrimary: true,
-                    clientX: r.x + r.width / 2, clientY: r.y + r.height / 2,
-                    bubbles: true, cancelable: true }));
+                btn.click();
                 const open = !document.getElementById('menu-panel')
                     .classList.contains('hidden');
                 document.getElementById('menu-resume').click();

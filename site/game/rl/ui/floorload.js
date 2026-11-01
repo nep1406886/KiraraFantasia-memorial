@@ -19,6 +19,12 @@ const CSS = `
     #rl-floor-load h2 { margin: 0 0 6px; font: 700 24px/1.4 var(--font-serif); }
     #rl-floor-load p { margin: 0; overflow-wrap: anywhere; }
     #rl-floor-load img { width: 100%; aspect-ratio: 3/4; object-fit: contain; }
+    /* 骨架占位与真实卡面 <img> 互为兄弟、叠在同一个网格格里：img 本体
+       永不移除（tools/rl_descent_browser.py 断言 #rl-floor-load img
+       naturalWidth>0），图就绪或失败后由 JS 撤掉占位。 */
+    #rl-floor-load .floor-load-art { position: relative; }
+    #rl-floor-load .floor-load-art-skeleton { position: absolute; inset: 0; }
+    #rl-floor-load .floor-load-art-skeleton[hidden] { display: none; }
     #rl-floor-load .floor-load-target { color: var(--kf-ink-soft); }
     #rl-floor-load progress { width: 100%; height: 8px; accent-color: var(--kf-gold); margin: 16px 0 10px; }
     #floor-load-message { margin-top: 14px !important; }
@@ -68,8 +74,16 @@ export function showFloorLoading(summary, options) {
     target.className = "floor-load-target"; text.appendChild(target); heading.appendChild(text);
     if (summary.cardArt) {
         const art = node("img"); art.src = summary.cardArt; art.alt = summary.characterName;
-        art.addEventListener("error", function () { art.style.visibility = "hidden"; });
-        heading.appendChild(art);
+        // 骨架块是卡面 <img> 的兄弟节点（theme.css .paper-skeleton），图
+        // 就绪即隐藏；img 本体保留，下潜回归断言依赖 naturalWidth>0。
+        const artSkeleton = node("div", "paper-skeleton floor-load-art-skeleton");
+        const settleArt = function () { artSkeleton.hidden = true; };
+        art.addEventListener("load", settleArt);
+        art.addEventListener("error", function () { art.style.visibility = "hidden"; settleArt(); });
+        if (art.complete && art.naturalWidth > 0) { settleArt(); }
+        const artBox = node("div", "floor-load-art");
+        artBox.append(art, artSkeleton);
+        heading.appendChild(artBox);
     }
     const progress = node("progress"); progress.setAttribute("aria-label", "下一层加载进度");
     const message = node("p", "正在准备原作地图资源，当前层与检查点暂不切换。", "floor-load-message");

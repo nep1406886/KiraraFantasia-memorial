@@ -5,7 +5,10 @@
 // token-lookup table); numbers use the serif face with tabular-nums; the pop is
 // a 200 ms ease-out at MOTION_INTENSITY 4 (peak 1.15, crit 1.25), and
 // prefers-reduced-motion disables both pop and rise.
-const LIFETIME = .9, LIMIT = 48;
+const LIMIT = 48;
+// 单条寿命改成 per-item 字段：普通/克制/暴击/抵抗照旧 0.9s；击杀「讨伐」标
+// 要多读一枚金环和小签，给 1.4s（paint/update 都按 item.lifetime 取）。
+const LIFETIME = .9, KILL_LIFETIME = 1.4;
 
 // spec/01 §2: element ids 0-5 → CSS custom-property suffix. The six tokens are
 // defined once in theme.css :root; this table is the only place that maps a
@@ -28,7 +31,7 @@ export function createDamageTextLayer(container, THREE) {
         const visible = point.z >= -1 && point.z <= 1 && Math.abs(point.x) < 1.1 && Math.abs(point.y) < 1.2;
         item.node.style.display = visible ? "" : "none";
         if (!visible) { return; }
-        const t = Math.min(1, item.age / LIFETIME);
+        const t = Math.min(1, item.age / item.lifetime);
         const rise = reduced ? 0 : 40 * (1 - Math.pow(1 - t, 2));
         // 200 ms ease-out pop (cubic-bezier 0.22,1,0.36,1 approximated by
         // the 4th-power complement), peak 1.15 for ordinary hits, 1.25 for
@@ -52,9 +55,14 @@ export function createDamageTextLayer(container, THREE) {
             // spec/01 §2: element colours are permitted on damage numbers.
             // 克制 (hitFlag=1) tints the number with the attacker's element
             // colour; crit adds a gold halo; ordinary hits use paper white.
+            // 击杀（killed，main.js 只对非玩家目标传 true）优先级最高：替换
+            // 克制/暴击/抵抗小签为「讨伐」，数字转金并叠一枚金环。
             let color, label, labelColor;
             if (healing) {
                 color = "var(--el-wind)";
+            } else if (spec.killed) {
+                color = "var(--kf-gold)";
+                label = "讨伐";
             } else if (enemy) {
                 color = "var(--kf-berry)";
             } else if (spec.hitFlag === 1) {
@@ -71,11 +79,20 @@ export function createDamageTextLayer(container, THREE) {
             } else {
                 color = "var(--kf-paper)";
             }
-            node.className = "damage-number" + (spec.crit ? " is-critical" : "");
-            const shadow = spec.crit && !healing
+            node.className = "damage-number" + (spec.crit ? " is-critical" : "") + (spec.killed ? " is-kill" : "");
+            const shadow = (spec.crit || spec.killed) && !healing
                 ? "0 0 6px var(--kf-gold),0 2px 2px #252132,1px 0 #252132,-1px 0 #252132"
                 : "0 2px 2px #252132,1px 0 #252132,-1px 0 #252132";
             node.style.cssText = "position:absolute;left:0;top:0;white-space:nowrap;font-family:var(--font-serif);font-variant-numeric:tabular-nums;font-size:clamp(18px,2vw,27px);font-weight:850;line-height:1.1;text-shadow:" + shadow + ";will-change:transform;color:" + color;
+            if (spec.killed) {
+                // 金环叠加于数字：一枚圆角描边框圈住「讨伐」签与数字本体。
+                // 本层全部走内联样式（theme.css 无 damage-number 规则），
+                // 金色仍取 token，不写裸值。
+                const ring = document.createElement("i");
+                ring.style.cssText = "position:absolute;inset:-4px -8px;border:2px solid var(--kf-gold)"
+                    + ";border-radius:12px;opacity:.85;pointer-events:none";
+                node.appendChild(ring);
+            }
             if (label) {
                 const tag = document.createElement("small"); tag.textContent = label;
                 tag.style.cssText = "display:block;font-size:10px;letter-spacing:.1em;text-align:center;font-family:var(--font-sans)"
@@ -87,14 +104,15 @@ export function createDamageTextLayer(container, THREE) {
             if (spec.unit) {
                 lane = lanes.get(spec.unit) || 0; lanes.set(spec.unit, (lane + 1) % 5);
             }
-            const item = { node, spec, age: 0, lane: [0, -1, 1, -2, 2][lane] };
+            const item = { node, spec, age: 0, lane: [0, -1, 1, -2, 2][lane],
+                lifetime: spec.killed ? KILL_LIFETIME : LIFETIME };
             items.push(item); layer.appendChild(node); paint(item);
             return true;
         },
         update(dt, positionOf) {
             for (let i = items.length - 1; i >= 0; i--) {
                 const item = items[i]; item.age += Math.max(0, dt || 0);
-                if (item.age >= LIFETIME) { remove(item); items.splice(i, 1); }
+                if (item.age >= item.lifetime) { remove(item); items.splice(i, 1); }
                 else { paint(item, positionOf); }
             }
         },

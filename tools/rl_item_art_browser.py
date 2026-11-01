@@ -17,7 +17,7 @@ from rl_recovery_browser import press
 
 ROOT = Path(__file__).resolve().parents[1]
 OUT = ROOT / '.codex-tmp/feedback-20260910/item-art'
-FILES = ['index.html', 'site/models.html', 'site/gacha.html', 'site/game/roguelike.html', 'css/kirara-cursor.css',
+FILES = ['index.html', 'site/models.html', 'site/gacha.html', 'site/game/roguelike.html', 'site/css/kirara-cursor.css',
          'site/game/rl/main.js', 'site/game/rl/world.js', 'site/game/rl/ui/decisions.js', 'site/game/rl/ui/theme.css',
          'site/game/rl/gadgets.js', 'site/game/rl/equipment.js', 'site/game/rl/ui/equipmentbrief.js', 'tools/fetch_rl_icons.py']
 

@@ -19,6 +19,7 @@ import { skillArt } from "./skillart.js";
 import { createSkillTooltip } from "./skilltooltip.js";
 import { createAttackAim } from "./attackaim.js";
 import { skillSourceLabel } from "./equipmentskills.js";
+import { equipmentDetails, equipmentIcon, equipmentName } from "./decisions.js";
 
 const STICK_RADIUS = 56;      // px, the knob's travel; visuals are clamp()-scaled
 const STICK_DEADZONE = 0.3;   // of radius
@@ -40,6 +41,11 @@ export function createHud(options) {
     const onMenu = options.onMenu;
     const parent = options.parent || document.body;
     let currentWorld = null, tooltip = null;
+    let lastEquipSig = null;    // 装备签名，命中才重建芯片行
+    let ultPulse = null;        // 必杀脉冲边沿 prev(ready, ultimate.id)
+    // 脉冲一轮的摘除计时器。声明在状态区：挂载早期的 detectTouch() 会先走
+    // 一次 clearInput()，clearPulses 必须在那时就已可用（不能等脉冲节）。
+    const pulseTimers = new Map();
 
     function el(tag, className, text) {
         const node = document.createElement(tag);
@@ -158,6 +164,21 @@ export function createHud(options) {
     gaugeCopy.appendChild(gaugeName);
     gauge.appendChild(gaugeCopy);
     gauge.appendChild(gaugeReadout);
+    // 满量四芒星（spec/01 §4.2 每面板至多一处）：inline SVG 描边星形。类名
+    // 保持 hud-gauge-star——theme.css 的 reduced-motion 清单与 .ready 点亮
+    // 规则都按该类匹配，改名即失配。SVG 用 setAttribute("class")（ESM 严格
+    // 模式下给 SVGElement 赋 className 会抛错）；顶点沿用旧 clip-path 的
+    // 四芒星轮廓（50/61/39% 折算到 24 视箱），形状不变、实心块换描边。
+    const SVG_NS = "http://www.w3.org/2000/svg";
+    const gaugeStar = document.createElementNS(SVG_NS, "svg");
+    gaugeStar.setAttribute("class", "hud-gauge-star");
+    gaugeStar.setAttribute("viewBox", "0 0 24 24");
+    gaugeStar.setAttribute("aria-hidden", "true");
+    const starFace = document.createElementNS(SVG_NS, "polygon");
+    starFace.setAttribute("points",
+        "12,0 14.64,9.36 24,12 14.64,14.64 12,24 9.36,14.64 0,12 9.36,9.36");
+    gaugeStar.appendChild(starFace);
+    gauge.appendChild(gaugeStar);
     bindPress(gauge, "ultimate", 0);
 
     const hudPanel = parent.querySelector("#hud");
@@ -166,6 +187,153 @@ export function createHud(options) {
     const playerLevel = el("span", "hud-player-level");
     identity.append(playerName, playerLevel);
     if (hudPanel) { hudPanel.prepend(identity); }
+
+    // --- 装备四槽芯片（hud-identity 下，spec/01 §4 左上身份区新增行） ---------
+    // 战斗中不进菜单即可查四槽与词条：图标复用 decisions.js 的 equipmentIcon
+    // （weapon/<iconId>.webp 与 slot-*.svg 已全覆盖，空槽传合成 {slot} 取槽
+    // 图标），详情弹层复用其 equipmentDetails。样式与 grid-area 落点由纸面
+    // 壳层条目落在 theme.css（.hud-equip/.hud-equip-chip）。
+    const EQUIP_SLOTS = [["weapon", "武器"], ["amulet", "护符"], ["armor", "护甲"], ["charm", "饰品"]];
+    const equipRow = el("div", "hud-equip");
+    equipRow.hidden = true;
+    const equipChips = EQUIP_SLOTS.map(function (pair) {
+        const chip = el("button", "hud-equip-chip");
+        chip.type = "button";
+        chip.dataset.slot = pair[0];
+        const icon = el("img", "hud-equip-chip-icon");
+        icon.alt = "";
+        icon.setAttribute("aria-hidden", "true");
+        icon.addEventListener("error", function () { icon.hidden = true; });
+        const name = el("span", "hud-equip-chip-name");
+        chip.append(icon, name);
+        chip.addEventListener("click", function () {
+            if (chip.getAttribute("aria-disabled") !== "true") { toggleBrief(pair[0]); }
+        });
+        equipRow.appendChild(chip);
+        return { chip: chip, icon: icon, name: name, slot: pair[0], label: pair[1] };
+    });
+    if (hudPanel) { identity.after(equipRow); }
+    function renderEquipChips(equipment) {
+        // 只在装备签名变化时调用。weapons/cards 来自 main.js 注入的
+        // equipmentContext（与菜单装备视图同一批表），缺失时 equipmentIcon
+        // 退回槽位图标、equipmentName 退回槽名——弹层依然可读。
+        const context = typeof options.equipmentContext === "function" ? options.equipmentContext() : {};
+        equipChips.forEach(function (view) {
+            const item = equipment.find(function (row) { return row.slot === view.slot; }) || null;
+            const src = equipmentIcon(item || { slot: view.slot }, context.weapons);
+            if (src) {
+                if (view.icon.getAttribute("src") !== src) { view.icon.setAttribute("src", src); }
+                view.icon.hidden = false;
+            } else {
+                view.icon.hidden = true;
+            }
+            const name = item ? equipmentName(item, context.weapons, context.cards) : "未装备";
+            text(view.name, name);
+            attr(view.chip, "aria-label", view.label + " · " + name + "（点击查看词条）");
+        });
+    }
+
+    // 装备简报弹层：纸面壳层与 .hud-skill-tooltip 同一套（theme.css 用
+    // 选择器并列共享），但不借用类名——交互门禁把 .hud-skill-tooltip 当作
+    // 技能悬停卡的唯一定位器，多一个匹配会触发 Playwright 严格模式冲突。
+    // 词条内容全部来自 equipmentDetails。Escape 走 skilltooltip.js 的捕获
+    // 阶段 keydown + stopImmediatePropagation 先例——简报只收自己，不开暂停
+    // 菜单，也无需在 main.js 加标志位。锁定（死亡/冻结/过场）时随 HUD 一起收起。
+    const brief = el("section", "hud-equip-brief");
+    brief.id = "hud-equip-brief";
+    brief.setAttribute("role", "tooltip");
+    brief.hidden = true;
+    parent.appendChild(brief);
+    let briefSlot = null;
+    function briefItem(world, slot) {
+        const equipment = world?.player?.equipment;
+        return equipment ? equipment.find(function (item) { return item.slot === slot; }) || null : null;
+    }
+    function renderBrief(item) {
+        const context = typeof options.equipmentContext === "function" ? options.equipmentContext() : {};
+        const p = currentWorld?.player;
+        brief.replaceChildren(equipmentDetails(item, {
+            weapons: context.weapons, cards: context.cards,
+            skillNames: p?.skills?.slots.map(function (slot) { return slot.name; }),
+            skillLoadout: p?.skills?.describeLoadout?.()
+        }));
+    }
+    function placeBrief() {
+        if (brief.hidden || !briefSlot) { return; }
+        const view = equipChips.find(function (chip) { return chip.slot === briefSlot; });
+        if (!view) { return; }
+        const bounds = parent.getBoundingClientRect();
+        const briefW = brief.offsetWidth, briefH = brief.offsetHeight;
+        // 横向仍按锚点芯片对齐，先 clamp 进视口。
+        const left = Math.max(12, Math.min(bounds.width - briefW - 12,
+            view.chip.getBoundingClientRect().left - bounds.left));
+        // 纵向避让锚芯片行 union 矩形（全部芯片 rect 的并集，2×2 折行时
+        // 天然覆盖两行）：上候选 = unionTop − briefH − 10、下候选 =
+        // unionBottom + 10。候选先收进视口，再与全部芯片矩形求交，取零
+        // 相交者（并集锚定下本应零相交，钳位可能压回芯片行）；两个候选
+        // 皆相交才取重叠最小者。单芯片锚定的旧法在 2×2 下 below 必压
+        // 第二行——求交兜底后简报绝不盖芯片（z-index 200 维持不动）。
+        const rects = equipChips.map(function (chip) {
+            return chip.chip.getBoundingClientRect();
+        });
+        const unionTop = Math.min.apply(null, rects.map(function (r) { return r.top; }));
+        const unionBottom = Math.max.apply(null, rects.map(function (r) { return r.bottom; }));
+        const lo = 12, hi = Math.max(12, bounds.height - briefH - 12);
+        const candidates = [
+            Math.max(lo, Math.min(hi, unionTop - bounds.top - briefH - 10)),
+            Math.max(lo, Math.min(hi, unionBottom - bounds.top + 10))
+        ];
+        const overlapArea = function (top) {
+            const bLeft = bounds.left + left, bRight = bLeft + briefW;
+            const bTop = bounds.top + top, bBottom = bTop + briefH;
+            return rects.reduce(function (sum, r) {
+                const w = Math.min(bRight, r.right) - Math.max(bLeft, r.left);
+                const h = Math.min(bBottom, r.bottom) - Math.max(bTop, r.top);
+                return sum + (w > 0 && h > 0 ? w * h : 0);
+            }, 0);
+        };
+        // 上候选优先（与旧「能放上面就放上面」的取舍一致）：零相交打平
+        // 时保持上候选，只有严格更小才换。
+        let top = candidates[0], worst = overlapArea(top);
+        for (let i = 1; i < candidates.length; i++) {
+            const cost = overlapArea(candidates[i]);
+            if (cost < worst) { top = candidates[i]; worst = cost; }
+        }
+        brief.style.left = left + "px"; brief.style.top = top + "px";
+    }
+    function closeBrief() {
+        if (brief.hidden && briefSlot === null) { return; }
+        briefSlot = null;
+        brief.hidden = true;
+        equipChips.forEach(function (view) { view.chip.removeAttribute("aria-describedby"); });
+    }
+    function toggleBrief(slot) {
+        if (briefSlot === slot) { closeBrief(); return; }
+        briefSlot = slot;
+        renderBrief(briefItem(currentWorld, slot));
+        brief.hidden = false;
+        equipChips.forEach(function (view) {
+            if (view.slot === slot) { view.chip.setAttribute("aria-describedby", brief.id); }
+            else { view.chip.removeAttribute("aria-describedby"); }
+        });
+        placeBrief();
+    }
+    function briefEscape(event) {
+        if (brief.hidden || event.key !== "Escape") { return; }
+        closeBrief();
+        event.preventDefault(); event.stopImmediatePropagation();
+    }
+    document.addEventListener("keydown", briefEscape, true);
+    // 战场任意按下即收简报（芯片自身的 toggle 在 pointerdown 之后照常工作）。
+    // 简报本体按下也收：静态词条弹层，无划选/复制需求，点它即视为关闭，
+    // 被盖住的芯片随之立即可开——有意取舍。
+    function briefOutside(event) {
+        if (brief.hidden || !(event.target instanceof Node)) { return; }
+        if (equipRow.contains(event.target)) { return; }
+        closeBrief();
+    }
+    parent.addEventListener("pointerdown", briefOutside, true);
+    window.addEventListener("resize", placeBrief);
     const effects = el("div", "hud-effects");
     effects.setAttribute("aria-label", "战斗状态");
     (parent.querySelector("#hud") || parent).appendChild(effects);
@@ -335,6 +503,7 @@ export function createHud(options) {
         input.clear(); latches.clear(); stickId = null; origin = null;
         stickBase.classList.add("hud-hidden"); stickKnob.classList.add("hud-hidden");
         if (tooltip) { tooltip.hide(); }
+        closeBrief(); clearPulses();
     }
     function setTouch(on) {
         if (touchOn === on) {
@@ -393,6 +562,35 @@ export function createHud(options) {
     skillEls.forEach((view, index) => tooltip.bind(view.btn, index));
     tooltip.bind(gauge, -1);
 
+    // --- 就绪单次脉冲 -----------------------------------------------------------
+    // 量谱面板本体 transform 恒 identity：脉冲只挂星子元素与技能槽，300px
+    // 面板的任何缩放都会顶出 right:12px 边距（1280×720 实测超视口）。
+    // spec/01 §1：UI 层动效 150–250ms 柔和缓动——kf-ready-pulse 为 220ms
+    // 单发、50% 帧仅放大 1.05，技能槽就绪边沿挂一轮，摘类即止；必杀转好时
+    // 四芒星挂星形专用单发类 .hud-star-pulse（12px 星上 1.05 不可辨，单独
+    // 一轮 1→1.35→1），摘除后由 .hud-gauge.ready 静置金色。
+    const PULSE_MS = 220;       // 与 theme.css kf-ready-pulse/kf-star-pulse 时长一致（单发 220ms）
+    function firePulse(node, key, pulseClass) {
+        const cls = pulseClass || "hud-ready-pulse";
+        node.classList.remove(cls);
+        // 连续边沿也能重新起播（重排后重挂类）。星子元素是 SVG，没有
+        // offsetWidth，getBoundingClientRect 对 HTML/SVG 都强制重排。
+        void node.getBoundingClientRect();
+        node.classList.add(cls);
+        const held = pulseTimers.get(key);
+        if (held) { clearTimeout(held); }
+        pulseTimers.set(key, setTimeout(function () {
+            pulseTimers.delete(key);
+            node.classList.remove(cls);
+        }, PULSE_MS));
+    }
+    function clearPulses() {
+        pulseTimers.forEach(function (timer) { clearTimeout(timer); });
+        pulseTimers.clear();
+        skillEls.forEach(function (view) { view.btn.classList.remove("hud-ready-pulse"); });
+        gaugeStar.classList.remove("hud-star-pulse");   // 星形专用单发类同步摘除
+    }
+
     // --- per-frame update --------------------------------------------------------
 
     function update(world) {
@@ -402,7 +600,7 @@ export function createHud(options) {
         const assistance = world && world.assistance;
         const tier = p?.gadgets?.assist || 0;
         const locked = !p || p.dead || world.frozen || !!world.transition;
-        if (locked) { attackAim.clear(); }
+        if (locked) { attackAim.clear(); closeBrief(); }
         const shrineReady = !!world.canCommuneAtShrine && (!options.isShrineVisible || options.isShrineVisible());
         text(playerName, p?.card?.characterZh || p?.card?.name || "");
         text(playerLevel, p ? "Lv " + p.level : "");
@@ -493,6 +691,7 @@ export function createHud(options) {
         if (effects.textContent !== label) { effects.textContent = label; }
         skillbar.classList.toggle("hud-hidden", !p);
         gauge.classList.toggle("hud-hidden", !p);
+        if (equipRow.hidden !== !p) { equipRow.hidden = !p; }
         if (!p || !p.skills) {
             return;
         }
@@ -514,6 +713,7 @@ export function createHud(options) {
             }
             const skillName = slot.name || "角色技能";
             const sealed = sk.isSealed(i);
+            const ready = sk.ready(i);
             const source = sk.sourceFor?.(i);
             const originHidden = !source;
             if (view.origin.hidden !== originHidden) { view.origin.hidden = originHidden; }
@@ -521,7 +721,7 @@ export function createHud(options) {
             attr(view.btn, "aria-label", "技能 " + (i + 1) + " · " + skillName
                 + (source ? " · 装备改写：" + skillSourceLabel(source) : "") + (sealed ? ' · 缚技契约封印' : ''));
             attr(view.btn, "data-overridden", !!source);
-            attr(view.btn, "aria-disabled", !sk.ready(i) || locked);
+            attr(view.btn, "aria-disabled", !ready || locked);
             attr(view.btn, 'data-sealed', sealed);
             view.btn.classList.toggle('hud-skill-sealed', sealed);
             const frac = slot.remaining > 0 && slot.cooldown > 0
@@ -534,13 +734,51 @@ export function createHud(options) {
             attr(view.btn, "data-cd", frac.toFixed(3));
             const seconds = sk.cooldownSeconds(i);
             text(view.secs, sealed ? '封印' : seconds > 0 ? Math.ceil(seconds) + "秒" : "");
-            view.btn.classList.toggle("hud-skill-ready", sk.ready(i));
+            view.btn.classList.toggle("hud-skill-ready", ready);
+            // 就绪单次脉冲：按槽存 prev(ready, sealed, slot.id)+artKey 边沿。
+            // 首帧（无 prev）、锁定（aria-disabled 含 locked 语义）、换装
+            // （artKey/slot.id 变化）与封印起落都抑制，避免菜单关闭/换装
+            // 假脉冲；只有同一技能真实跨过冷却收尾（false→true）才脉冲一次。
+            const prev = view.pulse;
+            if (prev && prev.id === slot.id && prev.artKey === artKey
+                    && !prev.sealed && !sealed && !locked && ready && !prev.ready) {
+                firePulse(view.btn, "skill:" + i);
+            }
+            view.pulse = { ready: ready, sealed: sealed, id: slot.id, artKey: artKey };
         }
         const g = sk.gaugeMax > 0
             ? Math.min(1, sk.gauge / sk.gaugeMax) : 0;
         css(gaugeFill, "--gauge", g.toFixed(3));
         attr(gauge, "data-frac", g.toFixed(3));
         gauge.classList.toggle("ready", !!sk.ultimateReady);
+        // 必杀满量脉冲一次并点亮四芒星：点亮由 .hud-gauge.ready 在 theme.css
+        // 接管；脉冲只挂星子元素（星形专用 220ms 单发），面板本体不再参与
+        // 缩放、transform 恒 identity。这里只负责「恰一次」的边沿。
+        const ultId = sk.ultimate ? sk.ultimate.id : null;
+        if (ultPulse && ultPulse.id === ultId
+                && !ultPulse.ready && sk.ultimateReady && !locked) {
+            firePulse(gaugeStar, "ultimate-star", "hud-star-pulse");
+        }
+        ultPulse = { ready: !!sk.ultimateReady, id: ultId };
+        // 装备芯片：只在装备签名变化时重建（空帧零 DOM 写入的既有约定）；
+        // 简报开着时词条同步刷新，装备被换掉就收简报。
+        const equipment = p.equipment || [];
+        const equipSig = equipment.map(function (item) {
+            return item.slot + ":" + (item.gadgetId || item.catalogId || item.weaponId || "")
+                + ":" + (item.affixes || []).join(",");
+        }).join("|");
+        if (equipSig !== lastEquipSig) {
+            lastEquipSig = equipSig;
+            renderEquipChips(equipment);
+            if (briefSlot !== null) {
+                const item = briefItem(world, briefSlot);
+                if (item) { renderBrief(item); placeBrief(); }
+                else { closeBrief(); }
+            }
+        }
+        equipChips.forEach(function (view) {
+            attr(view.chip, "aria-disabled", locked);
+        });
         let title = sk.ultimate ? sk.ultimate.name : "必杀资料缺失";
         const target = world.previewUltimate ? world.previewUltimate() : null;
         text(gaugeLabel, (touchOn ? "必杀" : "R 必杀") + (target ? " · " + target.scope : ""));
@@ -562,6 +800,10 @@ export function createHud(options) {
         dispose: function () {
             clearInput(); attackAim.dispose();
             tooltip.dispose();
+            document.removeEventListener("keydown", briefEscape, true);
+            parent.removeEventListener("pointerdown", briefOutside, true);
+            window.removeEventListener("resize", placeBrief);
+            brief.remove();
             if (hudSize) { hudSize.disconnect(); }
             parent.style.removeProperty("--rl-hud-height");
             coarse.removeEventListener("change", detectTouch); fine.removeEventListener("change", detectTouch);
@@ -570,14 +812,15 @@ export function createHud(options) {
             window.removeEventListener("keydown", keyboardMode, true);
             window.removeEventListener("blur", clearInput);
             document.removeEventListener("visibilitychange", visibilityInput);
-            [skillbar, gauge, identity, effects, assistBtn, pauseBtn, ...touchEls, stickBase, stickKnob].forEach(node => node.remove());
+            [skillbar, gauge, identity, equipRow, effects, assistBtn, pauseBtn, ...touchEls, stickBase, stickKnob].forEach(node => node.remove());
         },
         get touchOn() { return touchOn; },
         els: {
             skillbar: skillbar, skills: skillEls, gauge: gauge, effects: effects,
             gaugeFill: gaugeFill, zone: zone, stickBase: stickBase,
             stickKnob: stickKnob, attack: attackBtn, dodge: dodgeBtn,
-            pause: pauseBtn, interact: interactBtn, assist: assistBtn
+            pause: pauseBtn, interact: interactBtn, assist: assistBtn,
+            equip: equipRow
         }
     };
 }

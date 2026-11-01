@@ -23,6 +23,13 @@ const CARD_ART_BASE = new URL("../../../asset/img/rl/card/", import.meta.url).hr
 const ELEMENT_VAR = { 0: "var(--el-fire)", 1: "var(--el-water)", 2: "var(--el-earth)",
                       3: "var(--el-wind)", 4: "var(--el-moon)", 5: "var(--el-sun)" };
 
+// 选角屏横幅：铺 asset/img/rl/ui/select.webp（1600×1281 闲置场景图，2026-10
+// 盘点全站 0 引用，此处首次启用）。走 CSS background 而不是 <img>：横幅纯
+// 装饰，background 不产生 eager 解码也不进可达性树。ROSTER_CSS 注入的是
+// 最终样式文本，拿不到 import.meta，所以先在这里用模块相对 URL 解析出
+// 绝对地址（兼容 /kirafan-timer/ 部署子路径），再拼进样式串。
+const SELECT_BANNER_URL = new URL("../../../asset/img/rl/ui/select.webp", import.meta.url).href;
+
 const ROSTER_CSS = `
     .rl-roster * { box-sizing: border-box; }
     .rl-roster {
@@ -71,6 +78,44 @@ const ROSTER_CSS = `
         border-radius: 2px;
         background: linear-gradient(90deg,
             transparent, color-mix(in srgb, var(--kf-gold) 70%, transparent), transparent);
+    }
+    /* 选角屏闲置横幅：select.webp 场景图整幅铺底，底部一道由 --kf-veil 派生的
+       纸色 scrim（纸里掺墨色帷幕，不引入新色值，spec/01 §2），压在图上的
+       ink 色题字始终可读。宽度上限与卡面网格一致，任何宽度不出横向滚动。
+       flex:none 必须有：.rl-roster 是可滚动 flex column，41 张卡会把可收缩
+       子项压到 0 高（实测），横幅的题字是 absolute，自身内容不撑高。 */
+    .rl-roster-banner {
+        flex: none;
+        position: relative;
+        width: 100%;
+        max-width: 1280px;
+        height: clamp(120px, 22vmin, 210px);
+        margin: 0 0 clamp(12px, 2.4vmin, 20px);
+        border-radius: var(--ui-radius);
+        overflow: hidden;
+        background: var(--kf-sky) center 30% / cover no-repeat url("${SELECT_BANNER_URL}");
+        box-shadow: var(--ui-shadow);
+    }
+    .rl-roster-banner::after {
+        content: "";
+        position: absolute;
+        inset: 0;
+        background: linear-gradient(180deg,
+            transparent 42%,
+            color-mix(in srgb, var(--kf-paper) 72%, var(--kf-veil)) 86%,
+            color-mix(in srgb, var(--kf-paper) 86%, var(--kf-veil)) 100%);
+    }
+    .rl-roster-banner p {
+        position: absolute;
+        left: 0;
+        right: 0;
+        bottom: 8px;
+        z-index: 1;
+        margin: 0;
+        padding: 0 16px;
+        font: italic 600 clamp(.92rem, 2.2vmin, 1.12rem)/1.5 var(--font-serif);
+        color: var(--kf-ink);
+        text-align: center;
     }
     .rl-roster-grid {
         display: grid;
@@ -345,6 +390,16 @@ export function createRosterUI(options) {
     const header = document.createElement("h2");
     header.textContent = "选择角色";
     overlay.appendChild(header);
+
+    // 选角屏横幅（闲置素材复用）：纯装饰 + 一行题字，无任何交互元素，
+    // 不影响 Tab 序；下方 #roster-codex 等按钮的挂载契约原样保留
+    // （rl_story_roster_browser 依赖它可见可点）。
+    const banner = document.createElement("div");
+    banner.className = "rl-roster-banner";
+    const motto = document.createElement("p");
+    motto.textContent = "把散落的故事，一页一页救回来";
+    banner.appendChild(motto);
+    overlay.appendChild(banner);
 
     // C.1 element filter row: the data ring 0=炎…5=陽. A chip toggles its
     // element; "全部" clears the filter. The filter hides cards via
