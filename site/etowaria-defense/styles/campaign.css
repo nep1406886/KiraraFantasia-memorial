@@ -78,6 +78,11 @@
 .level-facts, .result-stats { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 14px; margin: 15px 0; padding: 12px 0; border-block: 1px solid var(--line-soft); }
 .level-facts dt, .result-stats dt { color: var(--muted); font-size: .76rem; }
 .level-facts dd, .result-stats dd { margin: 5px 0 0; font-size: 1.05rem; font-weight: 700; }
+/* 结算数值回归 spec §3 的衬线（Noto Serif SC/STSong）+ 表格数字：滚动时
+   数位不跳动，读起来是「盖了章的战报」；选关页的 level-facts 保持无衬线
+   原样。章节题词（.chapter-description h3）与铃印（.result-seal）仍用楷体，
+   那两处不在 spec §3 的结算面范围内。 */
+.result-stats dd { font-family: "Noto Serif SC", "STSong", serif; font-variant-numeric: tabular-nums; }
 .campaign-map-actions { display: flex; align-items: center; gap: 15px; margin-top: auto; }
 .campaign-map-actions p { font-size: .8rem; flex: 1; }
 .campaign-map-actions .native-button { white-space: nowrap; font-size: 1.2rem; min-height: 62px; padding-block: 18px; }
@@ -146,12 +151,12 @@
 .reward-list .portrait-icon { width: 64px; }
 
 /* 结算页：胜负徽标 + 成就卡 + 挑战条。整块沿用纸面 token，只靠
-   金色描边与轻轻的内阴影区分层级。 */
+   金色描边与轻轻的内阴影区分层级。战报文字同 spec §3 结算面用衬线。 */
 .result-banner {
   display: flex; align-items: center; gap: 10px;
   width: 100%; padding: 10px 14px; border-radius: 10px;
   border: 1px solid var(--line-paper); background: var(--paper-raised);
-  font-family: "KaiTi", "STKaiti", serif; font-size: 1.15rem; font-weight: 700;
+  font-family: "Noto Serif SC", "STSong", serif; font-size: 1.15rem; font-weight: 700;
 }
 .result-banner--won { border-color: var(--gold-deep); background: linear-gradient(100deg, var(--paper-sunken), var(--paper-raised)); box-shadow: inset 0 0 0 1px #fff; }
 .result-banner--lost { border-color: #cbb7a4; background: #faf6ef; color: #6b5a4a; }
@@ -160,8 +165,80 @@
   width: 26px; height: 26px; border-radius: 50%;
   font-family: var(--font-sans, sans-serif); font-size: .95rem; font-weight: 800;
 }
-.result-banner--won .result-badge { color: var(--paper-raised); background: var(--gold-deep); }
 .result-banner--lost .result-badge { color: var(--paper-raised); background: #b3a294; }
+/* 金印：胜利与无尽新纪录的印章，直接替换横幅里的 ✓ 徽位，不再在
+   横幅外另叠金色装饰。盖章动画走 CSS，shell.css 的全局减动效覆盖。 */
+.result-seal {
+  display: grid; place-items: center; flex: none;
+  padding: 5px 9px; border-radius: 9px;
+  background: var(--gold-deep); color: var(--paper-raised);
+  font-family: "KaiTi", "STKaiti", serif; font-size: 1rem; font-weight: 800;
+  letter-spacing: .14em; text-indent: .14em;
+  box-shadow: inset 0 0 0 1.5px #fff7;
+  transform: rotate(-4deg);
+  animation: seal-stamp .5s cubic-bezier(.2, 1.4, .4, 1) both;
+}
+@keyframes seal-stamp {
+  from { opacity: 0; transform: rotate(-4deg) scale(1.7); }
+  to { opacity: 1; transform: rotate(-4deg) scale(1); }
+}
+
+/* 结算底图：原作闲置横幅 scene_store.webp（1600×1280，与已接线的
+   title/select/result 同族场景画，此前全站零引用）。wrapper 负责裁剪并
+   压到纸面文字之下（.panel 的 filter 自建层叠上下文，z-index:-1 不会穿出
+   纸框），开窗时 12s 慢推 scale 1→1.03；基础态即终帧，减动效下
+   （shell.css 的 OS @media 与 body.reduced-motion 两处全局 animation:none）
+   静止在推近后的构图。 */
+.result-scene { position: absolute; inset: 0; overflow: hidden; z-index: -1; pointer-events: none; }
+.result-scene::before {
+  content: ""; position: absolute; inset: 0;
+  background: url("../../asset/img/rl/ui/scene_store.webp") center / cover no-repeat;
+  opacity: .16;
+  transform: scale(1.03);
+  animation: result-scene-push 12s ease-out both;
+}
+@keyframes result-scene-push {
+  from { transform: scale(1); }
+  to { transform: scale(1.03); }
+}
+/* 盖印结算（胜利/无尽新纪录）换书房底纹：原作闲置横幅 scene_study.webp
+   （1600×1280，此前全站零引用）。构图与慢推动画沿用上面的 result-scene
+   通道，只换图源并轻压亮度饱和度（低透明压暗，不抢纸面文字）；失守
+   保留 store 底纹，胜负在底图上也能读出来。 */
+.result-dialog--sealed .result-scene::before {
+  background-image: url("../../asset/img/rl/ui/scene_study.webp");
+  filter: brightness(.94) saturate(.92);
+}
+
+/* 结算金粒：盖印后的迸发。实色 --gold-deep 小圆点＋柔投影、正常混合
+   ——亮纸（--paper-raised 近白）上 screen 提亮混合不可见，spec §1 反
+   neon。8~12 粒由 JS 生成、单粒约 700ms，主摘除走 animationend、JS
+   setTimeout 兜底清容器；shell.css 两处全局减动效会把动画关成透明
+   静止，JS 侧 still 口径则直接不生成。 */
+.result-fx { position: absolute; inset: 0; z-index: 2; pointer-events: none; }
+.result-spark {
+  position: absolute; bottom: -6px; border-radius: 50%;
+  background: var(--gold-deep);
+  box-shadow: 0 2px 6px color-mix(in srgb, var(--ink-warm) 35%, transparent);
+  opacity: 0;
+  animation: result-spark .72s ease-out both;
+  animation-delay: var(--d, 0ms);
+}
+@keyframes result-spark {
+  0% { opacity: 0; transform: translate(0, 0) scale(.55); }
+  14% { opacity: .95; }
+  100% { opacity: 0; transform: translate(var(--dx, 0px), var(--dy, -120px)) scale(1); }
+}
+
+/* 结算揭示：四块按 DOM 顺序错峰（统计→横幅→摘要→成就），--i 由
+   finish() 装配时写入。单发 400ms 柔和缓动、110ms×--i 延迟：最晚一档
+   330ms，整段错峰 ≤450ms，不加蓄力停顿。基础态即终态，`both` 只在延迟
+   期按 from 藏块；减动效由 shell.css 的两处全局 animation:none 兜底直出。 */
+.result-reveal { animation: result-reveal .4s ease-out both; animation-delay: calc(110ms * var(--i, 0)); }
+@keyframes result-reveal {
+  from { opacity: 0; transform: translateY(6px); }
+  to { opacity: 1; transform: none; }
+}
 
 .result-summary { margin: 0; color: var(--muted); font-size: .84rem; text-align: center; }
 
@@ -171,6 +248,13 @@
   padding: 8px 11px; border-radius: 9px;
   border: 1px solid #e6d9b8; border-left: 3px solid var(--gold-deep);
   background: var(--paper-raised);
+  animation: achievement-rise .4s ease-out both;
+  /* 基点随成就块（--i:3 档，110ms×3）落地后逐条展开，条间仍差 110ms。 */
+  animation-delay: calc(330ms + 110ms * var(--i, 0));
+}
+@keyframes achievement-rise {
+  from { opacity: 0; transform: translateY(6px); }
+  to { opacity: 1; transform: none; }
 }
 .result-achievement-star { flex: none; color: var(--gold-deep); font-size: 1rem; line-height: 1.35; }
 .result-achievement strong { display: block; font-size: .88rem; color: #7a5c1e; }
@@ -196,6 +280,25 @@
 .battle-table td:nth-child(3) { font-variant-numeric: tabular-nums; white-space: nowrap; }
 .import-label { display: inline-flex; align-items: center; justify-content: center; cursor: pointer; }
 .import-label input { max-width: 150px; margin-left: 10px; font-size: .7rem; }
+
+/* 里程碑独立 toast：素材入账等提示仍走 .battle-message（z-4 顶部胶囊，
+   battle.css:165），本块放它下方一行、上下并存互不覆盖；同为 z-4，
+   压不过选卡提示（.battle-tip z-5，battle.css:156）与暂停遮罩（z-6）。
+   pointer-events:none 不挡战场点击；入场 180ms 柔和缓动（spec §1），
+   基础态即终态，减动效被 shell.css 全局 animation:none 压平后仍可读。 */
+.milestone-toast {
+  position: absolute; top: 48px; left: 50%; transform: translate(-50%, 0);
+  z-index: 4; pointer-events: none;
+  max-width: min(92%, 560px); padding: 5px 15px; border-radius: 16px;
+  border: 1px solid var(--line-gold);
+  background: color-mix(in srgb, var(--paper-raised) 92%, transparent);
+  color: var(--gold-ink); font-size: .84rem; font-weight: 700;
+  box-shadow: 0 2px 8px color-mix(in srgb, var(--ink-warm) 18%, transparent);
+  animation: milestone-in .18s ease-out;
+}
+@keyframes milestone-in {
+  from { opacity: 0; transform: translate(-50%, -4px); }
+}
 
 /* The deck step replaces the full selection column, not just half of it. */
 .campaign-map-body:has(.deck-picker:not([hidden])) { display: block; min-height: 0; }
@@ -320,7 +423,28 @@
 /* ─── 图鉴与换卡对话框 ───────────────────────────────────────────── */
 .codex-dialog { max-width: min(92vw, 1080px); }
 .codex-tabs { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 10px; }
-.codex-tab[aria-pressed="true"] { background: linear-gradient(#ffe98c, #f3b23e); border-color: #c98a1f; color: #5b3508; }
+/* 图鉴页签：换上原作 CommonUI 的 WindowTab / WindowTabActive 九宫格
+   （两图此前全站零引用）。纸身 50×54、1px 暖描边、顶部圆角；active 版
+   顶边贴住上沿、底部外扩与窗体相接，两态剪影不同，切片按 alpha 实测：
+   inactive 纸身约 x10-38 / y13-53，active 纸身约 x10-39 / y0-53 且底部
+   全宽外扩。border-width 与切片一一对应，剪影比例不变形。选择器带全三类
+   （.native-button.compact.codex-tab，特异性 0,3,0）压过 shell.css 里
+   .native-button.compact 的 12px 均一边（0,2,0）——只写 .codex-tab（0,1,0）
+   会被压掉，inactive 态纸身塌成 22px 高、与 active 态剪影不一致（实测过）。
+   :active 再覆写一次边图源，防止按住时闪回 CommonButtonPush。
+   字号、热区与 aria 语义不变。 */
+.native-button.compact.codex-tab {
+  border-style: solid;
+  border-width: 16px 12px 3px 12px;
+  border-image: url("../assets/ui/WindowTab.png") 16 12 3 12 fill stretch;
+}
+.native-button.compact.codex-tab[aria-pressed="true"] {
+  border-width: 3px 11px 4px 11px;
+  border-image: url("../assets/ui/WindowTabActive.png") 3 11 4 11 fill stretch;
+  color: #5b3508;
+}
+.codex-tab:active:not(:disabled) { border-image-source: url("../assets/ui/WindowTab.png"); }
+.codex-tab[aria-pressed="true"]:active:not(:disabled) { border-image-source: url("../assets/ui/WindowTabActive.png"); }
 .codex-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(96px, 1fr)); gap: 8px;
   max-height: min(52vh, 460px); overflow-y: auto; scrollbar-width: thin; align-content: start;
   border-block: 1px solid var(--line-soft); padding: 8px 2px; }
@@ -363,8 +487,48 @@
 .codex-trait.trait-thorns { background: #9a5a30; }
 .codex-trait.trait-cry { background: #a2662e; }
 .codex-trait.trait-roar { background: #6e4a2e; }
-.codex-detail { min-height: 2.6em; margin-top: 10px; font-size: .84rem; background: var(--paper-sunken);
+/* 详情区：来客拆成「数值／初见章节／反制＋免疫」三段小结构，不再用
+   单行 min-height 撑高度；空态直接隐藏，避免留一条空纸带。 */
+.codex-detail { margin-top: 10px; font-size: .84rem; background: var(--paper-sunken);
   border-radius: 7px; padding: 7px 12px; }
+.codex-detail:empty { display: none; }
+.codex-detail-rows { display: grid; gap: 4px; }
+.codex-detail-stats, .codex-detail-seen { display: block; line-height: 1.55; }
+.codex-detail-seen { color: var(--gold-ink); font-weight: 700; }
+.codex-detail-counters { display: flex; align-items: center; flex-wrap: wrap; gap: 5px; line-height: 1.55; }
+.codex-detail-counters b { font-size: .76rem; color: var(--ink-warm); letter-spacing: .06em; }
+.codex-counter-chip { display: inline-block; padding: 1px 8px; border-radius: 999px;
+  border: 1px solid var(--line-gold); background: var(--paper-raised);
+  font-style: normal; font-size: .76rem; font-weight: 700; color: var(--ink-warm); }
+/* 详情里的特性徽章：与卡背 codex-traits 同一套配色，只是静态排列。 */
+.codex-traits--inline { position: static; max-width: none; }
+/* 来客小像：等比装进 44px 占位格，卡格尺寸由 codex-card 固定，不抖动。 */
+.codex-enemy-thumb { width: 100%; height: 100%; object-fit: contain; }
+
+/* 图鉴卡面大图页：同伴读原作 750×1000 卡面（unit.card 字段，缺文件
+   时 onerror 回退 128px 头像等比放大），来客现拍 288px 留影（96px 缓存
+   只作网格缩略）。窗体沿用 .panel/.app-dialog 皮肤，这里只管大图舞台：
+   1.5px 墨线、12px 圆角、暖纸底，与 spec §4 纸面板规范一致。 */
+.codex-view-dialog { max-width: min(92vw, 560px); }
+.codex-view-caption { margin: 0 0 10px; font-size: .8rem; color: var(--gold-ink); font-weight: 700; }
+.codex-view-stage {
+  display: grid; place-items: center; min-height: 240px; padding: 10px;
+  border: 1.5px solid var(--line-strong); border-radius: 12px;
+  background: linear-gradient(160deg, var(--paper-sunken), var(--paper-raised));
+}
+.codex-view-stage img {
+  max-width: 100%; max-height: min(56vh, 520px); object-fit: contain;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px color-mix(in srgb, var(--ink-warm) 22%, transparent);
+}
+/* 无任何图源时的字母牌占位（来客未拍、画面未就绪）。 */
+.codex-view-fallback {
+  display: grid; place-items: center; width: 120px; height: 160px;
+  border: 1.5px dashed var(--line-strong); border-radius: 12px;
+  background: var(--paper-sunken); color: var(--ink-warm);
+  font-size: 2.4rem; font-weight: 800;
+}
+.codex-view-help { margin: 10px 0 0; font-size: .84rem; line-height: 1.55; color: var(--ink-warm); }
 
 
 /* 推荐配置按钮行：跟在已选摘要下方，小圆角胶囊。 */
@@ -428,5 +592,4 @@
 .restock-drop-grid { display: flex; flex-wrap: wrap; gap: 6px; }
 .restock-drop-chip { padding: 3px 10px; border-radius: 999px; border: 1.5px solid var(--line-gold); background: var(--paper-raised); font-size: .76rem; cursor: pointer; }
 .restock-drop-chip:disabled { cursor: default; opacity: .72; }
-  color: var(--ink-warm); font: 700 .74rem/1 inherit; cursor: pointer; }
 .restock-drop-chip.active { background: var(--paper-sunken); border-color: var(--ink-warm); }

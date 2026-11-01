@@ -2,7 +2,7 @@ import assert from "node:assert/strict";
 import fs from "node:fs/promises";
 import { readFileSync } from "node:fs";
 import { Battle } from "../site/etowaria-defense/sim/battle.js";
-import { LEVELS, UNIT_RULES, ENEMY_RULES, ENDLESS, TICK, DECK_ORDER, GEAR_ORDER, ACHIEVEMENTS, SAVE_KEY, unlockedUnits } from "../site/etowaria-defense/data/campaign.js";
+import { LEVELS, UNIT_RULES, ENEMY_RULES, ENEMY_FIRST_SEEN, ENDLESS, TICK, DECK_ORDER, GEAR_ORDER, ACHIEVEMENTS, SAVE_KEY, unlockedUnits } from "../site/etowaria-defense/data/campaign.js";
 import { CampaignSave, validateProgress } from "../site/etowaria-defense/app/campaign-save.js";
 
 const checks = [];
@@ -662,6 +662,35 @@ test("chapter four uses balanced new enemy mechanics", () => {
     }
     assert.ok(ENEMY_RULES.E32.armor > 0 && ENEMY_RULES.E34.armor > 0);
     assert.ok(ENEMY_RULES.E36.healer && ENEMY_RULES.E37.hop && ENEMY_RULES.E35.speed > .45);
+});
+
+// 图鉴数据契约：本文件 import ENEMY_RULES/LEVELS，是唯一能抓
+// data/campaign.js 回归的门——来客详情（counters 与初见）的形状变化
+// 必须在这里显式失败，而不是在浏览器里悄悄显示空文案。
+test("codex counters map every guest to real deck or gear cards", () => {
+    const usable = new Set([...DECK_ORDER, ...GEAR_ORDER]);
+    for (const [id, rule] of Object.entries(ENEMY_RULES)) {
+        assert.ok(Array.isArray(rule.counters) && rule.counters.length >= 1, `${id} lacks counters`);
+        for (const card of rule.counters) {
+            assert.ok(usable.has(card), `${id} counters ${card} is not in DECK_ORDER∪GEAR_ORDER`);
+        }
+    }
+});
+test("codex first-sighting resolves uniquely for every guest and newEnemy", () => {
+    const levelIds = new Set(LEVELS.map(level => level.id));
+    assert.equal(Object.keys(ENEMY_FIRST_SEEN).length, Object.keys(ENEMY_RULES).length,
+        "first-seen map covers every guest exactly once");
+    for (const [id, seen] of Object.entries(ENEMY_FIRST_SEEN)) {
+        assert.ok(seen === null || levelIds.has(seen), `${id} first-seen ${seen} is not a level id`);
+        if (seen === null) { assert.ok(ENEMY_RULES[id], `${id} is endless-only but has no rule`); }
+    }
+    // 每条 newEnemy 都能在初见表里唯一解析；测试关卡引用的敌人也必须存在。
+    for (const level of LEVELS) {
+        if (!level.newEnemy) { continue; }
+        assert.ok(level.newEnemy in ENEMY_FIRST_SEEN, `${level.id} newEnemy ${level.newEnemy} unresolvable`);
+    }
+    assert.equal(ENEMY_FIRST_SEEN.E07, "2-1", "E07 实测初见 2-1（第一章共 7 关）");
+    assert.equal(ENEMY_FIRST_SEEN.E39, null, "E39 只在无尽巡守现身");
 });
 
 test("setup-phase auto-cache round-trips an in-progress placement", () => {

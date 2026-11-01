@@ -190,6 +190,43 @@
 @keyframes pickup-bob { 50% { transform: translate(-50%, calc(-50% - 4px)); } }
 .resource-pickup:hover { filter: brightness(1.05); }
 
+/* 战斗飘字分级：floater() 只发裸 span，字号/描边/动效全归 CSS。
+   位移与寿命仍由 projectOverlay() 每帧写 left/top/opacity——JS 不碰
+   transform，把它留给居中定位与 critical 的 pop。颜色全部走语义
+   令牌（shell.css :root / campaign.css :root），不写新的裸 hex。
+   字体按 spec/01 的伤害数字规范走衬线明朝体 + 表格数字（对齐 RL
+   damagetext），数字跳动时不错位。 */
+.battle-floater { position: absolute; z-index: 4; transform: translate(-50%, -50%);
+  pointer-events: none; font-family: "Noto Serif SC", "STSong", serif; font-variant-numeric: tabular-nums;
+  font-weight: 800; font-size: .95rem; line-height: 1; white-space: nowrap;
+  color: var(--paper-raised); --floater-line: var(--ink-warm);
+  text-shadow: 1px 0 0 var(--floater-line), -1px 0 0 var(--floater-line), 0 1px 0 var(--floater-line), 0 -1px 0 var(--floater-line),
+    1px 1px 0 var(--floater-line), -1px 1px 0 var(--floater-line), 1px -1px 0 var(--floater-line), -1px -1px 0 var(--floater-line),
+    0 2px 4px color-mix(in srgb, var(--ink-warm) 40%, transparent); }
+/* 伤害以外的彩色字在绿底战场上用亮纸描边才压得住场景。 */
+.battle-floater:is(.heal, .hurt, .shield, .stun, .burn, .gear, .armor, .enemy-heal, .slow, .vulnerable, .weaken, .status) { --floater-line: var(--paper-raised); }
+.battle-floater.heal      { color: var(--hp-good); }
+.battle-floater.hurt      { color: var(--hp-critical); }
+.battle-floater.enemy-heal { color: var(--hp-critical); }
+.battle-floater.shield, .battle-floater.stun { color: var(--blue); }
+.battle-floater.armor     { color: var(--gold-ink); }
+.battle-floater.burn, .battle-floater.gear { color: var(--gold-deep); }
+/* 状态类飘字补全：迟缓与麻痹同族蓝（冰系减速的视觉家族），易伤/虚弱
+   走危急红系，其余状态（击退等）用金。此前 roar 迟缓发的是 hurt、
+   击退发的 status 都落默认无色样式。 */
+.battle-floater.slow      { color: var(--blue); }
+.battle-floater.vulnerable, .battle-floater.weaken { color: var(--hp-critical); }
+.battle-floater.status    { color: var(--gold-ink); }
+/* 会心：加大一号、金描边，出场短促 pop（贝塞尔过冲即回弹）。
+   reduced-motion 由 shell.css 的全局 animation:none 覆盖，不另写块。 */
+.battle-floater.critical { z-index: 5; font-size: 1.45rem;
+  text-shadow: 2px 0 0 var(--gold-deep), -2px 0 0 var(--gold-deep), 0 2px 0 var(--gold-deep), 0 -2px 0 var(--gold-deep),
+    2px 2px 0 var(--gold-deep), -2px 2px 0 var(--gold-deep), 2px -2px 0 var(--gold-deep), -2px -2px 0 var(--gold-deep),
+    1px 0 0 var(--gold-deep), -1px 0 0 var(--gold-deep), 0 1px 0 var(--gold-deep), 0 -1px 0 var(--gold-deep),
+    0 3px 5px color-mix(in srgb, var(--gold-ink) 55%, transparent);
+  animation: floater-pop .3s cubic-bezier(.2, 1.8, .4, 1) 1; }
+@keyframes floater-pop { from { transform: translate(-50%, -50%) scale(.35); } }
+
 .lane-gate { position: absolute; display: grid; place-items: center; width: 22px; height: 24px; transform: translate(-50%, -50%); color: #7cc0e8;
   filter: drop-shadow(0 1px 1px #0005); }
 .lane-gate svg { position: absolute; inset: 0; width: 100%; height: 100%; }
@@ -198,6 +235,38 @@
 .lane-warning { position: absolute; padding: 2px 8px; font-size: .66rem; font-weight: 700; border-radius: 9px; background: #fff1ccee; border: 1px solid #c07a3a;
   color: #7a3b12; transform: translate(-100%, -50%); white-space: nowrap; animation: warn-blink 1s ease-in-out infinite; }
 @keyframes warn-blink { 50% { background: #ffd9a3ee; } }
+
+/* 波次/首领登场横幅（cut-in）：挂在 battle-overlay 顶层的战场内演出，
+   一场一张（cutin() 后到取代先到，波次与首领不叠映）。样式按纸面板
+   规范（docs/spec/01 §4）：暖纸底、1.5px 墨线、金饰、纸面投影；
+   pointer-events:none——横幅只是演出，不挡布阵点击。入场/退场是一段
+   2.2s 的整体 sweep（战斗层演出，可以比 UI 层舒展）；应用内与 OS 两
+   种减动效都被 shell.css 全局 animation:none 压成静态字牌，由
+   battle-view 的 setTimeout 兜底摘除，不依赖 animationend。 */
+.battle-cutin { position: absolute; left: 50%; top: 16%; z-index: 6; display: flex; flex-direction: column;
+  align-items: center; gap: 2px; padding: 9px 30px 11px; pointer-events: none; text-align: center;
+  background: linear-gradient(115deg, var(--paper-sunken), var(--paper-raised) 55%, var(--paper-warm));
+  border: 1.5px solid var(--line-strong); border-radius: 14px;
+  box-shadow: 0 3px 10px color-mix(in srgb, var(--ink-warm) 22%, transparent), inset 0 0 0 1px var(--line-soft);
+  animation: cutin-sweep 2.2s cubic-bezier(.22, .9, .32, 1) 1 both; }
+.battle-cutin-kicker { font-size: .62rem; font-weight: 800; letter-spacing: .3em; text-indent: .3em; color: var(--gold-ink); }
+.battle-cutin-text { font-family: "Noto Serif SC", "STSong", serif; font-size: 1.3rem; line-height: 1.25;
+  color: var(--ink-warm); text-shadow: 0 1px 0 color-mix(in srgb, var(--paper-raised) 85%, transparent); }
+/* 首领/精英张：框用原作 CommonUIAtlas 的 ScreenWindow.png 九宫格
+   （闲置素材接线：棕木圆角框）。原框棕带在 84px 源图里只有约 8px，
+   slice 取 13、框宽 12px 才能把棕框按近原比例显出来，框内仍是暖纸。 */
+.battle-cutin.boss, .battle-cutin.elite {
+  border: 12px solid transparent; border-image: url("../assets/ui/ScreenWindow.png") 13 stretch; border-radius: 0;
+  padding: 6px 26px 8px; box-shadow: 0 4px 12px color-mix(in srgb, var(--ink-warm) 30%, transparent); }
+.battle-cutin.boss .battle-cutin-text { color: var(--hp-critical); font-size: 1.5rem; }
+.battle-cutin.boss .battle-cutin-kicker { color: var(--hp-critical); }
+.battle-cutin.elite .battle-cutin-text { color: var(--gold-deep); }
+@keyframes cutin-sweep {
+  0% { opacity: 0; transform: translate(-50%, -10px) scale(.92); }
+  9% { opacity: 1; transform: translate(-50%, 0) scale(1); }
+  84% { opacity: 1; transform: translate(-50%, 0) scale(1); }
+  100% { opacity: 0; transform: translate(-50%, -4px) scale(.97); }
+}
 
 .battle-pause-overlay { position: absolute; inset: 0; z-index: 6; background: #e8eed386; display: grid; place-items: center; padding: 20px; }
 .battle-pause-overlay .panel { max-width: 440px; padding: 15px; text-align: center; }
@@ -265,7 +334,7 @@
   .campaign-battle { min-height: 100dvh; }
 }
 @media (prefers-reduced-motion: reduce) {
-  .resource-pickup, .lane-warning, .hud-button.start { animation: none; }
+  .resource-pickup, .lane-warning, .hud-button.start, .battle-cutin { animation: none; }
   .seed-card, .wave-meter span, .battle-message { transition: none; }
 }
 @media (forced-colors: active) {

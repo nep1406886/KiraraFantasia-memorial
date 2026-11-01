@@ -8,6 +8,14 @@ import { NativeItems } from "./native-items.js";
 import { createCaptureTarget, readTargetPng, restoreRendererState, saveRendererState } from "./capture.js";
 import { premultipliedBlend } from "./materials.js";
 
+// OS 级「减少动态效果」：经 matchMedia change 监听保持现值（与 campaign.js
+// 的 osReducedMotion 现算口径一致）。守卫式写法与 battle-view.js 同款（也同
+// rl damagetext.js）——presentation 契约的 harness 只垫 window/location，
+// 没有 matchMedia，裸调用会在 import 时崩。
+const reduceMq = typeof matchMedia === "function" ? matchMedia("(prefers-reduced-motion: reduce)") : null;
+let OS_REDUCED = reduceMq?.matches ?? false;
+reduceMq?.addEventListener?.("change", event => { OS_REDUCED = event.matches; });
+
 const ENEMIES = [
     { id: "E01", resourceId: 10000, name: "小黑怪", height: 0.82 },
     { id: "E02", resourceId: 10100, name: "松鼠", height: 0.92 },
@@ -112,6 +120,13 @@ export class DefenseStage {
         this.camera = new THREE.OrthographicCamera(-8, 8, 3.2, -3.2, 0.1, 100);
         this.camera.position.set(0, 18.55, 18 / Math.tan(PITCH));
         this.camera.lookAt(0, 0.55, 0);
+        // 会心定帧与震屏状态：hitStopFrames 由 battle-view 在会心/F10/F12
+        // 爆破命中时置 3，update() 的 vdt 门逐帧消费；shake 由 render()
+        // 消费，帧尾把相机平移复原，capture() 的克隆相机始终在基准位姿。
+        this.hitStopFrames = 0;
+        this.shakePower = 0;
+        this.shakeFrames = 0;
+        this.shakeOffset = new THREE.Vector3();
         this.environment = new THREE.Group();
         this.scene.add(this.environment);
         this.effects = new NativeEffects(assets, this.scene);
@@ -741,10 +756,14 @@ export class DefenseStage {
         this.time += dt;
         if (this.battleTick) {
             this.battleTick(dt);
-            for (const model of this.players) { model.update(dt); }
-            for (const model of this.enemies) { model.update(dt); }
-            this.items.update(dt);
-            this.effects.update(dt);
+            // 会心定帧门：hitStopFrames>0 时视觉层吃 vdt=0（模型动画、
+            // 粒子、投射物停拍），而 battleTick(dt) 已经照常跑完——
+            // 画面停拍、sim 不停。字段由 battle-view 只做赋值。
+            const vdt = this.hitStopFrames > 0 ? (this.hitStopFrames--, 0) : dt;
+            for (const model of this.players) { model.update(vdt); }
+            for (const model of this.enemies) { model.update(vdt); }
+            this.items.update(vdt);
+            this.effects.update(vdt);
             this.afterBattleFrame?.(dt);
             return;
         }
@@ -769,7 +788,7 @@ export class DefenseStage {
         }
         // 选项对象每帧复用：IdleMotion.configure 只读字段、不保存引用。
         const idleOptions = this._idleOptions || (this._idleOptions = { enabled: true, relaxed: true });
-        idleOptions.enabled = !this.audio.settings.reducedMotion;
+        idleOptions.enabled = !this.audio.settings.reducedMotion && !OS_REDUCED;
         idleOptions.relaxed = !this.demo;
         for (const player of this.players) {
             player.configureIdle?.(idleOptions);
@@ -854,13 +873,37 @@ export class DefenseStage {
         }
     }
 
+    // 震屏登记：power 是世界单位的幅度上限（会心小抖 .03 / 首领倒地
+    // 大抖 .06，clamp 到 .06）；render 无 dt，衰减按帧计——每帧 ×0.82
+    // 指数衰减、约 15 帧收敛。应用内与 OS 级减动效都直接忽略；
+    // battle-view 一律 shake?.() 可选调用，观察模式与 presentation 桩上
+    // 没有这个方法也安全。
+    shake(power = .03, frames = 15) {
+        if (this.disposed || this.audio?.settings?.reducedMotion || OS_REDUCED) { return; }
+        this.shakePower = Math.max(this.shakePower, Math.min(.06, power));
+        this.shakeFrames = Math.max(this.shakeFrames, frames);
+    }
+
     render() {
         if (this.disposed) { return; }
         this.frames++;
         if (this.cinematic) { this.cinematic.render(this.renderer); return; }
         for (const model of this.players) { this.renderModel(model); }
         for (const model of this.enemies) { this.renderModel(model); }
+        // 震屏：渲染前给相机加纯平移偏移、渲染后立刻复原。标签投影、
+        // overlay 跟随与 capture() 的克隆相机都发生在基准位姿上，
+        // 固定时钟截图因此不会有残偏移。
+        let shaken = false;
+        if (this.shakeFrames > 0 && this.shakePower > 0) {
+            const angle = this.frames * 2.39996;
+            this.shakeOffset.set(Math.cos(angle), 0, Math.sin(angle)).multiplyScalar(this.shakePower);
+            this.camera.position.add(this.shakeOffset);
+            shaken = true;
+            this.shakePower *= .82;
+            if (--this.shakeFrames <= 0) { this.shakePower = 0; this.shakeFrames = 0; }
+        }
         this.renderer.render(this.scene, this.camera);
+        if (shaken) { this.camera.position.sub(this.shakeOffset); }
         this.afterRender?.();
     }
 

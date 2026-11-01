@@ -22,6 +22,15 @@ const ELEMENT_IMPACT = ELEMENT_BURST;
 const LOADING_PAUSES = new Set(["deploy-load", "enemy-load"]);
 const STATUS_BADGES = { slow: ["迟缓", "❄"], stun: ["麻痹", "⚡"], vulnerable: ["易伤", "◆"], weaken: ["虚弱", "▼"], burn: ["灼烧", "✦"] };
 const STATUS_KEYS = Object.keys(STATUS_BADGES);
+// OS 级「减少动态效果」：经 matchMedia change 监听保持现值。守卫式写法与 rl 的
+// damagetext.js 同款——presentation 契约的 harness 只垫 window/location，
+// 没有 matchMedia，裸调用会在 import 时 ReferenceError 崩掉全部表现契约。
+// 应用内的 reducedMotion 是运行时设置，OS 的与 campaign.js 的 osReducedMotion
+// 现算口径一致（页面开着切 OS 也不漂移）；两者任一开启都按减动效处理
+// （reducedMotion || OS_REDUCED）。
+const reduceMq = typeof matchMedia === "function" ? matchMedia("(prefers-reduced-motion: reduce)") : null;
+let OS_REDUCED = reduceMq?.matches ?? false;
+reduceMq?.addEventListener?.("change", event => { OS_REDUCED = event.matches; });
 
 // 场上的静态设施（应援台 / 稻草人诱饵）：共享网格定位、体心取点、
 // 快照与销毁。子类只负责搭自己的 group 和（如果有）动画。
@@ -143,8 +152,13 @@ export class BattleView {
         this._heldDirty = true;
         this.warming = new Map();
         this.retiring = new Set();
+        // 外层 group.scale 上有短动画（受击压扁/部署落地）的模型集合，
+        // afterFrame 每帧驱动，结束时强制复位（见 updateScaleFx）。
+        this.scaleFx = new Set();
         this.spells = new Map();
         this.pickupElements = new Map();
+        // 波次/首领登场横幅（cut-in）：当前节点与摘除定时器，一场一张。
+        this.cutinBanner = null;
         this.floaters = [];
         this.visualEvents = [];
         this.visualEventSerial = 0;
@@ -426,7 +440,7 @@ export class BattleView {
         const target = this.boardWanted() ? peak : 0;
         const opacity = lines.material.opacity;
         // Frames stop while paused, so a fade could never finish there.
-        lines.material.opacity = this.options.audio.settings.reducedMotion || this.options.manualClock || this.battle.pauses.size ? target
+        lines.material.opacity = this.options.audio.settings.reducedMotion || OS_REDUCED || this.options.manualClock || this.battle.pauses.size ? target
             : opacity < target ? Math.min(target, opacity + dt * peak / .14) : Math.max(target, opacity - dt * peak / .22);
         lines.visible = lines.material.opacity > 0;
     }
@@ -519,7 +533,7 @@ export class BattleView {
             ghost.lastCell = { row, col };
             if (ghost.model.place) { ghost.model.place(row, col, rows); }
         }
-        const lift = .16 + (this.options.audio.settings.reducedMotion ? 0 : Math.sin(this.visualTime * 5) * .04);
+        const lift = .16 + (this.options.audio.settings.reducedMotion || OS_REDUCED ? 0 : Math.sin(this.visualTime * 5) * .04);
         ghost.model.group.position.set(point.x, lift + (ghost.model.kind === "item" ? .45 : 0), point.z);
         ghost.model.group.visible = true;
     }
@@ -691,6 +705,10 @@ export class BattleView {
     addModel(id, model, row, col) {
         model.entityId = id;
         model.retiring = false;
+        // 出场前强制复位外层缩放：回池模型不能带着击杀渐缩/受击压扁的
+        // 变形体型再出场（授权缩放/镜像在内层 scaled 组，外层恒为 1）。
+        model.group.scale.set(1, 1, 1);
+        this.clearScaleFx(model, false);
         model.place(row + this.level.rowOffset, col + this.level.colOffset, this.stage.rows);
         if (model.kind !== "facility") { model.play("idle"); }
         this.stage.scene.add(model.group);
@@ -820,7 +838,13 @@ export class BattleView {
             // 收クリエ：原作 pickup 声。限流一次一声，多路同时收取不成串响。
             this.seOnce("collect", .12, "pickup", 0.5);
             break;
-        case "deployed": if (model) { this.emit(BIRTH, model.group.position.clone(), .65); if (model.kind !== "facility") { this.options.audio.se?.("plant", { volume: 0.7 }); } } break;
+        case "deployed": if (model) {
+            this.emit(BIRTH, model.group.position.clone(), .65);
+            if (model.kind !== "facility") { this.options.audio.se?.("plant", { volume: 0.7 }); }
+            // 部署落地：0.25s 自 0.6 格高度落下→压扁→回弹，触地那拍在
+            // 落点补一圈尘环（updateScaleFx 里发）。reduced-motion 直接就位。
+            this.startLanding(model);
+        } break;
         case "gearApplied":
             if (model) {
                 this.emit("ef_btl_recover_00", model.group.position.clone(), model.scale || .7);
@@ -842,13 +866,23 @@ export class BattleView {
         case "lob": this.lob(event); break;
         case "enemyHurt":
             if (model) {
+                // 受击压扁：外层短动画，会心一档更狠（burn 高频跳字不抖）。
+                if (event.source !== "burn") { this.startSquash(model, event.critical ? 1 : .7); }
                 if (event.source !== "burn") { this.emit(this.impactFor(event.source), model.bodyPoint(), event.critical ? .9 : .6); }
                 if (event.amount > 0) { this.floater(model, String(event.amount), event.critical ? "critical" : event.source === "burn" ? "burn" : "damage"); }
                 else if (event.absorbed > 0) { this.floater(model, "护甲", "armor"); }
                 // 战斗命中音：会心一击用 crit，普通伤害用 hit。burn 走 tick
                 // 高频，只在会心时出声，其余交给视觉。10U 类单位出手很密，
                 // hit 用 once() 限流防机枪化。
-                if (event.critical) { this.options.audio.se?.("crit", { volume: 0.55 }); }
+                if (event.critical) {
+                    this.options.audio.se?.("crit", { volume: 0.55 });
+                    // 会心定帧＋小幅震屏：定帧只做字段赋值（观察模式的桩
+                    // stage 没有对应机制也无害），震屏走可选调用并限频，
+                    // 弹幕会心不会把画面抖成筛子。减动效（应用内或 OS 级）
+                    // 一律不定帧；震屏的开关由 stage.shake 自己判。
+                    if (!(this.options.audio.settings.reducedMotion || OS_REDUCED)) { this.stage.hitStopFrames = 3; }
+                    if (this.once("shake:crit", .3)) { this.stage.shake?.(.03, 15); }
+                }
                 else { this.seOnce(`hit:${event.id}`, .18, "hit", 0.4); }
                 // 灼烧持续伤害的原作表现：火元素全体伤害图按 tick 抖动，
                 // 音效静默（灼烧的火声在点燃那一下，不在每跳）。
@@ -861,6 +895,7 @@ export class BattleView {
             if (model) {
                 // 同伴被打：同样按攻击者（来客）属性取元素受击图。原作里
                 // 来客各带属性，受击不应是一张白图。
+                this.startSquash(model, .8);
                 this.emit(this.impactFor(event.source), model.bodyPoint(), .6);
                 if (model.action === "idle" && model.kind !== "facility") { model.play("damage", false); }
                 if (event.kind === "thorns") { this.floater(model, `反伤 ${event.amount}`, "hurt"); }
@@ -891,7 +926,11 @@ export class BattleView {
         case "enemyHop":
             if (model) { model.hop = { start: this.visualTime, duration: .7, from: this.world(this.battle.enemies.get(event.id)?.row ?? 0, event.from).x }; }
             break;
-        case "enemyDown": if (model) { model.walking = false; model.play("dead", false); this.floater(model, "还会起来……", "armor"); } break;
+        // 复起来客的首杀不走 retire（它会再起来），这里同样补一记小爆点，
+        // 让「打倒了」有反馈。
+        case "enemyDown": if (model) { model.walking = false; model.play("dead", false);
+            this.emit("ef_btl_common_dead", model.bodyPoint(), .45);
+            this.floater(model, "还会起来……", "armor"); } break;
         case "enemyRevived":
             if (model) {
                 model.play("idle");
@@ -932,6 +971,14 @@ export class BattleView {
             // 来客预告：一声短促的号角感提示（原作战前注意的听感），
             // 同一时刻多路预警只响一次。
             this.seOnce("warning", 2.5, "chime", 0.35);
+            // 波次登场横幅：warning 逐 spawn 发且 payload 不带修饰词，
+            // 用 once() 按波去重（同刻多路预警只出一张横幅）；修饰词从
+            // sim 的 waveBounds 取——它只在 endless 局上初始化，关卡波
+            // 用可选链兜底，只报波数。
+            if (this.once(`cutin:wave:${event.wave}`, 2)) {
+                const label = this.battle.waveBounds?.get(event.wave)?.modifier?.label;
+                this.showCutin("wave", "来客预告", label ? `第${event.wave}波·${label}来袭` : `第${event.wave}波来袭`);
+            }
             if (this.level.endless) { this.ensureEnemies(); }
             break;
         case "restockEarned":
@@ -952,6 +999,9 @@ export class BattleView {
             // 冻结改成更「脆」的水爆。
             const art = event.freeze ? ELEMENT_BURST[1] : BURST;
             this.options.audio.se?.(event.freeze ? "shoot_water" : "gate", { volume: event.freeze ? 0.8 : 1 });
+            // F10/F12 爆破命中：3 帧定帧强调（sim 不停，只停画面动画）。
+            // 减动效（应用内或 OS 级）一律不定帧。
+            if (!(this.options.audio.settings.reducedMotion || OS_REDUCED)) { this.stage.hitStopFrames = 3; }
             for (let row = Math.max(0, event.row - 1); row <= Math.min(this.level.rows - 1, event.row + 1); row++) {
                 for (let col = Math.max(0, event.col - 1); col <= Math.min(this.level.cols - 1, event.col + 1); col++) {
                     this.emit(art, this.world(row, col, .22), 1);
@@ -991,6 +1041,7 @@ export class BattleView {
             this.stage.effects.reset();
             this.stage.items.reset();
             this.pickupElements.forEach(element => element.remove()); this.pickupElements.clear();
+            this.clearCutin();
             // 结算提示：胜利是上行 chime，失守低落。
             this.options.audio.se?.(event.result === "won" ? "chime" : "ui_cancel", { volume: 0.6 });
             for (const player of this.stage.players) {
@@ -1025,7 +1076,9 @@ export class BattleView {
         this.options.audio.se?.("death", { volume: 0.45 });
         for (const id of event.affected.slice(0, 6)) {
             const other = this.models.get(id);
-            if (other) { this.floater(other, "迟缓", "hurt"); }
+            // 迟缓统一走 slow 观感（与 status() 的 STATUS_BADGES 路径同族，
+            // 不再借用受击红）。
+            if (other) { this.floater(other, "迟缓", "slow"); }
         }
     }
 
@@ -1060,6 +1113,63 @@ export class BattleView {
     emit(name, point, scale = 1, extra = {}) {
         if (!this.stage.effects.pools.has(name)) { return null; }
         return this.stage.effects.emit(name, { from: point, scale, ...extra });
+    }
+
+    // 外层 group.scale 上的两种短动画：受击压扁与部署落地。授权缩放/
+    // 镜像在内层 scaled 组（native-model.js 构造时 set 一次），外层恒为
+    // 1，动画结束或回池前强制复位，池化模型不会以变形体型再出场。
+    // reduced-motion 一律不启动，直接就位/保持原样。
+    startSquash(model, strength = 1) {
+        if (!model?.group || model.retiring || this.options.audio.settings.reducedMotion || OS_REDUCED) { return; }
+        if (model.scaleFx?.kind === "landing") { return; }
+        model.scaleFx = { kind: "squash", start: this.visualTime, duration: .18, strength };
+        this.scaleFx.add(model);
+    }
+
+    startLanding(model) {
+        if (!model?.group || this.options.audio.settings.reducedMotion || OS_REDUCED) { return; }
+        model.scaleFx = { kind: "landing", start: this.visualTime, duration: .25, land: .48,
+            drop: .6, baseY: model.group.position.y, landed: false };
+        this.scaleFx.add(model);
+    }
+
+    clearScaleFx(model, reset = true) {
+        if (!this.scaleFx.delete(model)) { return; }
+        model.scaleFx = null;
+        if (reset) { model.group.scale.set(1, 1, 1); }
+    }
+
+    // 每帧在 afterFrame 驱动。t 用 visualTime 计——与 retire/飘字同一
+    // 时钟；落地在触地那拍补一圈 ef_btl_buff_ring 尘环。
+    updateScaleFx() {
+        for (const model of this.scaleFx) {
+            const fx = model.scaleFx;
+            if (!fx || model.retiring) { this.clearScaleFx(model, false); continue; }
+            const t = (this.visualTime - fx.start) / fx.duration;
+            if (fx.kind === "landing") {
+                if (t >= 1) { model.group.position.y = fx.baseY; this.clearScaleFx(model); continue; }
+                if (t < fx.land) {
+                    // 自 0.6 格高度落下：ease-in，越落越快。
+                    const k = t / fx.land;
+                    model.group.position.y = fx.baseY + fx.drop * (1 - k * k);
+                } else {
+                    if (!fx.landed) {
+                        fx.landed = true;
+                        model.group.position.y = fx.baseY;
+                        this.emit(BIRTH, model.group.position.clone(), .9);
+                    }
+                    // 压扁 0.9 → 回弹 1：缓出包络，前快后慢。
+                    const k = Math.min(1, (t - fx.land) / (1 - fx.land));
+                    const rebound = 1 - (1 - k) * (1 - k);
+                    model.group.scale.set(1 + .08 * (1 - rebound), .9 + .1 * rebound, 1 + .08 * (1 - rebound));
+                }
+            } else {
+                if (t >= 1) { this.clearScaleFx(model); continue; }
+                // 受击压扁：从最深一档线性回弹，会心压得更狠。
+                const dip = .14 * fx.strength * (1 - t);
+                model.group.scale.set(1 + dip * .75, 1 - dip, 1 + dip * .75);
+            }
+        }
     }
 
     once(key, seconds) {
@@ -1192,10 +1302,22 @@ export class BattleView {
             if (event.wave) { this.seOnce(`wave:${event.id}`, .5, "shoot_wave", 0.6); }
             else { this.seOnce(`shot:${event.source}`, .25, shot, 0.35); }
         }
+        // 定帧期间的停拍位置：每颗投射物一份（emit 时建一次，不在帧循环
+        // 里分配对象）。
+        const frozenAt = { point: null };
         const slot = this.stage.effects.emit(graphic.effect, { from, scale, facing: -1,
             position: () => {
                 const projectile = this.battle.projectiles.get(event.id);
                 if (!projectile) { return null; }
+                // 会心/爆破定帧期间投射物同步停拍：冻结的第一帧算好位置
+                // 记住，之后整段冻结直接返回它，不再重算（粒子时间线本身
+                // 已 0 步进）；解冻后清掉恢复跟踪——sim 不停，画面停。
+                const frozen = this.stage.hitStopFrames > 0;
+                if (!frozen) { frozenAt.point = null; }
+                else if (frozenAt.point) { return frozenAt.point; }
+                const position = frozen
+                    ? (frozenAt.point = new this.stage.THREE.Vector3())
+                    : (this._projectilePoint ||= new this.stage.THREE.Vector3());
                 const target = this.battle.enemies.get(event.targetId);
                 if (target && !event.pierce) {
                     const model = this.models.get(target.id);
@@ -1204,10 +1326,8 @@ export class BattleView {
                 const logicalEnd = event.pierce ? this.level.cols + 1.4 : target?.x ?? this.level.cols;
                 const fraction = Math.max(0, Math.min(1, (projectile.x - startX) / Math.max(.1, logicalEnd - startX)));
                 // 每帧每颗子弹跑一次：终点向量在创建时分配一次、此后原地
-                // 更新；路径插值写进本视图共享的暂存向量（placeCentered
-                // 只读取、不保存它）。
-                const position = (this._projectilePoint ||= new this.stage.THREE.Vector3())
-                    .copy(from).lerp(destination, Math.min(1, fraction * (event.pierce ? 3 : 1)));
+                // 更新；路径插值写进暂存向量（placeCentered 只读取、不保存它）。
+                position.copy(from).lerp(destination, Math.min(1, fraction * (event.pierce ? 3 : 1)));
                 position.x = (projectile.x + this.level.colOffset - 4) * 1.3;
                 return position;
             } });
@@ -1311,6 +1431,38 @@ export class BattleView {
         this.floaters.push({ element, point, start: this.visualTime, jitter: (this.floaters.length % 5 - 2) * 7 });
     }
 
+    // 波次/首领登场横幅（cut-in）：挂在战斗 overlay 顶层的一场一张横幅，
+    // 后到的直接取代先到的（首领登场不与波次预告叠映）。摘除一律走
+    // setTimeout——shell.css 对应用内与 OS 两种减动效都是全局
+    // animation:none，animationend 根本不会触发，不能指望它收尾。
+    showCutin(kind, kicker, main) {
+        const overlay = this.options.overlay;
+        if (!overlay) { return; }
+        this.clearCutin();
+        const element = document.createElement("div");
+        element.className = `battle-cutin ${kind}`;
+        element.setAttribute("aria-hidden", "true");
+        const head = document.createElement("span");
+        head.className = "battle-cutin-kicker";
+        head.textContent = kicker;
+        const text = document.createElement("strong");
+        text.className = "battle-cutin-text";
+        text.textContent = main;
+        element.append(head, text);
+        overlay.append(element);
+        const still = this.options.audio.settings.reducedMotion || OS_REDUCED;
+        // 减动效下没有入场/退场动画：静态字牌停留约 0.4s；正常演出约
+        // 2.2s（与 battle.css 的 cutin-sweep 时长一致）。
+        this.cutinBanner = { element, timer: setTimeout(() => this.clearCutin(), still ? 400 : 2200) };
+    }
+
+    clearCutin() {
+        if (!this.cutinBanner) { return; }
+        clearTimeout(this.cutinBanner.timer);
+        this.cutinBanner.element.remove();
+        this.cutinBanner = null;
+    }
+
     // 模型还没就位的来客：挂起整条战斗等它装好，而不是让一个看不见的
     // 客人照常走道。模型缺失和晚到都走这一条路。
     holdSpawn(event) {
@@ -1330,20 +1482,26 @@ export class BattleView {
 
     placeEnemy(event, model) {
         model.retiring = false; model.hop = null;
+        // 与 addModel 同一套复位纪律：来客从对象池出场必须是无变形体型。
+        model.group.scale.set(1, 1, 1);
+        this.clearScaleFx(model, false);
         this.addModel(event.id, model, event.row, event.x);
         model.group.position.y = 0;
         model.beginWalk();
         if (event.summoned) { this.emit("ef_btl_common_dead", model.bodyPoint(), .55); }
         // 首领/精英登场读法：原作里 BOSS 换阶段有 boss_phase 低钟——
         // 登场同用一次；脚下亮增益环（与召唤同族），浮字报名。精英
-        // 只亮环不响钟。
+        // 只亮环不响钟。登场横幅单独一张（showCutin 先摘旧横幅，不与
+        // 波次预告叠映）。
         if (event.boss) {
             this.emit("ef_btl_buff_ring", model.group.position.clone(), 1.4);
             this.floater(model, "首领来袭！", "enemy-heal");
             this.options.audio.se?.("boss_phase", { volume: 0.7 });
+            this.showCutin("boss", ENEMY_RULES[event.enemyType]?.name || "首领", "首领来袭");
         } else if (event.elite) {
             this.emit("ef_btl_buff_ring", model.group.position.clone(), 1.1);
             this.floater(model, "精英", "enemy-heal");
+            this.showCutin("elite", "精英", `${ENEMY_RULES[event.enemyType]?.name || "来客"}来袭`);
         }
     }
 
@@ -1391,6 +1549,18 @@ export class BattleView {
         }
         model.retiring = true;
         model.retireTime = this.visualTime;
+        // 击杀收尾：渐缩到 0.7 由 afterFrame 的 retiring 循环驱动；recall/
+        // gate 走原样（battle_out/dead 动画自己会收），压扁中的受击动画作废。
+        model.retireShrink = reason === "defeated";
+        if (!model.retireShrink) { this.clearScaleFx(model); }
+        if (reason === "defeated") {
+            // 击杀爆点：common_dead 是常备池的消散图，与渐缩同拍读「消灭」。
+            this.emit("ef_btl_common_dead", model.bodyPoint(), .55);
+            // 首领倒地：更沉的一档震屏，once() 限频防连续倒地成地震。
+            if (model.kind === "enemy" && ENEMY_RULES[model.unit.id]?.boss && this.once("shake:boss", .8)) {
+                this.stage.shake?.(.06, 15);
+            }
+        }
         model.label?.remove(); model.label = null; model.statusKey = null;
         if (model.kind === "facility") {
             this.emit("ef_btl_common_dead", model.bodyPoint(), .6);
@@ -1404,7 +1574,6 @@ export class BattleView {
 
     tick(dt) {
         if (!this.ready || this.disposed) { return; }
-        this.visualTime += dt;
         try {
             const threatenedRows = this.threatenedRows;
             threatenedRows.length = this.level.rows;
@@ -1413,12 +1582,22 @@ export class BattleView {
             for (const model of this.stage.players) {
                 const unit = this.battle.units.get(model.entityId);
                 const threatened = unit && threatenedRows[unit.row];
-                this._idleOptions.enabled = !this.options.audio.settings.reducedMotion && !model.retiring && !threatened;
+                this._idleOptions.enabled = !this.options.audio.settings.reducedMotion && !OS_REDUCED && !model.retiring && !threatened;
                 this._idleOptions.relaxed = this.battle.phase === "setup";
                 model.configureIdle?.(this._idleOptions);
             }
             this.battle.step(dt);
             this.consumeEvents();
+            // 定帧时钟：会心/爆破命中那一帧消费的事件里置了 hitStopFrames，
+            // 就从这一帧起把 visualTime 与画面动画（stage 的 vdt）一起冻住
+            // ——飘字出生点、hop 起点、压扁包络停在同一拍，恢复时一起动。
+            // 此前 visualTime 在帧顶先加，比 vdt 的 0 少冻一帧，会出现
+            // 「模型停了、飘字还在飘」的错位。减动效下 hitStopFrames 恒为
+            // 0，这里每帧照常累加。
+            const frozen = this.stage.hitStopFrames > 0;
+            if (!frozen) { this.visualTime += dt; }
+            // 敌人 x 插值与 hop 乘同一冻结系数：定帧期间来客也停在原地。
+            const vdt = frozen ? 0 : dt;
             const queue = this.visualEvents;
             while (this.visualEventCursor < queue.length && queue[this.visualEventCursor].at <= this.battle.time) {
                 queue[this.visualEventCursor++].run();
@@ -1448,13 +1627,17 @@ export class BattleView {
                 const target = (enemy.x + this.level.colOffset - 4) * 1.3;
                 const position = model.group.position;
                 if (model.hop) {
+                    // hop 插值用 visualTime 计时：定帧期间时钟冻住，t 不
+                    // 前进，抛物线顶点原地停拍。
                     const t = Math.min(1, (this.visualTime - model.hop.start) / model.hop.duration);
                     position.x = model.hop.from + (target - model.hop.from) * t;
                     position.y = Math.sin(Math.PI * t) * 1.2;
                     if (t >= 1) { model.hop = null; position.y = 0; }
-                } else if (Math.abs(position.x - target) > .06) {
-                    position.x += (target - position.x) * Math.min(1, dt * 12);
-                } else { position.x = target; }
+                } else if (vdt > 0) {
+                    if (Math.abs(position.x - target) > .06) {
+                        position.x += (target - position.x) * Math.min(1, vdt * 12);
+                    } else { position.x = target; }
+                }
                 model.cell.col = enemy.x + this.level.colOffset;
                 if (enemy.state === "reviving") { model.walking = false; continue; }
                 if (enemy.state === "stunned") {
@@ -1475,21 +1658,33 @@ export class BattleView {
 
     afterFrame(dt) {
         this.syncBoard(dt);
+        this.updateScaleFx();
         if (this.ghost?.model.group.visible) {
             this.ghost.model.update?.(dt);
             this.moveGhost(this.ghostPoint || (this.lastTarget ? this.world(this.lastTarget.row, this.lastTarget.col) : null));
         }
         for (const item of this.spells.values()) {
-            item.turn.rotation.z = this.options.audio.settings.reducedMotion ? 0 : Math.sin(this.visualTime * 9) * .07;
+            item.turn.rotation.z = this.options.audio.settings.reducedMotion || OS_REDUCED ? 0 : Math.sin(this.visualTime * 9) * .07;
         }
         for (const model of this.retiring) {
             const elapsed = this.visualTime - model.retireTime;
+            // 击杀渐缩：0.28s 缓出缩到 0.7，与 retire() 的爆点同拍。只动
+            // 外层 group.scale（授权缩放在内层 scaled 组），回池前会复位。
+            if (model.retireShrink) {
+                const t = Math.min(1, elapsed / .28);
+                const k = 1 - .3 * (1 - (1 - t) * (1 - t));
+                model.group.scale.set(k, k, k);
+            }
             if (model.kind === "facility" ? elapsed >= .4 : model.finishedAction === "dead" || elapsed > 1.6 || elapsed > .2 && model.action === "idle") {
                 this.retiring.delete(model);
                 this.models.delete(model.entityId);
                 const list = model.kind === "enemy" ? this.stage.enemies : this.stage.players;
                 const index = list.indexOf(model); if (index >= 0) { list.splice(index, 1); }
                 model.group.removeFromParent(); model.shadow?.removeFromParent(); model.shadow = null;
+                // 归池复位：渐缩/压扁都不能带进池里，否则同一模型下次
+                // 部署会以变形体型出场。
+                model.group.scale.set(1, 1, 1);
+                this.clearScaleFx(model, false);
                 if (model.kind === "player") { this.unitPools.get(model.unit.id).push(model); }
                 else if (model.kind === "facility") { this.allModels.delete(model); }
                 else if (model.kind === "enemy") {
@@ -1519,7 +1714,7 @@ export class BattleView {
             element.style.left = `${(point.x + 1) * this.stage.width / 2}px`;
             element.style.top = `${(1 - point.y) * this.stage.height / 2}px`;
         }
-        const still = this.options.audio.settings.reducedMotion;
+        const still = this.options.audio.settings.reducedMotion || OS_REDUCED;
         const floatPoint = this._floaterPoint ||= new this.stage.THREE.Vector3();
         this.floaters = this.floaters.filter(floater => {
             const age = this.visualTime - floater.start;
@@ -1601,6 +1796,7 @@ export class BattleView {
         if (this.disposed) { return; }
         this.disposed = true;
         this.ghost = null;
+        this.clearCutin();
         for (const model of this.allModels) { model.dispose(); }
         this.allModels.clear();
         this.range?.dispose();
@@ -1608,6 +1804,6 @@ export class BattleView {
         this.pickupElements.forEach(element => element.remove());
         this.pickupElements.clear();
         this.floaters.forEach(floater => floater.element.remove()); this.floaters = [];
-        this.models.clear(); this.retiring.clear();
+        this.models.clear(); this.retiring.clear(); this.scaleFx.clear();
     }
 }

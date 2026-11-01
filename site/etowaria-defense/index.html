@@ -9,9 +9,9 @@
   <meta http-equiv="Content-Security-Policy" content="default-src 'self' blob: data:; script-src 'self' 'unsafe-inline' 'wasm-unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; media-src 'self' blob:; connect-src 'self' blob:; object-src 'none'; base-uri 'self'">
   <title>里之守望 · 芳文幻想</title>
   <link rel="icon" href="../favicon.png">
-  <link rel="stylesheet" href="./styles/shell.css?v=20261025-1">
-  <link rel="stylesheet" href="./styles/campaign.css?v=20261025-6">
-  <link rel="stylesheet" href="./styles/battle.css?v=20261025-1">
+  <link rel="stylesheet" href="./styles/shell.css?v=20261025-3">
+  <link rel="stylesheet" href="./styles/campaign.css?v=20261025-9">
+  <link rel="stylesheet" href="./styles/battle.css?v=20261031-2">
   <script type="importmap">{"imports":{"three":"../vendor/three/three.module.min.js"}}</script>
 </head>
 <body>
@@ -91,7 +91,7 @@
         <div class="scene-directions" aria-hidden="true"><span>里入口</span><span>来袭方向</span></div>
         <p class="viewport-hint" id="viewport-hint">点选伙伴，再点空格调整位置</p>
         <div id="stage-labels" class="stage-labels" aria-hidden="true"></div>
-        <div id="stage-loading" class="stage-loading" role="status" hidden><div class="panel loading-card"><h3>把大家的身影准备好</h3><p id="loading-progress">读取原生模型与表情…</p><progress id="loading-progress-bar" max="1" value="0"></progress></div></div>
+        <div id="stage-loading" class="stage-loading" role="status" hidden><div class="panel loading-card"><h3>把大家的身影准备好</h3><p id="loading-progress">读取原生模型与表情…</p><div id="stage-loading-bones" class="loading-bones"></div><progress id="loading-progress-bar" max="1" value="0"></progress></div></div>
         <div id="portrait-notice" class="portrait-notice" hidden><div class="panel"><h3>横过手机，看清完整防线</h3><p>编队和图鉴可在竖屏浏览。场景试演请使用横屏。</p><button id="portrait-back" class="native-button compact">返回编队</button></div></div>
       </div>
       <footer class="panel stage-controls">
@@ -134,6 +134,6 @@
   <div id="cinematic-controls" class="cinematic-controls panel" hidden><span id="cinematic-title">原作とっておき</span><button id="close-cinematic" class="native-button compact">返回场景</button></div>
   <div id="toast" role="status" class="toast" hidden></div>
   <noscript>请启用 JavaScript 以浏览角色和原生场景。</noscript>
-  <script type="module" src="./app/main.js?v=20261025-2"></script>
+  <script type="module" src="./app/main.js?v=20261031-4"></script>
 </body>
 </html>

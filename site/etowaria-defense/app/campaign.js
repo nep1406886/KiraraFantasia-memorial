@@ -1,8 +1,13 @@
-import { LEVELS, CHAPTERS, ENDLESS, UNIT_RULES, ENEMY_RULES, DECK_ORDER, GEAR_ORDER, DECK_SIZE, SAVE_KEY, TOWN_RULES, ENDLESS_MILESTONES, ACHIEVEMENTS, levelById } from "../data/campaign.js";
+import { LEVELS, CHAPTERS, ENDLESS, UNIT_RULES, ENEMY_RULES, ENEMY_FIRST_SEEN, DECK_ORDER, GEAR_ORDER, DECK_SIZE, SAVE_KEY, TOWN_RULES, ENDLESS_MILESTONES, ACHIEVEMENTS, levelById } from "../data/campaign.js";
 import { CampaignSave } from "./campaign-save.js";
 import { evaluateChallenge } from "./challenge-evaluator.js";
 import { portraitMarkup, siteUrl } from "./assets.js";
 import { ICONS } from "./icons.js";
+// 来客小像：懒拍池内模型本体。模块本身零重依赖（three/拍摄管线都在
+// 拍摄函数内部按需动态导入），在选关图载入它没有额外成本。
+import { captureEnemyIcon, loadEnemyIcons, storeEnemyIcons } from "../render/enemy-icons.js";
+// 纸面骨架屏：进关载入卡的占位骨条，与观察模式载入卡共用 load-shell 的样式契约。
+import { loadBones } from "./load-shell.js";
 
 // 战斗模块在进入关卡时按需加载；模块系统自己会缓存，这里只收敛
 // 三处重复的动态导入与解构。
@@ -10,7 +15,6 @@ let battleModule;
 const loadBattle = () => battleModule ||= import("../sim/battle.js");
 
 const DEFAULT_DECK = DECK_ORDER.slice(0, DECK_SIZE);
-const TIME = seconds => `${Math.floor(seconds / 60)}:${String(Math.floor(seconds % 60)).padStart(2, "0")}`;
 const WAVE_LABEL = level => level.endless ? "不限波次" : `${level.waves}波`;
 const tacticalHint = rule => {
     if (rule.healer) { return "优先击倒：会治疗附近来客"; }
@@ -33,6 +37,73 @@ const counterTags = rule => {
     if (rule?.kind === "lobber") { tags.push("越障攻击"); }
     return tags.join("、") || rule?.role || "持续输出";
 };
+const TIME = seconds => `${Math.floor(seconds / 60)}:${String(Math.floor(seconds % 60)).padStart(2, "0")}`;
+// 逐帧间隔一张：优先 rAF（随绘制走）；页签被节流不绘制时（后台窗、
+// 固定时钟验收）退回定时器，拍摄队列不因此停摆。
+const nextFrame = () => new Promise(resolve => {
+    const handle = requestAnimationFrame(() => { clearTimeout(fallback); resolve(); });
+    const fallback = setTimeout(() => { cancelAnimationFrame(handle); resolve(); }, 250);
+});
+// 拍摄看门狗：单张小像的加载链路（view.loadEnemy → core/loader.js）实测
+// 偶发停在发出 fetch 之前，既不 resolve 也不 reject（根因在共享 loader，
+// 未定位）。不设上限时，懒拍泵会永远停在那一拍，busy 守卫把本会话所有
+// 重试全部挡掉；看门狗把「卡死」降级成「这一张失败」，泵继续拍后面的。
+// 落败的原 promise 之后才 settle（resolve 或 reject）也没有危害：race 的
+// 回调仍在它身上挂着，不会冒 unhandledrejection；captureEnemyIcon 自己的
+// finally 会把借出的模型归池，渲染段又是纯同步的，不会与下一张交错。
+const CAPTURE_TIMEOUT = 20000;
+const withTimeout = (promise, ms, label) => {
+    let timer;
+    const guard = new Promise((_, reject) => {
+        timer = setTimeout(() => reject(new Error(`${label} 超过 ${ms}ms 未完成`)), ms);
+    });
+    return Promise.race([promise, guard]).finally(() => clearTimeout(timer));
+};
+// OS 级「减少动态效果」：守卫表达式与 battle-view.js:30 完全同款（裸环境
+// 没有 matchMedia 时返回 false，presentation 契约的 harness 只垫 window，
+// 没有 matchMedia，直接求值会在 import 时 ReferenceError）。这里故意做成
+// 函数、在每次判定点现算而不做模块顶快照：结算面弹出的时机远晚于页面
+// 载入，OS 设置可能中途开关；battle-view/stage 的 OS_REDUCED 用 matchMedia
+// change 监听保持现值，两处口径一致才不会漂移。
+const osReducedMotion = () => typeof matchMedia === "function" && matchMedia("(prefers-reduced-motion: reduce)").matches;
+// 图鉴大图页的来客留影尺寸：网格缩略仍是 enemy-icons.js 的 96px，
+// 只有大图页按 288 现拍，避免缩略缓存膨胀。
+const CODEX_VIEW_CAPTURE = 288;
+// ── 里程碑 ★4 语音 ──────────────────────────────────────────────────
+// audio/voice/ 下 33 个 ★4 sheet（*4_A 目录，共 138 条 mp3，均为
+// voice_kirarajump 系）在 units.json 的语音表里零引用——表只配了 ★5
+// sheet。目录名第二、三、四段（作品_角色_职业）与 units.json voice.sheet
+// 同构；sheet 已覆盖的作品按 sheet 推导，未覆盖的用 WORK 别名字面表
+// 补齐（罗马字逐条对照 asset/rl/_raw/NamedList.json 的 m_ResouceBaseName
+// 核实，未能确认归属的目录不收录——宁可不播，也不播错作品的语音）。
+// 每目录的实际条数按 ls 实测写死，里程碑时随机取一条。
+const VOICE4_FILE_COUNTS = {
+    AChannel_Toru_Fighter: 3, Acchikocchi_Tumiki_Priest: 5, Anhapi_Hanako_Knight: 3,
+    Anima_Kohane_Magician: 5, Blends_Maika_Magician: 3, Gakkou_Yuki_Priest: 3,
+    GA_Tomokane_Fighter: 4, Gochiusa_Cocoa_Fighter: 4, Hanayamata_Naru_Priest: 7,
+    Harukana_Haruka_Knight: 3, Harumination_Harumi_Priest: 3, Hidamari_Yuno_Priest: 3,
+    Hitugi_Kuro_Alchemist: 3, Keion_Yui_Fighter: 7, Killme_Yasuna_Knight: 3,
+    KinMosa_Alice_Alchemist: 3, KinMosa_Karen_Fighter: 3, Koharu_Koharu_Knight: 11,
+    Koiasu_Mira_Alchemist: 6, Komiga_Kaoruko_Priest: 3, Matikado_Yuko_Priest: 7,
+    NewGame_Aoba_Magician: 3, Pawasuma_Mayu_Alchemist: 6, Sakura_Haruka_Priest: 3,
+    Sansha_Futaba_Fighter: 7, SlowStart_Hana_Priest: 3, Stella_Tamaki_Magician: 3,
+    Tamayomi_Yomi_Magician: 6, Urara_Chiya_Knight: 3, Yumekui_Merry_Fighter: 3,
+    Yurukyan_Nadesiko_Fighter: 3, Yurukyan_Rin_Magician: 3, YuyuShiki_Yui_Knight: 3
+};
+// sheet 推导不到的作品别名：作品名 = units.json 的 work 字段字面值。
+const VOICE4_EXTRA_WORKS = {
+    轻音少女: "Keion_Yui_Fighter",
+    "NEW GAME!": "NewGame_Aoba_Magician",
+    街角魔族: "Matikado_Yuko_Priest",
+    一起一起这里那里: "Acchikocchi_Tumiki_Priest",
+    "Anima Yell!": "Anima_Kohane_Magician",
+    悠悠式: "YuyuShiki_Yui_Knight",
+    "Slow Start": "SlowStart_Hana_Priest",
+    晴海国度: "Harumination_Harumi_Priest"
+};
+// units.json voice.sheet 形如 Voice_Stella_Tamaki_Magician5_A，去掉
+// Voice_ 前缀与 5_A 尾缀即与 ★4 目录的工作表名对齐。
+const sheetToken = name => name.replace(/^Voice_/, "").replace(/\d_A$/, "");
 const markup = `
   <div class="campaign-map" data-view="map">
     <header class="panel campaign-header"><button class="native-button compact" data-action="back">返回标题</button><h2>里口花径</h2><span>巡守手记</span><button class="native-button compact" data-action="save">巡守记录</button><button class="native-button compact" data-action="town">城镇</button></header>
@@ -73,18 +144,20 @@ const markup = `
       <div class="battle-canvas" data-role="canvas"></div><div class="battle-labels" data-role="labels"></div><div class="battle-overlay" data-role="overlay"></div><div class="lane-indicators" data-role="lanes"></div>
       <div class="battle-tip" data-role="tip" hidden><strong data-role="selected-name"></strong><span data-role="selected-help"></span><span class="range-caption" data-role="range-caption" hidden></span></div>
       <p class="battle-message" data-role="message" role="status"></p>
+      <div class="milestone-toast" data-role="milestone" role="status" hidden></div>
       <div class="battle-pause-overlay" data-role="pause-overlay" hidden><div class="panel"><h3>巡守已暂停</h3><p>波次、生产、冷却与攻击全部暂停。</p><div class="pause-actions"><button class="native-button primary compact" data-action="resume">继续巡守</button><button class="native-button compact" data-action="settings">声音设置</button><button class="native-button compact" data-action="leave">返回关卡</button></div></div></div>
-      <div class="stage-loading" data-role="loading" hidden><div class="panel loading-card"><h3>把这次布阵准备好</h3><p data-role="load-text">读取原生场地…</p><progress data-role="load-progress" max="1" value="0"></progress></div></div>
+      <div class="stage-loading" data-role="loading" hidden><div class="panel loading-card"><h3>把这次布阵准备好</h3><p data-role="load-text">读取原生场地…</p><div data-role="load-bones"></div><progress data-role="load-progress" max="1" value="0"></progress></div></div>
       <div class="portrait-notice" data-role="portrait" hidden><div class="panel"><h3>横屏看清整条防线</h3><p>战斗已经暂停。可以旋转屏幕，或返回关卡选择。</p><button class="native-button compact" data-action="leave">返回关卡</button></div></div>
     </div>
   </div>
   <dialog class="panel app-dialog campaign-dialog" data-role="brief-dialog" aria-labelledby="campaign-brief-title"><h2 id="campaign-brief-title">出发之前</h2><div data-role="story"></div><p data-role="opening-tip"></p><ol class="opening-steps" aria-label="新手流程"><li><strong>先部署</strong><span>选择卡牌，再点一格；卡牌说明会告诉你费用、射程和作用。</span></li><li><strong>再收集</strong><span>应援台和自然资源会生成クリエ，看到资源徽章就点击“收取”。</span></li><li><strong>开始巡守</strong><span>确认布阵后点击“开始巡守”；波次、冷却和敌人行动才会推进。</span></li><li><strong>遇险处理</strong><span>可以随时暂停查看详情；来客突破时，对应道路的结界会自动触发，争取重新布阵。</span></li></ol><p class="muted">场上身影为练习投影，可按费用和冷却重复召唤。对白与塔防数值是本作同人改编。</p><div class="dialog-actions"><button class="native-button primary compact" data-action="brief-close">开始布阵</button></div></dialog>
-  <dialog class="panel app-dialog campaign-dialog" data-role="result-dialog" aria-labelledby="campaign-result-title"><h2 id="campaign-result-title" data-role="result-title"></h2><p data-role="result-copy"></p><dl class="result-stats" data-role="result-stats"></dl><div class="reward-list" data-role="result-rewards"></div><p class="muted" data-role="result-save"></p><div class="dialog-actions"><button class="native-button compact" data-action="result-map">回到关卡</button><button class="native-button compact" data-action="retry">重新挑战</button><button class="native-button primary compact" data-action="next">下一关</button></div></dialog>
+  <dialog class="panel app-dialog campaign-dialog" data-role="result-dialog" aria-labelledby="campaign-result-title"><div class="result-scene" aria-hidden="true"></div><h2 id="campaign-result-title" data-role="result-title"></h2><p data-role="result-copy"></p><dl class="result-stats" data-role="result-stats"></dl><div class="reward-list" data-role="result-rewards"></div><p class="muted" data-role="result-save"></p><div class="dialog-actions"><button class="native-button compact" data-action="result-map">回到关卡</button><button class="native-button compact" data-action="retry">重新挑战</button><button class="native-button primary compact" data-action="next">下一关</button></div></dialog>
   <dialog class="panel app-dialog campaign-dialog" data-role="leave-dialog" aria-labelledby="campaign-leave-title"><h2 id="campaign-leave-title">离开本次巡守？</h2><p>本次布阵不会保留，已经完成的关卡记录不变。</p><div class="dialog-actions"><button class="native-button compact" data-action="leave-cancel">留在战场</button><button class="native-button primary compact" data-action="leave-confirm">返回关卡</button></div></dialog>
   <dialog class="panel app-dialog campaign-dialog" data-role="inspect-dialog" aria-labelledby="campaign-inspect-title"><header><h2 id="campaign-inspect-title">战场详情</h2><button class="native-button compact" data-action="inspect-close">关闭</button></header><p>同伴与来敌的实际生命。危急状态同时显示文字，不只依赖颜色。</p><div class="battle-table-wrap"><table class="battle-table"><caption>当前场上的对象</caption><thead><tr><th scope="col">对象</th><th scope="col">位置</th><th scope="col">生命</th><th scope="col">状态</th></tr></thead><tbody data-role="inspect-body"></tbody></table></div></dialog>
   <dialog class="panel app-dialog campaign-dialog" data-role="save-dialog" aria-labelledby="campaign-save-title"><header><h2 id="campaign-save-title">巡守记录</h2><button class="native-button compact" data-action="save-close">关闭</button></header><p>只导入或导出本作的通关记录，不读取其他游戏的存档。</p><div class="dialog-actions"><button class="native-button compact" data-action="export">导出记录</button><label class="native-button compact import-label">选择记录文件<input data-role="save-file" type="file" accept="application/json,.json"></label></div><p data-role="import-preview" role="status"></p><button class="native-button primary compact" data-action="import-confirm" hidden>确认替换记录</button></dialog>
   <dialog class="panel app-dialog campaign-dialog" data-role="error-dialog" aria-labelledby="campaign-error-title"><h2 id="campaign-error-title">这次巡守已暂停</h2><p data-role="error-text"></p><p>未完成的部署不会扣费，也不会让看不见的模型继续攻击。</p><div class="dialog-actions"><button class="native-button compact" data-action="error-map">返回关卡</button><button class="native-button primary compact" data-action="error-retry">重新准备</button></div></dialog>
   <dialog class="panel app-dialog campaign-dialog codex-dialog" data-role="codex-dialog" aria-labelledby="codex-title"><header><h2 id="codex-title">巡守图鉴</h2><button class="native-button compact" data-action="codex-close">关闭</button></header><div class="codex-tabs" data-role="codex-tabs"></div><div class="codex-grid" data-role="codex-grid"></div><p class="codex-detail" data-role="codex-detail"></p></dialog>
+  <dialog class="panel app-dialog campaign-dialog codex-view-dialog" data-role="codex-view-dialog" aria-labelledby="codex-view-title"><header><h2 id="codex-view-title" data-role="codex-view-title"></h2><button class="native-button compact" data-action="codex-view-close">关闭</button></header><p class="codex-view-caption" data-role="codex-view-caption"></p><div class="codex-view-stage"><img data-role="codex-view-image" alt="" draggable="false" hidden><span class="codex-view-fallback" data-role="codex-view-fallback" aria-hidden="true" hidden></span></div><p class="codex-view-help" data-role="codex-view-help"></p></dialog>
   <dialog class="panel app-dialog campaign-dialog town-dialog" data-role="town-dialog" aria-labelledby="town-title"><header><h2 id="town-title">城镇建设</h2><button class="native-button compact" data-action="town-close">关闭</button></header><p class="muted">无尽巡守每清 5 波掉落素材；素材与建筑取材原作。每级只给小幅加成，不参与强养成。</p><div class="town-materials" data-role="town-materials"></div><div class="town-buildings" data-role="town-buildings"></div></dialog>
   <dialog class="panel app-dialog campaign-dialog" data-role="restock-dialog" aria-labelledby="restock-title"><header><h2 id="restock-title">换一次卡</h2><button class="native-button compact" data-action="restock-cancel">关闭</button></header><p class="muted">消耗一次换卡机会，从图鉴里换一张卡进卡组（不超过${DECK_SIZE}张）。已部署的同伴和已佩戴的装备不受影响。</p><div class="codex-grid" data-role="restock-grid"></div><p class="codex-detail" data-role="restock-detail"></p><div class="dialog-actions"><button class="native-button primary compact" data-action="restock-confirm" data-role="restock-confirm" disabled>确认换卡</button></div></dialog>
 `;
@@ -103,6 +176,9 @@ export class Campaign {
         this.warnings = new Map();
         this.cards = new Map();
         this.disposed = false;
+        // 来客小像缓存：localStorage 里拍过的 dataURL，配额不足时只剩内存副本。
+        this.enemyIcons = loadEnemyIcons();
+        this._enemyIconPump = null;
         // HUD 壳是静态标记：data-role/data-action 元素只查一次，之后走缓存。
         // updateHud 每 0.08s 会取 ~30 个引用，querySelector 全子树扫描白费。
         this._roles = new Map();
@@ -210,6 +286,51 @@ export class Campaign {
         clearTimeout(this.noticeTimer);
         this.noticeTimer = setTimeout(() => element.classList.remove("show"), 3600);
     }
+    // 里程碑独立 toast：素材入账等提示仍走 notice()（.battle-message），
+    // 两块在 battle-viewport 顶部上下并存、互不覆盖；z-index 同为 4，
+    // 都压不过选卡提示（.battle-tip z-5）与暂停遮罩（z-6）。
+    milestoneToast(message) {
+        this.text("milestone", message);
+        const toast = this.get("milestone");
+        toast.hidden = false;
+        clearTimeout(this.milestoneTimer);
+        this.milestoneTimer = setTimeout(() => { toast.hidden = true; }, 3600);
+    }
+    // ★4 语音池：作品 → sheet 目录 + 实际台词数。sheet 推导的作品映射
+    // 第一次用到时建好并缓存（83 个 unit 只扫一遍）。
+    milestoneVoiceSheets() {
+        if (this._voice4Sheets) { return this._voice4Sheets; }
+        const workOfToken = new Map();
+        for (const unit of this.catalogue.units) {
+            if (unit.voice?.sheet) { workOfToken.set(sheetToken(unit.voice.sheet), unit.work); }
+        }
+        for (const [work, token] of Object.entries(VOICE4_EXTRA_WORKS)) { workOfToken.set(token, work); }
+        const sheets = [];
+        for (const [token, count] of Object.entries(VOICE4_FILE_COUNTS)) {
+            const work = workOfToken.get(token);
+            if (!work) { continue; } // 作品归属未能确认的目录不用，宁缺毋错
+            const lines = Array.from({ length: count }, (_, i) => `voice_kirarajump_${String(i).padStart(3, "0")}_0.mp3`);
+            sheets.push({ work, dir: `Voice_${token}4_A`, lines });
+        }
+        return this._voice4Sheets = sheets;
+    }
+    // 里程碑配音：只在「在场同伴的作品」命中的 sheet 里随机取一条，
+    // 配不上就不播——不播无关作品的语音。app/audio.js:139 的 voice
+    // 开关关闭时 playVoice 自身静默。
+    playMilestoneVoice() {
+        if (!this.view) { return; }
+        const works = new Set();
+        for (const unit of this.view.battle.units.values()) {
+            const profile = this.unit(unit.type);
+            if (profile?.work) { works.add(profile.work); }
+        }
+        if (!works.size) { return; }
+        const pool = this.milestoneVoiceSheets().filter(sheet => works.has(sheet.work));
+        if (!pool.length) { return; }
+        const sheet = pool[Math.floor(Math.random() * pool.length)];
+        const line = sheet.lines[Math.floor(Math.random() * sheet.lines.length)];
+        this.audio.playVoice({ cues: { milestone: `${sheet.dir}/${line}` } }, "milestone");
+    }
 
     bind() {
         const actions = {
@@ -229,6 +350,7 @@ export class Campaign {
             save: () => this.get("save-dialog").showModal(), "save-close": () => this.get("save-dialog").close(),
             town: () => this.openTown(), "town-close": () => this.get("town-dialog").close(),
             codex: () => this.openCodex(), "codex-close": () => this.closeDialog("codex-dialog", "codex"),
+            "codex-view-close": () => this.closeCodexView(),
             restock: () => this.openRestock(), "restock-cancel": () => this.closeDialog("restock-dialog", "restock"),
             "restock-confirm": () => this.confirmRestock(),
             export: () => this.exportSave(), "import-confirm": () => this.importSave(),
@@ -243,6 +365,11 @@ export class Campaign {
                 event.preventDefault(); this.closeDialog(role, role.split("-")[0]);
             });
         }
+        // 图鉴大图页叠在图鉴之上（嵌套 showModal）：Esc 只收大图层，
+        // 图鉴对话框连同原页签留在下面。
+        this.get("codex-view-dialog").addEventListener("cancel", event => {
+            event.preventDefault(); this.closeCodexView();
+        });
         for (const role of ["result-dialog", "error-dialog"]) { this.get(role).addEventListener("cancel", event => event.preventDefault()); }
         this.get("save-file").addEventListener("change", async event => {
             const file = event.target.files[0];
@@ -559,6 +686,8 @@ export class Campaign {
         this.host.querySelector('[data-view="battle"]').hidden = false;
         this.get("loading").hidden = false;
         this.get("load-progress").value = 0;
+        // 纸面骨架屏：首次进关铺一次骨条，之后随载入卡显隐（观察模式载入卡同款）。
+        if (!this._levelBones) { this._levelBones = loadBones(this.get("load-bones"), { rows: 3 }); }
         this.get("setup").hidden = false;
         this.get("pause-overlay").hidden = true;
         this.text("battle-title", `${id}　${level.title}`);
@@ -606,7 +735,13 @@ export class Campaign {
                     if (!settlement.applied) { return; }
                     this._lastEndlessSave = battle.spawnIndex * 100000 + Math.floor(battle.time / 30);
                     this.text("checkpoint-label", "已存");
-                    if (milestone) { this.notice(`里程碑：${milestone.label}。额外素材×${bonusDrops.length}`); }
+                    if (milestone) {
+                        // 里程碑走独立 toast，与紧随其后的素材入账 notice 并存；
+                        // 同时按在场同伴的作品随机播一条 ★4 语音（voice 设置
+                        // 关闭时 playVoice 自身静默）。
+                        this.milestoneToast(`里程碑：${milestone.label}。额外素材×${bonusDrops.length}`);
+                        this.playMilestoneVoice();
+                    }
                     const earned = [...drops, ...bonusDrops];
                     if (earned.length) {
                         this.notice(`素材入账：${earned.map(id => TOWN_RULES.materials[id]?.name || id).join("、")}。`);
@@ -960,39 +1095,70 @@ export class Campaign {
             : endless ? `本次守到第${event.wave}波，击退${event.stats.kills}位来客。`
             : `第${event.row + 1}路被突破。可以试着减少前期支出，或更早补上这一条路的输出。`);
         const stats = this.get("result-stats"); stats.replaceChildren();
+        // 纯数字格做 800ms count-up（击退/治疗/结界/波次数）；「巡守时间
+        // 1:23」这类带格式的值直接渲染终值。review=1（manualClock）、应用
+        // 内减动效与 OS 减动效（现算，见 osReducedMotion）同样直出终值——
+        // 同 syncBoard 先例：定格时钟下没有过程动画。
         const rows = endless
-            ? [["坚持波次", `第${event.wave}波`], ["击退来客", String(event.stats.kills)], ["巡守时间", TIME(battle.time)], ["使用结界", `${event.stats.gatesUsed}次`]]
-            : [["巡守时间", TIME(battle.time)], ["击退来客", String(event.stats.kills)], ["使用结界", `${event.stats.gatesUsed}次`], ["有效治疗", String(event.stats.healed)]];
-        for (const [name, value] of rows) {
+            ? [["坚持波次", `第${event.wave}波`, true], ["击退来客", String(event.stats.kills), true], ["巡守时间", TIME(battle.time), false], ["使用结界", `${event.stats.gatesUsed}次`, true]]
+            : [["巡守时间", TIME(battle.time), false], ["击退来客", String(event.stats.kills), true], ["使用结界", `${event.stats.gatesUsed}次`, true], ["有效治疗", String(event.stats.healed), true]];
+        const still = this.options.manualClock || this.options.audio.settings.reducedMotion || osReducedMotion();
+        for (const [name, value, rolls] of rows) {
             const part = document.createElement("div"); const dt = document.createElement("dt"); dt.textContent = name;
             const dd = document.createElement("dd"); dd.textContent = value; part.append(dt, dd); stats.append(part);
+            if (rolls && !still) { this.countUp(dd, value); }
         }
+        // 揭示编排：结算块按模板里的 DOM 顺序错峰入场——result-stats 在
+        // reward-list 之前，reward-list 内依次是横幅（金印）、摘要、成就，
+        // 与「统计→横幅→摘要→成就」一致。这里只写序号 --i，单发 400ms
+        // 动画和 110ms×--i 的延迟都由 CSS 算（.result-reveal）；挑战条、
+        // 素材收获、通关结语跟在成就后面，并入成就档一起落。减动效下不
+        // 挂动画类（toggle 保证上次非 still 留下的类被摘掉），直出终态；
+        // shell.css 对 OS 与应用内减动效各有全局 animation:none 兜底。
+        const reveal = (element, index) => {
+            element.classList.toggle("result-reveal", !still);
+            element.style.setProperty("--i", String(index));
+        };
+        reveal(stats, 0);
         const rewardList = this.get("result-rewards"); rewardList.replaceChildren();
-        // 结算页的第一印象：胜负徽标 + 一行战报。原本只有一段灰字，
-        // 打赢和打输的画面几乎没有区别，缺少「这一局完成了什么」的仪式感。
+        // 结算页的第一印象：金印/徽标 + 一行战报。金印并入横幅构图（替换
+        // 原来的 ✓ 圆徽），不再另起一层金色装饰，避免与金边横幅双金叠加；
+        // 失守与普通战报保留 × 徽。无尽新纪录也值得盖金印。
+        const sealed = won || (endless && result.newRecord);
+        // 盖印的结算叠书房底纹（原作闲置横幅 scene_study.webp，此前全站
+        // 零引用）；失守保留 store 底纹，让胜负在底图上也能读出来。
+        this.get("result-dialog").classList.toggle("result-dialog--sealed", sealed);
         const banner = document.createElement("div");
-        banner.className = won ? "result-banner result-banner--won" : "result-banner result-banner--lost";
-        const badge = document.createElement("span"); badge.className = "result-badge";
-        badge.textContent = won ? "✓" : "×";
+        banner.className = sealed ? "result-banner result-banner--won" : "result-banner result-banner--lost";
+        const badge = document.createElement("span");
+        badge.className = sealed ? "result-seal" : "result-badge";
+        badge.textContent = won ? "达成" : sealed ? "新纪录" : "×";
         badge.setAttribute("aria-hidden", "true");
         const bannerCopy = document.createElement("span");
         bannerCopy.className = "result-banner-copy";
         bannerCopy.textContent = endless ? (result.newRecord ? "新的无尽记录" : "本次无尽战报")
             : won ? "巡守完成" : "本次失守";
         banner.append(badge, bannerCopy);
+        reveal(banner, 1);
         rewardList.append(banner);
         const text = document.createElement("p");
         text.className = "result-summary";
         text.textContent = endless ? (result.newRecord ? "新的无尽记录已写入手记。" : "本次没有超过已有的无尽记录。")
             : won ? "本次巡守结果已写入手记。" : "未改变通关记录。";
+        reveal(text, 2);
         rewardList.append(text);
         // 成就：一张一条卡片（金星 + 名称 + 说明），而不是一整段长句。
         if ((result.achievements || []).length) {
             const group = document.createElement("div");
             group.className = "result-achievements";
+            reveal(group, 3);
+            // 逐条浮现的节奏由 CSS 按 --i 算延迟（shell.css 的全局减动效
+            // 会整体关掉 animation），JS 只写序号，不内联动画。
+            let achievementIndex = 0;
             for (const achievement of result.achievements || []) {
                 const item = document.createElement("div");
                 item.className = "result-achievement";
+                item.style.setProperty("--i", String(achievementIndex++));
                 const star = document.createElement("span");
                 star.className = "result-achievement-star";
                 star.textContent = "★";
@@ -1022,6 +1188,7 @@ export class Campaign {
                 const label = document.createElement("span");
                 label.textContent = `${challenge.complete ? "挑战完成" : "挑战未完成"}：${challenge.label}`;
                 row.append(mark, label);
+                reveal(row, 3);
                 rewardList.append(row);
             }
         }
@@ -1032,16 +1199,67 @@ export class Campaign {
             const harvest = document.createElement("p");
             harvest.textContent = "本局素材收获：" + Object.entries(counts)
                 .map(([id, n]) => `${TOWN_RULES.materials[id]?.name || id}×${n}`).join("　");
+            reveal(harvest, 3);
             rewardList.append(harvest);
         }
         this.text("result-save", this.save.problem || (endless ? (result.newRecord ? "最佳波次已保存。" : "最佳波次保持不变。") : won ? "巡守记录已保存。" : "未改变通关记录。"));
         const index = LEVELS.findIndex(level => level.id === this.levelId);
         this.button("next").hidden = endless || !won || index === LEVELS.length - 1;
         if (won && index === LEVELS.length - 1) {
-            const ending = document.createElement("p"); ending.textContent = "四章二十关已全部守住。无尽巡守与城镇建设随时可以继续，后续章节仍在制作。"; rewardList.append(ending);
+            const ending = document.createElement("p"); ending.textContent = "四章二十关已全部守住。无尽巡守与城镇建设随时可以继续，后续章节仍在制作。";
+            reveal(ending, 3);
+            rewardList.append(ending);
         }
         this.audio.setTrack(won ? "bgm_battle_win" : "bgm_town_1");
         this.get("result-dialog").showModal();
+        if (sealed && !still) { this.resultSparks(); }
+    }
+
+    // 结算金粒：盖印后的迸发。实色 --gold-deep 小圆点＋柔投影、正常混合
+    // ——亮纸（--paper-raised 近白）上 screen 提亮混合不可见，spec §1 也
+    // 反 neon；8~12 粒、单粒约 700ms。摘除主走 animationend，JS setTimeout
+    // 兜底清容器，不留 DOM 残留；减动效（finish 的 still 口径）直接不生成。
+    resultSparks() {
+        const layer = document.createElement("div");
+        layer.className = "result-fx";
+        layer.setAttribute("aria-hidden", "true");
+        const count = 8 + Math.floor(Math.random() * 5);
+        let pending = count;
+        for (let i = 0; i < count; i++) {
+            const spark = document.createElement("i");
+            spark.className = "result-spark";
+            const size = 5 + Math.random() * 4;
+            spark.style.left = `${8 + Math.random() * 84}%`;
+            spark.style.width = spark.style.height = `${size.toFixed(1)}px`;
+            spark.style.setProperty("--dx", `${(Math.random() * 120 - 60).toFixed(0)}px`);
+            spark.style.setProperty("--dy", `${-(90 + Math.random() * 90).toFixed(0)}px`);
+            spark.style.setProperty("--d", `${(Math.random() * 220).toFixed(0)}ms`);
+            spark.addEventListener("animationend", () => { spark.remove(); if (--pending === 0) { layer.remove(); } });
+            layer.append(spark);
+        }
+        // 兜底：动画被外部打断（如全局减动效把 animation 关掉）时
+        // animationend 不来，定时器保证容器必然摘除。
+        setTimeout(() => layer.remove(), 1400);
+        this.get("result-dialog").append(layer);
+    }
+
+    // 结算数字滚动：保留前后缀（「第…波」「…次」）只滚数字，800ms
+    // ease-out 收尾；progress=1 时必然落在终值，不会停在半路。
+    // 0 与非数字不滚——滚一个「0」只会让结算看起来卡了一下。
+    countUp(element, finalText) {
+        const match = /^([^\d]*)(\d+)(.*)$/.exec(finalText);
+        if (!match) { return; }
+        const [, head, digits, tail] = match;
+        const target = Number(digits);
+        if (!Number.isFinite(target) || target === 0) { return; }
+        const started = performance.now();
+        const tick = now => {
+            const progress = Math.min(1, (now - started) / 800);
+            const eased = 1 - Math.pow(1 - progress, 3);
+            element.textContent = `${head}${Math.round(target * eased)}${tail}`;
+            if (progress < 1) { requestAnimationFrame(tick); }
+        };
+        requestAnimationFrame(tick);
     }
 
     togglePause() {
@@ -1113,7 +1331,13 @@ export class Campaign {
             let art;
             if (section === "enemy") {
                 art = document.createElement("span"); art.className = "codex-enemy-art";
-                art.textContent = (rule.name || "?").slice(0, 1);
+                const cached = this.enemyIcons[id];
+                if (cached) {
+                    // 拍过的小像直接贴上；字母牌只在还没拍时兜底。
+                    art.append(this.enemyThumbNode(cached));
+                } else {
+                    art.textContent = (rule.name || "?").slice(0, 1);
+                }
                 // 来客没有立绘资源，原来每张卡只有「名字首字」，读不出威胁类型。
                 // 在卡背补一排特性徽章（护甲/治疗/召唤/越障/远程/复起/反伤/首领），
                 // 让图鉴真正能当战术参考。
@@ -1131,17 +1355,94 @@ export class Campaign {
                 }
             } else { art = this.unitArt(id); }
             grid.append(this.codexCard({ id, art, name: rule.name,
-                detail: () => section === "enemy"
-                    ? `${rule.name}：${rule.description || ""}${this.enemyTraitText(rule)}`
-                    : `${rule.name}（${rule.role}）：${rule.help}` }));
+                detail: () => section === "enemy" ? this.enemyDetail(rule)
+                    : `${rule.name}（${rule.role}）：${rule.help}`,
+                view: section === "enemy" ? () => this.openEnemyCodexView(id, rule)
+                    : this.companionView(id, rule) }));
         }
         this.get("codex-dialog").showModal();
         this.view?.setPaused("codex", true);
+        this.pumpEnemyIcons();
+    }
+
+    // 来客小像：把 dataURL 变成占位格里的等比缩略图。图永远装在 44px 的
+    // .codex-enemy-art 里，卡格尺寸由 codex-card 的固定最小高度保证，不会
+    // 因为换图而抖动。
+    enemyThumbNode(url) {
+        const image = document.createElement("img");
+        image.className = "codex-enemy-thumb";
+        image.src = url;
+        image.alt = "";
+        image.draggable = false;
+        return image;
+    }
+
+    // 懒拍驱动：只拍缺失 id，逐帧间隔一张，拍完即存即换。所有状态判断
+    // 都在每次拍摄前重读——页签切走、对话框关闭、view 被释放都会停下，
+    // 下次打开来客页签再续拍。
+    //
+    // 载入窗口期不自愈的问题：战斗 HUD 在 BattleView.create 完成之前就可
+    // 以点，此时打开来客页签会把泵卡在「view 未就绪」上，而泵只由
+    // openCodex 触发——原实现在这里静默 return，加载完成后永远不自愈。
+    // 现在改成挂起等待：对话框停在来客页签就逐帧等 view 就绪后自动续拍。
+    pumpEnemyIcons() {
+        if (this._enemyIconPump) { return; }
+        const pending = Object.keys(ENEMY_RULES).filter(id => !this.enemyIcons[id]);
+        if (!pending.length) { return; }
+        if (this.codexSection !== "enemy" || !this.get("codex-dialog").open) { return; }
+        if (!this.view?.stage) {
+            console.info(`来客小像：战斗画面尚未就绪，就绪后自动拍摄 ${pending.length} 张。`);
+        }
+        this._enemyIconPump = (async () => {
+            const queue = [...pending];
+            let stale = 0; // 连续失败计数：拍到一张就清零；连满熔断，防死循环刷警告
+            while (queue.length) {
+                // view 未就绪（载入窗口期）或被释放时挂起，不放弃本批：
+                // 等新 view 接上继续拍；切页签、关对话框、销毁才真正退出。
+                while (!this.disposed && this.codexSection === "enemy"
+                    && this.get("codex-dialog").open && !this.view?.stage) {
+                    await nextFrame();
+                }
+                if (this.disposed || !this.view?.stage || this.codexSection !== "enemy"
+                    || !this.get("codex-dialog").open) { break; }
+                const id = queue[0];
+                try {
+                    const url = await withTimeout(captureEnemyIcon(this.view, id),
+                        CAPTURE_TIMEOUT, `拍摄 ${id} 小像`);
+                    stale = 0;
+                    queue.shift();
+                    if (url && !this.enemyIcons[id]) {
+                        this.enemyIcons[id] = url;
+                        storeEnemyIcons(this.enemyIcons);
+                        const art = this.host.querySelector(`.codex-card[data-codex="${id}"] .codex-enemy-art`);
+                        if (art) {
+                            const strip = art.querySelector(".codex-traits");
+                            art.replaceChildren(this.enemyThumbNode(url));
+                            if (strip) { art.append(strip); } // 特性徽章继续压在卡背
+                        }
+                    }
+                } catch (error) {
+                    stale += 1;
+                    console.warn(`来客小像拍摄失败（${id}）：`, error?.message || error);
+                    if (stale >= 3) {
+                        console.warn(`来客小像连续 ${stale} 次拍摄失败，本轮停止；重新打开来客页签会再试。`);
+                        break;
+                    }
+                    // 单张卡死不拖垮整批：把它排到队尾，先拍后面的；
+                    // 队列转回来时若加载链路已恢复，这张还能补上。
+                    queue.push(queue.shift());
+                }
+                // 逐帧间隔一张：拍摄占用渲染器，一口气拍完会卡住一整帧。
+                await nextFrame();
+            }
+        })().finally(() => { this._enemyIconPump = null; });
     }
 
     // 图鉴/换卡里重复出现的「卡面 = 图标块 + 名字」结构。art 由调用方
     // 决定（角色立绘、装备图标或一个字母牌），这里只管外壳和点击。
-    codexCard({ id, art, name, detail }) {
+    // view 可选：同伴/来客页签传「打开大图页」的回调，装备/成就/设施
+    // 维持纯文案的详情行。
+    codexCard({ id, art, name, detail, view }) {
         const card = document.createElement("button");
         card.className = "codex-card";
         if (id) { card.dataset.codex = id; }
@@ -1149,8 +1450,19 @@ export class Campaign {
         artSlot.append(art);
         const nameSlot = document.createElement("span"); nameSlot.className = "seed-name"; nameSlot.textContent = name;
         card.append(artSlot, nameSlot);
-        card.addEventListener("click", () => this.text("codex-detail", detail()));
+        card.addEventListener("click", () => { if (view) { view(); } else { this.showCodexDetail(detail()); } });
         return card;
+    }
+
+    // 详情区统一入口：字符串走 text() 去重；来客详情是三段小结构，直接
+    // 换子节点。DOM 写入后必须清掉 text() 的去重缓存，否则下次点到同一
+    // 张卡的相同文案会被误判为「已写入」而不再刷新。
+    showCodexDetail(content) {
+        const host = this.get("codex-detail");
+        if (!host) { return; }
+        if (typeof content === "string") { this.text("codex-detail", content); return; }
+        this._textCache.delete(host);
+        host.replaceChildren(content);
     }
 
     // 来客的特性清单：图鉴徽章与详情文案共用同一份定义，避免两处漂移。
@@ -1169,10 +1481,140 @@ export class Campaign {
         if (rule.roar) { traits.push({ key: "roar", label: "压制" }); }
         return traits;
     }
-    enemyTraitText(rule) {
+    // 来客详情三段：数值／初见章节／反制＋免疫。原先是一整行
+    // textContent，数值、初见与战术提示挤在一起读不清；拆成三行后，
+    // 数字、出处与对策各自成段。初见取自 ENEMY_FIRST_SEEN（由关卡
+    // spawn + newEnemy 扫描派生），特性徽章沿用 enemyTraits，不另抄数据。
+    enemyDetail(rule) {
+        const box = document.createElement("span");
+        box.className = "codex-detail-rows";
+        const stat = document.createElement("span");
+        stat.className = "codex-detail-stats";
+        stat.textContent = `${rule.name}：${this.enemyStatLine(rule)}。${rule.description || ""}`;
+        const seen = document.createElement("span");
+        seen.className = "codex-detail-seen";
+        const seenAt = ENEMY_FIRST_SEEN[rule.id];
+        seen.textContent = seenAt ? `初见 ${seenAt}` : "初见 无尽巡守（巡守关卡不出现）";
+        const counters = document.createElement("span");
+        counters.className = "codex-detail-counters";
+        const label = document.createElement("b");
+        label.textContent = "反制";
+        counters.append(label);
+        for (const cardId of rule.counters || []) {
+            const cardRule = UNIT_RULES[cardId];
+            if (!cardRule) { continue; }
+            const chip = document.createElement("i");
+            chip.className = "codex-counter-chip";
+            chip.textContent = cardRule.name;
+            counters.append(chip);
+        }
+        // 免疫/反伤等特性提示：与卡背徽章同一套 codex-traits 体系。
         const traits = this.enemyTraits(rule);
-        if (!traits.length) { return ""; }
-        return `　特性：${traits.map(trait => trait.label).join("、")}`;
+        if (traits.length) {
+            const strip = document.createElement("span");
+            strip.className = "codex-traits codex-traits--inline";
+            for (const trait of traits) {
+                const chip = document.createElement("i");
+                chip.className = `codex-trait trait-${trait.key}`;
+                chip.textContent = trait.label;
+                strip.append(chip);
+            }
+            counters.append(strip);
+        }
+        box.append(stat, seen, counters);
+        return box;
+    }
+
+    // 数值行：战斗表的关键数字。护甲自修（原作「ロックアーマー」）显示
+    // 为「3秒自修」；战术解释交给描述与特性徽章，这里只报数。
+    enemyStatLine(rule) {
+        const bits = [`生命${Math.round(rule.hp)}`, `攻击${rule.damage}/${rule.period}秒`];
+        if (rule.armor) {
+            bits.push(`护甲${Math.round(rule.armor)}${rule.rockArmor ? `·${rule.rockArmor.delay}秒自修` : ""}`);
+        }
+        if (rule.ranged) { bits.push(`射程${rule.ranged.range}格`); }
+        if (rule.healer) { bits.push(`每${rule.healer.period}秒治疗${rule.healer.amount}`); }
+        if (rule.thorns) { bits.push(`反伤${rule.thorns}`); }
+        if (rule.revive) { bits.push(`复起${Math.round(rule.revive.ratio * 100)}%生命`); }
+        if (rule.speed) { bits.push(`速度${rule.speed}`); }
+        return bits.join(" · ");
+    }
+
+    // ─── 图鉴卡面大图页 ────────────────────────────────────────────────
+    // 同伴/来客两页签的卡点击后弹原尺寸大图；图鉴对话框以嵌套 showModal
+    // 留在下面，关闭/Esc 回到原页签，closeDialogs() 也会一并收掉。
+    // 同伴读 unit.card（assets/data 已带完整相对路径，如
+    // asset/img/rl/card/16002001.webp；83 个 cardId 实测仅 32 张卡面文件
+    // 落地，缺文件的 onerror 回退 128px 头像等比放大，不出白窗/破图）。
+    // 设施卡（F13 这类没有 unit 档案的）不挂大图，维持纯文案详情。
+    companionView(id, rule) {
+        const profile = this.unit(id);
+        if (!profile) { return null; }
+        return () => this.openCodexView({
+            title: rule.name,
+            caption: profile.work ? `${profile.work} · ${rule.role}` : rule.role,
+            help: `${rule.name}（${rule.role}）：${rule.help}`,
+            src: profile.card ? siteUrl(profile.card) : siteUrl(profile.icon),
+            fallbackSrc: siteUrl(profile.icon),
+            alt: `${rule.name} 的原作卡面`
+        });
+    }
+    // 来客大图：先贴 96px 网格缓存（若有），再对当前 id 现拍 288px 高清
+    // 留影换上。拍摄期间连点别的卡、关大图页都会作废在途结果；战斗画面
+    // 尚未就绪就只看网格缓存，等网格泵补拍后自然有图。
+    async openEnemyCodexView(id, rule) {
+        const stamp = this._codexViewStamp = (this._codexViewStamp || 0) + 1;
+        const seenAt = ENEMY_FIRST_SEEN[rule.id];
+        this.openCodexView({
+            title: rule.name,
+            caption: seenAt ? `初见 ${seenAt}` : "无尽巡守限定来客",
+            help: `${rule.name}：${this.enemyStatLine(rule)}。${rule.description || ""}`,
+            src: this.enemyIcons[id] || "",
+            alt: `${rule.name} 的现场留影`
+        });
+        if (!this.view?.stage) { return; }
+        try {
+            const url = await withTimeout(captureEnemyIcon(this.view, id, CODEX_VIEW_CAPTURE),
+                CAPTURE_TIMEOUT, `拍摄 ${id} 大图`);
+            const image = this.get("codex-view-image");
+            if (url && stamp === this._codexViewStamp && this.get("codex-view-dialog").open) {
+                image.onerror = null;
+                image.src = url;
+            }
+        } catch (error) {
+            console.warn(`来客大图拍摄失败（${id}）：`, error?.message || error);
+        }
+    }
+    openCodexView({ title, caption, help, src, fallbackSrc, alt }) {
+        const dialog = this.get("codex-view-dialog");
+        this.text("codex-view-title", title);
+        this.text("codex-view-caption", caption || "");
+        this.text("codex-view-help", help || "");
+        const image = this.get("codex-view-image");
+        const fallbackTile = this.get("codex-view-fallback");
+        image.alt = alt || "";
+        if (src) {
+            image.hidden = false;
+            fallbackTile.hidden = true;
+            image.onerror = fallbackSrc && src !== fallbackSrc ? () => {
+                image.onerror = null;
+                image.src = fallbackSrc;
+            } : null;
+            image.src = src;
+        } else {
+            // 没有任何可用图源（缓存未拍、画面未就绪）：字母牌占位。
+            image.hidden = true;
+            image.onerror = null;
+            image.removeAttribute("src");
+            fallbackTile.textContent = (title || "?").slice(0, 1);
+            fallbackTile.hidden = false;
+        }
+        if (!dialog.open) { dialog.showModal(); }
+    }
+    closeCodexView() {
+        this._codexViewStamp = (this._codexViewStamp || 0) + 1; // 作废在途拍摄
+        const dialog = this.get("codex-view-dialog");
+        if (dialog.open) { dialog.close(); }
     }
 
     openRestock() {
@@ -1443,6 +1885,8 @@ export class Campaign {
     dispose() {
         if (this.disposed) { return; }
         this.disposed = true; this.releaseBattle();
+        clearTimeout(this.noticeTimer);
+        clearTimeout(this.milestoneTimer);
         window.removeEventListener("resize", this.onResize);
         document.removeEventListener("visibilitychange", this.onVisibility);
         document.removeEventListener("keydown", this.onKey);

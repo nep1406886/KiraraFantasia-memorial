@@ -1,4 +1,5 @@
 import { loadCatalogue, portraitMarkup, siteUrl, uiUrl, classIcons, elementIcons } from "./assets.js";
+import { loadBones, loadBoneCell } from "./load-shell.js";
 import { AudioDirector } from "./audio.js";
 import { se as defenseSE, setSeVolume as setSynthVolume, unlock as unlockSynth } from "../../core/audio.js";
 globalThis.__defenseSE = defenseSE;
@@ -49,6 +50,7 @@ const HELP = {
 const state = { screen: "title", catalogue: null, party: [], selected: "U01", filter: "all", stage: null, epoch: 0 };
 let toastTimer;
 let campaign;
+let stageLoadingBones;
 const audio = new AudioDirector(notice);
 audio.silent = REVIEW_CLOCK;
 
@@ -117,7 +119,18 @@ function renderRoster() {
         button.classList.toggle("is-in-party", state.party.includes(unit.id));
         button.classList.toggle("is-current", state.selected === unit.id);
         button.setAttribute("aria-label", `${unit.name}，${unit.className}，${unit.elementName}属性，${unit.role}，规划费用${unit.plannedCost}`);
-        button.append(portraitMarkup(unit));
+        const portrait = portraitMarkup(unit);
+        // 首载垫块：portrait-icon 是 1:1 方形，骨块先占住同一块方地；
+        // 已缓存（img.complete）的图直接跳过，切职业筛选不会反复闪骨架。
+        const face = portrait.querySelector(".face");
+        if (!face.complete) {
+            const bone = loadBoneCell();
+            portrait.prepend(bone);
+            const settle = () => bone.remove();
+            face.addEventListener("load", settle, { once: true });
+            face.addEventListener("error", settle, { once: true });
+        }
+        button.append(portrait);
         for (const [tag, cls, text] of [["strong", "", unit.name], ["span", "unit-role", unit.role], ["span", "unit-cost", `费用 ${unit.plannedCost}`]]) {
             const node = document.createElement(tag); node.className = cls; node.textContent = text; button.append(node);
         }
@@ -256,6 +269,8 @@ async function enterStage() {
     stageControls(false);
     const units = state.party.map(id => state.catalogue.units.find(unit => unit.id === id));
     buildLoadout(units);
+    // 观察模式载入卡：progress 上方铺一次纸面骨条，随整卡显示与隐藏。
+    if (!stageLoadingBones) { stageLoadingBones = loadBones($("stage-loading-bones"), { rows: 3 }); }
     $("stage-loading").hidden = false;
     $("loading-progress").textContent = "读取原生模型、武器、表情和场地…";
     $("loading-progress-bar").value = 0;
@@ -462,7 +477,22 @@ if (REVIEW_CLOCK) {
     });
 }
 
+// 标题背景轮换：从全站零引用的四张场景横幅里随机挑一张做标题底图。
+// CSS 背景没有 onerror，先用 new Image() 预探测，加载成功才写
+// data-title-scene 交给 shell.css 的 ::after 淡入；失败则移除属性、
+// 回落默认的 title.webp。
+const TITLE_SCENES = ["village", "town", "inn", "train"];
+
+function rotateTitleScene() {
+    const scene = TITLE_SCENES[Math.floor(Math.random() * TITLE_SCENES.length)];
+    const probe = new Image();
+    probe.addEventListener("load", () => { document.body.dataset.titleScene = scene; });
+    probe.addEventListener("error", () => { delete document.body.dataset.titleScene; });
+    probe.src = siteUrl(`asset/img/rl/ui/scene_${scene}.webp`);
+}
+
 async function boot() {
+    rotateTitleScene();
     syncSettings();
     try {
         state.catalogue = await loadCatalogue();

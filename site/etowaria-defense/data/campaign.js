@@ -707,91 +707,91 @@ export const TOWN_RULES = Object.freeze({
 
 export const ENEMY_RULES = Object.freeze({
     E01: { id: "E01", shadowScale: 1.75, resourceId: 10000, name: "小黑怪", hp: 200, speed: .2, threat: 1,
-        damage: 20, period: 1.2, windup: .32, height: .82, description: "缓慢前进，接近同伴后停下攻击。" },
+        damage: 20, period: 1.2, windup: .32, height: .82, description: "缓慢前进，接近同伴后停下攻击。", counters: ["U01"] },
     E02: { id: "E02", shadowScale: 1.75, resourceId: 10100, name: "松鼠", hp: 140, speed: .34, threat: 1,
-        damage: 18, period: 1, windup: .25, height: .92, description: "耐久较低，但脚步更快。不要让一条路长时间无人照顾。" },
+        damage: 18, period: 1, windup: .25, height: .92, description: "耐久较低，但脚步更快。不要让一条路长时间无人照顾。", counters: ["U02", "U19"] },
     E04: { id: "E04", shadowScale: 1.4, resourceId: 10200, name: "土台", hp: 680, speed: .12, threat: 3,
-        damage: 28, period: 1.4, windup: .38, height: .82, description: "移动慢而耐久高。用骑士留住它，再由后排持续输出。" },
+        damage: 28, period: 1.4, windup: .38, height: .82, description: "移动慢而耐久高。用骑士留住它，再由后排持续输出。", counters: ["U11", "U01"] },
     E05: { id: "E05", shadowScale: 1.3, resourceId: 10300, name: "蒲公英", hp: 170, speed: .26, threat: 1.5, hop: true,
-        damage: 16, period: 1.1, windup: .3, height: .9, description: "随风飘过遇到的第一位同伴，只有折部安奈这样的高墙能拦住它。" },
+        damage: 16, period: 1.1, windup: .3, height: .9, description: "随风飘过遇到的第一位同伴，只有折部安奈这样的高墙能拦住它。", counters: ["U12"] },
     E06: { id: "E06", shadowScale: 1.3, resourceId: 10900, name: "蘑菇怪", hp: 260, speed: .17, threat: 2, healer: { amount: 30, period: 4, reach: 1.6 },
-        damage: 18, period: 1.3, windup: .35, height: .86, description: "每4秒撒出孢子，为附近三路的来客回复30生命。优先击倒它。" },
+        damage: 18, period: 1.3, windup: .35, height: .86, description: "每4秒撒出孢子，为附近三路的来客回复30生命。优先击倒它。", counters: ["F10", "U04"] },
     E07: { id: "E07", shadowScale: 2.5, resourceId: 11100, name: "魔偶", hp: 420, armor: 300, speed: .13, threat: 4, rockArmor: { regenPerSec: 60, delay: 3 },
-        damage: 32, period: 1.5, windup: .4, height: 1.02, description: "身披300点护甲；3秒不被打就会自动修补（原作「ロックアーマー」）。玛莉·梦魔能直接击碎护甲。" },
+        damage: 32, period: 1.5, windup: .4, height: 1.02, description: "身披300点护甲；3秒不被打就会自动修补（原作「ロックアーマー」）。玛莉·梦魔能直接击碎护甲。", counters: ["U10"] },
     E08: { id: "E08", shadowScale: 2.5, resourceId: 11400, name: "丧丧丧尸", hp: 480, speed: .11, threat: 3.5, revive: { ratio: .4, delay: 1.4 },
-        damage: 24, period: 1, windup: .3, height: .98, description: "第一次被击倒后会以40%生命重新站起来。" },
+        damage: 24, period: 1, windup: .3, height: .98, description: "第一次被击倒后会以40%生命重新站起来。", counters: ["U04", "U09"] },
     E09: { id: "E09", shadowScale: 3, resourceId: 11500, name: "狼", hp: 300, speed: .46, threat: 2, battleCry: { once: true, haste: .2, duration: 5, reach: 2 },
-        damage: 26, period: 1.05, windup: .28, height: .95, description: "第一次望见同伴时嗥叫「バトルクライ」（原作技能），周围两格的来客提速20%持续5秒；本身也跑得极快。" },
+        damage: 26, period: 1.05, windup: .28, height: .95, description: "第一次望见同伴时嗥叫「バトルクライ」（原作技能），周围两格的来客提速20%持续5秒；本身也跑得极快。", counters: ["U02", "U23"] },
     E10: { id: "E10", shadowScale: 0.8, resourceId: 10600, name: "光玉", hp: 180, speed: .2, threat: 2, ranged: { range: 2.6, damage: 14, period: 1.8, windup: .5 },
-        damage: 14, period: 1.8, windup: .5, height: .8, description: "停在2.6格外发射光弹攻击最前面的同伴，近战够不到它。" },
+        damage: 14, period: 1.8, windup: .5, height: .8, description: "停在2.6格外发射光弹攻击最前面的同伴，近战够不到它。", counters: ["U04", "F10"] },
     E11: { id: "E11", shadowScale: 1.4, resourceId: 10800, name: "仙人掌怪", hp: 380, speed: .15, threat: 3, thorns: 8,
-        damage: 22, period: 1.3, windup: .35, height: .92, description: "全身是刺，近战同伴每次攻击它都会受到8点反伤。" },
+        damage: 22, period: 1.3, windup: .35, height: .92, description: "全身是刺，近战同伴每次攻击它都会受到8点反伤。", counters: ["U01", "U03"] },
     E12: { id: "E12", shadowScale: 1.75, resourceId: 12000, name: "扁扁的士兵", hp: 240, armor: 160, speed: .2, threat: 2.5,
-        damage: 22, period: 1.2, windup: .32, height: .92, description: "举着盾前进，160点护甲先吸收伤害。" },
+        damage: 22, period: 1.2, windup: .32, height: .92, description: "举着盾前进，160点护甲先吸收伤害。", counters: ["U10"] },
     E13: { id: "E13", shadowScale: 4, resourceId: 14300, name: "小黑怪王", hp: 2400, armor: 200, speed: .09, threat: 15, boss: true,
         summon: { type: "E01", period: 12, count: 2 },
-        damage: 60, period: 1.6, windup: .45, height: 1.45, description: "来客的首领。每12秒在相邻道路召唤两只小黑怪。" },
+        damage: 60, period: 1.6, windup: .45, height: 1.45, description: "来客的首领。每12秒在相邻道路召唤两只小黑怪。", counters: ["U06", "U10"] },
     E14: { id: "E14", shadowScale: 3, resourceId: 13600, name: "树怪", hp: 1100, speed: .1, threat: 6,
-        damage: 40, period: 1.8, windup: .5, height: 1.3, description: "巨大的树怪，耐久是土台的1.6倍，攻击也更重。" },
+        damage: 40, period: 1.8, windup: .5, height: 1.3, description: "巨大的树怪，耐久是土台的1.6倍，攻击也更重。", counters: ["U04", "U21"] },
 
     E15: { id: "E15", shadowScale: 0.5, resourceId: 13500, name: "苔玉", hp: 120, speed: .3, threat: 1,
-        damage: 12, period: 1.1, windup: .28, height: .68, description: "小小的苔球，成群滚过来。耐久很低，但数量多时会偷偷漏过去。" },
+        damage: 12, period: 1.1, windup: .28, height: .68, description: "小小的苔球，成群滚过来。耐久很低，但数量多时会偷偷漏过去。", counters: ["U03", "U06"] },
     E16: { id: "E16", shadowScale: 1.5, resourceId: 10400, name: "蜥蜴", hp: 160, speed: .3, threat: 1.5,
-        damage: 16, period: 1, windup: .28, height: .78, description: "细长的蜥蜴，脚步轻快。比小黑怪快，也比小黑怪脆。" },
+        damage: 16, period: 1, windup: .28, height: .78, description: "细长的蜥蜴，脚步轻快。比小黑怪快，也比小黑怪脆。", counters: ["U02"] },
     E17: { id: "E17", shadowScale: 4, resourceId: 13200, name: "牛头人", hp: 320, speed: .38, threat: 2.5,
-        damage: 30, period: 1.2, windup: .3, height: 1.15, description: "高大的牛头战士，大步冲向防线。又耐打又会打得疼，别让骑士被凿穿。" },
+        damage: 30, period: 1.2, windup: .3, height: 1.15, description: "高大的牛头战士，大步冲向防线。又耐打又会打得疼，别让骑士被凿穿。", counters: ["U11", "U04"] },
     E18: { id: "E18", shadowScale: 4.5, resourceId: 11200, name: "海龟", hp: 320, armor: 220, speed: .13, threat: 3,
-        damage: 24, period: 1.4, windup: .38, height: .85, description: "背着硬壳慢慢爬，220点护甲先吸收伤害。走得越慢，拖到后面的输出就越要足。" },
+        damage: 24, period: 1.4, windup: .38, height: .85, description: "背着硬壳慢慢爬，220点护甲先吸收伤害。走得越慢，拖到后面的输出就越要足。", counters: ["U10", "U02"] },
     E19: { id: "E19", shadowScale: 3, resourceId: 11900, name: "双钳蟹", hp: 300, armor: 120, speed: .3, threat: 3,
-        damage: 22, period: 1.2, windup: .3, height: .8, description: "横着冲过来的螃蟹，举着钳子。120点护甲配上快脚步，比扁扁的士兵难缠。" },
+        damage: 22, period: 1.2, windup: .3, height: .8, description: "横着冲过来的螃蟹，举着钳子。120点护甲配上快脚步，比扁扁的士兵难缠。", counters: ["U10"] },
     E20: { id: "E20", shadowScale: 0.2, resourceId: 13100, name: "松球", hp: 240, speed: .26, threat: 1.5, hop: true,
-        damage: 16, period: 1.1, windup: .3, height: .74, description: "一弹一弹的松球，会像蒲公英一样跳过第一位同伴。只有高墙拦得住。" },
+        damage: 16, period: 1.1, windup: .3, height: .74, description: "一弹一弹的松球，会像蒲公英一样跳过第一位同伴。只有高墙拦得住。", counters: ["U12"] },
     E21: { id: "E21", shadowScale: 4, resourceId: 11600, name: "巨锤魔偶", hp: 280, speed: .22, threat: 2.5, healer: { amount: 18, period: 4.5, reach: 1.6 },
-        damage: 18, period: 1.4, windup: .38, height: 1.1, description: "背着巨大铜锤蹒跚前行的魔偶。每 4.5 秒会敲出回响，为周围来客回复 18 生命，同时自己抡锤砸人可痛了。" },
+        damage: 18, period: 1.4, windup: .38, height: 1.1, description: "背着巨大铜锤蹒跚前行的魔偶。每 4.5 秒会敲出回响，为周围来客回复 18 生命，同时自己抡锤砸人可痛了。", counters: ["F10", "U04"] },
     E22: { id: "E22", shadowScale: 3, resourceId: 11300, name: "鱼民", hp: 220, speed: .2, threat: 2.5, ranged: { range: 3.2, damage: 16, period: 1.7, windup: .45 },
-        damage: 16, period: 1.7, windup: .45, height: .92, description: "站在3.2格外投掷鱼叉，比光玉更远也更痛。要尽快放倒。" },
+        damage: 16, period: 1.7, windup: .45, height: .92, description: "站在3.2格外投掷鱼叉，比光玉更远也更痛。要尽快放倒。", counters: ["U04", "F10"] },
     E23: { id: "E23", shadowScale: 1.4, resourceId: 10500, name: "石鱼", hp: 360, speed: .14, threat: 3, thorns: 6,
-        damage: 20, period: 1.3, windup: .35, height: .8, description: "全身硬刺的石鱼，贴着地面游。近战同伴每次攻击它都会受6点反伤。" },
+        damage: 20, period: 1.3, windup: .35, height: .8, description: "全身硬刺的石鱼，贴着地面游。近战同伴每次攻击它都会受6点反伤。", counters: ["U01", "U05"] },
     E24: { id: "E24", shadowScale: 2, resourceId: 13400, name: "小黑怪兵", hp: 300, armor: 80, speed: .24, threat: 2.5, revive: { ratio: .3, delay: 1.2 },
-        damage: 22, period: 1.2, windup: .32, height: .9, description: "受过训练的小黑怪，顶着小盾。倒下后还会挣扎着再站起来一次。" },
+        damage: 22, period: 1.2, windup: .32, height: .9, description: "受过训练的小黑怪，顶着小盾。倒下后还会挣扎着再站起来一次。", counters: ["U10", "U04"] },
     E25: { id: "E25", shadowScale: 2.8, resourceId: 11000, name: "飞翼盗账人", hp: 120, speed: .36, threat: 1.5,
-        damage: 14, period: 1.1, windup: .28, height: .82, description: "尾巴甩得飞快的小飞兽，耐久不高，但成群后来比小黑怪危险。" },
+        damage: 14, period: 1.1, windup: .28, height: .82, description: "尾巴甩得飞快的小飞兽，耐久不高，但成群后来比小黑怪危险。", counters: ["U02", "U03"] },
     E26: { id: "E26", shadowScale: 1.75, resourceId: 11700, name: "深潭多足怪", hp: 460, speed: .16, threat: 3.5,
-        damage: 22, period: 1.4, windup: .38, height: .78, description: "八只脚拖着壳慢慢爬，先吸收伤害的护甲藏在壳下；玛莉·梦魔的破甲让它立刻崩解。" },
+        damage: 22, period: 1.4, windup: .38, height: .78, description: "八只脚拖着壳慢慢爬，先吸收伤害的护甲藏在壳下；玛莉·梦魔的破甲让它立刻崩解。", counters: ["U10"] },
     E27: { id: "E27", shadowScale: 3.15, resourceId: 12100, name: "双足小妖", hp: 140, speed: .42, threat: 1.5, hop: true,
-        damage: 16, period: 1, windup: .26, height: .74, description: "一双长腿跳过来，会翻过前排。高墙能拦住它的跳。" },
+        damage: 16, period: 1, windup: .26, height: .74, description: "一双长腿跳过来，会翻过前排。高墙能拦住它的跳。", counters: ["U12"] },
     E28: { id: "E28", shadowScale: 4.25, resourceId: 12200, name: "岩壳魔蟹", hp: 420, armor: 380, speed: .14, threat: 4,
-        damage: 26, period: 1.4, windup: .38, height: .88, description: "380的护甲超厚；用蓄力的U26或U10打穿，别让其他人在后面沉默。" },
+        damage: 26, period: 1.4, windup: .38, height: .88, description: "380的护甲超厚；用蓄力的U26或U10打穿，别让其他人在后面沉默。", counters: ["U26", "U10"] },
     E29: { id: "E29", shadowScale: 3, resourceId: 13700, name: "迷雾蓄能师", hp: 240, speed: .18, threat: 3, ranged: { range: 3.4, damage: 16, period: 1.9, windup: .5 },
         healer: { amount: 22, period: 5, reach: 1.8 },
-        damage: 14, period: 1.9, windup: .5, height: .95, description: "躲在后头蓄能的法师，每5秒为周围来客治疗22，同时远处射击。必优先击倒。" },
+        damage: 14, period: 1.9, windup: .5, height: .95, description: "躲在后头蓄能的法师，每5秒为周围来客治疗22，同时远处射击。必优先击倒。", counters: ["F10", "U04"] },
     E30: { id: "E30", shadowScale: 4, resourceId: 14400, name: "碎岩魔像", hp: 1300, armor: 200, speed: .1, threat: 6.5, boss: true,
         summon: { type: "E25", period: 10, count: 1 },
-        damage: 56, period: 1.6, windup: .42, height: 1.4, description: "奇岩石雕的巨人。每10秒掷出一颗飞翼攻击；护甲虽薄但耐打极佳。" },
+        damage: 56, period: 1.6, windup: .42, height: 1.4, description: "奇岩石雕的巨人。每10秒掷出一颗飞翼攻击；护甲虽薄但耐打极佳。", counters: ["U10", "U03"] },
 
     // ─── 后续章节新面孔 ──────────────────────────────────────────────
     E31: { id: "E31", shadowScale: 1.3, resourceId: 15700, name: "兔兔怪", hp: 260, speed: .34, threat: 2,
-        damage: 20, period: 1.1, windup: .3, height: .8, description: "竖起耳朵就能听到它从远处冲过来的脚步声，耐久不高但跑得快。" },
+        damage: 20, period: 1.1, windup: .3, height: .8, description: "竖起耳朵就能听到它从远处冲过来的脚步声，耐久不高但跑得快。", counters: ["U02", "U19"] },
     E32: { id: "E32", shadowScale: 1, resourceId: 14000, name: "砂肝太郎", hp: 460, speed: .18, threat: 3, armor: 140,
-        damage: 26, period: 1.3, windup: .35, height: .95, description: "披着厚皮蹒跚前进的来客，140点护甲和慢而稳的脚步一起压过来。" },
+        damage: 26, period: 1.3, windup: .35, height: .95, description: "披着厚皮蹒跚前进的来客，140点护甲和慢而稳的脚步一起压过来。", counters: ["U10", "U58"] },
     E33: { id: "E33", shadowScale: 2.2, resourceId: 16200, name: "金尾魔物", hp: 380, speed: .16, threat: 2.5,
-        damage: 18, period: 1.2, windup: .32, height: .85, description: "拖着金尾巴的魔物，耐久比普通来客厚一圈，慢慢挤过防线。" },
+        damage: 18, period: 1.2, windup: .32, height: .85, description: "拖着金尾巴的魔物，耐久比普通来客厚一圈，慢慢挤过防线。", counters: ["U04", "U21"] },
     E34: { id: "E34", shadowScale: 5, resourceId: 17600, name: "庭园守卫", hp: 620, speed: .08, threat: 4, tall: true, armor: 260,
-        damage: 22, period: 1.6, windup: .45, height: 1.2, description: "庭园里最沉的守卫——护甲厚、走得极慢，跳客的翻越也跃不过它。" },
+        damage: 22, period: 1.6, windup: .45, height: 1.2, description: "庭园里最沉的守卫——护甲厚、走得极慢，跳客的翻越也跃不过它。", counters: ["U10", "U35"] },
     E35: { id: "E35", shadowScale: 4, resourceId: 14500, name: "老鼠", hp: 180, speed: .5, threat: 1.5,
-        damage: 14, period: .9, windup: .26, height: .6, description: "黑溜溜的小老鼠，速度是全场最快的来客；耐久薄，但打不中就会漏进家门。" },
+        damage: 14, period: .9, windup: .26, height: .6, description: "黑溜溜的小老鼠，速度是全场最快的来客；耐久薄，但打不中就会漏进家门。", counters: ["U02", "U19"] },
     E36: { id: "E36", shadowScale: 2.5, resourceId: 16400, name: "鲨鱼", hp: 300, speed: .2, threat: 2, healer: { amount: 22, period: 3.5, reach: 1.8 },
-        damage: 16, period: 1.2, windup: .3, height: .8, description: "在草地上游动的鲨鱼，每3.5秒给周围的来客补上22生命。" },
+        damage: 16, period: 1.2, windup: .3, height: .8, description: "在草地上游动的鲨鱼，每3.5秒给周围的来客补上22生命。", counters: ["F10", "U04"] },
     E37: { id: "E37", shadowScale: 1.6, resourceId: 15800, name: "水云", hp: 320, speed: .26, threat: 2.5, hop: true,
-        damage: 18, period: 1.2, windup: .3, height: 1, description: "漂浮在空中的水云，能越过第一位同伴。需要高墙或击退才能拦住。" },
+        damage: 18, period: 1.2, windup: .3, height: 1, description: "漂浮在空中的水云，能越过第一位同伴。需要高墙或击退才能拦住。", counters: ["U12", "U08"] },
     // 无尽模式的终盘首领：罗贝莉亚（原作 boss rig 7000）
     E39: { id: "E39", shadowScale: 2.4, resourceId: 7000, name: "罗贝莉亚", hp: 2600, speed: .08, threat: 18, boss: true,
         armor: 240, ranged: { range: 4.2, damage: 34, period: 2.6, windup: .6 },
         summon: { type: "E38", period: 14, count: 2 },
         damage: 52, period: 1.8, windup: .5, height: 1.5, elementId: 2,
-        description: "无尽巡守的深夜女王。远距离投掷暗影弹，每14秒召唤两名熊兵护卫；护甲240点。" },
+        description: "无尽巡守的深夜女王。远距离投掷暗影弹，每14秒召唤两名熊兵护卫；护甲240点。", counters: ["U10", "U30"] },
     E38: { id: "E38", shadowScale: 2.2, resourceId: 15900, name: "熊兵", hp: 400, speed: .22, threat: 3, armor: 80, roar: { period: 8, delay: 1 },
-        damage: 28, period: 1.3, windup: .36, height: 1.1, description: "全副武装的小熊兵。每8秒低吼「クッマッマー」（原作技能），推迟相邻两路同伴的下一次出手1秒。" }
+        damage: 28, period: 1.3, windup: .36, height: 1.1, description: "全副武装的小熊兵。每8秒低吼「クッマッマー」（原作技能），推迟相邻两路同伴的下一次出手1秒。" , counters: ["U17", "G46"] }
 });
 
 const spawn = (at, row, type = "E01", wave = 1) => ({ at, row, type, wave });
@@ -1270,6 +1270,17 @@ export const LEVELS = Object.freeze([
         challenge: { type: "defeated", target: 0 }, optional: "没有同伴倒下", openingTip: "硬胶墙挡不住所有方向，把最强输出集中在首领那一行。"
     }
 ]);
+
+// 来客初见关卡：按巡守顺序扫描每关的 newEnemy 与 spawns，第一处出现即
+// 初见（图鉴详情展示用，避免手抄一份会漂移的表）。任何关卡都不出现的
+// 来客（如无尽女王 E39）记为 null，界面显示「无尽巡守」——battle-view
+// 的无尽敌人全集就是 ENEMY_RULES 全表，所以 null 项都真实可在无尽遭遇。
+export const ENEMY_FIRST_SEEN = Object.freeze(Object.fromEntries(
+    Object.keys(ENEMY_RULES).map(id => {
+        const level = LEVELS.find(level => level.newEnemy === id
+            || level.spawns.some(spawn => spawn.type === id));
+        return [id, level ? level.id : null];
+    })));
 
 // Endless patrol: the level shell. Waves are generated by Battle from a
 // seeded budget, so the same seed always builds the same run.

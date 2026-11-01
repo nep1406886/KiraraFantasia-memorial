@@ -86,11 +86,22 @@ p { line-height: 1.65; }
 
 .title-screen { isolation: isolate; display: grid; grid-template-columns: minmax(0, 1fr) minmax(320px, 29%); gap: 6vw; padding: 10vh 5.5vw 12vh; }
 .title-art { position: absolute; inset: 0; z-index: -1; background: url("../../asset/img/rl/ui/title.webp") 48% 48% / cover no-repeat; }
+/* 标题背景轮换：CSS 背景图本身不可过渡，这里用 ::after 叠出第二层，
+   靠透明度做交叉淡入。main.js 的 boot() 用 new Image() 预探测随机场景图，
+   成功后写 body[data-title-scene]（命中下面四条之一）；失败则不加属性，
+   ::after 保持全透明，留在 title.webp 上。 */
+.title-art::after { content: ""; position: absolute; inset: 0; background: 48% 48% / cover no-repeat; opacity: 0; transition: opacity .7s ease; }
+body[data-title-scene="village"] .title-art::after { background-image: url("../../asset/img/rl/ui/scene_village.webp"); opacity: 1; }
+body[data-title-scene="town"] .title-art::after { background-image: url("../../asset/img/rl/ui/scene_town.webp"); opacity: 1; }
+body[data-title-scene="inn"] .title-art::after { background-image: url("../../asset/img/rl/ui/scene_inn.webp"); opacity: 1; }
+body[data-title-scene="train"] .title-art::after { background-image: url("../../asset/img/rl/ui/scene_train.webp"); opacity: 1; }
 .title-wordmark { align-self: start; padding-top: 2vh; text-shadow: 0 2px #fff, 2px 0 #fff, -2px 0 #fff, 0 -2px #fff; }
 .franchise-name { font-size: clamp(1.35rem, 2.1vw, 2rem); font-weight: 700; margin-bottom: .15em; }
 .title-wordmark h1 { font-family: "KaiTi", "STKaiti", "Kaiti SC", serif; font-size: clamp(5rem, 7.8vw, 8.1rem); font-weight: 400; line-height: 1.25; letter-spacing: -.04em; -webkit-text-stroke: 1px var(--ink); paint-order: stroke fill; filter: drop-shadow(2px 2px 0 #fff) drop-shadow(-2px -2px 0 #fff); }
 .title-promise { margin-top: 1.5rem; font-size: clamp(1.2rem, 1.9vw, 1.8rem); font-weight: 700; }
-.title-phase { margin-top: .65rem; font-size: 1rem; }
+/* 副标语压在场景横幅的暗部上（随机轮换的四张景都偏深），跟随上方题字的
+   白描边手法做 1px 光晕，保证任何一张横幅下都可读。 */
+.title-phase { margin-top: .65rem; font-size: 1rem; font-weight: 600; text-shadow: 0 1px #fff, 1px 0 #fff, -1px 0 #fff, 0 -1px #fff; }
 .title-menu { align-self: center; display: flex; flex-direction: column; gap: 18px; padding: 11px 14px 16px; }
 .title-menu h2 { font-size: clamp(1.3rem, 1.75vw, 1.8rem); }
 .title-menu > p:not(.menu-note) { color: var(--muted); margin-bottom: 16px; }
@@ -139,6 +150,10 @@ p { line-height: 1.65; }
 .portrait-icon > .class-icon, .portrait-icon > .element-icon { position: absolute; bottom: -5px; width: 27%; height: 27%; }
 .portrait-icon > .class-icon { left: -4px; }
 .portrait-icon > .element-icon { right: -4px; }
+/* 角色页首载垫块（app/load-shell.js 的 loadBoneCell）：portrait-icon 是
+   aspect-ratio:1 的方形，骨块按同一方形铺满，图到位后由 main.js 移除，
+   不会产生布局跳动。 */
+.portrait-icon > .load-bone { position: absolute; inset: 0; min-height: 0; border-radius: 10px; }
 .roster-card strong { display: block; font-size: 1.15rem; }
 .roster-card .unit-role { display: block; font-size: .8rem; line-height: 1.4; color: var(--muted); margin: 4px 0; }
 .roster-card .unit-cost { color: var(--blue); font-size: .9rem; }
@@ -190,6 +205,19 @@ p { line-height: 1.65; }
 .loading-card { width: min(460px, 90%); padding: 20px; text-align: center; }
 .loading-card p { margin: 18px 0 14px; }
 .loading-card progress { display: block; width: 100%; height: 12px; accent-color: #91ba5a; }
+/* 纸面骨架屏（app/load-shell.js 生成 DOM）：--line-soft 打底、--paper-raised
+   高光以 1.4s 呼吸节奏扫过；减动效时由文件末尾的全局块停成静止骨条。 */
+.loading-bones { margin-bottom: 14px; }
+.load-bones { display: grid; gap: 10px; }
+.load-bone {
+  min-height: 14px;
+  border-radius: 9px;
+  background: linear-gradient(100deg, var(--line-soft) 40%, var(--paper-raised) 50%, var(--line-soft) 58%) 100% 0 / 220% 100% no-repeat;
+  animation: load-bone-breath 1.4s ease-in-out infinite;
+}
+.load-bones .load-bone:nth-child(3n+2) { width: 86%; }
+.load-bones .load-bone:nth-child(3n) { width: 72%; }
+@keyframes load-bone-breath { from { background-position: 100% 0; } to { background-position: 0% 0; } }
 .portrait-notice { position: absolute; inset: 0; display: grid; place-items: center; z-index: 9; background: rgb(241 246 226 / 96%); padding: 20px; }
 .portrait-notice .panel { padding: 10px; }
 .portrait-notice p { margin: 16px 0; }
@@ -238,6 +266,7 @@ body.cinematic-active .stage-location, body.cinematic-active .scene-directions, 
   body { overflow-y: auto; }
   .title-screen { display: flex; flex-direction: column; min-height: 760px; height: max(100dvh, 760px); padding: 5vh 22px 80px; gap: 25px; }
   .title-art { background-position: 36% center; }
+  .title-art::after { background-position: 36% center; }
   .title-wordmark { padding: 0; }
   .franchise-name { font-size: 1.2rem; }
   .title-wordmark h1 { font-size: clamp(4.1rem, 15vw, 6rem); }
