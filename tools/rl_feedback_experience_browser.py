@@ -86,7 +86,7 @@ def main():
                         for(const item of rollLoot(rng,9,0,kirafanRL.world.player.card,{source}))if(item.gadgetId)found[item.gadgetId]=item;
                     window.mechanicDrops=found;return GADGETS.map(g=>g.id).filter(id=>found[id]);
                 }""")
-                check('第9层具名渠道生成八类机制候选（非概率抽样验收）', len(ids) == 8, ids)
+                check('第9层具名渠道生成十一类机制候选（非概率抽样验收）', len(ids) == 11, ids)
                 # Keep pathfinding gear last for the subsequent assistance checks.
                 ids = [gid for gid in ids if gid != 'hunter'] + ['hunter']
                 for gid in ids:

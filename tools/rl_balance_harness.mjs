@@ -123,7 +123,12 @@ const RATIO_BAND = [1.8, 2.2];      // 「满练 vs lv50 敌人: DPS/承伤比 1
 // player kill seconds dropped ~1.6x, which read 1.50 at the old rung. The
 // policy above (keep statistic and band, move only the reference rung)
 // applies; --search prints the curve: elv 20 now centres the band (1.82).
-const RATIO_ELV = 20;
+// 2026-11-01 T23: re-pinned from 20 after the builder sync + pool additions —
+// vol5 记忆之间's 戸棚に潜む魔物 now pins the el1 row (30014201, was el4
+// 30014204), which shifted the lv20 median 1.80 → 1.67 (element matchup plus
+// the pinned face's slot in the flat pool). Same policy: statistic and band
+// verbatim, rung only; elv 19 centres the band (2.00).
+const RATIO_ELV = 19;
 
 // --- the model's own assumptions (nothing else in this file is a guess) -----
 const MODEL = {

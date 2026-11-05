@@ -118,8 +118,8 @@ def main():
                     badGadget:equipmentIcon({slot:'armor',gadgetId:'../../escape',affixes:[]})};
             }""")
             report['art'] = art
-            check('四槽、十机制与原作武器全部可解码且不是空白图块',
-                  len(art['images']) == 15 and all(row['width'] > 0 and row['solid'] > 250 for row in art['images']), art['images'])
+            check('四槽、十三机制与原作武器全部可解码且不是空白图块',
+                  len(art['images']) == 18 and all(row['width'] > 0 and row['solid'] > 250 for row in art['images']), art['images'])
             check('非武器和机制不再冒用物品素材，原作武器仍按原编号',
                   all('/equipment/' in row['url'] for row in art['images'][:-1])
                   and art['images'][-1]['url'].endswith('/weapon/%s.webp' % art['native']['iconId']))
@@ -151,10 +151,13 @@ def main():
             page.locator('#item-art-sheet').screenshot(path=str(OUT / 'asset-sheet.png'))
             page.locator('#item-art-sheet').evaluate('n=>n.remove()')
             # Named scene fixture, positioned outside the automatic offer radius.
+            # 9 列×2 行：第 10 件（巡猎罗盘）在最下一行，其接近起点与往复
+            # 绕行路线的上方没有其他掉落，PICKUP_RADIUS(0.9) 内永远只有本件
+            # （6 列×3 行时上一行 0.6 距离的邻居会抢先弹出比较对话框）。
             page.evaluate("""()=>{const k=kirafanRL,w=k.world,p=w.player;p.x=w.width/2;p.y=w.height/2;
                 window.__equipmentBefore=JSON.stringify(p.equipment);
                 window.__artDrops=__itemArt.items.map((item,i)=>{
-                    const d={x:p.x-4.5+(i%6)*1.8,y:p.y-3-Math.floor(i/6)*2,items:[item]};
+                    const d={x:p.x-4.5+(i%9)*1.8,y:p.y-3-Math.floor(i/9)*2,items:[item]};
                     w.drops.push(d);w.events.push({type:'drop',x:d.x,y:d.y,items:d.items,drop:d});return d;});k.step(1/60);}""")
             page.wait_for_function("""()=>{let n=0;kirafanRL.scene.traverse(o=>{
                 if(o.userData.weaponIcon&&o.children[0]?.material.map?.image?.width)n++;});return n===__itemArt.items.length;}""", polling=50, timeout=15000)
@@ -163,7 +166,7 @@ def main():
                 rows.push({icon:o.userData.weaponIcon,frame:o.material.map.image.src,color:o.children[0].material.color.getHexString(),
                     visible:o.children[0].visible});});return rows;}""")
             report['markers'] = markers
-            check('地面使用原作通用装备框，全部图案保留原色且可见', len(markers) == 15
+            check('地面使用原作通用装备框，全部图案保留原色且可见', len(markers) == 18
                   and all('equipment-frame.webp' in r['frame'] and r['color'] == 'ffffff' and r['visible'] for r in markers))
             check('显示新图标不自动装备或换层', page.evaluate('JSON.stringify(kirafanRL.world.player.equipment)===__equipmentBefore && kirafanRL.world.floor===1'))
             page.screenshot(path=str(OUT / 'ground-assortment.png'))

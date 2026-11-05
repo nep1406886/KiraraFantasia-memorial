@@ -353,6 +353,13 @@ def victory_transactions(browser, url, errors):
             before = raw_profile(page)
             original = json.loads(before)
             seen = original["meta"]["storySeen"]
+            # Expected fresh-save residual pages track meta.js itself (same
+            # receipt contract as rl_terminal_harness.mjs), so the gate can't
+            # go stale when VOLUME_PAGES grows again.
+            expected_pages = page.evaluate(
+                "async volume => { const m = await import('/site/game/rl/meta.js');"
+                " return m.pagesForVolume(volume).length"
+                " + (volume === 5 ? m.FINALE_PAGES.length : 0); }", volume)
             check('清场与战后对白只保存旧层事实，不提前结算奖励' + label,
                   original['run'] is not None and original['runId'] == before_clear['runId']
                   and original['meta']['gems'] == before_clear['meta']['gems']
@@ -376,7 +383,7 @@ def victory_transactions(browser, url, errors):
                   and terminal["meta"]["gems"] == original["meta"]["gems"] + 18
                   and terminal["lastResult"]["outcome"] == "victory"
                   and terminal["lastResult"]["gems"] == 18
-                  and len(terminal["lastResult"]["newPages"]) == (7 if volume == 1 else 10)
+                  and len(terminal["lastResult"]["newPages"]) == expected_pages
                   and terminal["meta"]["storySeen"] == seen)
             if fail_all or fail_at == 1:
                 check("首次终局写失败时原档逐字节不变" + label, raw_profile(page) == before)

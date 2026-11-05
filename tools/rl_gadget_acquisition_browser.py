@@ -18,7 +18,8 @@ from rl_feedback_experience_browser import acquire, STATE, fingerprints, readabi
 ROOT = Path(__file__).resolve().parents[1]
 OUT = ROOT / '.codex-tmp/feedback-20260910/gadget-acquisition'
 PRICES = {'rhythm': 40, 'strider': 45, 'reach': 45, 'wide': 40, 'aim': 30, 'sentry': 90, 'hunter': 130,
-          'steady': 120, 'prism': 160, 'binding': 180}
+          'steady': 120, 'prism': 160, 'binding': 180,
+          'aegis': 45, 'kite': 45, 'comet': 110}
 
 
 def profile(page):

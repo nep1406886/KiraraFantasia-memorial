@@ -84,7 +84,7 @@ def main():
             data = fixture(page)
             select_backup(page, data)
             page.locator("#storage-preview").wait_for(state="visible")
-            check("preview displays imported gems, pages and trained level", all(text in page.locator("#storage-preview").inner_text() for text in ["777", "1 / 37", "Lv 24"]))
+            check("preview displays imported gems, pages and trained level", all(text in page.locator("#storage-preview").inner_text() for text in ["777", "1 / 43", "Lv 24"]))
             check("preview includes a level-one character with limit breaks", "Lv 1 · 突破 1" in page.locator("#storage-preview .storage-levels").inner_text())
             for width in (375, 390, 412, 430, 768, 1280):
                 page.set_viewport_size({"width": width, "height": 900})

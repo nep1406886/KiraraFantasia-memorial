@@ -90,7 +90,7 @@ export function showStorageManager(options) {
         const meta = profile.meta || {};
         const dl = node("dl", "storage-summary");
         const rows = [["星彩石", meta.gems ?? meta.shards ?? 0], ["已通关", (meta.volumes || 0) + " 卷"],
-            ["残页", (meta.pages || []).length + " / 37"],
+            ["残页", (meta.pages || []).length + " / 43"],
             ["冒险进度", profile.run ? "第 " + profile.run.volume + " 卷 · 第 " + profile.run.floor + " 层" : "无进行中的冒险"],
             ["镜头高度", profile.settings["cam-height"] ?? 9]];
         if (profile.run) { rows.splice(4, 0, ["冒险角色", options.characterName(profile.run.cardId) + " · Lv " + profile.run.level]); }

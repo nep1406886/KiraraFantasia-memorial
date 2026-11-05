@@ -24,6 +24,9 @@ import { renderEnemyThumb } from "./enemythumb.js";
 // Module-relative (this file lives at game/rl/ui/): a page-relative "../.."
 // would escape a /kirafan-timer/ deployment subpath.
 const BUST_BASE = new URL("../../../asset/img/rl/bust/", import.meta.url).href;
+// bust/ 只刻了 40 名原作四十大使；百物语续篇的 6 个新卡号没有 bust 文件
+// （实测 404），缩略图回落到 icon/ 的原作角色头像，再失败才摘除。
+const ICON_BASE = new URL("../../../asset/img/rl/icon/", import.meta.url).href;
 // 大立绘彩蛋：asset/img/rl/illust/ 的 34 张原作 750×1000 立绘此前全站
 // 零运行时引用（asset 盘点）。按目录实名建档，命中集合的已收集页才在
 // 详情里揭示大图；未命中与 404（onerror 摘除）都不打扰排版。
@@ -39,7 +42,8 @@ const ILLUST_IDS = new Set([
 const ELEMENT_CHAR = ["炎", "水", "土", "風", "月", "日"];
 const ROLE_LABEL = { mob: "杂兵", elite: "精英", boss: "首领" };
 
-// 条目详情的第一人称短吐槽（首批 12 条，图鉴顺位 = 卷一 7 页 + 卷二前 5 页）。
+// 条目详情的第一人称短吐槽（首批 12 条，图鉴顺位 = 卷一 7 页 + 卷二前 5 页；
+// 百物语续篇的 6 个新页各自补 1 条）。
 // 图鉴保持哑渲染：命中 entry.id 才追加一行文本与一张大立绘 <img>（上方
 // ILLUST_IDS 静态集合查表）——仍不读存档、不写存档、不触碰 main.js 装
 // 配端；未命中的条目不渲染任何占位。gate 对详情文本（who/text）的断言
@@ -56,7 +60,13 @@ const CODEX_QUIPS = {
     "34001000": "路记不清没关系，指路人我记得很牢。",
     "39001000": "纸上的凹痕，就是我签过名的证据。",
     "25021000": "页边那个得意的小人，画的是我。",
-    "26000000": "名字要趁醒来之前描清楚，这是规矩。"
+    "26000000": "名字要趁醒来之前描清楚，这是规矩。",
+    "10012000": "留白不是偷懒，是给明天的自己留的座位。",
+    "10022000": "便当的分量按心意称——うま★就是满分评语。",
+    "10032000": "涂改三遍的「谢谢」，比一次写成的更真心。",
+    "10012010": "翅膀不对称才飞得起来，这是画者的道理。",
+    "11002000": "查证过程比结论热闹，这才是我们的部活。",
+    "12001000": "明天的份留给大家一起写——我也签名了哦。"
 };
 
 export function createCodexUI(options) {
@@ -162,6 +172,16 @@ export function createCodexUI(options) {
                 img.src = BUST_BASE + entry.id + ".webp";
                 img.alt = entry.collected ? entry.work : "？？？";
                 img.loading = "lazy";
+                // 无 bust 的条目（新卡号）回落 icon/ 头像；icon 也缺才摘除，
+                // 不留 404 破图占位（同 showPageDetail 的 illust onerror 先例）。
+                img.addEventListener("error", function () {
+                    if (img.dataset.fallback !== "1") {
+                        img.dataset.fallback = "1";
+                        img.src = ICON_BASE + entry.id + ".webp";
+                    } else {
+                        img.remove();
+                    }
+                });
                 btn.appendChild(img);
 
                 const name = document.createElement("span");

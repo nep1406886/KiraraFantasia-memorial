@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="96" height="96" viewBox="0 0 96 96">
+  <title>坚壁徽章</title><metadata>kirafan-timer original; sturdy wall badge</metadata>
+  <g stroke="#716454" stroke-width="2.5" stroke-linejoin="round" stroke-linecap="round">
+    <path d="M20 14h56l-3 40c-2 18-16 28-25 32-9-4-23-14-25-32Z" fill="#ebca84"/>
+    <path d="M27 21h42l-2 31c-2 14-12 22-19 26-7-4-17-12-19-26Z" fill="#bed9da"/>
+    <path d="M27 33h42v9H27Zm13-12h16v12H40Zm-13 21h13v11H27Zm29 0h13v11H56Zm-16 11h16v12H40Zm-13 12h13v10c-5-3-10-6-13-10Zm29 0h13c-3 4-8 7-13 10Z" fill="#f7efda"/>
+    <path d="M48 21v57M27 42h42" fill="none" stroke="#a67954"/>
+    <circle cx="48" cy="47" r="6" fill="#c58493"/>
+    <circle cx="48" cy="47" r="2.4" fill="#fff9ec" stroke="none"/>
+  </g>
+</svg>

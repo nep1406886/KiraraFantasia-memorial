@@ -2687,8 +2687,9 @@ function toggleMenu() {
 // 残页図鑑 (T13, spec/06): the page-collection viewer, reachable from the
 // pause menu mid-run and from the roster before a run. Volume titles mirror
 // the authored rescue order in meta.js; 14010000 (きんいろモザイク) is listed
-// by both 卷二 and 卷五, so first-wins dedupe keeps the codex at the 37
-// unique pages that pages.js actually keys (游玩说明 §六.3). T22a: the work
+// by both 卷二 and 卷五, so first-wins dedupe keeps the codex at the 43
+// unique pages (卷五自百物语续篇扩为 13 页) that pages.js actually keys
+// (游玩说明 §六.3). T22a: the work
 // and hero names shown are the gacha card's titleZh/characterZh, so the
 // codex, the rescue beat and the roster all agree on one Chinese name.
 const CODEX_VOLUME_TITLES = [

@@ -52,9 +52,10 @@ function playerBullet(f, power) {
 }
 const playerHits = events => events.filter(e => e.type === "hit" && e.target.kind === "player");
 
-test("26份编排只绑定自身真实技能，原系数、物魔位与SAP不被改写", () => {
+test("30份编排只绑定自身真实技能，原系数、物魔位与SAP不被改写", () => {
     // 2026-09-28 首领种类扩充: 16 -> 26 (6 elites + 4 alternate final bosses).
-    assert.equal(Object.keys(ENEMY_ROLES).length, 26);
+    // 2026-11-01 T23 杂兵编排: 26 -> 30 (首批绑定普通房间杂兵的 4 段两招对决).
+    assert.equal(Object.keys(ENEMY_ROLES).length, 30);
     for (const [id, authored] of Object.entries(ENEMY_ROLES)) {
         const spec = specs.get(Number(id)); assert.ok(spec, id);
         const moveset = enemyMoveset(data.skills, spec.skills), role = enemyRole(id, moveset);

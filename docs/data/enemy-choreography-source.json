@@ -3460,6 +3460,566 @@
      "adaptationKey": "sunset"
     }
    ]
+  },
+{
+   "enemyId": 29016402,
+   "originalName": "シャードン",
+   "ownerSkillIds": [
+    164001,
+    164002,
+    164003,
+    999999,
+    -1,
+    -1,
+    -1,
+    -1,
+    -1,
+    -1,
+    -1,
+    -1,
+    -1,
+    -1,
+    -1,
+    -1,
+    -1,
+    -1,
+    -1,
+    -1,
+    -1,
+    -1,
+    -1,
+    -1,
+    -1,
+    -1,
+    -1,
+    -1,
+    -1,
+    -1,
+    -1,
+    -1,
+    -1,
+    -1
+   ],
+   "skills": [
+    {
+     "skillId": 164003,
+     "originalName": "かみつき",
+     "sap": "EN_164_ATK_03",
+     "sag": "EN_Attack",
+     "content": [
+      {
+       "m_SkillLvCoef": 0,
+       "m_Target": 1,
+       "m_Type": 0,
+       "m_Args": [
+        300,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+       ]
+      },
+      {
+       "m_SkillLvCoef": 0,
+       "m_Target": 0,
+       "m_Type": 19,
+       "m_Args": [
+        -1
+       ]
+      }
+     ],
+     "runtime": {
+      "coef": 0.3,
+      "magic": false,
+      "healingLockChance": 0,
+      "healingLockSeconds": 0
+     },
+     "adaptationKey": "bite"
+    },
+    {
+     "skillId": 164002,
+     "originalName": "お腹がへり始めたようだ",
+     "sap": "EN_164_ATK_03",
+     "sag": "EN_Attack",
+     "content": [
+      {
+       "m_SkillLvCoef": 0,
+       "m_Target": 1,
+       "m_Type": 0,
+       "m_Args": [
+        300,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+       ]
+      },
+      {
+       "m_SkillLvCoef": 0,
+       "m_Target": 0,
+       "m_Type": 4,
+       "m_Args": [
+        0,
+        0,
+        100,
+        0,
+        0,
+        0,
+        0,
+        0
+       ]
+      }
+     ],
+     "runtime": {
+      "coef": 0.3,
+      "magic": false,
+      "healingLockChance": 0,
+      "healingLockSeconds": 0
+     },
+     "adaptationKey": "appetite"
+    }
+   ]
+  },
+{
+   "enemyId": 29013802,
+   "originalName": "黒黒団",
+   "ownerSkillIds": [
+    138001,
+    138002,
+    999999,
+    -1,
+    -1,
+    -1,
+    -1,
+    -1,
+    -1,
+    -1,
+    -1,
+    -1,
+    -1,
+    -1,
+    -1,
+    -1,
+    -1,
+    -1,
+    -1,
+    -1,
+    -1,
+    -1,
+    -1,
+    -1,
+    -1,
+    -1,
+    -1,
+    -1,
+    -1,
+    -1,
+    -1,
+    -1,
+    -1,
+    -1
+   ],
+   "skills": [
+    {
+     "skillId": 138001,
+     "originalName": "スクラッチ",
+     "sap": "EN_114_ATK_01",
+     "sag": "EN_Attack",
+     "content": [
+      {
+       "m_SkillLvCoef": 0,
+       "m_Target": 1,
+       "m_Type": 0,
+       "m_Args": [
+        200,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+       ]
+      },
+      {
+       "m_SkillLvCoef": 0,
+       "m_Target": 1,
+       "m_Type": 4,
+       "m_Args": [
+        0,
+        0,
+        75,
+        0,
+        0,
+        0,
+        0,
+        0
+       ]
+      }
+     ],
+     "runtime": {
+      "coef": 0.2,
+      "magic": false,
+      "healingLockChance": 0,
+      "healingLockSeconds": 0
+     },
+     "adaptationKey": "claw"
+    },
+    {
+     "skillId": 138002,
+     "originalName": "カーズ",
+     "sap": "EN_114_ATK_01",
+     "sag": "EN_Attack",
+     "content": [
+      {
+       "m_SkillLvCoef": 0,
+       "m_Target": 1,
+       "m_Type": 0,
+       "m_Args": [
+        200,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+       ]
+      },
+      {
+       "m_SkillLvCoef": 0,
+       "m_Target": 1,
+       "m_Type": 4,
+       "m_Args": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        33,
+        0,
+        0
+       ]
+      }
+     ],
+     "runtime": {
+      "coef": 0.2,
+      "magic": false,
+      "healingLockChance": 0.33,
+      "healingLockSeconds": 5.6
+     },
+     "adaptationKey": "curse"
+    }
+   ]
+  },
+{
+   "enemyId": 19016701,
+   "originalName": "メタドロン",
+   "ownerSkillIds": [
+    167001,
+    167002,
+    167003,
+    167004,
+    167005,
+    167006,
+    -1,
+    -1,
+    -1,
+    -1,
+    -1,
+    -1,
+    -1,
+    -1,
+    -1,
+    -1,
+    -1,
+    -1,
+    -1,
+    -1,
+    -1,
+    -1,
+    -1,
+    -1,
+    -1,
+    -1,
+    -1,
+    -1,
+    -1,
+    -1,
+    -1,
+    -1,
+    -1,
+    -1
+   ],
+   "skills": [
+    {
+     "skillId": 167002,
+     "originalName": "＼　ヨウカイスルヨ　／",
+     "sap": "EN_167_ATK_01",
+     "sag": "EN_Attack",
+     "content": [
+      {
+       "m_SkillLvCoef": 0,
+       "m_Target": 2,
+       "m_Type": 0,
+       "m_Args": [
+        120,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+       ]
+      }
+     ],
+     "runtime": {
+      "coef": 0.12,
+      "magic": false,
+      "healingLockChance": 0,
+      "healingLockSeconds": 0
+     },
+     "adaptationKey": "soften"
+    },
+    {
+     "skillId": 167001,
+     "originalName": "＼　ニブクナルヨー　／",
+     "sap": "EN_167_ATK_02",
+     "sag": "EN_Attack",
+     "content": [
+      {
+       "m_SkillLvCoef": 0,
+       "m_Target": 1,
+       "m_Type": 0,
+       "m_Args": [
+        130,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+       ]
+      },
+      {
+       "m_SkillLvCoef": 0,
+       "m_Target": 1,
+       "m_Type": 2,
+       "m_Args": [
+        1,
+        3,
+        0,
+        0,
+        0,
+        0,
+        1.18,
+        0
+       ]
+      }
+     ],
+     "runtime": {
+      "coef": 0.13,
+      "magic": false,
+      "healingLockChance": 0,
+      "healingLockSeconds": 0
+     },
+     "adaptationKey": "joke"
+    }
+   ]
+  },
+{
+   "enemyId": 30014201,
+   "originalName": "戸棚に潜む魔物",
+   "ownerSkillIds": [
+    142001,
+    142002,
+    142003,
+    999999,
+    -1,
+    -1,
+    -1,
+    -1,
+    -1,
+    -1,
+    -1,
+    -1,
+    -1,
+    -1,
+    -1,
+    -1,
+    -1,
+    -1,
+    -1,
+    -1,
+    -1,
+    -1,
+    -1,
+    -1,
+    -1,
+    -1,
+    -1,
+    -1,
+    -1,
+    -1,
+    -1,
+    -1,
+    -1,
+    -1
+   ],
+   "skills": [
+    {
+     "skillId": 142001,
+     "originalName": "DEFを奪い取りしまい込む",
+     "sap": "EN_142_ATK_02",
+     "sag": "EN_Attack",
+     "content": [
+      {
+       "m_SkillLvCoef": 0,
+       "m_Target": 1,
+       "m_Type": 0,
+       "m_Args": [
+        200,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+       ]
+      },
+      {
+       "m_SkillLvCoef": 0,
+       "m_Target": 1,
+       "m_Type": 2,
+       "m_Args": [
+        1,
+        3,
+        0,
+        0,
+        -17,
+        0,
+        0,
+        0
+       ]
+      },
+      {
+       "m_SkillLvCoef": 0,
+       "m_Target": 0,
+       "m_Type": 2,
+       "m_Args": [
+        1,
+        3,
+        0,
+        0,
+        10,
+        0,
+        0,
+        0
+       ]
+      }
+     ],
+     "runtime": {
+      "coef": 0.2,
+      "magic": false,
+      "healingLockChance": 0,
+      "healingLockSeconds": 0
+     },
+     "adaptationKey": "grab"
+    },
+    {
+     "skillId": 142002,
+     "originalName": "MDFを掠め取りしまい込む",
+     "sap": "EN_142_ATK_02",
+     "sag": "EN_Attack",
+     "content": [
+      {
+       "m_SkillLvCoef": 0,
+       "m_Target": 1,
+       "m_Type": 0,
+       "m_Args": [
+        140,
+        1,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+       ]
+      },
+      {
+       "m_SkillLvCoef": 0,
+       "m_Target": 1,
+       "m_Type": 2,
+       "m_Args": [
+        1,
+        3,
+        0,
+        0,
+        0,
+        -17,
+        0,
+        0
+       ]
+      },
+      {
+       "m_SkillLvCoef": 0,
+       "m_Target": 0,
+       "m_Type": 2,
+       "m_Args": [
+        1,
+        3,
+        0,
+        0,
+        0,
+        10,
+        0,
+        0
+       ]
+      }
+     ],
+     "runtime": {
+      "coef": 0.14,
+      "magic": true,
+      "healingLockChance": 0,
+      "healingLockSeconds": 0
+     },
+     "adaptationKey": "snatch"
+    }
+   ]
   }
  ]
 }

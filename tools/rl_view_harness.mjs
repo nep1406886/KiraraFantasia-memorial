@@ -147,27 +147,32 @@ console.log("view gate: serving on 127.0.0.1:" + port);
     };
 
     // One effective config (base or merged segment) through the same authoring
-    // checks: kits exist, ground/fog are hex, ≥6 usable props, a silhouette,
-    // every pattern bites, every room anchor resolves.
+    // checks: kits exist (T22c widened the pair to a trio — the pool is the
+    // biome + extra + extra2 union, mirroring mapview.js prepareRoom), ground
+    // /fog are hex, ≥6 usable props, a silhouette, every pattern bites, every
+    // room anchor resolves.
     const validateCfg = function (tag, cfg) {
-        check(tag + "authors biome + extra + ground",
+        check(tag + "authors biome + extra + extra2 + ground",
             biomes.has(cfg.biome) && biomes.has(cfg.extra) && cfg.extra !== cfg.biome
+            && (!cfg.extra2 || (biomes.has(cfg.extra2)
+                && cfg.extra2 !== cfg.biome && cfg.extra2 !== cfg.extra))
             && /^#[0-9a-f]{6}$/i.test((cfg.ground || {}).base || "")
             && /^#[0-9a-f]{6}$/i.test((cfg.ground || {}).mottle || "")
             && /^#[0-9a-f]{6}$/i.test(cfg.fog || ""),
-            JSON.stringify({ biome: cfg.biome, extra: cfg.extra, ground: cfg.ground }));
+            JSON.stringify({ biome: cfg.biome, extra: cfg.extra, extra2: cfg.extra2, ground: cfg.ground }));
         check(tag + "names a segment (HUD reads it)",
             typeof cfg.name === "string" && cfg.name.length > 0, String(cfg.name));
 
         const excludes = (floors.excludes || []).concat(cfg.exclude || []);
         const units = kit.entries.filter(function (e) {
-            return e.biome === cfg.biome || e.biome === cfg.extra;
+            return e.biome === cfg.biome || e.biome === cfg.extra
+                || e.biome === cfg.extra2;
         });
         const usable = units.filter(function (e) {
             return !hits(e.name, excludes) && !WHITE.test(e.texture || "");
         });
         // A ring of 42 drawn from fewer than 6 kinds reads as wallpaper.
-        check(tag + "≥6 usable props across both kits",
+        check(tag + "≥6 usable props across the kit union",
             usable.filter(function (e) { return PROP.indexOf(e.category) !== -1; }).length >= 6,
             usable.length + " usable of " + units.length);
         // Something has to stand as tall as a character (~1.6 units) or the

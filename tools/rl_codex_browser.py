@@ -8,7 +8,8 @@
 #      meta slot (遭遇解锁); the 敌人 tab lists all 121 authored faces with
 #      met/un-met rendering, stats+rewards detail, a lazily rendered model
 #      thumbnail, and tabbing back restores the 残页 grid
-#   3. contents: 37 entries (14010000 deduped from vol2+vol5), 6 sections,
+#   3. contents: 43 entries (14010000 deduped from vol2+vol5; 卷五百物语续篇
+#      13 页), 6 sections,
 #      count reflects the seeded save, collected vs locked rendering, detail
 #      on click for both states
 #   4. widths 375/390/412/430/768/1280: every entry + close button rect stays
@@ -26,9 +27,11 @@ from playwright.sync_api import sync_playwright
 
 ROOT = Path(__file__).resolve().parent.parent
 
-# Seeded collection: vol1's first three pages + the みら finale page.
-# 37 total is the authored number (游玩说明 §六.3), not read from the data.
-SEEDED = [29001000, 47002000, 28001000, 38001000]
+# Seeded collection: vol1's first three pages + the みら finale page + 4 张
+# 百物语续篇新页（无 bust 文件，缩略图走 icon 回落路径）。
+# 43 total is the authored number (游玩说明 §六.3), not read from the data.
+SEEDED = [29001000, 47002000, 28001000, 38001000,
+          10012000, 10022000, 10032000, 10012010]
 WIDTHS = [375, 390, 412, 430, 768, 1280]
 
 
@@ -121,14 +124,14 @@ def main() -> int:
                              .textContent === '？？？')
                 };
             })()""")
-            check("37 entries (14010000 deduped)", stats["total"] == 37,
+            check("43 entries (14010000 deduped)", stats["total"] == 43,
                   stats["total"])
             check("6 section headers (5 卷 + 終章)", stats["sections"] == 6,
                   stats["sections"])
-            check("count text is 4 / 37", stats["count"] == "4 / 37",
+            check("count text is 8 / 43", stats["count"] == "8 / 43",
                   stats["count"])
-            check("4 collected / 33 locked", stats["collected"] == 4
-                  and stats["locked"] == 33,
+            check("8 collected / 35 locked", stats["collected"] == 8
+                  and stats["locked"] == 35,
                   "%d/%d" % (stats["collected"], stats["locked"]))
             check("locked entries are ？？？", stats["lockedNames"])
 
@@ -266,12 +269,12 @@ def main() -> int:
                              .textContent === '？？？')
                 };
             })()""")
-            check("142 enemy entries (5 卷, mob+elite+bosses)",
-                  estats["total"] == 142, estats["total"])
+            check("145 enemy entries (5 卷, mob+elite+bosses)",
+                  estats["total"] == 145, estats["total"])
             check("5 section headers", estats["sections"] == 5,
                   estats["sections"])
-            check("count text is N / 142 with N > 0",
-                  estats["count"].endswith("/ 142")
+            check("count text is N / 145 with N > 0",
+                  estats["count"].endswith("/ 145")
                   and int(estats["count"].split(" / ")[0]) > 0,
                   estats["count"])
             check("un-met entries are ？？？", estats["lockedNames"])
@@ -305,7 +308,7 @@ def main() -> int:
                   bool(thumb), (thumb or "")[:40])
 
             # tab back: the pages grid returns, and only its entries are in
-            # the DOM (the count reads 4 / 37 again)
+            # the DOM (the count reads 8 / 43 again)
             page.click('.codex-tab[data-tab="pages"]')
             page.wait_for_timeout(150)
             back = page.evaluate("""(() => {
@@ -318,9 +321,9 @@ def main() -> int:
                             || {}).textContent || ''
                 };
             })()""")
-            check("back on 残页: 37 page entries, no enemy entries",
-                  back["pages"] == 37 and back["enemies"] == 0)
-            check("count reads 4 / 37 again", back["count"] == "4 / 37",
+            check("back on 残页: 43 page entries, no enemy entries",
+                  back["pages"] == 43 and back["enemies"] == 0)
+            check("count reads 8 / 43 again", back["count"] == "8 / 43",
                   back["count"])
             page.click("#codex-close")
             page.wait_for_timeout(150)

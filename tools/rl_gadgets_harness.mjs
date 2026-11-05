@@ -20,7 +20,7 @@ function tick(w,seconds){for(let i=0;i<Math.round(seconds*60);i++)w.update(1/60)
 function enemy(w,x,y){const e=w.spawnEnemy({x,y,hp:100000,atk:0,def:0});e.actionTimer=1e9;return e;}
 function equip(w,item){const d={x:w.player.x,y:w.player.y,items:[item]};w.drops.push(d);assert.equal(w.takeDrop(d,item),true);}
 
-check('十类机制有明确收益/代价且不伪造原作被动',()=>{assert.equal(GADGETS.length,10);for(const row of GADGETS){assert.ok(row.benefit&&row.cost);assert.equal(gadgetDefinition(makeGadget(row.id,undefined,row.sealSkill?1:undefined)).id,row.id);}});
+check('十三类机制有明确收益/代价且不伪造原作被动',()=>{assert.equal(GADGETS.length,13);for(const row of GADGETS){assert.ok(row.benefit&&row.cost);assert.equal(gadgetDefinition(makeGadget(row.id,undefined,row.sealSkill?1:undefined)).id,row.id);}});
 check('未知机制/混装专武/错槽/额外词条拒绝',()=>{for(const item of [{...makeGadget('aim'),gadgetId:'__proto__'},{...makeGadget('aim'),slot:'weapon'},{...makeGadget('aim'),catalogId:1},{...makeGadget('aim'),affixes:['1']}])assert.throws(()=>gadgetDefinition(item));});
 check('自动化代价参与真实面板，重复重算不累乘',()=>{const base={hp:100,atk:100,mgc:100,def:100,mdef:100,luck:0};for(let i=0;i<100;i++){const s=applyEquipment(base,[makeGadget('hunter')]);assert.equal(s.atk,75);assert.equal(s.def,80);}assert.deepEqual(base,{hp:100,atk:100,mgc:100,def:100,mdef:100,luck:0});});
 check('射程增加25%，判定宽度不会跟着增加',()=>{for(const cls of [0,1,2,3,4]){const a=fixture(null,cls).p.weaponProfile,b=fixture('reach',cls).p.weaponProfile;assert.equal(b.range,a.range*1.25);assert.equal(b.radius,a.radius);assert.equal(b.width,a.width);}});

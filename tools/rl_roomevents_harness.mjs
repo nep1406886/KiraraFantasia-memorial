@@ -113,7 +113,7 @@ check('攻速机制不缩短技能冷却', () => {
     assert.equal(a.player.skills.slots[1].remaining, b.player.skills.slots[1].remaining);
     assert.ok(b.player.swingId > a.player.swingId);
 });
-check('十类机制可从第13层具名渠道生成，不夹带原作词条', () => {
+check('十三类机制可从第13层具名渠道生成，不夹带原作词条', () => {
     const data = JSON.parse(fs.readFileSync(new URL('../site/asset/rl/weapons-rl.json', import.meta.url), 'utf8'));
     setAffixTable(affixTableFromPassives(data.passives)); setAffixPool(Object.keys(data.passives), []);
     const rng = createRandom(912), seen = new Set();

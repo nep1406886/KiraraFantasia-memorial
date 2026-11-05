@@ -16,8 +16,9 @@ const RESULT_BANNERS = {
 };
 
 // 结局一行吐槽：outcome × 卷序各一条（5+5，默认按卷序取行），
-// 37/37 全图鉴另有彩蛋两条（37 = 34 卷页 + 3 终章，meta.js 实测去重数；
-// 盘点时设想的「百页」档永远触发不了，已废弃）。与上一局撞行时在同一池内
+// 43/43 全图鉴另有彩蛋两条（43 = 40 卷页 + 3 终章，meta.js 实测去重数，
+// 百物语续篇把卷五扩到 13 页；盘点时设想的「百页」档永远触发不了，已废弃）。
+// 与上一局撞行时在同一池内
 // 随机换一条，保证连续两局不重复。记忆放 sessionStorage：restartRun 走
 // 整页跳转，模块级变量跨局清零；且 sessionStorage 不是 kirafan-rl:profile
 // 槽，terminal 门的单事务计数不受影响。存储被拒时静默退化为「可能重复」。
@@ -38,10 +39,10 @@ const RESULT_QUIPS = {
     ]
 };
 const FULL_CODEX_QUIPS = [
-    "37 页全齐——这本残页之书，今天正式补完了。",
+    "43 页全齐——这本残页之书，今天正式补完了。",
     "最后一页也救回来了。谢谢你把故事一页一页带回家。"
 ];
-const FULL_CODEX_PAGES = 37;
+const FULL_CODEX_PAGES = 43;
 const QUIP_STORE_KEY = "kirafan-rl:result-quip";
 
 const RESULT_CSS = `

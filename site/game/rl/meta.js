@@ -52,17 +52,20 @@ const VOLUME_UNLOCKS = {
 const UTSUTSU = 32172000;
 
 // 残页 drop order per volume (spec/05 §5 图鉴). A floor guard (floors 1-19)
-// rescues pages[(floor-1) % 7] — one per floor, the tail of 19 floors mostly
-// re-offers pages an earlier floor already took; the volume boss (floor 20)
-// sweeps whatever is still missing. 7×5 = 35, plus vol5's finale rescues the
-// two strays (きらら、優子) and the みら page = 37 — exactly the keys of
+// rescues pages[(floor-1) % pages.length] — one per floor; once a volume's
+// list runs out, the tail of 19 floors mostly re-offers pages an earlier
+// floor already took, and the volume boss (floor 20) sweeps whatever is
+// still missing. 卷五自百物语续篇扩为 13 页（第 8–13 页 = 第 101–106 个
+// 故事）：7+7+7+7+13 = 41，首现去重 14010000 后 40 卷页，加 vol5 finale
+// 的 3 张散页（きらら、優子、みら）= 43 — exactly the keys of
 // asset/rl/dialogue/pages.js (asserted by rl_dialogue_harness).
 const VOLUME_PAGES = {
     1: [29001000, 47002000, 28001000, 31001000, 21000000, 11010000, 19000000],
     2: [37002000, 34001000, 39001000, 25021000, 26000000, 36001000, 14010000],
     3: [12000000, 27001000, 41001000, 43001000, 42001000, 33011000, 17000000],
     4: [15000000, 16000000, 45002000, 20000000, 24001000, 40002000, 13000000],
-    5: [46002000, 22000000, 30001000, 18000000, 10000000, 23001000, 14010000]
+    5: [46002000, 22000000, 30001000, 18000000, 10000000, 23001000, 14010000,
+        10012000, 10022000, 10032000, 10012010, 11002000, 12001000]
 };
 // The finale strays: きらら's own page, 優子, みら — collected at vol5's
 // finale_end, not on any floor.

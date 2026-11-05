@@ -16,7 +16,8 @@
 //  5. Every line is Chinese-only body text (T22a 全量中文为正文): non-empty,
 //     no ／ dual-write separator, and no kana outside the proper nouns the
 //     localization itself keeps in kana (ハイプリス).
-//  6. pages.js: 37 works, key = a real cards.js id, ≤120字, unique works.
+//  6. pages.js: 43 pages (百物语续篇后, 同作品可多页), key = a real
+//     cards.js id, hero 逐字匹配卡名, ≤120字.
 //  7. 玩梗铁律 §6.1: no authored text shares a 6-character run with any
 //     original game text on disk (skills/uniqueskill details, ItemList,
 //     NamedList profiles, OriginalCharaLibraryList, CharacterList). Card,
@@ -270,8 +271,8 @@ setCharacterResolver(resolveWho);
         if (len > 120) { bad.push(id + " text is " + len + " chars"); }
         works.add(p.work);
     });
-    check("pages: 37 works, real card ids, hero matches, ≤120字",
-        ids.length === 37 && bad.length === 0,
+    check("pages: 43 works, real card ids, hero matches, ≤120字",
+        ids.length === 43 && bad.length === 0,
         ids.length + " pages, " + works.size + " works" + (bad.length ? "; " + bad.slice(0, 4).join("; ") : ""));
 
     // 6b. Drop order (阶段 5): meta.js's VOLUME_PAGES (guards hand out

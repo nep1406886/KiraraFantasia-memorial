@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="96" height="96" viewBox="0 0 96 96">
+  <title>流星缎带</title><metadata>kirafan-timer original; comet ribbon charm</metadata>
+  <g stroke="#716454" stroke-width="2.5" stroke-linejoin="round" stroke-linecap="round">
+    <path d="M8 30c20-4 34 2 40 12-10-2-16 0-20 4 12 0 22 6 26 14-14-2-24 0-30 6 14 2 22 8 26 16-20-2-38-10-46-24Z" fill="#c58493"/>
+    <path d="M14 32c16-1 27 4 33 11-9-1-14 0-18 3 10 1 18 5 22 10-11-1-19 0-25 4 10 2 17 6 21 11-15-3-28-9-35-19Z" fill="#d9a1b4"/>
+    <path d="m62 12 6 14 14 6-14 6-6 14-6-14-14-6 14-6Z" fill="#ebca84"/>
+    <path d="m62 24 3.4 8 8 3.4-8 3.4-3.4 8-3.4-8-8-3.4 8-3.4Z" fill="#fdf2d9"/>
+    <circle cx="62" cy="35.4" r="3" fill="#fff9ec" stroke="none"/>
+    <path d="m24 16 3 7m-9-3 7 3m42 30 3 7m-9-3 7 3" stroke="#d9b269" fill="none"/>
+  </g>
+</svg>

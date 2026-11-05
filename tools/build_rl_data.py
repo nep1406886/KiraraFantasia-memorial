@@ -280,6 +280,7 @@ ZH_ENEMY_OVERRIDES = {
     "ルーボン＝バレー": "球·气球",
     "ルーボン＝サマー": "球·夏日",
     "かれら": "他们",
+    "ハイプリス": "高普莉斯",
     "スイセン": "水仙",
     "サンストーン": "太阳石",
     "リコリス": "甘草",
@@ -716,12 +717,20 @@ def build_skills() -> None:
 #
 # mobSegments splits each volume's pool across the four 生态段 (floors.json's
 # segments: 5 floors each, matching world.js's segment rung). The lists are
-# assigned by theme (name/biome reading), so each 段 has its own 3-5 faces.
+# assigned by theme (name/biome reading), so each 段 has its own 3-8 faces.
 # T22e 素材扩容 raised the pools 10 -> 16-17 per volume from the 604 local
-# models (no downloads): every addition passed rl_enemy_audit.py posture
-# flags before shipping, and each volume keeps its element-matching row.
-# `mobs` in the output is the flattened union: requestSummon's fallback and
-# the balance harness's random sampling keep working unchanged.
+# models (no downloads); B.1 (2026-09-28) added a second 同模异变体 row to most
+# segments -- those rows are pinned with 「名称@行id」 because the same name
+# ships one body per element across several difficulty families, and B.4
+# hand-assigned kiter/summoner/sentry AI to a few of them (AI_TYPE_OVERRIDES).
+# Each volume keeps its element-matching row(s) alongside the off-element
+# variants, exactly as shipped.
+#
+# 钉号 syntax (resolve_mob): 「名称#资源号」 picks the body with that
+# m_ResourceID (unambiguous for the T23 additions); 「名称@行id」 pins the
+# exact QuestEnemyList row when several difficulty families share one
+# resourceId. `mobs` in the output is the flattened union: requestSummon's
+# fallback and the balance harness's random sampling keep working unchanged.
 ENCOUNTER_TABLE = [
     {
         "vol": 1, "element": 1,                                    # 水 / 褪色之海
@@ -729,15 +738,18 @@ ENCOUNTER_TABLE = [
         "bossHp": 220000, "eliteHp": 24000,
         # 港町 → 海底 → 深层 → 巨浪
         "mobSegments": [
-            ["ペラペラの兵士", "ホイップアニマ", "クマ兵隊", "バニポップ"],  # 港町：人形与杂耍，兵与兔
+            ["ペラペラの兵士", "ホイップアニマ", "クマ兵隊", "バニポップ",
+             "コリス@10010100", "ぽぽたん@10010300"],              # 港町：人形与杂耍，兵与兔
             ["レジフィッシュ", "うおのたみ", "ヒカリタマ",
-             "リザー", "パパリザー"],                              # 海底：鱼群与光球，海蜥一家
-            ["トータン", "タートン", "シャードン",
-             "待宵のワラバカシ"],                                  # 深层：老龟与暗影，黄昏的欺诈者
-            ["ツインシザー", "クロモン（大）",
-             "ほしわたり", "ペラペラのドラゴン"],                 # 巨浪：浪里翻涌的与越海的
+             "リザー", "パパリザー", "リザー@10010400",
+             "サボンヌ@10010800"],                                 # 海底：鱼群与光球，海蜥一家
+            ["トータン", "タートン", "シャードン", "待宵のワラバカシ",
+             "ましゅるん@10010900", "パパリザー@20011000"],        # 深层：老龟与暗影，黄昏的欺诈者
+            ["ツインシザー", "クロモン（大）", "ほしわたり",
+             "ペラペラのドラゴン", "うおのたみ@20011300",
+             "ツインシザー@30011900"],                             # 巨浪：浪里翻涌的与越海的
         ],
-        "elites": ["ソルト", "シュガー", "スイセン"],
+        "elites": ["ソルト", "シュガー", "スイセン", "セサミ@99411001"],
     },
     {
         "vol": 2, "element": 2,                                    # 土 / 沉眠之沙
@@ -745,15 +757,20 @@ ENCOUNTER_TABLE = [
         "bossHp": 280000, "eliteHp": 45000,
         # 沙漠入口 → 绿洲 → 夜沙丘 → 蜃楼
         "mobSegments": [
-            ["暴れる牛", "ミノタウロス", "ビッグフット"],           # 入口：商队的麻烦，挡路的大个子
-            ["サボンヌ", "きんいろのおをもつまもの",
-             "カリブーツノムシ"],                                  # 绿洲：水边与点心
-            ["スケジェルン", "ちゅう", "クロモン",
-             "アイヅチ", "ヤヤヤッカイ"],                          # 夜沙丘：夜行物与跟班
+            ["暴れる牛", "ミノタウロス", "ビッグフット",
+             "ドーダイ@10010200", "レジフィッシュ@10010500"],      # 入口：商队的麻烦，挡路的大个子
+            ["サボンヌ", "きんいろのおをもつまもの", "カリブーツノムシ",
+             "ゴーレム@20011100", "トレント@20013600",
+             "レジフィッシュ@10010500"],                           # 绿洲：水边与点心
+            ["スケジェルン", "ちゅう", "クロモン", "アイヅチ",
+             "ヤヤヤッカイ", "スケジェルン@30011700",
+             "ペラペラの兵士@29012000",
+             "黒黒団#13802"],                                     # 夜沙丘：夜行物与跟班（黒黒団：T23 钉号入池）
             ["ゴーレム", "ドーダイ", "ハードルドーダイ",
-             "ハードジェノワーズ", "砂肝うま太郎"],                # 蜃楼：沙中立起的与海市里的
+             "ハードジェノワーズ", "砂肝うま太郎", "バニポップ@19015700",
+             "シャードン#16402"],                                  # 蜃楼：沙中立起的与海市里的（シャードン：T23 钉号入池）
         ],
-        "elites": ["カルダモン", "ジンジャー"],
+        "elites": ["カルダモン", "ジンジャー", "ダチュラ@90036002"],
     },
     {
         "vol": 3, "element": 3,                                     # 風 / 贪食之森
@@ -761,15 +778,21 @@ ENCOUNTER_TABLE = [
         "bossHp": 360000, "eliteHp": 65000,
         # 林边 → 蜜林 → 菌类圈 → 树海
         "mobSegments": [
-            ["イノシシ", "畑アラシ", "狛犬"],                       # 林边：闯进田里的与守社的
-            ["ぽぽたん", "コリス", "ウルファン",
-             "ギャングー団のしたっぱ"],                            # 蜜林：甜食、野兽与偷蜜的跟班
+            ["イノシシ", "畑アラシ", "狛犬", "クロモン（大）@10013200",
+             "ゾゾゾンビ@20011400"],                              # 林边：闯进田里的与守社的
+            ["ぽぽたん", "コリス", "ウルファン", "ギャングー団のしたっぱ",
+             "やすなマタンゴ・ベイベー@29012300",
+             "ソーニャマタンゴ・ベイベー@29012400",
+             "ペラペラのイノシシ@29012100"],                      # 蜜林：甜食、野兽与偷蜜的跟班
             ["ましゅるん", "カカオマッシュ", "苔玉",
              "あぎりマタンゴ・ベイベー", "やすなマタンゴ・ベイベー",
-             "ソーニャマタンゴ・ベイベー"],                        # 菌类圈：蘑菇、苔与蘑菇宝贝
-            ["トレント", "ぼっくる", "クロモン王子"],               # 树海：老树、木灵与小黑怪的王子
+             "ソーニャマタンゴ・ベイベー", "あぎりマタンゴ・ベイベー@29012500",
+             "アイヅチ@19013000"],                                # 菌类圈：蘑菇、苔与蘑菇宝贝
+            ["トレント", "ぼっくる", "クロモン王子",
+             "メタドロン#16701"],                                 # 树海：老树、木灵与小黑怪的王子（メタドロン：T23 钉号入池）
         ],
-        "elites": ["セサミ", "フェンネル"],
+        "elites": ["セサミ", "フェンネル", "カレーの化身@99048003",
+                   "ソルト@99313003"],
     },
     {
         "vol": 4, "element": 0,                                     # 炎 / 机械之心
@@ -782,13 +805,15 @@ ENCOUNTER_TABLE = [
         "mobSegments": [
             ["ペイストリードール", "クロモンソルジャー",
              "ルーボン＝サマー"],                                  # 人偶：会动的造物与换季的球
-            ["ド・ダイス", "メタドロン", "ルーボン", "ルーボン＝ベース"],  # 时计塔：齿轮、骰与滚动的球
-            ["ソルジャーゴーレム", "ハンマゴーレム", "怒りのシャードン"],  # 核心炉：重装守卫与炉中怒鳍
+            ["ド・ダイス", "メタドロン", "ルーボン", "ルーボン＝ベース",
+             "トータン"],                                          # 时计塔：齿轮、骰与滚动的球
+            ["ソルジャーゴーレム", "ハンマゴーレム", "怒りのシャードン",
+             "黒雪だるま"],                                        # 核心炉：重装守卫与炉中怒鳍
             ["ウツカイ", "郵便ウツカイ", "ナイトメアウツカイ",
-             "ルーボン＝バレー", "群れの長ウルファン",
-             "宙に浮いたもずく"],                                  # 废墟：留在废墟里的他们
+             "ルーボン＝バレー", "群れの長ウルファン", "宙に浮いたもずく",
+             "ほしわたり", "戸棚に潜む魔物"],                      # 废墟：留在废墟里的他们
         ],
-        "elites": ["ハッカ", "サンストーン"],
+        "elites": ["ハッカ", "サンストーン", "フェンネル@99215004"],
     },
     {
         "vol": 5, "element": 4,                                     # 月 / 真实之影
@@ -801,41 +826,78 @@ ENCOUNTER_TABLE = [
         # atk curve reaches 16.9k at elv25 where the volume band is ~8k, which
         # alone knocked §6's 承伤/清怪 anchor from 2.00 to 1.50. 黒雪だるま
         # moved over from vol4 to keep vol5 at 15 faces.)
-        # (ビターマッシュ/洞窟の魔物/カブリエル were candidates: the first two
-        # ship whole event-scripted kits -- coef 1.0-9.999 sleep/Santa rows the
-        # SANE_ENEMY_COEF table invariant exists to keep out -- and カブリエル's
-        # atk curve reaches 16.9k at elv25 where the volume band is ~8k, which
-        # alone knocked §6's 承伤/清怪 anchor from 2.00 to 1.50. 黒雪だるま
-        # moved over from vol4 to keep vol5 at 15 faces.)
         "mobSegments": [
-            ["三人官女", "五人囃子", "フワリー"],                  # 回廊：神殿的侍者与妖精
-            ["ゾゾゾンビ", "黒黒団", "クロモンヌ", "黒雪だるま"],  # 圣堂：地下的黑影
-            ["戸棚に潜む魔物", "めんどうくさいという魔物", "かれら",
-             "迅雷のウルファン", "ペラペラのイノシシ"],            # 记忆：旧日的东西
+            ["三人官女", "五人囃子", "フワリー", "キングクロモン@30014300",
+             "ド・クロモン@30014400"],                            # 回廊：神殿的侍者与妖精
+            ["ゾゾゾンビ", "黒黒団", "クロモンヌ", "黒雪だるま",
+             "ちゅう@29014500", "フワリー@19314600"],             # 圣堂：地下的黑影
+            ["戸棚に潜む魔物#14201", "めんどうくさいという魔物", "かれら",
+             "迅雷のウルファン", "ペラペラのイノシシ"],            # 记忆：旧日的东西（戸棚：T23 钉号换到编排绑定的 30014201 行，段条数不变）
             ["ド・クロモン", "キングクロモン", "ワラバカシ"],       # 书架：终局的软体
         ],
         "elites": ["リコリス", "ダチュラ"],
     },
 ]
 
+# 真首领轮换 (2026-09-28): the final floor rolls one of the volume's bosses[];
+# bosses[0] is the volume's own boss, the rest are authored alternates, each
+# re-using moves already authored for its model family elsewhere in the
+# roster. hpScale is the same row-selection target as the main boss
+# (bossHp / hp_at(row, level)) except where a recalibration said otherwise.
+VOLUME_BOSS_ALTERNATES = {
+    1: [90013000],   # カルダモン
+    2: [99610002],   # 好戦的なシュガーさん
+    3: [99513003],   # ソルト
+    4: [99138006],   # テンペスト
+    5: [90226005],   # サンストーン
+}
+# 098cea11 recalibration: these two shipped base HPs made the shared bossHp
+# target read out of the 90-150s TTK band, so they carry authored multiples.
+ALT_HP_SCALE = {99138006: 1.75, 90226005: 21.36355}
+# 首领扩种 (ffc57709) added one 层守卫 per volume at a flat 1.5x HP instead of
+# the eliteHp row-selection target.
+ELITE_HP_SCALE = {99411001: 1.5, 90036002: 1.5, 99048003: 1.5,
+                  99313003: 1.5, 99215004: 1.5}
+# B.4 hand-assigned AI: kiter 后撤带 / summoner 援军钟 / five B.1 second
+# variants pinned to sentry where the pattern rule would read charger.
+AI_TYPE_OVERRIDES = {
+    19012701: "summoner", 19013002: "summoner", 19010923: "summoner",
+    10015000: "summoner", 20014104: "summoner",
+    19010501: "kiter", 19010601: "kiter", 19010812: "kiter",
+    99011402: "kiter", 19010323: "kiter", 19010123: "kiter",
+    29015800: "kiter", 19314604: "kiter",
+    10010400: "sentry", 10010200: "sentry", 20011100: "sentry",
+    19015700: "sentry", 29012100: "sentry",
+}
+# B.1: 8400's GLB ships zero animation clips (the finale boss was a statue),
+# so its encounter rows point at the animated 8300 rig instead.
+MODEL_OVERRIDES = {
+    "model/enemy/model_en_8400.muast": "model/enemy/model_en_8300.muast",
+}
+
 # The plan's 分裂型 has no data source -- no enemy skill anywhere mentions
 # 分裂/ぶんれつ -- so it is authored, on the one enemy whose name says it: the
 # big blob leaves two small ones. hpFraction is of the parent's *max* HP.
+# Keyed by the parent's exact pool row: the same name ships in several volumes
+# (vol3's クロモン（大）, vol5's 回廊 ド・クロモン) without the split, so a
+# bare-name key would split bodies the shipped game does not.
 SPLITTERS = {
-    "クロモン（大）": {"name": "クロモン", "count": 2, "hpFraction": 0.35},
-    "ド・クロモン": {"name": "クロモン", "count": 2, "hpFraction": 0.3},
+    "クロモン（大）@19013201": {"name": "クロモン", "count": 2, "hpFraction": 0.35},
+    "ド・クロモン@30214404": {"name": "クロモン", "count": 2, "hpFraction": 0.3},
 }
 
 # T22e pool additions whose shipped growth curve runs far above their volume's
 # face band (フワリー reaches 7.1k HP at vol5's dial level 10 where every other
 # face sits at 0.8k-3.7k; 迅雷のウルファン 5.8k). Same mechanism as the elite
 # and boss pickers below: hpScale = target / hp_at(row, level), so the number
-# is a stated HP at the volume's level, not a magic multiplier.
+# is a stated HP at the volume's level, not a magic multiplier. Keyed to the
+# vol5 rows only -- the same names appear unpinned in other volumes/segments
+# without the correction.
 MOB_HP = {
-    "フワリー": 2900,
-    "迅雷のウルファン": 2900,
-    "黒雪だるま": 2900,
-    "ペラペラのイノシシ": 2800,
+    "フワリー@19314604": 2900,
+    "迅雷のウルファン@29411504": 2900,
+    "黒雪だるま@29014904": 2900,
+    "ペラペラのイノシシ@29012104": 2800,
 }
 
 # Gimmick rows (event bosses, damage-check walls) carry stats that would wreck
@@ -844,6 +906,21 @@ MOB_HP = {
 SANE_ATK = 2500
 SANE_DEF = 400
 SANE_MOB_HP = 5000
+
+
+def resolve_pin(name: str) -> tuple[str, int | None, int | None]:
+    """「名称#资源号」pins the body carrying that m_ResourceID (one body per
+    element inside a difficulty family, so unambiguous for the T23 additions);
+    「名称@行id」 pins the exact QuestEnemyList row -- needed where the 10/19/
+    29/30/39 difficulty families share one resourceId. Returns
+    (base_name, resource_id | None, row_id | None)."""
+    base, sep, num = name.partition("@")
+    if sep:
+        return base, None, int(num)
+    base, sep, num = base.partition("#")
+    if sep:
+        return base, int(num), None
+    return base, None, None
 
 
 def build_encounters() -> None:
@@ -869,12 +946,17 @@ def build_encounters() -> None:
     def entry(row: dict, ai: str, element: int, tier: float = 0.0, **extra) -> dict:
         out = {
             "id": row["id"], "name": row["name"], "nameZh": row["nameZh"],
-            "model": row["model"], "element": row["element"], "aiType": ai,
+            "model": MODEL_OVERRIDES.get(row["model"], row["model"]),
+            "element": row["element"],
+            "aiType": AI_TYPE_OVERRIDES.get(row["id"], ai),
             "shadowScale": row["shadowScale"], "voiceCueSheet": row["voiceCueSheet"],
             "skills": [s for s in row["skillIds"] if str(s) in skills],
         }
         out.update(extra)
-        split = SPLITTERS.get(row["name"])
+        split = next((SPLITTERS[key] for key in
+                      (f"{row['name']}@{row['id']}",
+                       f"{row['name']}#{row['resourceId']}", row["name"])
+                      if key in SPLITTERS), None)
         if split:
             # resolve the child here so the runtime never has to search, and so
             # the child does not have to be in the volume's own mob pool
@@ -888,8 +970,15 @@ def build_encounters() -> None:
         return out
 
     def resolve_mob(name: str, element: int, tier: float = 0.0) -> dict | None:
+        base, res_pin, id_pin = resolve_pin(name)
+        # An @行id pin is a deliberate body pick from the shipped pool (B.1's
+        # スケジェルン@30011700 ships init HP 7000 on purpose), so it waives
+        # the mob HP cap; the offence/defence/negative checks still apply.
+        cap = None if id_pin is not None else SANE_MOB_HP
         rows = [e for e in enemies
-                if e["name"] == name and not e["isBoss"] and sane(e, hp_cap=SANE_MOB_HP)]
+                if e["name"] == base and not e["isBoss"] and sane(e, hp_cap=cap)
+                and (res_pin is None or e["resourceId"] == res_pin)
+                and (id_pin is None or e["id"] == id_pin)]
         themed = [e for e in rows if e["element"] == element]
         if not themed:
             themed = rows
@@ -921,6 +1010,7 @@ def build_encounters() -> None:
         vol, element, tier = spec["vol"], spec["element"], spec["tier"]
         level = spec["level"]
         mob_segments = []
+        mobs_late = []      # pinned additions, kept last in the flat pool
         for seg_idx, seg_names in enumerate(spec["mobSegments"]):
             seg = []
             for name in seg_names:
@@ -932,28 +1022,42 @@ def build_encounters() -> None:
                 if row["element"] != element:
                     print(f"WARNING: vol{vol} segment {seg_idx} mob {name} "
                           f"has no element-{element} row")
+                base, res_pin, id_pin = resolve_pin(name)
                 extra = {}
-                if name in MOB_HP:
-                    extra["hpScale"] = round(MOB_HP[name] / hp_at(row, level), 5)
-                seg.append(entry(row, ai_type(row), element, tier, **extra))
+                for key in (f"{base}@{row['id']}",
+                            f"{base}#{row['resourceId']}", name):
+                    if key in MOB_HP:
+                        extra["hpScale"] = round(MOB_HP[key] / hp_at(row, level), 5)
+                        break
+                mob = entry(row, ai_type(row), element, tier, **extra)
+                seg.append(mob)
+                if res_pin is not None or id_pin is not None:
+                    mobs_late.append(mob)
             if not seg:
                 print(f"WARNING: vol{vol} segment {seg_idx} is empty")
             mob_segments.append(seg)
         # `mobs` stays the flattened union (requestSummon's fallback, the
-        # balance harness's sampling, and every legacy reader).
-        mobs = [m for seg in mob_segments for m in seg]
+        # balance harness's sampling, and every legacy reader). The flat order
+        # keeps the seeded samplers' distribution stable: the unpinned T22e
+        # faces come first (segment order), every pinned addition after --
+        # the same order the shipped pool was built up in.
+        mobs = [m for seg in mob_segments for m in seg if m not in mobs_late] + mobs_late
 
         elites = []
         for name in spec["elites"]:
+            base, res_pin, id_pin = resolve_pin(name)
             rows = [e for e in enemies
-                    if e["name"] == name and e["isBoss"] and sane(e, hp_cap=None)]
+                    if e["name"] == base and e["isBoss"] and sane(e, hp_cap=None)
+                    and (res_pin is None or e["resourceId"] == res_pin)
+                    and (id_pin is None or e["id"] == id_pin)]
             if not rows:
                 print(f"WARNING: vol{vol} elite {name} has no sane boss row")
                 continue
             themed = [e for e in rows if e["element"] == element] or rows
             row = min(themed, key=lambda e: abs(hp_at(e, level) - spec["eliteHp"]))
             elites.append(entry(row, "boss", element, tier, elite=True,
-                                hpScale=round(spec["eliteHp"] / hp_at(row, level), 5)))
+                                hpScale=ELITE_HP_SCALE.get(row["id"])
+                                or round(spec["eliteHp"] / hp_at(row, level), 5)))
 
         boss_name = next(v["boss"]["name"] for v in volumes if v["vol"] == vol)
         rows = [e for e in enemies
@@ -970,10 +1074,21 @@ def build_encounters() -> None:
         boss = entry(row, "boss", element, tier,
                      hpScale=round(spec["bossHp"] / hp_at(row, level), 5))
 
+        # 真首领轮换: bosses[0] is the volume's own boss; the alternates re-use
+        # moves authored for their model family elsewhere in ENEMY_ROLES. Each
+        # hpScale targets the volume's bossHp unless ALT_HP_SCALE says otherwise
+        # (two shipped base HPs needed their own multiple to hold the TTK band).
+        bosses = [boss]
+        for alt_id in VOLUME_BOSS_ALTERNATES.get(vol, []):
+            alt_row = next(e for e in enemies if e["id"] == alt_id)
+            bosses.append(entry(alt_row, "boss", element, tier,
+                                hpScale=ALT_HP_SCALE.get(alt_id)
+                                or round(spec["bossHp"] / hp_at(alt_row, level), 5)))
+
         out_volumes.append({
             "vol": vol, "element": element,
             "playerLevel": spec["playerLevel"], "level": level, "tier": tier,
-            "boss": boss, "elites": elites, "mobs": mobs,
+            "boss": boss, "bosses": bosses, "elites": elites, "mobs": mobs,
             "mobSegments": mob_segments,
         })
         print(f"  vol{vol} el{element} plv{spec['playerLevel']} lv{level} "
@@ -992,7 +1107,8 @@ def build_encounters() -> None:
     # references (plus the confusion skill every enemy shares).
     used = {999999}
     for volume in out_volumes:
-        for row in [volume["boss"], *volume["elites"], *volume["mobs"]]:
+        for row in [volume["boss"], *volume["bosses"],
+                    *volume["elites"], *volume["mobs"]]:
             used.update(row["skills"])
             child = row.get("splitInto")
             if child:

@@ -94,7 +94,7 @@ check('攻击构造和命中呈现都遵守禁暴，不抽取暴击随机数', (
     assert.equal(visible.crit, false); assert.equal(visible.hitFlag, 0);
 });
 check('旧七件保留，三契约固定身份、品质、价格与门槛', () => {
-    assert.equal(gadgets.GADGETS.length, 10);
+    assert.equal(gadgets.GADGETS.length, 13);
     for (const id of BASE_IDS) assert.equal(gadgets.gadgetDefinition(make(id)).id, id);
     for (const [id, [minFloor, price]] of Object.entries(CONTRACTS)) {
         const def = gadgets.gadgetDefinition(make(id));

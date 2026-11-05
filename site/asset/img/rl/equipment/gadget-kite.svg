@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="96" height="96" viewBox="0 0 96 96">
+  <title>纸翼护符</title><metadata>kirafan-timer original; paper wing charm</metadata>
+  <g stroke="#716454" stroke-width="2.5" stroke-linejoin="round" stroke-linecap="round">
+    <path d="M14 58C28 30 52 18 84 20c-6 10-14 14-22 16 8 2 14 0 20-2-8 14-22 20-34 20l10 4c-12 6-26 6-34 2Z" fill="#f5efdc"/>
+    <path d="M22 55C34 36 50 26 72 24c-10 8-20 12-30 14 10 2 18 0 26-2-8 10-20 15-30 15Z" fill="#fdf8ea"/>
+    <path d="M14 58C30 50 52 44 74 46" fill="none" stroke="#c6a268"/>
+    <path d="M56 62c4-6 12-8 18-6-2 8-10 12-16 12l6 4c-8 2-16 0-20-4Z" fill="#c58493"/>
+    <circle cx="50" cy="72" r="7" fill="#ebca84"/>
+    <path d="M50 79v8M46 87h8" fill="none" stroke="#a67954"/>
+    <circle cx="50" cy="72" r="2.4" fill="#fff9ec" stroke="none"/>
+    <path d="m20 24 5 5m4-9 2 7m-17 2 7 2" stroke="#d9b269" fill="none"/>
+  </g>
+</svg>

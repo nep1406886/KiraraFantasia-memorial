@@ -128,12 +128,15 @@ await test("invalid rewards cannot alter storage or the progression instance", (
 });
 await test("each authored guard floor advances once; recycled pages do not duplicate", () => {
     for (let volume = 1; volume <= 5; volume++) {
+        // 每卷页数按 meta.js 自己的 VOLUME_PAGES 派生（卷五百物语续篇 13 页、
+        // 其余卷 7 页）：floor≤n 必得新页，其后必复旧页——不硬编码每卷页数。
+        const pageCount = progression.pagesForVolume(volume).length;
         const s = boot(); let current = { ...run, volume, floor: 1 }; const id = begin(current);
         for (let floor = 1; floor <= 19; floor++) {
             const result = descend(id, current); assert.ok(result.ok, result.error);
-            assert.equal(result.newPages.length, floor <= 7 ? 1 : 0); current = result.run;
+            assert.equal(result.newPages.length, floor <= pageCount ? 1 : 0); current = result.run;
         }
-        assert.equal(durable(s).run.floor, 20); assert.equal(durable(s).meta.pages.length, 7);
+        assert.equal(durable(s).run.floor, 20); assert.equal(durable(s).meta.pages.length, pageCount);
         assert.equal(durable(s).meta.gems, 800); assert.equal(durable(s).meta.volumes, 0);
     }
 });

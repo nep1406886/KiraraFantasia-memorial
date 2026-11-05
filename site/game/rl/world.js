@@ -1439,7 +1439,8 @@ export function createWorld(options) {
         if (!p || p.dead || !room || !world.altar || world.roomLocked || world.transition) { return null; }
         return { roomId: room.id, used: world.altar.used, title: '星石契约',
             text: '书册摊在灯火之间。星光不替你决定，只将每一条道路的代价写清。',
-            options: quoteEventChoices(altarEventChoices(room.seed, p.maxHp, healCeiling(p) - p.hp, world.floor)) };
+            options: quoteEventChoices(altarEventChoices(room.seed, p.maxHp,
+                healCeiling(p) - p.hp, world.floor, world.volume || 1)) };
     };
 
     // An explicit choice replaces the former unpreviewable random reward.
@@ -1477,7 +1478,8 @@ export function createWorld(options) {
         };
         return { ...offer, title: '旅人营地 · 一次整备',
             text: '旅人把热茶、星光和修好的旧机关放在身边。补充资源，还是改变作战方式？这次停留只够完成一件事。',
-            options: quoteEventChoices(restEventChoices(room.seed, offer.heal, offer.gauge, world.floor)) };
+            options: quoteEventChoices(restEventChoices(room.seed, offer.heal, offer.gauge,
+                world.floor, world.volume || 1, p.maxHp)) };
     };
 
     function quoteEventChoices(choices) {

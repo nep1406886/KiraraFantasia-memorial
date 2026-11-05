@@ -38,8 +38,9 @@ export const ACHIEVEMENTS = [
       check: function (s) { return s.pages.length >= 21; } },
     { id: "page_35", name: "收官前夜", desc: "救回 35 张残页",
       check: function (s) { return s.pages.length >= 35; } },
-    { id: "page_37", name: "全数归架", desc: "救回全部 37 张残页",
-      check: function (s) { return s.pages.length >= 37; } },
+    // 百物语续篇把图鉴扩到 43 页；id 保留 page_37（旧档已存成就串，改名即丢档）。
+    { id: "page_37", name: "全数归架", desc: "救回全部 43 张残页",
+      check: function (s) { return s.pages.length >= 43; } },
 
     { id: "enemy_10", name: "初次照面", desc: "遭遇 10 种敌人",
       check: function (s) { return s.enemies.length >= 10; } },

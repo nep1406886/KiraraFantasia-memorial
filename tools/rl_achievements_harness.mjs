@@ -87,7 +87,7 @@ function run() {
         }), JSON.stringify(mid.unlocked));
 
     // --- 3. full sweep hits every tier ------------------------------------
-    const full = fakeMeta(state(5, 37, 60, 1000));
+    const full = fakeMeta(state(5, 43, 60, 1000));
     const all = evaluateAchievements(full);
     check("full profile: all 15 rows unlock in table order",
         all.length === ACHIEVEMENTS.length

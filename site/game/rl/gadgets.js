@@ -23,7 +23,18 @@ export const GADGETS = Object.freeze([
         cost: '攻击失去有利属性倍率与克制增幅；不利属性和敌方耐性照常生效，卸装后解除' },
     { id: 'binding', name: '缚技罗盘', slot: 'armor', rarity: 'epic', price: 180, minFloor: 13, assist: 3, sealSkill: true, contract: true,
         benefit: '可开启当前房间内的寻路接敌与普攻，不降低面板攻防',
-        cost: '生成时固定封印技能2或3，不封印必杀；冷却照常恢复，卸装后解除' }
+        cost: '生成时固定封印技能2或3，不封印必杀；冷却照常恢复，卸装后解除' },
+    // 追加的基础机制追加在表尾：前 10 行的序号被 rl_item_art_browser 的
+    // 地面图版夹具（__artDrops[10] = 巡猎罗盘）按位置引用，插入会错位。
+    { id: 'aegis', name: '坚壁徽章', slot: 'armor', rarity: 'rare', price: 45, minFloor: 1, defense: 1.2, normalDamage: .9,
+        benefit: '物防、魔防提升20%，正面承受更稳',
+        cost: '普攻伤害降低10%；不提升生命上限' },
+    { id: 'kite', name: '纸翼护符', slot: 'amulet', rarity: 'rare', price: 45, minFloor: 1, attackMove: .4, range: 1.1, defense: .85,
+        benefit: '普攻中可用40%移速走位，普攻距离增加10%，不打断本次攻击',
+        cost: '物防、魔防降低15%；不影响技能施法与受击硬直' },
+    { id: 'comet', name: '流星缎带', slot: 'charm', rarity: 'epic', price: 110, minFloor: 5, rate: 1.1, normalDamage: .85,
+        benefit: '普攻节拍加快10%，前摇、判定窗和恢复同步加快',
+        cost: '普攻每击伤害降低15%' }
 ].map(Object.freeze));
 export const GADGET_IDS = Object.freeze(GADGETS.map(row => row.id));
 const BY_ID = new Map(GADGETS.map(row => [row.id, row]));
@@ -84,7 +95,7 @@ export function gadgetRuntime(items) {
 // Named channels are deliberate acquisition rules, not a hash of rolled affixes.
 // Weight sets stay independent of the player's loadout, so swapping gear or
 // reopening a menu cannot reroll a room's offer. Saved stock is never rebuilt.
-const BASIC_WEIGHTS = { rhythm: 4, strider: 4, reach: 4, wide: 4, aim: 4 };
+const BASIC_WEIGHTS = { rhythm: 4, strider: 4, reach: 4, wide: 4, aim: 4, aegis: 4, kite: 4, comet: 2 };
 const SOURCE_WEIGHTS = {
     chest: BASIC_WEIGHTS,
     elite: { ...BASIC_WEIGHTS, sentry: 3 },
@@ -121,5 +132,8 @@ export function gadgetAcquisition(row) {
     if (row.contract) return '第' + row.minFloor + '层起：守卫、首领、商店、营地修缮与祭坛誓约';
     if (row.id === 'hunter') return '第9层起：守卫、首领、商店、营地与祭坛誓约';
     if (row.id === 'sentry') return '第5层起：精英、守卫、首领、商店、营地与祭坛誓约';
+    // 追加的三件不在 SMALL 池里，营地调校与祭坛刻印不会给出它们，措辞如实收窄。
+    if (row.id === 'comet') return '第5层起：宝箱、精英与商店；普通敌人不掉落';
+    if (row.id === 'aegis' || row.id === 'kite') return '宝箱、精英与商店；普通敌人不掉落';
     return '宝箱、精英、商店、营地调校与祭坛刻印；普通敌人不掉落';
 }

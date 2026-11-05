@@ -77,7 +77,19 @@ export const ENEMY_ROLES = Object.freeze({
         [["shrimp", "anchovy"], ["anchovy", "shrimp", "anchovy"], ["shrimp", "anchovy", "shrimp", "anchovy"]]),
     99138006: profile("storm", [sweep("claw", 38004, "爪翼横扫"),
         charge("dive", 38006, "俯冲利爪", 8), ring("eye", 38003, "疾风之眼", 2.3, 6.5)],
-        [["claw", "dive"], ["dive", "eye", "claw"], ["eye", "dive", "claw", "eye"]])
+        [["claw", "dive"], ["dive", "eye", "claw"], ["eye", "dive", "claw", "eye"]]),
+    // 2026-11-01 T23 杂兵编排 (首批绑定普通房间杂兵的编排): 四只 T23 入池
+    // 的新面孔各带一段两招预警式对决。普通战斗房从此会出现预警式招式，仍受
+    // SPECIAL_THREAT_LIMIT 同场威胁上限约束；choreography harness 对非 boss
+    // 自动按 elite 单阶段验证。
+    29016402: profile("shark", [charge("bite", 164003, "咬痕突进"),
+        spots("appetite", 164002, "食欲落点")]),
+    29013802: profile("kurokuro", [charge("claw", 138001, "爪影突进"),
+        line("curse", 138002, "咒言直线")]),
+    19016701: profile("metadron", [disc("soften", 167002, "软化震圈"),
+        line("joke", 167001, "玩笑光线")]),
+    30014201: profile("closet", [sweep("grab", 142001, "抓夺横扫"),
+        ring("snatch", 142002, "掠取魔环")])
 });
 
 export function enemyRole(enemyId, moveset) {

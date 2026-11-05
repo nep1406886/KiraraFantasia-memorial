@@ -49,13 +49,17 @@ for (const row of GADGETS) {
         const view = worldWith().previewEquipment(makeGadget(row.id, undefined, row.sealSkill ? 2 : undefined));
         const brief = equipmentBrief(view), text = words(brief);
         assert(text.length > 0); assert(brief.benefits.length <= 2);
-        if (row.rate) assert(text.includes('普攻速度 +20%'));
-        if (row.attackMove) assert(text.includes('55%移速'));
-        if (row.range) assert(text.includes('普攻距离 +25%'));
-        if (row.width) assert(text.includes('普攻宽度 +30%'));
+        // 期望值从行值派生（equipmentbrief.js:19-24 按 delta 正负分桶渲染），
+        // 新机制不必回改本表；旧十行的派生结果与写死值一致，不回退。
+        if (row.rate) assert(text.includes('普攻速度 +' + Math.round((row.rate - 1) * 100) + '%'));
+        if (row.attackMove) assert(text.includes(Math.round(row.attackMove * 100) + '%移速'));
+        if (row.range) assert(text.includes('普攻距离 +' + Math.round((row.range - 1) * 100) + '%'));
+        if (row.width) assert(text.includes('普攻宽度 +' + Math.round((row.width - 1) * 100) + '%'));
         if (row.normalDamage) assert(brief.costs.some(word => word.includes('普攻伤害')));
         if (row.damage) assert(brief.costs.some(word => word.includes('物攻')) && brief.costs.some(word => word.includes('魔攻')));
-        if (row.defense) assert(brief.costs.some(word => word.includes('物防')) && brief.costs.some(word => word.includes('魔防')));
+        // defense 既可能是代价（<1）也可能是收益（aegis 1.2），按正负分桶后两侧都要找。
+        if (row.defense) assert([...brief.benefits, ...brief.costs].some(word => word.includes('物防'))
+            && [...brief.benefits, ...brief.costs].some(word => word.includes('魔防')));
         if (row.noCrit) assert(brief.costs.includes('不能暴击（含必暴）'));
         if (row.noAdvantage) assert(brief.costs.includes('失去有利属性加成'));
         if (row.sealSkill) assert(brief.costs.some(word => word.includes('技能 3「' + view.skills.candidate.slots[2].name + '」被封印')));

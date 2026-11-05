@@ -125,7 +125,7 @@ function resultEnvelope(result, profile) {
     integer(result.level, 1, 100, "结算等级"); integer(result.coin, 0, Number.MAX_SAFE_INTEGER, "结算金币");
     integer(result.equipmentCount, 0, 4, "结算装备数");
     integer(result.gems, 0, result.equipmentCount * 18, "结算星彩石");
-    integer(result.pages, 0, 37, "结算残页数"); integer(result.revision, 0, profile.revision, "结算修订号");
+    integer(result.pages, 0, 43, "结算残页数"); integer(result.revision, 0, profile.revision, "结算修订号");
     if (!Array.isArray(result.newPages) || result.newPages.length > result.pages
             || typeof result.acknowledged !== "boolean" || result.acknowledged && result.revision === 0) {
         reject("结算收据的确认或残页记录无效。");
