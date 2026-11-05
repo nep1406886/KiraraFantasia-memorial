@@ -1741,8 +1741,10 @@ export class BattleView {
     start() {
         if (this.ready && !this.loading && !this.battle.pauses.size && this.battle.start()) {
             // 开打换战斗曲。夜间章用同曲库里更紧张的 battle_2，让三、四章
-            // 和前两章的战斗有听感区别。
-            this.options.audio.setTrack(this.level.theme === "night" ? "bgm_battle_2" : "bgm_battle_1");
+            // 和前两章的战斗有听感区别；黎明章起用原作 adv 曲 bgm_adv_9。
+            const theme = this.level.theme;
+            this.options.audio.setTrack(theme === "night" ? "bgm_battle_2"
+                : theme === "dawn" ? "bgm_adv_9" : "bgm_battle_1");
             this.consumeEvents(); this.notify();
         }
     }

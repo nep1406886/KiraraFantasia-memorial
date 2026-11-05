@@ -2,7 +2,9 @@ import { siteUrl } from "./assets.js";
 
 const KEY = "etowaria-defense.p0.settings.v1";
 const DEFAULTS = { music: true, musicVolume: 0.35, voice: true, seVolume: 0.7, reducedMotion: false };
-const THEMES = { day: "bgm_town_1", camp: "bgm_town_3", water: "bgm_town_2", night: "bgm_town_3" };
+// dawn（第五章）起用原作 adv 曲：城镇屏听 bgm_adv_10，战斗听 bgm_adv_9——
+// 两首都是曲目库里的闲置原作曲，之前从未进过塔防。
+const THEMES = { day: "bgm_town_1", camp: "bgm_town_3", water: "bgm_town_2", night: "bgm_town_3", dawn: "bgm_adv_10" };
 
 export class AudioDirector {
     constructor(onNotice = () => {}) {

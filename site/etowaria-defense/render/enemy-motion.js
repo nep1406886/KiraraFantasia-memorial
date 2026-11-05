@@ -82,6 +82,18 @@ const PROFILES = {
     // cloak arms sway. Heavy single leg pair keeps the stomp readable.
     7000: { mirrorForLeft: true, period: 1.8, stride: .022, lift: .014, bounce: .004,
         feet: [["Leg_L", 0], ["Leg_R", .5]], arms: [["Arm_Cloth_B_L_01", .5], ["hand_R_2_A_obj", 0]] },
+
+    // Chapter 5 rigs. Bones read straight from the GLB node tables; all three
+    // bundles carry the six standard clips (idle/damage/dead/skill_0/skill_1/
+    // abnormal), and skill_0 lunges toward screen-right like every rig above.
+    // E40 裂殖蘑菇怪 — stubby mushroom walker, short careful steps.
+    12300: biped(1.05, .022, .018, .006),
+    // E41 绷带魔偶 — bandage golem; thighs (upperleg) swing the whole leg,
+    // a deliberate heavy stomp.
+    16500: biped(1.35, .026, .02, .005, ["upperleg_L", "upperleg_R"], ["arm_L", "arm_R"]),
+    // E42 嘿帮团女干部 — dawn boss (rig 14700); slow long stride on the
+    // up-leg pair, arms swing to sell the pace.
+    14700: biped(1.6, .026, .018, .005, ["up_leg_L", "up_leg_R"], ["arm_L", "arm_R"]),
     // スーパーかかしくん（仮）rig 5200 — the original training scarecrow,
     // reused as the F13 decoy. It is a static prop on the defense board:
     // zero stride keeps the authored pose, the arms sway in the breeze.

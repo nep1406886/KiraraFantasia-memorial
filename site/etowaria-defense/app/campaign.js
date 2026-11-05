@@ -109,7 +109,7 @@ const markup = `
     <header class="panel campaign-header"><button class="native-button compact" data-action="back">返回标题</button><h2>里口花径</h2><span>巡守手记</span><button class="native-button compact" data-action="save">巡守记录</button><button class="native-button compact" data-action="town">城镇</button></header>
     <div class="campaign-map-body">
       <section class="campaign-chapter panel" data-role="chapter-panel" data-theme="day"><div class="chapter-landscape" aria-hidden="true"></div><div class="chapter-description"><p class="chapter-kicker" data-role="chapter-kicker"></p><h3 data-role="chapter-title"></h3><p data-role="chapter-caption"></p><div class="campaign-faces" data-role="faces"></div><p class="muted">关卡按巡守记录逐步开放；每关重新分配クリエ，不把资源带入下一关。</p></div></section>
-      <section class="panel campaign-selection" aria-label="选择巡守关卡"><div class="setup-banner-slot" data-role="setup-banner-slot"></div><div class="campaign-levels" data-role="levels"></div><div class="level-brief"><h3 data-role="level-title"></h3><p data-role="level-subtitle"></p><dl class="level-facts"><div><dt>布阵区域</dt><dd data-role="area"></dd></div><div><dt>初始应援</dt><dd data-role="budget"></dd></div><div><dt>来袭波次</dt><dd data-role="waves"></dd></div></dl><p data-role="enemy"></p><p data-role="objective"></p><p data-role="rewards"></p><p class="muted" data-role="best"></p></div><div class="campaign-map-actions"><p class="muted">关卡会按巡守记录逐步开放；完成当前关卡后解锁下一关，无尽巡守始终可挑战。</p><button class="native-button primary" data-action="prepare">选择阵容</button></div><p class="campaign-disclosure">本作同人改编。当前开放四章二十关与无尽巡守。</p></section>
+      <section class="panel campaign-selection" aria-label="选择巡守关卡"><div class="setup-banner-slot" data-role="setup-banner-slot"></div><div class="campaign-levels" data-role="levels"></div><div class="level-brief"><h3 data-role="level-title"></h3><p data-role="level-subtitle"></p><dl class="level-facts"><div><dt>布阵区域</dt><dd data-role="area"></dd></div><div><dt>初始应援</dt><dd data-role="budget"></dd></div><div><dt>来袭波次</dt><dd data-role="waves"></dd></div></dl><p data-role="enemy"></p><p data-role="objective"></p><p data-role="rewards"></p><p class="muted" data-role="best"></p></div><div class="campaign-map-actions"><p class="muted">关卡会按巡守记录逐步开放；完成当前关卡后解锁下一关，无尽巡守始终可挑战。</p><button class="native-button primary" data-action="prepare">选择阵容</button></div><p class="campaign-disclosure">本作同人改编。当前开放五章三十二关与无尽巡守。</p></section>
       <section class="panel deck-picker" data-role="deck-picker" aria-label="选择本次布阵的卡牌" hidden><header class="deck-picker-head"><div><h3>本次布阵</h3><p class="muted">从巡守图鉴里挑最多${DECK_SIZE}张卡同行；可随时返回换一关。</p></div><p class="deck-count" data-role="deck-count"></p></header>
 <div class="deck-chosen" data-role="deck-chosen" aria-label="已选择的卡牌"></div><div class="deck-presets" data-role="deck-presets"><span class="deck-presets-label">推荐配置</span><div class="deck-preset-buttons" data-role="deck-preset-buttons"></div></div><div class="deck-grid" data-role="deck-grid"></div><p class="deck-detail" data-role="deck-detail"></p><div class="campaign-map-actions"><button class="native-button compact" data-action="deck-back">返回选关</button><button class="native-button primary" data-action="deck-start">开始巡守</button></div></section>
     </div><p class="save-problem" data-role="save-problem" role="status" hidden></p>
@@ -395,7 +395,8 @@ export class Campaign {
         const chapterCopy = {
             day: ["把日常守在身后", "应援台、同伴与每一条道路，都是布阵图的一部分。"],
             camp: ["在星灯下整备", "营地的灯亮起之后，防线也要一条一条照看。"],
-            night: ["把夜路守到天亮", "深夜的来客不会等你准备好，先让每一条路有回应。"]
+            night: ["把夜路守到天亮", "深夜的来客不会等你准备好，先让每一条路有回应。"],
+            dawn: ["守到黎明升起", "天亮前的最后一段路，裂开的影子与压阵的头目都会来。"]
         };
         const theme = selected.theme || chapter?.theme || "day";
         const [chapterTitle, chapterCaption] = selected.endless
@@ -666,7 +667,9 @@ export class Campaign {
     async startLevel(id, options = {}) {
         if (!this.save.canOpen(id)) { return; }
         this.hideDeckPicker();
-        this.audio.preload(levelById(id)?.theme === "night" ? "bgm_battle_2" : "bgm_battle_1");
+        const startTheme = levelById(id)?.theme;
+        this.audio.preload(startTheme === "night" ? "bgm_battle_2"
+            : startTheme === "dawn" ? "bgm_adv_9" : "bgm_battle_1");
         const cached = !options.skipCache && this.readSetupCache();
         const resuming = cached && cached.level === id ? cached : null;
         this.releaseBattle();
@@ -1206,7 +1209,7 @@ export class Campaign {
         const index = LEVELS.findIndex(level => level.id === this.levelId);
         this.button("next").hidden = endless || !won || index === LEVELS.length - 1;
         if (won && index === LEVELS.length - 1) {
-            const ending = document.createElement("p"); ending.textContent = "四章二十关已全部守住。无尽巡守与城镇建设随时可以继续，后续章节仍在制作。";
+            const ending = document.createElement("p"); ending.textContent = "五章三十二关已全部守住。无尽巡守与城镇建设随时可以继续，后续章节仍在制作。";
             reveal(ending, 3);
             rewardList.append(ending);
         }

@@ -54,7 +54,8 @@ export class Battle {
         this._dueActions = [];
         this._scanScratch = [];
         this.stats = { kills: 0, deployed: 0, recalls: 0, collected: 0, generated: 0, spent: 0,
-            healed: 0, shielded: 0, blocked: 0, gatesUsed: 0, defeatedUnits: 0, wavesCleared: 0 };
+            healed: 0, shielded: 0, blocked: 0, gatesUsed: 0, defeatedUnits: 0, wavesCleared: 0,
+            produced: 0, summonKills: 0 };
         if (level.endless) {
             this.seed = Number.isInteger(options.seed) ? options.seed : 20260926;
             this.rng = mulberry32(this.seed);
@@ -336,7 +337,11 @@ export class Battle {
         for (const unit of this.units.values()) {
             const rule = UNIT_RULES[unit.type];
             if (rule.kind === "producer" && this.time + EPS >= unit.nextIncome) {
-                this.createPickup(unit.row, unit.col, Math.round(rule.income * (this.townProducer || 1)), unit.id);
+                const amount = Math.round(rule.income * (this.townProducer || 1));
+                this.createPickup(unit.row, unit.col, amount, unit.id);
+                // 应援台产量单独记账：只有设施产出计入 produced，
+                // 天然资源与波次奖励走 generated，不入本账。
+                this.stats.produced += amount;
                 unit.nextIncome += rule.incomePeriod;
                 this.emit("produced", { id: unit.id });
             }
@@ -983,6 +988,19 @@ export class Battle {
             if (at >= 0) { rowBucket.splice(at, 1); }
         }
         this.stats.kills++;
+        // 召唤/裂出的来客单独计数（挑战与成就读这一笔）。
+        if (enemy.summoned) { this.stats.summonKills++; }
+        // 原作「裂殖」：被击倒的未召唤亲体在原 row/x 裂出子体。结界收掉
+        // 的不裂（对齐 revive 先例 battle.js:963），召唤链子体也不裂，
+        // 避免 E42 召唤 E40 再裂的滚雪球。子体带 summoned:true 并继承
+        // 亲体 wave——不进 aliveByWave/queuedByWave，不污染清波与里程碑。
+        const split = ENEMY_RULES[enemy.type].split;
+        if (split && !enemy.summoned && reason !== "gate") {
+            for (let i = 0; i < split.count; i++) {
+                this.spawn({ type: split.type, row: enemy.row, x: enemy.x, wave: enemy.wave, summoned: true });
+            }
+            this.emit("enemySplit", { id: enemy.id, enemyType: enemy.type, into: split.type, count: split.count, row: enemy.row, x: enemy.x });
+        }
         if (enemy.lastHitBy && this.units.has(enemy.lastHitBy)) {
             const killer = this.units.get(enemy.lastHitBy);
             const killerRule = this.unitRule(killer);

@@ -5,10 +5,15 @@ import { ENEMY_RULES } from "../data/campaign.js";
 import { loadRuntimeAssets } from "../app/assets.js";
 import { NativeModel, posedBounds } from "../render/native-model.js";
 
-export async function checkEnemyFacing({ invert = [] } = {}) {
+// only：限定要复核的 rig（resourceId 数组），新魔物接模型后只跑增量，
+// 不必每次把全部魔物拉起来。invert：实测定向背离防线的 resourceId，
+// 翻转后再测（对齐 enemy-motion 的 mirrorForLeft 结论）。
+export async function checkEnemyFacing({ invert = [], only = null } = {}) {
     const assets = await loadRuntimeAssets();
+    const wanted = only ? new Set(only) : null;
     const results = [];
     for (const spec of Object.values(ENEMY_RULES)) {
+        if (wanted && !wanted.has(spec.resourceId)) { continue; }
         const model = await NativeModel.enemy(assets, spec);
         try {
             if (invert.includes(spec.resourceId)) { model.scaled.scale.x *= -1; }
@@ -33,6 +38,11 @@ export async function checkEnemyFacing({ invert = [] } = {}) {
             results.push({ id: spec.id, resourceId: spec.resourceId, mirrorSign: Math.sign(model.scaled.scale.x),
                 lungeLeft: +left.toFixed(3), lungeRight: +right.toFixed(3) });
         } finally { model.dispose(); }
+    }
+    if (wanted) {
+        const seen = new Set(results.map(row => row.resourceId));
+        const missing = [...wanted].filter(resourceId => !seen.has(resourceId));
+        if (missing.length) { throw new Error(`facing-check 缺 rig：${missing.join("、")}`); }
     }
     const wrong = results.filter(row => row.lungeLeft <= row.lungeRight);
     if (wrong.length) { throw new Error(`魔物出招背离防线：${wrong.map(row => row.resourceId).join("、")}`); }

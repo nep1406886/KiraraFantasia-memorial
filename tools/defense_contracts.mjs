@@ -21,10 +21,10 @@ function check(name, fn) {
     results.push({ name, passed: true });
 }
 
-check("83 unique exact card identities", () => {
-    assert.equal(catalogue.units.length, 83);
-    assert.equal(new Set(catalogue.units.map(unit => unit.cardId)).size, 83);
-    assert.equal(new Set(catalogue.units.map(unit => unit.id)).size, 83);
+check("87 unique exact card identities", () => {
+    assert.equal(catalogue.units.length, 87);
+    assert.equal(new Set(catalogue.units.map(unit => unit.cardId)).size, 87);
+    assert.equal(new Set(catalogue.units.map(unit => unit.id)).size, 87);
 });
 
 const golden = {
@@ -32,7 +32,11 @@ const golden = {
     U07: [30002001, 300004, 0, 3],
     U11: [17002001, 170004, 3, 0],
     U16: [12002001, 120004, 2, 1],
-    U19: [43002001, 430002, 4, 1]
+    U19: [43002001, 430002, 4, 1],
+    U84: [10012000, 100103, 0, 5],
+    U85: [11032000, 110303, 4, 5],
+    U86: [10032000, 100303, 0, 5],
+    U87: [11042010, 110405, 3, 5]
 };
 check("independent class and element golden cases", () => {
     for (const [id, expected] of Object.entries(golden)) {

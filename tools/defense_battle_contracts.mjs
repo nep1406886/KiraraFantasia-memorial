@@ -2,8 +2,9 @@ import assert from "node:assert/strict";
 import fs from "node:fs/promises";
 import { readFileSync } from "node:fs";
 import { Battle } from "../site/etowaria-defense/sim/battle.js";
-import { LEVELS, UNIT_RULES, ENEMY_RULES, ENEMY_FIRST_SEEN, ENDLESS, TICK, DECK_ORDER, GEAR_ORDER, ACHIEVEMENTS, SAVE_KEY, unlockedUnits } from "../site/etowaria-defense/data/campaign.js";
+import { LEVELS, UNIT_RULES, ENEMY_RULES, ENEMY_FIRST_SEEN, ENDLESS, TICK, DECK_ORDER, GEAR_ORDER, ACHIEVEMENTS, SAVE_KEY, unlockedUnits, ENDLESS_MILESTONES } from "../site/etowaria-defense/data/campaign.js";
 import { CampaignSave, validateProgress } from "../site/etowaria-defense/app/campaign-save.js";
+import { evaluateChallenge } from "../site/etowaria-defense/app/challenge-evaluator.js";
 
 const checks = [];
 const test = (name, run) => { run(); checks.push({ name, passed: true }); };
@@ -59,17 +60,26 @@ export function playWithBudget(level, deck = level.recommended) {
                 const incoming = threat(row);
                 const dangerous = incoming.length > 0 || battle.spawns.slice(battle.spawnIndex, battle.spawnIndex + 4).some(spawn => spawn.row === row);
                 if (!dangerous && battle.resource < 250) { continue; }
+                const heavy = incoming.some(enemy => ENEMY_RULES[enemy.type].hp >= 380 || ENEMY_RULES[enemy.type].boss || ENEMY_RULES[enemy.type].hop);
+                // 裂殖亲体必须在墙前收掉：子体落在亲体倒下的位置，没有墙
+                // 就等于把两只小黑怪直接放进防线中段。警告窗口内已排期的
+                // 裂殖来客提前立墙（与跳客跳墙同级的机制应对）。
+                const queuedSplit = battle.spawns.slice(battle.spawnIndex).some(spawn =>
+                    spawn.row === row && spawn.at <= battle.time + level.warningLead + 4 && ENEMY_RULES[spawn.type].split);
+                // 全路无守备（只有应援台）却有来客压进：先拿最便宜的高墙
+                // 顶住，给打手争取落位时间。
+                const bareLane = incoming.length > 0 && !has(row, unit => kindOf(unit) !== "producer");
+                if ((incoming.length || queuedSplit) && !has(row, unit => kindOf(unit) === "guard")
+                    && (heavy || incoming.length > 1 || bareLane || queuedSplit)) {
+                    const hopper = incoming.some(enemy => ENEMY_RULES[enemy.type].hop);
+                    const pick = hopper && cards.has("U12") ? ["U12"] : walls;
+                    for (const id of pick) { if (act(id, row, 5)) { break; } }
+                }
                 const shooters = units().filter(unit => unit.row === row && ["shooter", "lobber"].includes(kindOf(unit)));
                 if (shooters.length < 1) {
                     const cheap = building ? attackers.filter(id => UNIT_RULES[id].cost <= 150) : attackers;
                     for (const id of cheap) { if (act(id, row, 1)) { break; } }
                     continue;
-                }
-                const heavy = incoming.some(enemy => ENEMY_RULES[enemy.type].hp >= 380 || ENEMY_RULES[enemy.type].boss || ENEMY_RULES[enemy.type].hop);
-                if (incoming.length && !has(row, unit => kindOf(unit) === "guard") && (heavy || incoming.length > 1)) {
-                    const hopper = incoming.some(enemy => ENEMY_RULES[enemy.type].hop);
-                    const pick = hopper && cards.has("U12") ? ["U12"] : walls;
-                    for (const id of pick) { if (act(id, row, 5)) { break; } }
                 }
                 if (building) { continue; }
                 if (shooters.length < 2 && battle.resource >= 175) { for (const id of attackers) { if (act(id, row, 2)) { break; } } }
@@ -199,9 +209,10 @@ test("endless wave modifiers mark the waves and surface on the snapshot", () => 
     // Wave-clear bonus lands once per wave and rewards the player.
     const clear = new Battle(ENDLESS, { deck: DECK_ORDER, seed: 5 });
     clear.waveBounds.set(1, { remaining: 1, modifier: { kind: "elite", label: "精英" } });
-    clear.enemies.set("e1", { id: "e1", wave: 1, summoned: false });
+    // 探针敌人要带真实 type：killEnemy 现在要查 ENEMY_RULES[type].split。
+    clear.enemies.set("e1", { id: "e1", type: "E01", wave: 1, summoned: false });
     const before = clear.resource;
-    clear.killEnemy({ id: "e1", wave: 1, summoned: false }, "test");
+    clear.killEnemy(clear.enemies.get("e1"), "test");
     assert.equal(clear.stats.wavesCleared, 1);
     assert.ok(clear.resource > before);
 });
@@ -247,6 +258,64 @@ test("the boss summons followers, and a gate removes armored guests outright", (
     battle.start(); advance(battle, 14); assert.ok(battle.enemies.size >= 3);
     const gate = new Battle(fixture({ spawns: [{ at: 1, row: 0, type: "E07", wave: 1 }] })); gate.start(); advance(gate, 1.05);
     [...gate.enemies.values()][0].x = -.6; advance(gate, 1); assert.equal(gate.enemies.size, 0); assert.equal(gate.stats.gatesUsed, 1);
+});
+test("E40 fissions into exactly two summoned E01; gate kills are exempt", () => {
+    // 裂殖：未召唤的亲体被击倒，在原位裂出恰 2 只带 summoned 标记的子体。
+    {
+        const battle = new Battle(fixture({ spawns: [{ at: 1, row: 0, type: "E40", wave: 1 }] }), { deck: ["U01"] });
+        battle.start(); advance(battle, 1.05);
+        const parent = [...battle.enemies.values()][0];
+        assert.equal(parent.type, "E40"); assert.equal(parent.summoned, false);
+        battle.damageEnemy(parent, parent.hp, "test");
+        assert.equal(battle.enemies.size, 2, "the parent fissions into exactly two children");
+        const children = [...battle.enemies.values()];
+        assert.ok(children.every(enemy => enemy.type === "E01" && enemy.summoned && enemy.wave === parent.wave),
+            "children are summoned E01 on the parent's wave");
+        assert.ok(battle.drainEvents().some(event => event.type === "enemySplit" && event.into === "E01" && event.count === 2));
+        // 子体不再裂殖，且打倒子体计入 summonKills（亲体那笔不算）。
+        assert.equal(battle.stats.summonKills, 0);
+        const before = battle.stats.kills;
+        for (const child of children) { battle.killEnemy(child, "test"); }
+        assert.equal(battle.stats.kills - before, 2);
+        assert.equal(battle.stats.summonKills, 2);
+        assert.equal(battle.enemies.size, 0);
+    }
+    // 结界收掉的不裂：gate 击杀豁免，也不计召唤击杀。
+    {
+        const gate = new Battle(fixture({ spawns: [{ at: 1, row: 0, type: "E40", wave: 1 }] }));
+        gate.start(); advance(gate, 1.05);
+        [...gate.enemies.values()][0].x = -.6; advance(gate, 1);
+        assert.equal(gate.enemies.size, 0);
+        assert.equal(gate.stats.gatesUsed, 1);
+        assert.equal(gate.stats.summonKills, 0);
+        assert.ok(!gate.drainEvents().some(event => event.type === "enemySplit"), "gate kills never fission");
+    }
+});
+test("produced/summonKills counters feed the chapter-five challenge metrics", () => {
+    // produced 只记应援台产出：天然拾取与波次奖励走 generated，不入本账。
+    const battle = new Battle(fixture({ naturalFirst: 1000, spawns: [{ at: 1000, row: 0, type: "E01", wave: 1 }] }), { deck: ["F01"] });
+    battle.deploy("F01", 0, 0); battle.start();
+    advance(battle, UNIT_RULES.F01.firstIncome + UNIT_RULES.F01.incomePeriod + .5);
+    assert.equal(battle.stats.produced, UNIT_RULES.F01.income * 2, "two facility payouts landed in produced");
+    // 真关卡 5-4 的 produced 挑战指标从本计数器取值。
+    const produced = evaluateChallenge(LEVELS.find(level => level.id === "5-4"), battle.stats, "won");
+    assert.equal(produced.type, "produced");
+    assert.equal(produced.value, battle.stats.produced);
+    assert.equal(produced.complete, false, "应援台产出低于 900 不达成");
+    // summonKills：亲体不计，裂出的子体计；5-2 的挑战指标对表。
+    const probe = new Battle(fixture({ spawns: [{ at: 1, row: 0, type: "E40", wave: 1 }] }), { deck: ["U01"] });
+    probe.start(); advance(probe, 1.05);
+    const parent = [...probe.enemies.values()][0];
+    probe.damageEnemy(parent, parent.hp, "test");
+    assert.equal(probe.stats.summonKills, 0, "the parent kill is not a summon kill");
+    for (const child of [...probe.enemies.values()]) { probe.killEnemy(child, "test"); }
+    assert.equal(probe.stats.summonKills, 2);
+    const dismissed = evaluateChallenge(LEVELS.find(level => level.id === "5-2"), probe.stats, "won");
+    assert.equal(dismissed.type, "summonKills");
+    assert.equal(dismissed.value, 2);
+    assert.equal(dismissed.complete, false, "2 < 10 不达成");
+    assert.equal(evaluateChallenge(LEVELS.find(level => level.id === "5-2"), { summonKills: 10 }, "won").complete, true,
+        "10 只裂殖子体正好达成 5-2 的挑战");
 });
 test("a multi-row shooter engages adjacent lanes and one U79 volley reaches them all", () => {
     // U79 sits on row 1; enemies on rows 0, 1, 2 all in range. Adjacent lanes
@@ -640,7 +709,8 @@ test("endless grants a card swap every five cleared waves and the E39 queen take
     for (let wave = 1; wave <= 10; wave++) {
         battle.waveBounds.set(wave, { remaining: 1, modifier: null });
         for (const spawn of battle.spawns.filter(s => s.wave === wave)) {
-            const enemy = { id: `probe-${wave}-${spawn.index}`, wave, summoned: false };
+            // 探针敌人带真实 type：killEnemy 现在要查 ENEMY_RULES[type].split。
+            const enemy = { id: `probe-${wave}-${spawn.index}`, type: spawn.type, wave, summoned: false };
             battle.enemies.set(enemy.id, enemy);
             battle.killEnemy(enemy, "test");
         }
@@ -662,6 +732,26 @@ test("chapter four uses balanced new enemy mechanics", () => {
     }
     assert.ok(ENEMY_RULES.E32.armor > 0 && ENEMY_RULES.E34.armor > 0);
     assert.ok(ENEMY_RULES.E36.healer && ENEMY_RULES.E37.hop && ENEMY_RULES.E35.speed > .45);
+});
+test("chapter five uses the split/rock-armor/boss trio on a six-level base", () => {
+    const chapter = LEVELS.filter(level => level.chapter === 5);
+    // 六关硬基数：id 序列与 newEnemy 序列都要逐位对上。
+    assert.deepEqual(chapter.map(level => level.id), ["5-1", "5-2", "5-3", "5-4", "5-5", "5-6"]);
+    assert.deepEqual(chapter.map(level => level.newEnemy), ["E40", "E40", "E41", "E33", "E35", "E42"]);
+    // 三只新魔物的机制字段：E40 裂殖、E41 岩甲+高墙、E42 Boss 召唤。
+    assert.deepEqual(ENEMY_RULES.E40.split, { type: "E01", count: 2 });
+    assert.ok(ENEMY_RULES.E41.rockArmor?.regenPerSec > 0 && ENEMY_RULES.E41.rockArmor?.delay > 0,
+        "E41 carries a real rock-armor rule");
+    assert.equal(ENEMY_RULES.E41.tall, true);
+    assert.equal(ENEMY_RULES.E42.boss, true);
+    assert.deepEqual(ENEMY_RULES.E42.summon, { type: "E40", period: 14, count: 2 });
+    // 第五章成就键齐全。
+    for (const id of ["chapter_5", "producer", "dismiss", "endless_60", "endless_70"]) {
+        assert.ok(ACHIEVEMENTS[id], `ACHIEVEMENTS lacks ${id}`);
+    }
+    // extraModels 只在 5-2（裂出的小黑怪群）与 5-6（Boss 召唤的裂殖亲体）。
+    assert.deepEqual(chapter.find(level => level.id === "5-2").extraModels, { E01: 6 });
+    assert.deepEqual(chapter.find(level => level.id === "5-6").extraModels, { E40: 2 });
 });
 
 // 图鉴数据契约：本文件 import ENEMY_RULES/LEVELS，是唯一能抓
@@ -733,6 +823,31 @@ test("the six new companions cover distinct combat archetypes", () => {
         const unit = catalogue.units.find(row => row.id === id);
         assert.ok(unit, `${id} missing from catalogue`);
         assert.ok(unit.icon && unit.resourceId, `${id} has no icon/model binding`);
+    }
+});
+test("the four chapter-five companions cover critical/lobber/pierce/guard archetypes", () => {
+    // U84 宫子 every-4 会心，U85 赖子粉笔抛物线+减速溅射，
+    // U86 沙英贯甲（对 E41 岩甲的答案），U87 千穂汤烟屏障。
+    assert.equal(UNIT_RULES.U84.kind, "fighter");
+    assert.equal(UNIT_RULES.U84.special.type, "critical");
+    assert.equal(UNIT_RULES.U84.special.multiplier, 2.2);
+    assert.equal(UNIT_RULES.U85.kind, "lobber");
+    assert.equal(UNIT_RULES.U85.flight, .64);
+    assert.ok(UNIT_RULES.U85.onHit?.slow > 0 && UNIT_RULES.U85.onHit?.slowDuration > 0, "粉笔命中减速");
+    assert.equal(UNIT_RULES.U86.kind, "fighter");
+    assert.equal(UNIT_RULES.U86.pierceArmor, true);
+    assert.equal(UNIT_RULES.U87.kind, "guard");
+    assert.deepEqual(UNIT_RULES.U87.barrier, { hits: 2, period: 9 });
+    assert.ok(UNIT_RULES.U87.guardReduction > 0, "增防姿态要有实减伤");
+    // 目录绑定：真原作卡、图标与模型资源齐全。
+    const catalogue = JSON.parse(readFileSync(new URL("../site/etowaria-defense/data/units.json", import.meta.url), "utf8"));
+    const expectedCards = { U84: 10012000, U85: 11032000, U86: 10032000, U87: 11042010 };
+    for (const id of ["U84", "U85", "U86", "U87"]) {
+        const unit = catalogue.units.find(row => row.id === id);
+        assert.ok(unit, `${id} missing from catalogue`);
+        assert.equal(unit.cardId, expectedCards[id], `${id} binds the original card`);
+        assert.ok(unit.icon && unit.resourceId, `${id} has no icon/model binding`);
+        assert.ok(unit.skills[0]?.id, `${id} has an ultimate skill id`);
     }
 });
 
@@ -843,6 +958,77 @@ test("achievements unlock once, are idempotent and validate round-trip", () => {
     const reloaded = new CampaignSave(storage2);
     assert.deepEqual(reloaded.progress.achievements.slice().sort(), fresh.progress.achievements.slice().sort());
     assert.ok(reloaded.progress.achievements.every(id => ACHIEVEMENTS[id]), "only known ids persist");
+});
+test("chapter_5 unlocks on clearing every chapter-five level and never re-grants", () => {
+    const memory5 = new Map();
+    const storage5 = { getItem: key => memory5.get(key) || null, setItem: (key, value) => memory5.set(key, value) };
+    const save5 = new CampaignSave(storage5);
+    const chapter5 = LEVELS.filter(level => level.chapter === 5);
+    // 差最后一关：5-6 依序解锁（前一关已通），通关那一刻才齐章。
+    for (const level of chapter5.slice(0, -1)) { save5.progress.completed.push(level.id); }
+    const win = new Battle(chapter5.at(-1), { deck: DECK_ORDER }); win.phase = "won";
+    const first = save5.finish("ch5-a", win);
+    assert.ok(first.achievements.includes("chapter_5"), "all six chapter-five clears grant chapter_5");
+    // 同一 runId 幂等；之后任意新通关也不重发（已拥有）。
+    assert.deepEqual(save5.finish("ch5-a", win).achievements, []);
+    const again = new Battle(chapter5.at(-1), { deck: DECK_ORDER }); again.phase = "won";
+    assert.deepEqual(save5.finish("ch5-b", again).achievements, []);
+    // 只差一关时不发。
+    const save6 = new CampaignSave({ getItem: () => null, setItem: () => {} });
+    for (const level of chapter5.slice(0, -1)) { save6.progress.completed.push(level.id); }
+    const penultimate = new Battle(LEVELS[LEVELS.indexOf(chapter5.at(-1)) - 1], { deck: DECK_ORDER });
+    penultimate.phase = "won";
+    assert.ok(!save6.finish("ch5-c", penultimate).achievements.includes("chapter_5"),
+        "five of six clears do not grant chapter_5");
+});
+test("producer and dismiss unlock on stat thresholds; endless_60/70 on deep waves", () => {
+    const memory3 = new Map();
+    const storage3 = { getItem: key => memory3.get(key) || null, setItem: (key, value) => memory3.set(key, value) };
+    const save3 = new CampaignSave(storage3);
+    // produced ≥ 800 才发 producer；差一点不授。
+    const short = playWithBudget(LEVELS[0]).battle; short.stats.produced = 799;
+    assert.ok(!save3.finish("prod-1", short).achievements.includes("producer"));
+    const rich = playWithBudget(LEVELS[1]).battle;
+    rich.stats.produced = 800; rich.stats.summonKills = 10;
+    const unlocked = save3.finish("prod-2", rich).achievements;
+    assert.ok(unlocked.includes("producer"), "produced 800 grants producer");
+    assert.ok(unlocked.includes("dismiss"), "summonKills 10 grants dismiss");
+    // 无尽波次门槛逐档解锁：60 波不发 70 的成就。
+    const deep60 = new Battle(ENDLESS, { deck: DECK_ORDER, seed: 7 }); deep60.start(); deep60.wave = 60; deep60.phase = "lost";
+    const wave60 = save3.finish("endless-60", deep60).achievements;
+    assert.ok(wave60.includes("endless_60"));
+    assert.ok(!wave60.includes("endless_70"), "wave 60 does not grant endless_70");
+    const deep70 = new Battle(ENDLESS, { deck: DECK_ORDER, seed: 8 }); deep70.start(); deep70.wave = 70; deep70.phase = "lost";
+    assert.ok(save3.finish("endless-70", deep70).achievements.includes("endless_70"));
+});
+test("milestone waves 70 and 80 settle 12 and 15 bonus materials", () => {
+    for (const [wave, bonus] of [[70, 12], [80, 15]]) {
+        assert.equal(ENDLESS_MILESTONES[wave].bonusMaterials, bonus, `ENDLESS_MILESTONES[${wave}]`);
+        const battle = new Battle(ENDLESS, { deck: DECK_ORDER, seed: 7 });
+        while (battle.plannedWave < wave) { battle.planWave(); }
+        battle.start();
+        battle.waveBounds.set(wave, { remaining: 1, total: 1, modifier: null });
+        const enemy = { id: `milestone-${wave}`, type: "E01", row: 0, x: 0, wave, summoned: false,
+            hp: 1, maxHp: 1, speed: 0, state: "walking" };
+        battle.enemies.set(enemy.id, enemy);
+        battle.killEnemy(enemy, "test");
+        const earned = battle.drainEvents().filter(event => event.type === "restockEarned" && event.wave === wave);
+        assert.equal(earned.length, 1, `wave ${wave} settles once`);
+        assert.equal(earned[0].bonusDrops.length, bonus, `wave ${wave} drops ${bonus} bonus materials`);
+        assert.equal(earned[0].milestone?.label, ENDLESS_MILESTONES[wave].label);
+    }
+});
+test("endless checkpoint round-trip keeps produced and summonKills", () => {
+    const b = new Battle(ENDLESS, { deck: ["F01", "U07", "U15"], seed: 99 });
+    b.deploy("F01", 2, 0); b.deploy("U07", 2, 3); b.start();
+    advance(b, 70);
+    b.stats.produced = 321; b.stats.summonKills = 65;
+    const checkpoint = b.serializeEndless();
+    assert.ok(checkpoint, "the checkpoint serialises while running");
+    const saved = validateProgress({ version: 1, completed: [], best: {}, endlessRun: checkpoint }).endlessRun;
+    assert.ok(saved, "validator kept the checkpoint");
+    assert.equal(saved.stats.produced, 321);
+    assert.equal(saved.stats.summonKills, 65);
 });
 const resultsDir = new URL("../docs/etowaria-defense/research/", import.meta.url);
 await fs.mkdir(resultsDir, { recursive: true });

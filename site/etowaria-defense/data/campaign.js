@@ -659,6 +659,25 @@ export const UNIT_RULES = Object.freeze({
     G87: { id: "G87", name: "兰普（泳装）专用水灯", originalName: "★5 ランプ【水着】 専用ウォーターランプ", role: "装备·U52 泳装兰普专属", family: "装备", kind: "gear", cost: 145, deployCooldown: 26,
         gearFor: ["U52"], gear: { damage: 7, specialBonus: .5, periodScale: .9, label: "伤害+7，特殊×1.5，出手×0.9", skill: { every: 5, type: "wave", damage: 46, skill: "水灯漂流" } }, weapon: { resourceIdR: 3201210 },
         help: "★5 泳装兰普的专用水灯——夏夜的河灯流向整条路。" },
+
+    // ─── 黎明巡守增援（原作卡牌 10012000/11032000/10032000/11042010，
+    // kind 跟随原卡职业：斗士→fighter、炼金术士→lobber、骑士→guard） ───
+    U84: { id: "U84", name: "宫子", role: "速写会心", family: "战士", kind: "fighter", cost: 150, deployCooldown: 12,
+        hp: 320, damage: 34, period: 1.4, windup: .4, range: 2.2,
+        special: { every: 4, type: "critical", multiplier: 2.2, skill: "一气呵成的速写" },
+        help: "向阳素描的绘画生。近身出笔干脆利落，每第4击像一气呵成的速写一样会心，造成2.2倍伤害。" },
+    U85: { id: "U85", name: "松本赖子", role: "粉笔投掷", family: "炼金术士", kind: "lobber", cost: 150, deployCooldown: 11,
+        hp: 165, damage: 24, period: 2.1, windup: .4, range: 8, flight: .64,
+        onHit: { slow: .35, slowDuration: 3, splash: .6, splashDamage: 12 },
+        help: "悠悠式的数学老师。越过前排投出粉笔，命中后让周围来敌减速35%持续3秒，并吃一圈溅射伤害。" },
+    U86: { id: "U86", name: "沙英（白色情人节）", role: "铁笔贯甲", family: "战士", kind: "fighter", cost: 175, deployCooldown: 12,
+        hp: 300, damage: 30, period: 1.25, windup: .42, range: 2.2, pierceArmor: true,
+        help: "向阳素描的小说家，握着回礼的白铁笔。攻击无视护甲，对绷带魔偶这类厚壳来客是可靠的答案。" },
+    U87: { id: "U87", name: "千穂（温泉）", role: "汤烟守卫", family: "骑士", kind: "guard", cost: 200, deployCooldown: 20,
+        hp: 1000, damage: 26, period: 1.7, windup: .45, range: 1.6,
+        guardPeriod: 8, guardDuration: 3, guardReduction: .5,
+        barrier: { hits: 2, period: 9 },
+        help: "悠悠式的千穂，泡汤归来的骑士。每8秒进入增防姿态减伤50%，并每9秒张开可完全抵挡2次攻击的汤烟屏障。" },
 });
 
 export const DECK_ORDER = ["F01", "U01", "U02", "U03", "U04", "U05", "U06", "U07", "U08", "U09", "U10",
@@ -667,7 +686,7 @@ export const DECK_ORDER = ["F01", "U01", "U02", "U03", "U04", "U05", "U06", "U07
     "U44", "U45", "U46", "U47", "U48", "U49", "U50", "U51", "U52",
     "U53", "U54", "U55", "U56", "U57", "U58", "U59", "U60", "U61", "U62", "U63", "U64", "U65", "U66",
     "U67", "U68", "U69", "U70", "U71", "U72", "U73", "U74", "U75", "U76", "U77", "U78", "U79", "U80",
-    "U81", "U82", "U83", "F10", "F11", "F12", "F13"];
+    "U81", "U82", "U83", "U84", "U85", "U86", "U87", "F10", "F11", "F12", "F13"];
 
 // Equipment is not a seed card: it rides alongside the deck and is applied to a
 // deployed companion, so it never competes with characters for the 8 slots.
@@ -791,7 +810,19 @@ export const ENEMY_RULES = Object.freeze({
         damage: 52, period: 1.8, windup: .5, height: 1.5, elementId: 2,
         description: "无尽巡守的深夜女王。远距离投掷暗影弹，每14秒召唤两名熊兵护卫；护甲240点。", counters: ["U10", "U30"] },
     E38: { id: "E38", shadowScale: 2.2, resourceId: 15900, name: "熊兵", hp: 400, speed: .22, threat: 3, armor: 80, roar: { period: 8, delay: 1 },
-        damage: 28, period: 1.3, windup: .36, height: 1.1, description: "全副武装的小熊兵。每8秒低吼「クッマッマー」（原作技能），推迟相邻两路同伴的下一次出手1秒。" , counters: ["U17", "G46"] }
+        damage: 28, period: 1.3, windup: .36, height: 1.1, description: "全副武装的小熊兵。每8秒低吼「クッマッマー」（原作技能），推迟相邻两路同伴的下一次出手1秒。" , counters: ["U17", "G46"] },
+
+    // ─── 第五章　黎明巡守 ─────────────────────────────────────────────
+    // 三个 rig（12300/16500/14700）都带 idle+skill_0 全套六剪辑、此前
+    // 未被 ENEMY_RULES 占用；「裂殖」为本作自拟的机制名，先例见 E34/E39。
+    E40: { id: "E40", shadowScale: 1.1, resourceId: 12300, name: "裂殖蘑菇怪", hp: 300, speed: .16, threat: 4, split: { type: "E01", count: 2 },
+        damage: 15, period: 1.2, windup: .32, height: .95, description: "原作「安奈蘑菇怪宝贝」。被击倒时会裂成两只小黑怪继续往前冲——先把它引离门口再收掉，裂出的两只才冲不到家。", counters: ["U20", "U30"] },
+    E41: { id: "E41", shadowScale: 1.6, resourceId: 16500, name: "绷带魔偶", hp: 620, armor: 140, speed: .13, threat: 5.5, rockArmor: { regenPerSec: 9, delay: 3 }, tall: true,
+        damage: 24, period: 1.4, windup: .4, height: 1.05, description: "原作「パッチワークゴーレム」。140点护甲，3秒不被打还会缓慢自补；沉重的身体连跳客也翻不过去。用贯甲攻击剥开绷带。", counters: ["U86", "U35"] },
+    E42: { id: "E42", shadowScale: 2.4, resourceId: 14700, name: "嘿帮团女干部", hp: 2200, armor: 200, speed: .085, threat: 16, boss: true,
+        ranged: { range: 3.8, damage: 30, period: 2.4, windup: .55 },
+        summon: { type: "E40", period: 14, count: 2 },
+        damage: 48, period: 1.8, windup: .5, height: 1.5, description: "原作「ギャングー団の女幹部」。黎明前压阵的头目：站在3.8格外投掷暗弹，每14秒召来两只裂殖蘑菇怪；护甲200点，破甲输出别断。", counters: ["U86", "U10"] }
 });
 
 const spawn = (at, row, type = "E01", wave = 1) => ({ at, row, type, wave });
@@ -801,7 +832,8 @@ export const CHAPTERS = Object.freeze([
     { id: 1, title: "第一章　里口花径", theme: "day" },
     { id: 2, title: "第二章　星灯营地", theme: "camp" },
     { id: 3, title: "第三章　夜火集结", theme: "night" },
-    { id: 4, title: "第四章　深夜来客", theme: "night" }
+    { id: 4, title: "第四章　深夜来客", theme: "night" },
+    { id: 5, title: "第五章　黎明巡守", theme: "dawn" }
 ]);
 
 export const LEVELS = Object.freeze([
@@ -1268,6 +1300,118 @@ export const LEVELS = Object.freeze([
             spawn(340, 2, "E30", 8), ...series(346, 4, [0, 4, 1, 3, 2], ["E38", "E36", "E34", "E38", "E36"], 8)],
         objective: "最终夜袭：众影齐聚，守住最后一班岗。",
         challenge: { type: "defeated", target: 0 }, optional: "没有同伴倒下", openingTip: "硬胶墙挡不住所有方向，把最强输出集中在首领那一行。"
+    },
+    // ─── 第五章　黎明巡守 ─────────────────────────────────────────────
+    {
+        id: "5-1", chapter: 5, theme: "dawn", title: "裂殖的孢子", subtitle: "天没亮，蘑菇怪的孢子已经落满路面。",
+        rows: 5, cols: 9, rowOffset: 0, colOffset: 0, startResource: 450,
+        naturalFirst: 8, naturalPeriod: 12, naturalAmount: 25, warningLead: 8,
+        waves: 5, estimate: "约7分钟", newEnemy: "E40", recommended: ["F01", "U04", "U01", "U12", "U10", "U15", "U20", "F10"],
+        story: [
+            { name: "兰普", text: "天亮前它们会做最后的挣扎。那种蘑菇被击倒时会裂开，别让它死在门口。" },
+            { name: "宫子", text: "裂出来的交给我。速写讲究一笔收尾——我会把每一只都收干净的。" }
+        ],
+        spawns: [spawn(30, 2, "E40"), spawn(46, 0, "E02"), spawn(60, 4, "E16"),
+            ...series(80, 6, [1, 3, 2, 0], ["E40", "E02", "E16", "E40"], 2),
+            ...series(118, 5, [3, 0, 4, 1, 2, 3], ["E02", "E40", "E16", "E02", "E40", "E16"], 3),
+            ...series(156, 4, [2, 0, 4, 3, 1, 2, 0, 4], ["E40", "E16", "E02", "E40", "E16", "E02", "E40", "E16"], 4),
+            spawn(196, 2, "E40", 5), spawn(202, 0, "E40", 5), spawn(206, 4, "E02", 5), spawn(210, 1, "E16", 5),
+            ...series(216, 4, [1, 3, 4, 0, 3], ["E02", "E16", "E40", "E02", "E40"], 5)],
+        objective: "裂殖蘑菇怪被击倒时会裂成两只小黑怪，把它们引离门口再收掉。",
+        challenge: { type: "kills", target: 50 }, optional: "击退至少 50 位来客", openingTip: "灼烧和溅射能把裂出来的小黑怪一起收掉；门口的结界留给最坏的情况。"
+    },
+    {
+        id: "5-2", chapter: 5, theme: "dawn", title: "影子分身", subtitle: "满路都是裂殖蘑菇怪——每一只都会变成两只。",
+        rows: 5, cols: 9, rowOffset: 0, colOffset: 0, startResource: 475,
+        naturalFirst: 8, naturalPeriod: 12, naturalAmount: 32, warningLead: 8,
+        waves: 4, estimate: "约7分钟", newEnemy: "E40", recommended: ["F01", "U06", "U20", "U12", "U15", "U04", "U10", "F10"],
+        extraModels: { E01: 6 },
+        story: [
+            { name: "千矢", text: "它们的影子会分裂！引离门口再收掉，裂出的两只才冲不到家。" },
+            { name: "兰普", text: "小黑怪跑得不快，但门口的位置一个都不能让。" }
+        ],
+        spawns: [spawn(30, 2, "E40"), spawn(48, 0, "E40"), spawn(62, 4, "E40"),
+            ...series(84, 6, [1, 3, 2, 0], ["E40", "E40", "E40", "E40"], 2),
+            spawn(122, 2, "E40", 3), spawn(128, 0, "E40", 3),
+            ...series(146, 5, [3, 1, 4], ["E40", "E40", "E40"], 4)],
+        objective: "整场都是裂殖蘑菇怪：把每一只都引到防线中段再击倒，别让裂出的影子扑到门口。",
+        challenge: { type: "summonKills", target: 10 }, optional: "打倒至少 10 只裂出的召唤来客", openingTip: "炎魔法和灼烧药瓶的范围伤害最适合收拾裂出来的两只。"
+    },
+    {
+        id: "5-3", chapter: 5, theme: "dawn", title: "绷带阵", subtitle: "缠满绷带的魔偶排成一线，缓缓压来。",
+        rows: 5, cols: 9, rowOffset: 0, colOffset: 0, startResource: 500,
+        naturalFirst: 8, naturalPeriod: 12, naturalAmount: 25, warningLead: 8,
+        waves: 6, estimate: "约8分钟", newEnemy: "E41", recommended: ["F01", "U10", "U04", "U12", "U15", "U01", "U20", "F10"],
+        story: [
+            { name: "沙英", text: "绷带魔偶……护甲会自己补。别给它喘息的时间。" },
+            { name: "折部安奈", text: "它们走得很慢，也很沉。我会顶在最前面的。" }
+        ],
+        spawns: [spawn(32, 2, "E41"), spawn(48, 0, "E33"), spawn(62, 4, "E41"),
+            ...series(82, 6, [1, 3, 2, 0], ["E41", "E33", "E02", "E41"], 2),
+            ...series(118, 5, [3, 0, 4, 1, 2], ["E33", "E41", "E16", "E33", "E41"], 3),
+            ...series(154, 4, [2, 0, 4, 3, 1, 2], ["E41", "E02", "E33", "E41", "E02", "E33"], 4),
+            ...series(196, 4, [1, 3, 0, 4, 2, 1], ["E33", "E41", "E16", "E33", "E41", "E16"], 5),
+            spawn(238, 2, "E41", 6), spawn(242, 4, "E41", 6), ...series(248, 4, [0, 1, 3], ["E33", "E02", "E16"], 6)],
+        objective: "绷带魔偶自带护甲还会缓慢自补，用贯甲攻击持续压制。",
+        challenge: { type: "blocked", target: 16 }, optional: "挡下至少 16 次攻击", openingTip: "沙英的贯甲和玛莉·梦魔的破甲都能剥开绷带；高墙顶住，后排收裂殖蘑菇怪。"
+    },
+    {
+        id: "5-4", chapter: 5, theme: "dawn", title: "应援台列阵", subtitle: "黎明前的最后一笔投资，把每一格都变成クリエ。",
+        rows: 5, cols: 9, rowOffset: 0, colOffset: 0, startResource: 550,
+        naturalFirst: 7, naturalPeriod: 12, naturalAmount: 32, warningLead: 8,
+        waves: 6, estimate: "约9分钟", newEnemy: "E33", recommended: ["F01", "F11", "U01", "U12", "U15", "U04", "U10", "F10"],
+        story: [
+            { name: "本田珠辉", text: "来客还远，先把应援采集台排满！布阵图的收成，就看这一关了。" },
+            { name: "兰普", text: "生产的クリエ越多，结算的素材也越厚。慢慢来，把五条路都种上。" }
+        ],
+        spawns: [spawn(34, 2, "E33"), spawn(54, 0, "E02"), spawn(70, 4, "E16"),
+            ...series(92, 7, [1, 3, 2, 0], ["E33", "E02", "E16", "E02"], 2),
+            ...series(132, 6, [3, 0, 4, 1, 2], ["E02", "E33", "E16", "E02", "E33"], 3),
+            ...series(172, 5, [2, 0, 4, 3, 1, 2], ["E33", "E16", "E02", "E33", "E16", "E02"], 4),
+            ...series(216, 5, [1, 3, 0, 4, 2, 1], ["E02", "E33", "E16", "E02", "E33", "E16"], 5),
+            spawn(262, 2, "E33", 6), spawn(268, 0, "E33", 6), ...series(276, 4, [1, 3, 4], ["E02", "E16", "E33"], 6)],
+        objective: "来客稀疏的一关：优先把应援采集台排满五路，单局生产越多结算越厚。",
+        challenge: { type: "produced", target: 900 }, optional: "单局设施生产 900 クリエ", openingTip: "先五路各一台应援台，再补输出；千戶的储备台是后半程的经济支柱。"
+    },
+    {
+        id: "5-5", chapter: 5, theme: "dawn", title: "疾走夜袭", subtitle: "天亮前的急行军：快腿来客一波接一波。",
+        rows: 5, cols: 9, rowOffset: 0, colOffset: 0, startResource: 525,
+        naturalFirst: 8, naturalPeriod: 12, naturalAmount: 25, warningLead: 8,
+        waves: 7, estimate: "约10分钟", newEnemy: "E35", recommended: ["F01", "U12", "U02", "U04", "U15", "U01", "U24", "F10"],
+        story: [
+            { name: "志摩凛", text: "脚步声……很多。老鼠、金尾、还有会飘的水云。" },
+            { name: "吉田优子", text: "会跳的交给我的高墙，会跑的交给减速。黎明前守住这一波！" }
+        ],
+        spawns: [spawn(30, 2, "E35"), spawn(44, 0, "E33"), spawn(58, 4, "E37"),
+            ...series(76, 5, [1, 3, 2, 0], ["E35", "E37", "E33", "E35"], 2),
+            ...series(112, 4, [3, 0, 4, 1, 2], ["E33", "E35", "E37", "E33", "E35"], 3),
+            ...series(148, 4, [2, 0, 4, 3, 1, 2], ["E35", "E33", "E37", "E35", "E33", "E37"], 4),
+            ...series(190, 4, [1, 3, 0, 4, 2, 1], ["E37", "E35", "E33", "E37", "E35", "E33"], 5),
+            ...series(234, 4, [2, 0, 4, 1, 3, 2], ["E35", "E37", "E33", "E35", "E37", "E33"], 6),
+            spawn(278, 2, "E35", 7), spawn(282, 4, "E35", 7), ...series(288, 4, [0, 1, 3], ["E37", "E33", "E35"], 7)],
+        objective: "疾走夜袭：老鼠、金尾与水云全线提速，高墙与减速一个都不能少。",
+        challenge: { type: "defeated", target: 0 }, optional: "没有同伴倒下", openingTip: "水云会跳过前排——高墙必须站在它们落点前；减速药瓶给老鼠多的那一路。"
+    },
+    {
+        id: "5-6", chapter: 5, theme: "dawn", title: "破晓的头目", subtitle: "嘿帮团的女干部压阵而来，黎明就在防线之后。",
+        rows: 5, cols: 9, rowOffset: 0, colOffset: 0, startResource: 575,
+        naturalFirst: 8, naturalPeriod: 12, naturalAmount: 25, warningLead: 8,
+        waves: 8, estimate: "约13分钟", newEnemy: "E42", recommended: ["F01", "U04", "U10", "U12", "U15", "U06", "U20", "F10"],
+        extraModels: { E40: 2 },
+        story: [
+            { name: "兰普", text: "就是她了——嘿帮团的女干部。打倒她，天就亮了。" },
+            { name: "由乃", text: "她会远远地投弹，还会召来裂殖蘑菇怪。我会一直守着大家，直到太阳升起。" }
+        ],
+        spawns: [spawn(32, 2, "E41"), spawn(48, 0, "E33"), spawn(62, 4, "E40"),
+            ...series(84, 6, [1, 3, 2, 0], ["E41", "E40", "E33", "E41"], 2),
+            ...series(122, 5, [3, 0, 4, 1, 2], ["E40", "E41", "E33", "E40", "E41"], 3),
+            ...series(160, 4, [2, 0, 4, 3, 1, 2], ["E41", "E33", "E40", "E41", "E33", "E40"], 4),
+            ...series(202, 4, [1, 3, 0, 4, 2, 1], ["E40", "E41", "E33", "E40", "E41", "E33"], 5),
+            spawn(240, 2, "E42", 6), spawn(246, 0, "E41", 6), spawn(250, 4, "E40", 6), ...series(256, 4, [1, 3, 2], ["E33", "E41", "E40"], 6),
+            spawn(292, 0, "E42", 7), spawn(296, 4, "E41", 7), ...series(302, 4, [2, 1, 3, 0], ["E40", "E33", "E41", "E40"], 7),
+            spawn(340, 2, "E42", 8), ...series(346, 4, [0, 4, 1, 3, 2], ["E41", "E40", "E33", "E41", "E40"], 8)],
+        objective: "第五章终幕：击退嘿帮团女干部，守住黎明前的最后一班岗。",
+        challenge: { type: "defeated", target: 0 }, optional: "没有同伴倒下", openingTip: "她站在3.8格外投弹还会召唤裂殖蘑菇怪——破甲输出别断，召唤物交给范围攻击。"
     }
 ]);
 
@@ -1309,6 +1453,7 @@ export const ACHIEVEMENTS = Object.freeze({
     chapter_2: Object.freeze({ name: "营灯不灭", description: "完成第二章全部关卡" }),
     chapter_3: Object.freeze({ name: "夜火同行", description: "完成第三章全部关卡" }),
     chapter_4: Object.freeze({ name: "众影归位", description: "完成第四章全部关卡" }),
+    chapter_5: Object.freeze({ name: "黎明的同行者", description: "完成第五章全部关卡" }),
     boss_clear: Object.freeze({ name: "首领退场", description: "完成一关首领巡守" }),
     // —— 技巧 ——
     zero_gate: Object.freeze({ name: "结界未动", description: "不消耗结界完成普通巡守" }),
@@ -1320,16 +1465,20 @@ export const ACHIEVEMENTS = Object.freeze({
     // —— 挑战 ——
     rich: Object.freeze({ name: "应援如山", description: "单局累计收集 3000 クリエ" }),
     big_spender: Object.freeze({ name: "倾巢而出", description: "单局部署 30 名同伴" }),
+    producer: Object.freeze({ name: "应援不辍", description: "单局设施生产 800 クリエ" }),
+    dismiss: Object.freeze({ name: "增援驱散", description: "单局打倒 10 只召唤来客" }),
     // —— 无尽 ——
     endless_10: Object.freeze({ name: "十波之后", description: "无尽巡守达到第10波" }),
     endless_20: Object.freeze({ name: "深夜常驻", description: "无尽巡守达到第20波" }),
     endless_30: Object.freeze({ name: "长夜守望", description: "无尽巡守达到第30波" }),
-    endless_50: Object.freeze({ name: "无尽的门槛", description: "无尽巡守达到第50波" })
+    endless_50: Object.freeze({ name: "无尽的门槛", description: "无尽巡守达到第50波" }),
+    endless_60: Object.freeze({ name: "深夜常客", description: "无尽巡守达到第60波" }),
+    endless_70: Object.freeze({ name: "守到破晓", description: "无尽巡守达到第70波" })
 });
 
 // 无尽里程碑：每 5 波给一次额外素材，越往后越厚。原来只有 4 档
-// （到 30 波为止），长线跑图没有新的中点目标；补到 60 波并让奖励
-// 递增，配合 18 条成就形成完整的长期曲线。
+// （到 30 波为止），长线跑图没有新的中点目标；补到 80 波并让奖励
+// 递增，配合成就表形成完整的长期曲线。
 export const ENDLESS_MILESTONES = Object.freeze({
     5: Object.freeze({ label: "守过五波", bonusMaterials: 1 }),
     10: Object.freeze({ label: "守过十波", bonusMaterials: 2 }),
@@ -1338,7 +1487,9 @@ export const ENDLESS_MILESTONES = Object.freeze({
     30: Object.freeze({ label: "深夜常驻", bonusMaterials: 5 }),
     40: Object.freeze({ label: "四波轮回", bonusMaterials: 6 }),
     50: Object.freeze({ label: "无尽的门槛", bonusMaterials: 8 }),
-    60: Object.freeze({ label: "长夜尽头", bonusMaterials: 10 })
+    60: Object.freeze({ label: "长夜尽头", bonusMaterials: 10 }),
+    70: Object.freeze({ label: "守到破晓", bonusMaterials: 12 }),
+    80: Object.freeze({ label: "黎明巡守", bonusMaterials: 15 })
 });
 export const ENDLESS_ROSTER = [
     { type: "E01", from: 1 }, { type: "E02", from: 1 }, { type: "E15", from: 2 }, { type: "E05", from: 2 },
@@ -1352,7 +1503,10 @@ export const ENDLESS_ROSTER = [
     { type: "E25", from: 11 }, { type: "E27", from: 12 }, { type: "E36", from: 12 }, { type: "E26", from: 13 },
     { type: "E32", from: 13 }, { type: "E29", from: 14 }, { type: "E37", from: 14 }, { type: "E28", from: 15 },
     { type: "E34", from: 16 }, { type: "E30", from: 16 },
-    { type: "E39", from: 20 }
+    { type: "E39", from: 20 },
+    // 黎明巡守的来客进入无尽轮换：E40 裂殖后中段登场，E42 女干部在
+    // 18 波起与 E39 的女王位分摊非首领波的压力（首领波仍走固定排程）。
+    { type: "E40", from: 8 }, { type: "E41", from: 12 }, { type: "E42", from: 18 }
 ];
 
 // LEVELS/ENDLESS 都是冻结对象，合成数组可以安全地建一次复用

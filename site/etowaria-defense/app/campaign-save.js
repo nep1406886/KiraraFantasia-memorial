@@ -67,8 +67,10 @@ function validateEndlessRun(value) {
             generated: Math.max(0, Math.round(value.stats.generated || 0)), collected: Math.max(0, Math.round(value.stats.collected || 0)),
             spent: Math.max(0, Math.round(value.stats.spent || 0)), deployed: Math.max(0, Math.round(value.stats.deployed || 0)),
             recalls: Math.max(0, Math.round(value.stats.recalls || 0)), shielded: Math.max(0, Math.round(value.stats.shielded || 0)),
-            blocked: Math.max(0, Math.round(value.stats.blocked || 0)), defeatedUnits: Math.max(0, Math.round(value.stats.defeatedUnits || 0))
-        } : { kills: 0, healed: 0, gatesUsed: 0, wavesCleared: 0, generated: 0, collected: 0, spent: 0, deployed: 0, recalls: 0, shielded: 0, blocked: 0, defeatedUnits: 0 } };
+            blocked: Math.max(0, Math.round(value.stats.blocked || 0)), defeatedUnits: Math.max(0, Math.round(value.stats.defeatedUnits || 0)),
+            produced: Math.max(0, Math.round(value.stats.produced || 0)), summonKills: Math.max(0, Math.round(value.stats.summonKills || 0))
+        } : { kills: 0, healed: 0, gatesUsed: 0, wavesCleared: 0, generated: 0, collected: 0, spent: 0, deployed: 0, recalls: 0, shielded: 0, blocked: 0, defeatedUnits: 0,
+            produced: 0, summonKills: 0 } };
     if (value.version === 1) {
         return { ...base, waveProgress: value.waveProgress && typeof value.waveProgress === "object"
             && Number.isInteger(value.waveProgress.total) && Number.isInteger(value.waveProgress.killed)
@@ -229,7 +231,8 @@ export class CampaignSave {
             const wave = battle.wave;
             const achievements = this.unlockAchievements([
                 wave >= 10 && "endless_10", wave >= 20 && "endless_20",
-                wave >= 30 && "endless_30", wave >= 50 && "endless_50"].filter(Boolean));
+                wave >= 30 && "endless_30", wave >= 50 && "endless_50",
+                wave >= 60 && "endless_60", wave >= 70 && "endless_70"].filter(Boolean));
             this.persist();
             return { newRecord, achievements };
         }
@@ -262,6 +265,8 @@ export class CampaignSave {
             stats.defeatedUnits === 0 && "keeper",
             stats.blocked >= 10 && "shield_wall",
             battle.time <= 90 && "swift",
+            stats.produced >= 800 && "producer",
+            stats.summonKills >= 10 && "dismiss",
             // 挑战类。
             stats.collected >= 3000 && "rich",
             stats.deployed >= 30 && "big_spender",
@@ -269,7 +274,8 @@ export class CampaignSave {
             chapterDone(1) && "chapter_1",
             chapterDone(2) && "chapter_2",
             chapterDone(3) && "chapter_3",
-            chapterDone(4) && "chapter_4"].filter(Boolean));
+            chapterDone(4) && "chapter_4",
+            chapterDone(5) && "chapter_5"].filter(Boolean));
         this.progress = validateProgress(this.progress);
         this._endlessRunFresh = !!this.progress.endlessRun;
         this.persist();

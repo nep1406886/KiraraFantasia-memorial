@@ -5702,6 +5702,158 @@
       ],
       "voice": null,
       "ultimateScene": null
+    },
+    {
+      "id": "U84",
+      "cardId": 10012000,
+      "resourceId": 100103,
+      "name": "宫子",
+      "shortName": "宫子",
+      "originalName": "宮子",
+      "work": "向阳素描",
+      "classId": 0,
+      "className": "战士",
+      "elementId": 5,
+      "elementName": "阳",
+      "headId": 0,
+      "displayScale": 0.95,
+      "role": "速写会心",
+      "plannedCost": 150,
+      "icon": "asset/img/rl/icon/10012000.webp",
+      "card": null,
+      "skills": [
+        {
+          "id": 100120000,
+          "sceneId": "100103",
+          "action": "skill"
+        },
+        {
+          "id": 100120001,
+          "sceneId": null,
+          "action": "class_skill_2"
+        },
+        {
+          "id": 100120002,
+          "sceneId": null,
+          "action": "class_skill_3"
+        }
+      ],
+      "voice": null,
+      "ultimateScene": null
+    },
+    {
+      "id": "U85",
+      "cardId": 11032000,
+      "resourceId": 110303,
+      "name": "松本赖子",
+      "shortName": "赖子",
+      "originalName": "松本 頼子",
+      "work": "悠悠式",
+      "classId": 4,
+      "className": "炼金术士",
+      "elementId": 5,
+      "elementName": "阳",
+      "headId": 0,
+      "displayScale": 0.95,
+      "role": "粉笔投掷",
+      "plannedCost": 150,
+      "icon": "asset/img/rl/icon/11032000.webp",
+      "card": null,
+      "skills": [
+        {
+          "id": 110320000,
+          "sceneId": "110303",
+          "action": "skill"
+        },
+        {
+          "id": 110320001,
+          "sceneId": null,
+          "action": "class_skill_2"
+        },
+        {
+          "id": 110320002,
+          "sceneId": null,
+          "action": "class_skill_3"
+        }
+      ],
+      "voice": null,
+      "ultimateScene": null
+    },
+    {
+      "id": "U86",
+      "cardId": 10032000,
+      "resourceId": 100303,
+      "name": "沙英（白色情人节）",
+      "shortName": "沙英",
+      "originalName": "沙英【ホワイトデー】",
+      "work": "向阳素描",
+      "classId": 0,
+      "className": "战士",
+      "elementId": 5,
+      "elementName": "阳",
+      "headId": 0,
+      "displayScale": 0.95,
+      "role": "铁笔贯甲",
+      "plannedCost": 175,
+      "icon": "asset/img/rl/icon/10032000.webp",
+      "card": null,
+      "skills": [
+        {
+          "id": 100320000,
+          "sceneId": "100303",
+          "action": "skill"
+        },
+        {
+          "id": 100320001,
+          "sceneId": null,
+          "action": "class_skill_2"
+        },
+        {
+          "id": 100320002,
+          "sceneId": null,
+          "action": "class_skill_3"
+        }
+      ],
+      "voice": null,
+      "ultimateScene": null
+    },
+    {
+      "id": "U87",
+      "cardId": 11042010,
+      "resourceId": 110405,
+      "name": "千穂（温泉）",
+      "shortName": "千穂",
+      "originalName": "千穂【温泉】",
+      "work": "悠悠式",
+      "classId": 3,
+      "className": "骑士",
+      "elementId": 5,
+      "elementName": "阳",
+      "headId": 0,
+      "displayScale": 0.95,
+      "role": "汤烟守卫",
+      "plannedCost": 200,
+      "icon": "asset/img/rl/icon/11042010.webp",
+      "card": null,
+      "skills": [
+        {
+          "id": 110420100,
+          "sceneId": "110405",
+          "action": "skill"
+        },
+        {
+          "id": 110420101,
+          "sceneId": null,
+          "action": "class_skill_2"
+        },
+        {
+          "id": 110420102,
+          "sceneId": null,
+          "action": "class_skill_3"
+        }
+      ],
+      "voice": null,
+      "ultimateScene": null
     }
   ]
 }

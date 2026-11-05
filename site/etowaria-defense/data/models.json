@@ -3200,6 +3200,66 @@
       "expressions": false,
       "depthWrite": true,
       "compression": "gzip"
+    },
+    "model/player/model_pl_100103.muast": {
+      "facial": "asset/models/facial/hidamari_miyako.json?v=1787922670",
+      "file": "asset/models/model_pl_100103/model.glb.gz?v=1788326858",
+      "label": "完整蒙皮 · 5 个游戏动作 · 表情随动作并可细调",
+      "animations": true,
+      "expressions": true,
+      "depthWrite": true,
+      "compression": "gzip"
+    },
+    "model/player/model_pl_110303.muast": {
+      "facial": "asset/models/facial/yuyushiki_yoriko.json?v=1787922670",
+      "file": "asset/models/model_pl_110303/model.glb.gz?v=1788326878",
+      "label": "完整蒙皮 · 5 个游戏动作 · 表情随动作并可细调",
+      "animations": true,
+      "expressions": true,
+      "depthWrite": true,
+      "compression": "gzip"
+    },
+    "model/player/model_pl_100303.muast": {
+      "facial": "asset/models/facial/hidamari_sae.json?v=1787922670",
+      "file": "asset/models/model_pl_100303/model.glb.gz?v=1788326862",
+      "label": "完整蒙皮 · 5 个游戏动作 · 表情随动作并可细调",
+      "animations": true,
+      "expressions": true,
+      "depthWrite": true,
+      "compression": "gzip"
+    },
+    "model/player/model_pl_110405.muast": {
+      "facial": "asset/models/facial/yuyushiki_chiho.json?v=1787922670",
+      "file": "asset/models/model_pl_110405/model.glb.gz?v=1788326881",
+      "label": "完整蒙皮 · 5 个游戏动作 · 表情随动作并可细调",
+      "animations": true,
+      "expressions": true,
+      "depthWrite": true,
+      "compression": "gzip"
+    },
+    "model/enemy/model_en_12300.muast": {
+      "file": "asset/models/model_en_12300/model.glb.gz?v=1788327312",
+      "label": "完整单骨架 · 6 个游戏动作",
+      "animations": true,
+      "expressions": false,
+      "depthWrite": true,
+      "compression": "gzip"
+    },
+    "model/enemy/model_en_16500.muast": {
+      "file": "asset/models/model_en_16500/model.glb.gz?v=1788327321",
+      "label": "完整单骨架 · 6 个游戏动作",
+      "animations": true,
+      "expressions": false,
+      "depthWrite": true,
+      "compression": "gzip"
+    },
+    "model/enemy/model_en_14700.muast": {
+      "file": "asset/models/model_en_14700/model.glb.gz?v=1788327318",
+      "label": "完整单骨架 · 6 个游戏动作",
+      "animations": true,
+      "expressions": false,
+      "depthWrite": true,
+      "compression": "gzip"
     }
   },
   "classActions": {
@@ -3368,6 +3428,39 @@
       "animations": [
         "skill",
         "chara_skill_1"
+      ]
+    },
+    "100103": {
+      "file": "asset/models/skill-actions/model_pl_100103/skill.glb.gz?v=1787924705",
+      "compression": "gzip",
+      "meshopt": false,
+      "animations": [
+        "skill",
+        "chara_skill_1"
+      ]
+    },
+    "100303": {
+      "file": "asset/models/skill-actions/model_pl_100303/skill.glb.gz?v=1787924797",
+      "compression": "gzip",
+      "meshopt": false,
+      "animations": [
+        "skill"
+      ]
+    },
+    "110303": {
+      "file": "asset/models/skill-actions/model_pl_110303/skill.glb.gz?v=1787925165",
+      "compression": "gzip",
+      "meshopt": false,
+      "animations": [
+        "skill"
+      ]
+    },
+    "110405": {
+      "file": "asset/models/skill-actions/model_pl_110405/skill.glb.gz?v=1787925233",
+      "compression": "gzip",
+      "meshopt": false,
+      "animations": [
+        "skill"
       ]
     },
     "120004": {

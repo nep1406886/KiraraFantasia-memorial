@@ -39,6 +39,8 @@
 .campaign-chapter[data-theme="camp"] .chapter-landscape { background-image: url("../assets/stage/camp.webp"); }
 .campaign-chapter[data-theme="night"] .chapter-landscape { background-image: url("../assets/stage/camp.webp"); filter: saturate(.82) brightness(.72); }
 .campaign-chapter[data-theme="water"] .chapter-landscape { background-image: url("../assets/stage/water.webp"); }
+/* 黎明章复用白日场景图，乘一层暖橙滤镜读成「天亮前」。 */
+.campaign-chapter[data-theme="dawn"] .chapter-landscape { background-image: url("../assets/stage/day.webp"); filter: saturate(.88) sepia(.22) brightness(.94); }
 .campaign-faces { display: flex; gap: 15px; margin: 20px 0; }
 .campaign-faces .portrait-icon { width: 66px; margin: 0; }
 .campaign-selection { min-width: 0; padding: 3px 12px; display: flex; flex-direction: column; gap: 14px; overflow-y: auto; scrollbar-width: thin; }

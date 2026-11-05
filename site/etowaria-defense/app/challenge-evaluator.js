@@ -3,6 +3,9 @@
 // 读起来像同一个目标重播了 17 次。这里把 battle.stats 里已有的计数器
 // 全部暴露成挑战指标，让关卡能用「不倒下任何人」「挡下若干次」这类
 // 与关卡机制对得上的目标。
+// 新增两种：produced＝本局设施（应援台等）产出的クリエ，只算设施
+// 收入，天然资源与波次奖励不入账；summonKills＝本局打倒的召唤来客
+// 数（含裂殖子体）。两者都是「越大越好」。
 const METRICS = Object.freeze({
     gates: stats => Math.max(0, Number(stats?.gatesUsed) || 0),
     healed: stats => Math.max(0, Number(stats?.healed) || 0),
@@ -13,7 +16,9 @@ const METRICS = Object.freeze({
     defeated: stats => Math.max(0, Number(stats?.defeatedUnits) || 0),
     collected: stats => Math.max(0, Number(stats?.collected) || 0),
     recalls: stats => Math.max(0, Number(stats?.recalls) || 0),
-    spent: stats => Math.max(0, Number(stats?.spent) || 0)
+    spent: stats => Math.max(0, Number(stats?.spent) || 0),
+    produced: stats => Math.max(0, Number(stats?.produced) || 0),
+    summonKills: stats => Math.max(0, Number(stats?.summonKills) || 0)
 });
 
 // 这些指标「越小越好」，其余都是「越大越好」。

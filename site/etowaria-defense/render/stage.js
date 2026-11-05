@@ -30,7 +30,10 @@ const THEMES = {
     water: { title: "浅湾合宿", caption: "先准备好落脚的地方", rows: 6, art: "water", field: 0x9fc9c4 },
     // Chapter 3-4 use the night palette; it shares the camp's art but lights
     // its fire and lantern, so every theme key resolves to real scenery.
-    night: { title: "夜火集结", caption: "深夜的守望", rows: 5, art: "camp", field: 0x8f8467 }
+    night: { title: "夜火集结", caption: "深夜的守望", rows: 5, art: "camp", field: 0x8f8467 },
+    // Chapter 5 runs the day scenery one shade before sunrise: same art, warm
+    // pre-dawn sand tint on the field.
+    dawn: { title: "黎明巡守", caption: "天亮前的最后一段路", rows: 5, art: "day", field: 0xd9a06b }
 };
 
 export class DefenseStage {
@@ -459,8 +462,8 @@ export class DefenseStage {
             const positions = { house: [-7.1, -2.9], desk: [-6.8, 4.3], plant: [-7.7, 5.2],
                 tent: [-7, 4.3], fire: [-6.5, 5.7], lantern: [-7.2, 1.9] };
             if (positions[prop.name]) { prop.group.position.set(positions[prop.name][0], 0, positions[prop.name][1]); }
-            if (prop.name === "house" || prop.name === "desk" || prop.name === "plant") { prop.group.visible = theme === "day"; }
-            if (prop.name === "tent") { prop.group.visible = theme !== "day"; }
+            if (prop.name === "house" || prop.name === "desk" || prop.name === "plant") { prop.group.visible = theme === "day" || theme === "dawn"; }
+            if (prop.name === "tent") { prop.group.visible = theme !== "day" && theme !== "dawn"; }
             if (prop.name === "fire" || prop.name === "lantern") { prop.group.visible = theme === "camp" || theme === "night"; }
         }
         this.buildGrid();
