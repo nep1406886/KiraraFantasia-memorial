@@ -15,7 +15,7 @@ window.kirafanDialogue = Object.assign(window.kirafanDialogue || {}, {
         { who: "きらら", face: "shy", text: "我也会舍不得合上喜欢的书。可读完以后，我还想和别人聊起它，还会从第一页再读一遍。" },
         { who: "ハイプリス", face: "surprise", text: "读到结尾之后……还会回来吗？" },
         { who: "うつつ", face: "default", text: "会。结尾不会抹掉前面发生过的事。我们来这里，就是不想让那些相遇被忘记。" },
-        { who: "ハイプリス", face: "angry", text: "我还不能只凭几句话就相信。要带走这一页，就让我亲眼看看，你们能不能护住它。" }
+        { who: "ハイプリス", face: "angry", text: "我还不能只凭几句话就相信。这一页会映出最后的试炼。越过它，让我亲眼看看，你们能不能把故事带回去。" }
     ],
     finale_end: [
         { who: "メディア", face: "happy", text: "新的篇章已经收进图书馆。书名还没想好，不过愿意来续写的人，已经在门外排队了。" },

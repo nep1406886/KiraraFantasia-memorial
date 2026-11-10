@@ -1,230 +1,130 @@
-// Authored terrain dressing, not original game artwork. A single private
-// canvas texture per candidate keeps the paving and landscape beds cheap.
-// Geometry ownership stays with mapview; material/texture are returned to it.
-import { roomSize } from "../dungeon.js";
-import { createRandom, hash32 } from "../random.js";
+// Authored terrain under original scenery: one opaque texture and one draw call.
+// Seeded detail is generated only on room load; mapview owns every resource.
+import { roomSize } from '../dungeon.js';
+import { createRandom, hash32 } from '../random.js';
 
-const PIXELS_PER_UNIT = 32;
+const P = 48;
 const PALETTES = {
-    1: { joint: "#baa785", tile: ["#d9c7a3", "#d3bf99", "#ddccad"], bed: "#789f9c", trim: "#a3d6d1" },
-    2: { joint: "#a89471", tile: ["#cdb98f", "#d3bf99", "#c6b18a"], bed: "#849466", trim: "#e6d09c" },
-    3: { joint: "#77855d", tile: ["#b2b58d", "#a7ac81", "#bfc099"], bed: "#48683a", trim: "#c9d499" },
-    4: { joint: "#826e57", tile: ["#b4a184", "#aa9679", "#beab8b"], bed: "#8d795f", trim: "#d2b979" },
-    5: { joint: "#4a555c", tile: ["#7b888a", "#758386", "#859192"], bed: "#4c605a", trim: "#bccac2" }
+    1: { joint:'#d8c8bf', stone:['#f2e6da','#e9d9cc','#f6eae1'], foliage:'#aaada0', petal:'#e9adb9' },
+    2: { joint:'#c1a784', stone:['#e8d5b4','#efddc2','#e4cda9'], foliage:'#a6a273', petal:'#f3d0a3' },
+    3: { joint:'#a9a28b', stone:['#d7d4b4','#e2dfc5','#ccd1af'], foliage:'#5e884e', petal:'#eec9d6' },
+    4: { joint:'#9e7d6b', stone:['#cdb59c','#dec6ab','#c6aa8c'], foliage:'#9b9479', petal:'#e4bd9c' },
+    5: { joint:'#74738b', stone:['#a9a3b9','#bcb4c8','#9b98b0'], foliage:'#637b74', petal:'#d9c4e5' }
 };
-
 function canvas(size) {
-    const c = document.createElement("canvas");
-    c.width = size.w * PIXELS_PER_UNIT;
-    c.height = size.h * PIXELS_PER_UNIT;
-    return c;
+    const c=document.createElement('canvas');c.width=size.w*P;c.height=size.h*P;return c;
 }
-
-function roundedRect(ctx, x, y, w, h, r) {
-    ctx.beginPath();
-    ctx.moveTo(x + r, y); ctx.lineTo(x + w - r, y);
-    ctx.quadraticCurveTo(x + w, y, x + w, y + r);
-    ctx.lineTo(x + w, y + h - r); ctx.quadraticCurveTo(x + w, y + h, x + w - r, y + h);
-    ctx.lineTo(x + r, y + h); ctx.quadraticCurveTo(x, y + h, x, y + h - r);
-    ctx.lineTo(x, y + r); ctx.quadraticCurveTo(x, y, x + r, y); ctx.closePath();
+function rect(ctx,x,y,w,h,r) {ctx.beginPath();ctx.roundRect(x,y,w,h,r);}
+function patch(ctx,x,y,rx,ry,color,rng) {
+    ctx.fillStyle=color;ctx.beginPath();
+    for(let i=0;i<=24;i++) {
+        const a=i/24*Math.PI*2,r=.88+rng()*.12;
+        const px=x+Math.cos(a)*rx*r,py=y+Math.sin(a)*ry*r;
+        if(!i)ctx.moveTo(px,py);else ctx.lineTo(px,py);
+    }
+    ctx.closePath();ctx.fill();
 }
-
-export function createRoomSurface(THREE, cfg, layout, room, volume) {
-    const size = roomSize(room);
-    const c = canvas(size), ctx = c.getContext("2d"), p = PIXELS_PER_UNIT;
-    const colors = PALETTES[volume] || PALETTES[1];
-    const rng = createRandom(hash32("room-surface:" + room.seed + ":" + cfg.biome));
-    // Composite into an OPAQUE floor, not a transparent overlay. Native town
-    // facade layers intentionally do not write depth; a transparent terrain
-    // sheet sorted after those layers otherwise paints paving over the house.
-    ctx.fillStyle = cfg.ground.base;
-    ctx.fillRect(0, 0, c.width, c.height);
-    ctx.fillStyle = cfg.ground.mottle || cfg.ground.base;
-    ctx.globalAlpha = .32;
-    for (let i = 0; i < 3500; i++) {
-        ctx.fillRect(rng() * c.width, rng() * c.height, .5 + rng(), .4 + rng() * .7);
+function road(ctx,path) {
+    const pts=path.points||[{x:path.x1,y:path.y1},{x:path.x2,y:path.y2}];
+    ctx.beginPath();ctx.moveTo(pts[0].x*P,pts[0].y*P);
+    for(let i=1;i<pts.length;i++)ctx.lineTo(pts[i].x*P,pts[i].y*P);
+    ctx.lineWidth=path.width*P;ctx.stroke();
+}
+export function createRoomSurface(THREE,cfg,layout,room,volume) {
+    const size=roomSize(room),c=canvas(size),ctx=c.getContext('2d');
+    const colors=PALETTES[volume]||PALETTES[1],rng=createRandom(hash32('garden:'+room.seed+':'+cfg.biome));
+    ctx.fillStyle=cfg.ground.base;ctx.fillRect(0,0,c.width,c.height);
+    for(let i=0;i<80;i++) {
+        const x=rng()*c.width,y=rng()*c.height,r=(1.5+rng()*3)*P;
+        const wash=ctx.createRadialGradient(x,y,0,x,y,r);
+        wash.addColorStop(0,(i%3?cfg.ground.mottle:'#fff3e3')+'38');
+        wash.addColorStop(1,cfg.ground.base+'00');ctx.fillStyle=wash;ctx.fillRect(x-r,y-r,r*2,r*2);
     }
-    ctx.globalAlpha = 1;
-    // Irregular, feathered landscape beds. No repeated circular stamps or
-    // fake ponds: the original kit supplies the actual plants/water/rocks.
-    layout.beds.forEach(bed => {
-        ctx.save();
-        ctx.translate(bed.x * p, bed.y * p);
-        ctx.scale(1, .82);
-        ctx.beginPath();
-        for (let i = 0; i <= 18; i++) {
-            const angle = (i % 18) / 18 * Math.PI * 2;
-            const radius = bed.radius * p * (.83 + rng() * .20);
-            const x = Math.cos(angle) * radius, y = Math.sin(angle) * radius;
-            if (!i) ctx.moveTo(x, y); else ctx.lineTo(x, y);
+    for(let i=0;i<size.w*size.h*7;i++) {
+        const x=rng()*c.width,y=rng()*c.height;
+        ctx.strokeStyle=i%4?colors.foliage+'25':'#fff8e840';ctx.lineWidth=.6+rng();
+        ctx.beginPath();ctx.moveTo(x,y);ctx.quadraticCurveTo(x+2,y-2,x+4+rng()*6,y-1);ctx.stroke();
+    }
+    for(const bed of layout.beds) {
+        const x=bed.x*P,y=bed.y*P;
+        const wash=ctx.createRadialGradient(x,y,bed.radius*P*.2,x,y,bed.radius*P*1.2);
+        wash.addColorStop(0,colors.foliage+'80');wash.addColorStop(1,colors.foliage+'00');
+        ctx.fillStyle=wash;ctx.fillRect(x-bed.radius*P*1.2,y-bed.radius*P*1.2,bed.radius*P*2.4,bed.radius*P*2.4);
+        patch(ctx,x,y,bed.radius*P*.85,bed.radius*P*.68,colors.foliage+'38',rng);
+        // Irregular stones settle the original scenery into a planted bed.
+        for(let i=0;i<18;i++) {
+            const a=i/18*Math.PI*2,r=bed.radius*P*(.79+rng()*.08);
+            const px=x+Math.cos(a)*r,py=y+Math.sin(a)*r*.78;
+            ctx.fillStyle=colors.joint+'70';ctx.beginPath();ctx.ellipse(px+1,py+2,6,3,a,0,Math.PI*2);ctx.fill();
+            ctx.fillStyle=colors.stone[i%3]+'b0';ctx.beginPath();ctx.ellipse(px,py,4+rng()*3,2+rng()*2,a,0,Math.PI*2);ctx.fill();
         }
-        ctx.closePath(); ctx.clip();
-        const gradient = ctx.createRadialGradient(0, 0, bed.radius * p * .25, 0, 0, bed.radius * p);
-        gradient.addColorStop(0, colors.bed + "78");
-        gradient.addColorStop(.7, colors.bed + "30");
-        gradient.addColorStop(1, colors.bed + "00");
-        ctx.fillStyle = gradient;
-        ctx.fillRect(-bed.radius * p, -bed.radius * p, bed.radius * p * 2, bed.radius * p * 2);
-        for (let i = 0; i < 45; i++) {
-            const angle = rng() * Math.PI * 2, radius = Math.sqrt(rng()) * bed.radius * p;
-            ctx.fillStyle = i % 3 ? colors.bed + "35" : colors.trim + "50";
-            ctx.beginPath();
-            ctx.ellipse(Math.cos(angle) * radius, Math.sin(angle) * radius, 2 + rng() * 4, 1 + rng() * 2,
-                angle, 0, Math.PI * 2); ctx.fill();
-        }
-        ctx.restore();
-    });
-
-    // Union all roads before shading; alpha-overlapping strokes at junctions
-    // used to create a giant target-shaped disc. The mask has no such seams.
-    const mask = canvas(size), m = mask.getContext("2d");
-    m.strokeStyle = "white"; m.fillStyle = "white"; m.lineCap = "round";
-    layout.paths.forEach(path => {
-        m.beginPath(); m.moveTo(path.x1 * p, path.y1 * p); m.lineTo(path.x2 * p, path.y2 * p);
-        m.lineWidth = path.width * p; m.stroke();
-    });
-    if (room.type !== "boss") {
-        m.beginPath(); m.arc(layout.center.x * p, layout.center.y * p, layout.plazaRadius * p, 0, Math.PI * 2); m.fill();
-    }
-    if (layout.court) {
-        const r = layout.court;
-        roundedRect(m, (r.x - r.hw) * p, (r.y - r.hh) * p, r.hw * p * 2, r.hh * p * 2, p * .3); m.fill();
-    }
-    if (layout.camp) {
-        const r = layout.camp.area;
-        m.beginPath(); m.ellipse(r.x * p, r.y * p, r.hw * p * .83, r.hh * p * .78, 0, 0, Math.PI * 2); m.fill();
-    }
-    const paving = canvas(size), t = paving.getContext("2d");
-    t.fillStyle = colors.joint; t.fillRect(0, 0, c.width, c.height);
-    // Staggered stone courses; the workshop instead has continuous wood
-    // slats. Variation is deterministic and small enough to remain terrain.
-    const tileW = p * (volume === 4 ? 2.0 : .95), tileH = p * (volume === 4 ? .33 : .64);
-    for (let row = -1; row <= c.height / tileH; row++) {
-        for (let col = -1; col <= c.width / tileW; col++) {
-            const x = (col + (row & 1 ? .5 : 0)) * tileW, y = row * tileH;
-            t.fillStyle = colors.tile[Math.floor(rng() * colors.tile.length)];
-            roundedRect(t, x + 1, y + 1, tileW - 2, tileH - 2, volume === 4 ? .5 : 2); t.fill();
-            t.strokeStyle = "#ffffff26"; t.lineWidth = .7;
-            t.beginPath(); t.moveTo(x + 3, y + 2); t.lineTo(x + tileW - 3, y + 2); t.stroke();
-            if (rng() < .14) {
-                t.strokeStyle = colors.joint + "45";
-                t.beginPath(); t.moveTo(x + tileW * .28, y + 2);
-                t.lineTo(x + tileW * .44, y + tileH * .52);
-                t.lineTo(x + tileW * .35, y + tileH - 2); t.stroke();
-            }
+        for(let i=0;i<85;i++) {
+            const a=rng()*Math.PI*2,r=Math.sqrt(rng())*bed.radius*P*1.15;
+            const px=x+Math.cos(a)*r,py=y+Math.sin(a)*r*.78;
+            ctx.fillStyle=i%4?colors.foliage+'55':colors.petal+'a0';
+            ctx.beginPath();ctx.ellipse(px,py,2+rng()*4,1+rng()*2,a,0,Math.PI*2);ctx.fill();
         }
     }
-    t.globalCompositeOperation = "destination-in"; t.drawImage(mask, 0, 0);
-    ctx.globalAlpha = cfg.night ? .68 : .78;
-    ctx.drawImage(paving, 0, 0); ctx.globalAlpha = 1;
-
-    if (room.type === "battle" || room.type === "boss") {
-        // Themed arena sigil: two concentric courses plus a per-volume motif
-        // between them — the combat floor reads as a prepared ring instead of
-        // bare paving, without adding collision or new geometry. Same ink as
-        // the plaza courses below (colors.trim), so the whole floor stays one
-        // authored inlay layer. Deterministic (no rng) — the sigil is room
-        // identity, like the arena disc, not scatter.
-        const cx = layout.center.x * p, cy = layout.center.y * p;
-        const outer = (room.type === "boss" ? 8.3 : 8.0) * p;
-        const inner = (room.type === "boss" ? 6.6 : 5.2) * p;
-        ctx.save();
-        ctx.translate(cx, cy);
-        ctx.strokeStyle = colors.trim + (cfg.night ? "90" : "78");
-        ctx.fillStyle = colors.trim + (cfg.night ? "86" : "70");
-        ctx.lineWidth = 2.2;
-        ctx.beginPath(); ctx.arc(0, 0, outer, 0, Math.PI * 2); ctx.stroke();
-        ctx.beginPath(); ctx.arc(0, 0, inner, 0, Math.PI * 2); ctx.stroke();
-        if (volume === 1) {
-            // 港町: wave crests on the ring plus eight spokes — rope-and-buoy.
-            for (let i = 0; i < 8; i++) {
-                const a = i * Math.PI / 4;
-                ctx.beginPath();
-                ctx.arc(0, 0, (inner + outer) * .5, a, a + .19);
-                ctx.stroke();
-                const r = (inner + outer) * .5;
-                ctx.beginPath();
-                ctx.moveTo(Math.cos(a) * inner, Math.sin(a) * inner);
-                ctx.lineTo(Math.cos(a) * (outer - p * .22), Math.sin(a) * (outer - p * .22));
-                ctx.stroke();
-            }
-        } else if (volume === 2) {
-            // 沙漠: a sunburst — long/short rays on a 16th grid.
-            for (let i = 0; i < 16; i++) {
-                const a = i * Math.PI / 8;
-                const r0 = i % 4 === 0 ? inner + p * .3 : inner + p * .55;
-                ctx.beginPath();
-                ctx.moveTo(Math.cos(a) * r0, Math.sin(a) * r0);
-                ctx.lineTo(Math.cos(a) * (outer - p * .3), Math.sin(a) * (outer - p * .3));
-                ctx.stroke();
-            }
-        } else if (volume === 3) {
-            // 蜜林: petals — twelve leaves around the ring.
-            for (let i = 0; i < 12; i++) {
-                const a = i * Math.PI / 6;
-                const r = (inner + outer) * .5;
-                ctx.save(); ctx.rotate(a);
-                ctx.beginPath(); ctx.ellipse(r, 0, p * .22, p * .08, 0, 0, Math.PI * 2); ctx.fill();
-                ctx.restore();
-            }
-        } else if (volume === 4) {
-            // 机关: gear teeth — a fine 24th tick ring with banded roots.
-            for (let i = 0; i < 24; i++) {
-                const a = i * Math.PI / 12;
-                const r0 = inner + (i % 3 === 0 ? p * .25 : p * .55);
-                ctx.beginPath();
-                ctx.moveTo(Math.cos(a) * r0, Math.sin(a) * r0);
-                ctx.lineTo(Math.cos(a) * (outer - p * .25), Math.sin(a) * (outer - p * .25));
-                ctx.stroke();
-            }
-        } else {
-            // 神殿: spirit marks — eight small diamonds, shrine-corner stones.
-            for (let i = 0; i < 8; i++) {
-                const a = i * Math.PI / 4;
-                const r = (inner + outer) * .5;
-                ctx.save(); ctx.rotate(a);
-                ctx.strokeRect(r - p * .16, -p * .16, p * .32, p * .32);
-                ctx.restore();
-            }
+    const wild=room.type==='battle'||room.type==='chest';
+    const mask=canvas(size),m=mask.getContext('2d');
+    m.fillStyle=m.strokeStyle='#fff';m.lineCap=m.lineJoin='round';layout.paths.forEach(path=>road(m,path));
+    const plaza=layout.plaza||{...layout.center,hw:3.3,hh:2.7};
+    if(!wild) {rect(m,(plaza.x-plaza.hw)*P,(plaza.y-plaza.hh)*P,plaza.hw*P*2,plaza.hh*P*2,P*1.2);m.fill();}
+    for(const area of [layout.court,layout.camp?.area].filter(Boolean)) {
+        rect(m,(area.x-area.hw)*P,(area.y-area.hh)*P,area.hw*P*2,area.hh*P*2,P*.8);m.fill();
+    }
+    // Curb and inset paving share a union mask: no seams at road junctions.
+    if(!wild) {ctx.save();ctx.shadowColor=colors.joint+'68';ctx.shadowBlur=10;ctx.drawImage(mask,0,0);ctx.restore();}
+    const paving=canvas(size),t=paving.getContext('2d');t.fillStyle=colors.joint;t.fillRect(0,0,c.width,c.height);
+    const tw=P*(volume===4?1.2:.48),th=P*(volume===4?.2:.35);
+    for(let row=-1;row<c.height/th+1;row++)for(let col=-1;col<c.width/tw+1;col++) {
+        const x=(col+(row%2?.5:0))*tw,y=row*th,gap=.65;
+        t.fillStyle=colors.stone[Math.floor(rng()*colors.stone.length)];
+        rect(t,x+gap,y+gap,tw-gap*2,th-gap*2,volume===4?1:2+rng()*2);t.fill();
+        t.strokeStyle='#ffffff35';t.lineWidth=1;t.beginPath();t.moveTo(x+7,y+4);t.lineTo(x+tw-8,y+4);t.stroke();
+        if(rng()<.18) {
+            t.strokeStyle=colors.joint+'45';t.beginPath();t.moveTo(x+tw*.6,y+2);
+            t.lineTo(x+tw*.48,y+th*.3);t.lineTo(x+tw*.5,y+th*.6);t.stroke();
         }
-        ctx.restore();
     }
-
-    // Thin inset courses around the plaza are surface inlay, not new raised
-    // collision geometry. The boss keeps its broad combat floor unobstructed.
-    ctx.strokeStyle = colors.trim + "88"; ctx.lineWidth = 1.6;
-    const radius = room.type === "boss" ? 8.5 : layout.plazaRadius - .32;
-    ctx.beginPath(); ctx.arc(layout.center.x * p, layout.center.y * p, radius * p, 0, Math.PI * 2); ctx.stroke();
-    if (room.type === "boss" || room.type === "chest") {
-        ctx.save(); ctx.translate(layout.center.x * p, layout.center.y * p);
-        ctx.strokeStyle = colors.trim + "66";
-        ctx.rotate(Math.PI / 4); ctx.strokeRect(-p * .6, -p * .6, p * 1.2, p * 1.2); ctx.restore();
+    // Quiet rectangular mosaics, distinct from saturated combat telegraphs.
+    const x=(plaza.x-plaza.hw+.45)*P,y=(plaza.y-plaza.hh+.45)*P,w=(plaza.hw-.45)*2*P,h=(plaza.hh-.45)*2*P;
+    if(!wild) {
+        t.fillStyle=colors.stone[0]+'a0';rect(t,x,y,w,h,P*.8);t.fill();
+        t.strokeStyle=colors.joint+'88';t.lineWidth=2;rect(t,x+5,y+5,w-10,h-10,P*.7);t.stroke();
+        for(const [cx,cy] of [[x+20,y+20],[x+w-20,y+20],[x+20,y+h-20],[x+w-20,y+h-20]]) {
+            t.save();t.translate(cx,cy);t.rotate(Math.PI/4);t.fillStyle=colors.petal+'88';t.fillRect(-6,-6,12,12);t.restore();
+        }
     }
-    if (layout.camp) {
-        const fire = layout.camp.props.find(prop => prop.role === 'fire');
-        // A soft soot stain belongs to the authored ground, not to the source sprite.
-        ctx.save(); ctx.translate(fire.x * p, fire.y * p); ctx.scale(1, .65);
-        const soot = ctx.createRadialGradient(0, 0, p * .2, 0, 0, p * 1.15);
-        soot.addColorStop(0, '#503c2a65'); soot.addColorStop(.55, '#76513920'); soot.addColorStop(1, '#76513900');
-        ctx.fillStyle = soot; ctx.fillRect(-p * 1.2, -p * 1.2, p * 2.4, p * 2.4); ctx.restore();
+    t.globalCompositeOperation='destination-in';t.drawImage(mask,0,0);
+    ctx.globalAlpha=wild?.55:1;ctx.drawImage(paving,0,0);ctx.globalAlpha=1;
+    // Small illustrated tufts stay outside travel space; no extra map meshes.
+    for(let i=0;i<size.w*size.h*.7;i++) {
+        const wx=rng()*size.w,wy=rng()*size.h;
+        if(layout.isProtected(wx,wy,.2))continue;
+        const x=wx*P,y=wy*P;ctx.strokeStyle=colors.foliage+'68';ctx.lineWidth=1.2;
+        for(let leaf=0;leaf<3;leaf++){
+            ctx.beginPath();ctx.moveTo(x,y);ctx.quadraticCurveTo(x+leaf*3-3,y-4,x+leaf*5-5,y-6-rng()*5);ctx.stroke();
+        }
+        if(i%5===0){
+            for(let petal=0;petal<5;petal++){
+                const a=petal*Math.PI*.4;ctx.fillStyle=colors.petal+'c0';ctx.beginPath();
+                ctx.ellipse(x+Math.cos(a)*3,y-6+Math.sin(a)*2,2.5,1.6,a,0,Math.PI*2);ctx.fill();
+            }
+            ctx.fillStyle='#fff5c8';ctx.fillRect(x-1,y-7,2,2);
+        }
     }
-
-    const texture = new THREE.CanvasTexture(c);
-    texture.colorSpace = THREE.SRGBColorSpace; texture.anisotropy = 8;
-    let material = null, geometry = null;
+    for(let i=0;i<160;i++) {
+        const x=rng()*c.width,y=rng()*c.height;
+        ctx.fillStyle=colors.petal+'65';ctx.beginPath();ctx.ellipse(x,y,1.7+rng()*3,.9+rng()*1.4,rng()*Math.PI,0,Math.PI*2);ctx.fill();
+    }
+    if(cfg.night) {ctx.fillStyle='#28243928';ctx.fillRect(0,0,c.width,c.height);}
+    const texture=new THREE.CanvasTexture(c);texture.colorSpace=THREE.SRGBColorSpace;texture.anisotropy=8;
+    let material,geometry;
     try {
-        material = new THREE.MeshBasicMaterial({ map: texture });
-        geometry = new THREE.PlaneGeometry(size.w, size.h);
-        const mesh = new THREE.Mesh(geometry, material);
-        mesh.name = "room-surface"; mesh.rotation.x = -Math.PI / 2;
-        // Above the fallback floor (-.02), below contact shadows (-.016).
-        // Boss arena geometry at -.01 remains the authoritative raised floor.
-        mesh.position.set(size.w / 2, -.019, size.h / 2);
-        mesh.frustumCulled = false;
-        return { root: mesh, texture, material };
-    } catch (error) {
-        if (geometry) geometry.dispose();
-        if (material) material.dispose();
-        texture.dispose(); throw error;
-    }
+        material=new THREE.MeshBasicMaterial({map:texture});geometry=new THREE.PlaneGeometry(size.w,size.h);
+        const mesh=new THREE.Mesh(geometry,material);mesh.name='room-surface';mesh.rotation.x=-Math.PI/2;
+        mesh.position.set(size.w/2,-.019,size.h/2);mesh.frustumCulled=false;
+        return {root:mesh,texture,material};
+    } catch(error) {geometry?.dispose();material?.dispose();texture.dispose();throw error;}
 }

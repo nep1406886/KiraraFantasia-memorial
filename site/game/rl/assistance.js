@@ -22,10 +22,11 @@ function canFire(world, p, target) {
 // firing position, not the enemy's occupied center; no corner cutting occurs.
 export function findAttackPath(world, player, target) {
     const targets = (Array.isArray(target) ? target : [target]).slice(0, 32);
-    const radius = player.radius, w = Math.floor((world.width - 1) / CELL) + 1;
-    const h = Math.floor((world.height - 1) / CELL) + 1;
+    const cell = Math.max(CELL, Math.sqrt(world.width * world.height / MAX_NODES) * 1.08);
+    const radius = player.radius, w = Math.floor((world.width - 1) / cell) + 1;
+    const h = Math.floor((world.height - 1) / cell) + 1;
     if (!(w > 0 && h > 0) || w * h > MAX_NODES) return { points: [], visited: 0 };
-    const at = id => ({ x: .5 + (id % w) * CELL, y: .5 + Math.floor(id / w) * CELL });
+    const at = id => ({ x: .5 + (id % w) * cell, y: .5 + Math.floor(id / w) * cell });
     const blocked = new Uint8Array(w * h), previous = new Int32Array(w * h).fill(-2);
     const limit = bounds(world, radius);
     for (let i = 0; i < blocked.length; i++) {
@@ -37,7 +38,7 @@ export function findAttackPath(world, player, target) {
     for (let i = 0; i < blocked.length; i++) {
         if (blocked[i]) continue;
         const point = at(i), distance = length(player, point);
-        if (distance < best && distance <= CELL * 1.5 && clearPath(world, player, point, radius)) { start = i; best = distance; }
+        if (distance < best && distance <= cell * 1.5 && clearPath(world, player, point, radius)) { start = i; best = distance; }
     }
     if (start < 0) return { points: [], visited: 0 };
     const queue = new Int32Array(w * h); queue[0] = start; previous[start] = -1;
@@ -82,11 +83,12 @@ export function createAssistance() {
             const auto = tier >= 2 && status.enabled && grace <= 0;
             status.state = !tier || tier >= 2 && !status.enabled ? '关闭' : auto ? '搜索目标' : tier === 1 ? '辅助瞄准' : '手动优先';
             if (!tier || tier >= 2 && !status.enabled) { clear(); return null; }
+            if (!auto && (world.aim || !input?.attack)) { return null; }
             const living = (world.enemies || []).filter(e => !e.dead && e.sm?.state !== 'dead')
                 .sort((a, b) => length(p, a) - length(p, b) || a.id - b.id);
             const visible = living.find(e => canFire(world, p, e));
-            // Aim-only never steals a held movement direction or an explicit aim.
-            if (!auto) { clear(); return tier === 1 && !world.aim && !moved && visible ? { target: visible, attack: false } : null; }
+            // Basic attacks aim while strafing; explicit mouse/stick aim still wins.
+            if (!auto) { return visible ? { target: visible, attack: false } : null; }
             if (visible) {
                 clear(); status.targetId = visible.id; status.state = '自动普攻';
                 // Strafe while firing instead of planting: enemy shots are aimed

@@ -1,14 +1,11 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="96" height="96" viewBox="0 0 96 96">
-  <title>守望机关</title><metadata>kirafan-timer original; stationary sentry device</metadata>
-  <g stroke="#716454" stroke-width="2.5" stroke-linejoin="round" stroke-linecap="round">
-    <path d="m39 55-14 25h11l12-17 12 17h11L57 55Z" fill="#b9cace"/>
-    <path d="m37 16-7 8-1 26 12 12h22l11-13-1-25-8-8Z" fill="#ebca84"/>
-    <path d="M43 23h20l6 5-1 18-8 9H42L35 47V30Z" fill="#bed9da"/>
-    <path d="m61 28 25 3v13l-25 5Z" fill="#d6af69"/>
-    <ellipse cx="82" cy="37" rx="7" ry="10" fill="#7196ad"/>
-    <ellipse cx="82" cy="36" rx="3" ry="5" fill="#def5ee" stroke="none"/>
-    <path d="M49 14V8M43 8h12M40 35h12" fill="none" stroke="#a67954"/>
-    <circle cx="46" cy="45" r="4" fill="#f9f3da"/>
-    <path d="M18 32h-7m9 8H7m14 8h-9" stroke="#c6a268"/>
-  </g>
+<svg xmlns="http://www.w3.org/2000/svg" width="128" height="128" viewBox="0 0 128 128">
+<title>守望机关</title><metadata>Original vector illustration for Kirafan Timer's side story; not native game artwork.</metadata>
+<defs>
+<linearGradient id="gold" x2=".8" y2="1"><stop stop-color="#fff1ca"/><stop offset=".48" stop-color="#dcba7b"/><stop offset="1" stop-color="#9c7045"/></linearGradient>
+<linearGradient id="cloth" x2="1" y2="1"><stop stop-color="#c7c3a1"/><stop offset="1" stop-color="#788b79"/></linearGradient>
+<linearGradient id="gem" x2=".8" y2="1"><stop stop-color="#fff8f0"/><stop offset=".28" stop-color="#dce6c6"/><stop offset="1" stop-color="#869d79"/></linearGradient>
+<linearGradient id="ivory" x2="1" y2="1"><stop stop-color="#fffcf2"/><stop offset="1" stop-color="#ded2bb"/></linearGradient>
+<filter id="shadow" x="-30%" y="-30%" width="160%" height="180%"><feDropShadow dx="0" dy="4" stdDeviation="3" flood-color="#604456" flood-opacity=".25"/></filter>
+</defs><g stroke="#826672" stroke-width="1.3" stroke-linejoin="round" stroke-linecap="round" filter="url(#shadow)"><path d="m32 36 32-14 32 14v42l-32 30-32-30Z" fill="url(#gold)"/><path d="m41 43 23-11 23 11v31L64 96 41 74Z" fill="url(#cloth)"/><path d="M39 61q25-32 50 0-25 30-50 0Z" fill="#fff1dc"/><circle cx="64" cy="61" r="13" fill="url(#gem)"/><circle cx="64" cy="61" r="5" fill="#fff2dc"/></g>
+<path d="m106 18 2 6 6 2-6 2-2 6-2-6-6-2 6-2ZM19 74l1 3 4 1-4 1-1 4-1-4-3-1 3-1Z" fill="#f9e5bc"/>
 </svg>

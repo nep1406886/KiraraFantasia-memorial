@@ -149,7 +149,7 @@ test("actual equip, purchase and restored stats share the preview calculation", 
     assert.equal(world.buyShopItem(1), null); assert.equal(world.coin, balance); assert.equal(second.bought, false);
     const crossClass = createWorld({ tables }).spawnPlayer({ card: priest, equipment: [blade] });
     assert.equal(crossClass.base.atk, 119.5);
-    assert.equal(crossClass.weaponProfile.classId, 0);
+    assert.equal(crossClass.weaponProfile.classId, priest.class);
     assert.equal(crossClass.card.class, 2);
     assert.throws(() => createWorld({ tables }).spawnPlayer({ card: warrior,
         equipment: [{ ...blade, catalogId: 1000203 }] }));

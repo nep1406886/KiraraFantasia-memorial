@@ -21,8 +21,8 @@ OUT = ROOT / ".codex-tmp" / "hit-alignment"
 
 
 def fingerprints():
-    paths = (list((ROOT / "game/rl").rglob("*.js")) + list((ROOT / "game/rl").rglob("*.css"))
-             + list((ROOT / "core").glob("*.js")) + [ROOT / "site/game/roguelike.html"])
+    paths = (list((ROOT / "site/game/rl").rglob("*.js")) + list((ROOT / "site/game/rl").rglob("*.css"))
+             + list((ROOT / "site/core").glob("*.js")) + [ROOT / "site/game/roguelike.html"])
     return {str(p.relative_to(ROOT)): hashlib.sha256(p.read_bytes()).hexdigest() for p in paths}
 
 
@@ -79,7 +79,8 @@ def gameplay(browser, base, card, observe, report, check, missing=False, directi
     image_name = str(card) + ("-missing" if missing else "")
     try:
         page.goto(base + "/site/game/roguelike.html?volume=1&seed=28121", wait_until="load", timeout=60000)
-        page.locator('.roster-card').filter(has=page.locator('img.art[src$="/%d.webp"]' % card)).click(timeout=60000)
+        page.locator('.roster-card[data-card-id="%d"]' % card).click(timeout=60000)
+        page.locator('#roster-start').click()
         page.wait_for_function("kirafanRL?.world?.player&&kirafanRL.pending===0", polling=50, timeout=60000)
         dismiss(page)
         page.evaluate(SETUP, missing)
@@ -137,12 +138,10 @@ def gameplay(browser, base, card, observe, report, check, missing=False, directi
                         if height == 9 and index == 0 and len(samples) == 2:
                             page.screenshot(path=str(OUT / ("observe-" if observe else "current-") / (image_name + "-flight.png")))
                 if profile["kind"] == "projectile":
-                    # Alchemist's original normal has caster EffectPlay/Attach,
-                    # not projectile art. Its realtime thrown core stays generic;
-                    # only magician/priest have a verified carried original here.
-                    carried_original = profile["classId"] in (1, 2) and not missing
-                    check("普攻飞行全程有且仅有一份弹体显示 %d %.1f %d" % (card, height, index),
-                          bool(samples) and all(s["shots"] == s["native"] + s["fallback"] for s in samples)
+                    # Magician/priest/alchemist carry their verified launch section.
+                    carried_original = profile["classId"] in (1, 2, 4) and not missing
+                    check("普攻飞行全程保留准确弹芯并叠加原作轨迹 %d %.1f %d" % (card, height, index),
+                          bool(samples) and all(s["shots"] == s["fallback"] for s in samples)
                           and (any(s["native"] > 0 for s in samples) if carried_original else all(s["native"] == 0 for s in samples)), samples)
                 hits = page.evaluate("hitEvents")
                 row["hits"] = hits

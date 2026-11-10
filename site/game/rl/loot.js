@@ -12,7 +12,7 @@
 // Pure data functions — no three, no DOM, so node harnesses can drive it.
 
 import { rollWeapon } from "./weaponcatalog.js";
-import { rollGadget } from './gadgets.js';
+import { rollGadget, rollAccessory } from './gadgets.js';
 
 export const SLOTS = ["weapon", "amulet", "armor", "charm"];
 
@@ -29,15 +29,7 @@ const RARITY_WEIGHTS = {
     5: [44, 32, 18.0, 6.0]
 };
 
-// Affix count per rarity (legendary's own passive rides on weaponId, so it
-// rolls the same 3 generic affixes as epic on top of the guaranteed one).
-// One affix per item at every rarity (2026-09-22): the pool is mostly skill
-// rewrites, and stacking two or three of them on one drop made a single item
-// replace the normal attack plus both skills at once — unreadable for anyone
-// not studying the sheet. Rarity now says how strong the one effect is, not
-// how many effects are crammed together. The native weapon passive rides on
-// top of this one roll, exactly as before.
-const AFFIX_COUNT = { common: 1, rare: 1, epic: 1, legendary: 1 };
+// One clear random benefit; dedicated weapons additionally keep their native passive.
 
 const BASE_DROP_CHANCE = 0.25;
 const DROP_CHANCE_PER_FLOOR = 0.05;
@@ -66,8 +58,8 @@ let weaponPool = [];
 //   a test can trim them independently). Called once at boot; an empty pool
 //   means no item ever rolls (and rollLoot returns []), which keeps the
 //   module usable before tables load.
-export function setAffixPool(ids, weaponIds) {
-    affixPool = (ids || []).slice();
+export function setAffixPool(ids, weaponIds, passives = {}) {
+    affixPool = (ids || []).filter(id => !passives[id]?.effects.some(effect => effect.type === 8));
     weaponPool = (weaponIds || []).slice();
 }
 
@@ -96,22 +88,9 @@ function rollRarity(rng, floor, luck) {
     return RARITIES[0];
 }
 
-function pickAffixes(rng, count, excludeId) {
-    // With-replacement sampling over the pool would double-roll the same
-    // passive onto one item; shuffle-draw without replacement instead. The
-    // pool (162) is always ≥ the max count (3), but the guard keeps a
-    // hand-trimmed test pool honest.
-    const picks = [];
-    const used = new Set();
+function pickAffixes(rng, excludeId) {
     const pool = excludeId ? affixPool.filter(id => id !== excludeId) : affixPool;
-    while (picks.length < count && used.size < pool.length) {
-        const id = pool[Math.floor(rng() * pool.length)];
-        if (!used.has(id)) {
-            used.add(id);
-            picks.push(id);
-        }
-    }
-    return picks;
+    return pool.length ? [pool[Math.floor(rng() * pool.length)]] : [];
 }
 
 // rollLoot(rng, floor, luck, card?, options?) → Item[]
@@ -139,11 +118,12 @@ export function rollLoot(rng, floor, luck, card, options = {}) {
         if (gadget) return [gadget];
     }
     const slot = options.slot || (source.weapon ? 'weapon' : SLOTS[Math.floor(rng() * SLOTS.length)]);
+    if (slot !== 'weapon') return [rollAccessory(rng, slot, rarity)];
     const weapon = slot === "weapon" && rollWeapon(rng, options.weaponFloor ?? floor, rarity, card);
     const item = {
         slot: slot,
         rarity: rarity,
-        affixes: pickAffixes(rng, AFFIX_COUNT[rarity], weapon && String(weapon.passiveId))
+        affixes: pickAffixes(rng, weapon && String(weapon.passiveId))
     };
     if (weapon) {
         item.catalogId = weapon.id;

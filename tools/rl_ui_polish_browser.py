@@ -14,7 +14,7 @@ from rl_persistence_browser import inject_quota
 ROOT = Path(__file__).resolve().parents[1]
 FILES = ['site/game/roguelike.html', 'site/game/rl/main.js', 'site/game/rl/ui/hud.js',
          'site/game/rl/ui/storage.js', 'site/game/rl/ui/theme.css', 'site/game/rl/view/battleindicators.js',
-         'site/game/rl/ui/orientation.js', 'site/game/rl/ui/skilltooltip.js',
+         'site/game/rl/ui/play.css', 'site/game/rl/ui/skilltooltip.js',
          'site/game/rl/input.js', 'site/game/rl/world.js', 'site/game/rl/ui/decisions.js',
          'site/core/skillstage.js', 'site/core/uniqueskill.js']
 

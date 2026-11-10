@@ -12,6 +12,11 @@ const SITE = path.join(ROOT, "site");
 const APP = path.join(SITE, "etowaria-defense");
 const read = async file => JSON.parse(await fs.readFile(file, "utf8"));
 const catalogue = await read(path.join(APP, "data/units.json"));
+for (const unit of catalogue.units) {
+    assert.ok(unit.icon, `${unit.id}: original portrait required`);
+    await fs.access(path.join(SITE, unit.icon));
+    if (unit.card) await fs.access(path.join(SITE, unit.card));
+}
 const models = await read(path.join(APP, "data/models.json"));
 const native = await read(path.join(APP, "data/native.json"));
 const playback = await read(path.join(APP, "data/playback.json"));
@@ -21,10 +26,10 @@ function check(name, fn) {
     results.push({ name, passed: true });
 }
 
-check("87 unique exact card identities", () => {
-    assert.equal(catalogue.units.length, 87);
-    assert.equal(new Set(catalogue.units.map(unit => unit.cardId)).size, 87);
-    assert.equal(new Set(catalogue.units.map(unit => unit.id)).size, 87);
+check("167 unique exact card identities", () => {
+    assert.equal(catalogue.units.length, 167);
+    assert.equal(new Set(catalogue.units.map(unit => unit.cardId)).size, 167);
+    assert.equal(new Set(catalogue.units.map(unit => unit.id)).size, 167);
 });
 
 const golden = {
@@ -55,6 +60,7 @@ check("model/action/ultimate identity bindings", () => {
         assert.equal(playback[unit.cardId].resourceId, unit.resourceId);
         assert.equal(playback[unit.cardId].ultimate.id, unit.skills[0].id);
         assert.ok(Number.isFinite(unit.displayScale) && unit.displayScale > 0);
+        assert.ok(unit.skills.every(skill => skill.name && skill.detail && Array.isArray(skill.effects)));
     }
 });
 
@@ -70,8 +76,8 @@ for (const [name, size] of [["CommonWindow", [64, 64]], ["CommonButton", [70, 70
 globalThis.window = { location: { protocol: "http:" } };
 const { NativeEffects } = await import("../site/etowaria-defense/render/native-effects.js");
 const effects = new NativeEffects({ THREE, native, playback }, null);
-check("all default-party native effects resolve", () => {
-    for (const id of catalogue.defaultParty) {
+check("all playable cards resolve native effects", () => {
+    for (const id of catalogue.units.map(unit => unit.id)) {
         const unit = catalogue.units.find(row => row.id === id);
         for (const kind of ["attack", "skill"]) {
             const plan = effects.actionPlan(unit, kind);

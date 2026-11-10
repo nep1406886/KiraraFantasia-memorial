@@ -7,6 +7,7 @@ export const PLAYABLE_ROSTER = Object.freeze([
     "resourceId": 320002,
     "class": 2,
     "rare": 5,
+    "element": 5,
     "nameZh": "琪拉拉【漫画版】"
   },
   {
@@ -16,6 +17,7 @@ export const PLAYABLE_ROSTER = Object.freeze([
     "resourceId": 321702,
     "class": 4,
     "rare": 5,
+    "element": 4,
     "nameZh": "乌兹兹【第2部】"
   },
   {
@@ -25,6 +27,7 @@ export const PLAYABLE_ROSTER = Object.freeze([
     "resourceId": 100004,
     "class": 2,
     "rare": 5,
+    "element": 5,
     "nameZh": "由乃"
   },
   {
@@ -34,6 +37,7 @@ export const PLAYABLE_ROSTER = Object.freeze([
     "resourceId": 110104,
     "class": 3,
     "rare": 5,
+    "element": 3,
     "nameZh": "栎井 唯"
   },
   {
@@ -43,6 +47,7 @@ export const PLAYABLE_ROSTER = Object.freeze([
     "resourceId": 180004,
     "class": 3,
     "rare": 5,
+    "element": 2,
     "nameZh": "折部 安奈"
   },
   {
@@ -52,6 +57,7 @@ export const PLAYABLE_ROSTER = Object.freeze([
     "resourceId": 140004,
     "class": 0,
     "rare": 5,
+    "element": 4,
     "nameZh": "九条 可怜"
   },
   {
@@ -61,6 +67,7 @@ export const PLAYABLE_ROSTER = Object.freeze([
     "resourceId": 300004,
     "class": 0,
     "rare": 5,
+    "element": 3,
     "nameZh": "心爱"
   },
   {
@@ -70,6 +77,7 @@ export const PLAYABLE_ROSTER = Object.freeze([
     "resourceId": 230004,
     "class": 1,
     "rare": 5,
+    "element": 1,
     "nameZh": "志摩 凛"
   },
   {
@@ -79,6 +87,7 @@ export const PLAYABLE_ROSTER = Object.freeze([
     "resourceId": 150004,
     "class": 1,
     "rare": 5,
+    "element": 3,
     "nameZh": "凉风 青叶"
   },
   {
@@ -88,6 +97,7 @@ export const PLAYABLE_ROSTER = Object.freeze([
     "resourceId": 350004,
     "class": 2,
     "rare": 5,
+    "element": 4,
     "nameZh": "吉田 优子"
   },
   {
@@ -97,6 +107,7 @@ export const PLAYABLE_ROSTER = Object.freeze([
     "resourceId": 220004,
     "class": 0,
     "rare": 5,
+    "element": 0,
     "nameZh": "平泽 唯"
   },
   {
@@ -106,6 +117,7 @@ export const PLAYABLE_ROSTER = Object.freeze([
     "resourceId": 380004,
     "class": 4,
     "rare": 5,
+    "element": 4,
     "nameZh": "木之幡 米拉"
   },
   {
@@ -115,6 +127,7 @@ export const PLAYABLE_ROSTER = Object.freeze([
     "resourceId": 240004,
     "class": 2,
     "rare": 5,
+    "element": 2,
     "nameZh": "萌田 薰子"
   },
   {
@@ -124,6 +137,7 @@ export const PLAYABLE_ROSTER = Object.freeze([
     "resourceId": 200004,
     "class": 1,
     "rare": 5,
+    "element": 5,
     "nameZh": "樱之宫 莓香"
   },
   {
@@ -133,6 +147,7 @@ export const PLAYABLE_ROSTER = Object.freeze([
     "resourceId": 290004,
     "class": 3,
     "rare": 5,
+    "element": 0,
     "nameZh": "大空 遥"
   },
   {
@@ -142,6 +157,7 @@ export const PLAYABLE_ROSTER = Object.freeze([
     "resourceId": 470002,
     "class": 3,
     "rare": 5,
+    "element": 1,
     "nameZh": "海凪 日和"
   },
   {
@@ -151,6 +167,7 @@ export const PLAYABLE_ROSTER = Object.freeze([
     "resourceId": 280004,
     "class": 3,
     "rare": 5,
+    "element": 5,
     "nameZh": "花小泉 杏"
   },
   {
@@ -160,6 +177,7 @@ export const PLAYABLE_ROSTER = Object.freeze([
     "resourceId": 310004,
     "class": 1,
     "rare": 5,
+    "element": 0,
     "nameZh": "鸠谷 小羽"
   },
   {
@@ -169,6 +187,7 @@ export const PLAYABLE_ROSTER = Object.freeze([
     "resourceId": 210004,
     "class": 2,
     "rare": 5,
+    "element": 1,
     "nameZh": "一之濑 花名"
   },
   {
@@ -178,6 +197,7 @@ export const PLAYABLE_ROSTER = Object.freeze([
     "resourceId": 190004,
     "class": 2,
     "rare": 5,
+    "element": 0,
     "nameZh": "高山 春香"
   },
   {
@@ -187,6 +207,7 @@ export const PLAYABLE_ROSTER = Object.freeze([
     "resourceId": 370002,
     "class": 4,
     "rare": 5,
+    "element": 0,
     "nameZh": "町子 凉"
   },
   {
@@ -196,6 +217,7 @@ export const PLAYABLE_ROSTER = Object.freeze([
     "resourceId": 340004,
     "class": 4,
     "rare": 5,
+    "element": 4,
     "nameZh": "小黑"
   },
   {
@@ -205,6 +227,7 @@ export const PLAYABLE_ROSTER = Object.freeze([
     "resourceId": 390004,
     "class": 1,
     "rare": 5,
+    "element": 3,
     "nameZh": "武田 咏深"
   },
   {
@@ -214,6 +237,7 @@ export const PLAYABLE_ROSTER = Object.freeze([
     "resourceId": 250004,
     "class": 2,
     "rare": 5,
+    "element": 2,
     "nameZh": "山口 如月"
   },
   {
@@ -223,6 +247,7 @@ export const PLAYABLE_ROSTER = Object.freeze([
     "resourceId": 260004,
     "class": 0,
     "rare": 5,
+    "element": 4,
     "nameZh": "玛莉・梦魔"
   },
   {
@@ -232,6 +257,7 @@ export const PLAYABLE_ROSTER = Object.freeze([
     "resourceId": 360002,
     "class": 0,
     "rare": 5,
+    "element": 0,
     "nameZh": "细野 晴海"
   },
   {
@@ -241,6 +267,7 @@ export const PLAYABLE_ROSTER = Object.freeze([
     "resourceId": 140104,
     "class": 1,
     "rare": 5,
+    "element": 2,
     "nameZh": "爱丽丝【圣诞节】"
   },
   {
@@ -250,6 +277,7 @@ export const PLAYABLE_ROSTER = Object.freeze([
     "resourceId": 120004,
     "class": 2,
     "rare": 5,
+    "element": 1,
     "nameZh": "丈枪 由纪"
   },
   {
@@ -259,6 +287,7 @@ export const PLAYABLE_ROSTER = Object.freeze([
     "resourceId": 270004,
     "class": 2,
     "rare": 5,
+    "element": 5,
     "nameZh": "关谷 鸣"
   },
   {
@@ -268,6 +297,7 @@ export const PLAYABLE_ROSTER = Object.freeze([
     "resourceId": 410002,
     "class": 0,
     "rare": 5,
+    "element": 2,
     "nameZh": "御庭 摘希"
   },
   {
@@ -277,6 +307,7 @@ export const PLAYABLE_ROSTER = Object.freeze([
     "resourceId": 430002,
     "class": 4,
     "rare": 5,
+    "element": 1,
     "nameZh": "小野坂 小春"
   },
   {
@@ -286,6 +317,7 @@ export const PLAYABLE_ROSTER = Object.freeze([
     "resourceId": 420002,
     "class": 3,
     "rare": 5,
+    "element": 1,
     "nameZh": "篠华 茉优"
   },
   {
@@ -295,6 +327,7 @@ export const PLAYABLE_ROSTER = Object.freeze([
     "resourceId": 330106,
     "class": 2,
     "rare": 5,
+    "element": 3,
     "nameZh": "双叶【泳装】"
   },
   {
@@ -304,6 +337,7 @@ export const PLAYABLE_ROSTER = Object.freeze([
     "resourceId": 170004,
     "class": 3,
     "rare": 5,
+    "element": 0,
     "nameZh": "千矢"
   },
   {
@@ -313,6 +347,7 @@ export const PLAYABLE_ROSTER = Object.freeze([
     "resourceId": 160004,
     "class": 1,
     "rare": 5,
+    "element": 2,
     "nameZh": "本田 珠辉"
   },
   {
@@ -322,6 +357,7 @@ export const PLAYABLE_ROSTER = Object.freeze([
     "resourceId": 450002,
     "class": 1,
     "rare": 5,
+    "element": 0,
     "nameZh": "風色 琴音"
   },
   {
@@ -331,6 +367,7 @@ export const PLAYABLE_ROSTER = Object.freeze([
     "resourceId": 400002,
     "class": 3,
     "rare": 5,
+    "element": 4,
     "nameZh": "樱 衣乃"
   },
   {
@@ -340,6 +377,7 @@ export const PLAYABLE_ROSTER = Object.freeze([
     "resourceId": 130004,
     "class": 0,
     "rare": 5,
+    "element": 1,
     "nameZh": "透"
   },
   {
@@ -349,6 +387,7 @@ export const PLAYABLE_ROSTER = Object.freeze([
     "resourceId": 460002,
     "class": 3,
     "rare": 5,
+    "element": 4,
     "nameZh": "後藤 ひとり"
   },
   {
@@ -358,6 +397,7 @@ export const PLAYABLE_ROSTER = Object.freeze([
     "resourceId": 230104,
     "class": 3,
     "rare": 5,
+    "element": 3,
     "nameZh": "抚子【泳装】"
   },
   {
@@ -367,6 +407,7 @@ export const PLAYABLE_ROSTER = Object.freeze([
     "resourceId": 320204,
     "class": 1,
     "rare": 5,
+    "element": 1,
     "nameZh": "克蕾尔【女儿节】"
   }
 ]);

@@ -51,27 +51,28 @@ for (const row of GADGETS) {
         assert(text.length > 0); assert(brief.benefits.length <= 2);
         // 期望值从行值派生（equipmentbrief.js:19-24 按 delta 正负分桶渲染），
         // 新机制不必回改本表；旧十行的派生结果与写死值一致，不回退。
-        if (row.rate) assert(text.includes('普攻速度 +' + Math.round((row.rate - 1) * 100) + '%'));
+        if (row.rate) assert(text.includes('普攻速度 ' + (row.rate > 1 ? '+' : '−') + Math.abs(Math.round((row.rate - 1) * 100)) + '%'));
         if (row.attackMove) assert(text.includes(Math.round(row.attackMove * 100) + '%移速'));
         if (row.range) assert(text.includes('普攻距离 +' + Math.round((row.range - 1) * 100) + '%'));
         if (row.width) assert(text.includes('普攻宽度 +' + Math.round((row.width - 1) * 100) + '%'));
         if (row.normalDamage) assert(brief.costs.some(word => word.includes('普攻伤害')));
-        if (row.damage) assert(brief.costs.some(word => word.includes('物攻')) && brief.costs.some(word => word.includes('魔攻')));
+        if (row.damage < 1) assert(brief.costs.some(word => word.includes('物攻')) && brief.costs.some(word => word.includes('魔攻')));
         // defense 既可能是代价（<1）也可能是收益（aegis 1.2），按正负分桶后两侧都要找。
-        if (row.defense) assert([...brief.benefits, ...brief.costs].some(word => word.includes('物防'))
-            && [...brief.benefits, ...brief.costs].some(word => word.includes('魔防')));
+        if (row.defense < 1) assert(brief.costs.some(word => word.includes('物防')) && brief.costs.some(word => word.includes('魔防')));
+        if (row.defense > 1) assert(brief.more > 0 || brief.benefits.some(word => word.includes('物防')));
+        if (row.hp < 1) assert(brief.costs.some(word => word.includes('生命上限')));
         if (row.noCrit) assert(brief.costs.includes('不能暴击（含必暴）'));
         if (row.noAdvantage) assert(brief.costs.includes('失去有利属性加成'));
         if (row.sealSkill) assert(brief.costs.some(word => word.includes('技能 3「' + view.skills.candidate.slots[2].name + '」被封印')));
         if (row.assist >= 2) assert(brief.benefits.some(word => word.includes('可开启')));
     });
 }
-test('改技只列实际变化，不把被覆盖的技能当收益', () => {
+test('旧版饰品改技不冒充收益，明确说明当前只由武器强化', () => {
     const world = worldWith([item('amulet', '12002011')]);
     const view = world.previewEquipment(item('armor', '10022001')), brief = equipmentBrief(view);
-    assert(brief.benefits.some(word => word.includes('技能 2 → ' + view.skills.candidate.slots[1].name)));
+    assert(!brief.benefits.some(word => word.includes('技能 2')));
     assert(!brief.benefits.some(word => word.includes('技能 3')));
-    assert(brief.notes.some(word => word.includes('技能 3改写被覆盖')));
+    assert(brief.notes.some(word => word.includes('仅武器可强化招式')));
     assert(!words(brief).includes('R 必杀'));
 });
 test('相同技能只换来源时不伪称得到新技能', () => {

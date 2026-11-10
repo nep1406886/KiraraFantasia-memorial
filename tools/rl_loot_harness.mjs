@@ -83,7 +83,10 @@ setAffixPool(AFFIX_IDS, WEAPON_IDS);
         const weightSum = WEIGHTS[floor].reduce(function (a, b) { return a + b; }, 0);
         let chi2 = 0;
         for (let r = 0; r < RARITIES.length; r++) {
-            const expected = drops * WEIGHTS[floor][r] / weightSum;
+            // Three accessory slots cap at their fixed epic identity; legendary rolls remain legendary in the weapon slot.
+            const weights = WEIGHTS[floor];
+            const weight = r === 2 ? weights[2] + weights[3] * .75 : r === 3 ? weights[3] * .25 : weights[r];
+            const expected = drops * weight / weightSum;
             const observed = perFloor[floor][RARITIES[r]] || 0;
             chi2 += (observed - expected) * (observed - expected) / expected;
         }

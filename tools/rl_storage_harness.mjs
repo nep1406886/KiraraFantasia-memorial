@@ -48,6 +48,19 @@ const profile = validate(decodeBackup(legacy()));
 let passed = 0;
 async function test(name, fn) { await fn(); passed++; console.log("PASS " + name); }
 
+await test('appearance survives strict save export/import without changing battle identity', () => {
+    for (const appearance of ['base', 'evolved']) {
+        const candidate = { ...run, appearance };
+        save.setStorage(fakeStorage());
+        assert.ok(save.importSave(legacy(meta, candidate)).ok);
+        const backup = save.exportSave(); save.setStorage(fakeStorage());
+        assert.ok(save.importSave(backup).ok);
+        assert.deepEqual(save.load('run'), candidate);
+    }
+    save.setStorage(fakeStorage());
+    assert.equal(save.importSave(legacy(meta, { ...run, appearance: 'unknown' })).ok, false);
+});
+
 await test('contract seals survive full profile validation, shop/drop backups and strict invalid-field rejection', () => {
     for (const sealedSlot of [1, 2]) {
         const item = makeGadget('binding', undefined, sealedSlot);
@@ -132,8 +145,8 @@ await test('forged room loot ownership, positions and nested fields never alter 
     for (const change of [
         c => { c.id = dungeon.start; },
         c => { c.cleared = false; },
-        c => { c.drops[0].x = 33; },
-        c => { c.drops[0].y = 25; },
+        c => { c.drops[0].x = 41; },
+        c => { c.drops[0].y = 31; },
         c => { c.drops[0].offered = true; },
         c => { c.drops[0].items[0].catalogId = foreign.id; },
         c => { c.drops[0].items[0].unknown = 'not allowed'; },

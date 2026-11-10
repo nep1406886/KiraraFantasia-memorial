@@ -71,6 +71,7 @@ class Server(socketserver.ThreadingTCPServer):
     # for as long as the old socket sits in TIME_WAIT.
     allow_reuse_address = True
     daemon_threads = True
+    request_queue_size = 128
 
 
 def main() -> int:

@@ -399,7 +399,8 @@ export function attachEnemyView(unit, scene) {
                     fadingAction = null;
                     action.reset();
                     action.stopFading(); action.stopWarping(); action.setEffectiveWeight(1);
-                    action.setEffectiveTimeScale(1);
+                    action.setEffectiveTimeScale(config.duration
+                        ? action.getClip().duration / config.duration : 1);
                     action.setLoop(
                         config.loop === false ? THREE.LoopOnce : THREE.LoopRepeat,
                         config.loop === false ? 1 : Infinity
@@ -494,7 +495,10 @@ export function attachEnemyView(unit, scene) {
                         // flinch has to be visible.
                         if (clip && !lingering
                                 && (clip !== view.current || damageEntered || deathEntered)) {
+                            const move = unit.action?.move;
                             view.play(clip, { loop: state !== "dead" && Boolean(LOOP[clip]),
+                                duration: move && (state === "skill" || state === "dash")
+                                    ? move.active + move.recovery * .8 : undefined,
                                 fade: state === 'dead' || state === 'damage' ? 0 : .07 });
                         }
                         // Unwrap last frame's posture lift before the mixer
@@ -547,7 +551,13 @@ export function attachEnemyView(unit, scene) {
                             // invert the lean for left-facing enemies, which
                             // is what the run clip does too — treat it as the
                             // same convention, not a bug.
-                            root.rotation.z = Math.sin((now || 0) / 880) * 0.072;
+                            const action = unit.action;
+                            const phase = action ? action.age / Math.max(.01, action.stage === "windup"
+                                ? action.move.warning : action.stage === "active" ? action.move.active : action.recovery) : 0;
+                            const lean = action?.stage === "windup" ? -.12 * Math.min(1, phase)
+                                : action?.stage === "active" ? .2 * Math.sin(Math.PI * Math.min(1, phase))
+                                : .035 * Math.sin((now || 0) / 880);
+                            root.rotation.z = lean * (Math.cos(unit.facing) >= 0 ? -1 : 1);
                         } else if (deadNames) {
                             if (!deadSwapped) {
                                 deadSwapped = true;

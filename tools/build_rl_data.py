@@ -415,7 +415,7 @@ def playable_roster() -> list[dict]:
             "id": card.get("evolvedId") or card["id"],
             "sourceId": card["id"], "legacyId": legacy_id,
             "resourceId": card.get("evolvedResourceId") or card["resourceId"],
-            "class": card["class"], "rare": card["rarity"],
+            "class": card["class"], "rare": card["rarity"], "element": card["element"],
             "nameZh": card["nameZh"],
         })
     return result

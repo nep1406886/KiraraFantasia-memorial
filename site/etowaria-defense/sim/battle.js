@@ -1,9 +1,18 @@
 import { TICK, UNIT_RULES, ENEMY_RULES, ENDLESS_ROSTER, DECK_ORDER, ENDLESS_MILESTONES } from "../data/campaign.js";
 import { attackContains, healingContains, burstContains, areaContains, ATTACK_BACK_REACH } from "./targeting.js";
+import { EVOLUTION_POWER, EVOLUTION_HEALTH } from '../../core/evolution.js';
 
 const EPS = 1e-8;
 const cellKey = (row, col) => `${row}:${col}`;
 const active = (until, time) => until > time + EPS;
+// A weaker refresh cannot keep a stronger, shorter effect alive indefinitely.
+function applyStatus(unit, valueKey, untilKey, amount, duration, time) {
+    if (!active(unit[untilKey], time) || amount > unit[valueKey]) {
+        unit[valueKey] = amount; unit[untilKey] = time + duration;
+    } else if (amount === unit[valueKey]) {
+        unit[untilKey] = Math.max(unit[untilKey], time + duration);
+    }
+}
 
 // Seeded PRNG for endless waves; the simulation itself never draws randomness.
 function mulberry32(seed, state = seed >>> 0) {
@@ -24,6 +33,8 @@ export class Battle {
     constructor(level, options = {}) {
         this.level = level;
         this.deck = new Set(options.deck || ["F01", "U01"]);
+        this.evolved=new Set((options.evolved||[]).filter(id=>id.startsWith('U')&&UNIT_RULES[id]));
+        this._evolvedRules=new Map();
         this.phase = "setup";
         this.time = 0;
         this.tick = 0;
@@ -236,7 +247,8 @@ export class Battle {
             this.emit("spellCast", { id, unitType: type, row, col, windup: rule.windup });
             return { ok: true, id };
         }
-        const unit = { id: this.id("unit-"), type, row, col, hp: rule.hp, maxHp: rule.hp,
+        const evolved=this.evolved.has(type), hp=Math.round(rule.hp*(evolved?EVOLUTION_HEALTH:1));
+        const unit = { id: this.id("unit-"), type, row, col, evolved, hp, maxHp:hp,
             nextAction: this.time, nextIncome: this.time + (rule.firstIncome || 0),
             nextGuard: this.time, guardUntil: 0, createdAt: this.time, attacks: 0,
             shield: 0, maxShield: 0, barrierHits: 0, nextBarrier: this.time,
@@ -568,7 +580,10 @@ export class Battle {
     }
 
     cadence(unit, period) {
-        return period * (active(unit.hasteUntil, this.time) ? 1 - unit.haste : 1);
+        const tempo = UNIT_RULES[unit.type].tempo;
+        const haste = Math.max(active(unit.hasteUntil, this.time) ? unit.haste : 0,
+            tempo ? Math.min(tempo.max, unit.attacks * tempo.per) : 0);
+        return period * (1 - Math.min(.6, haste));
     }
 
     updateUnit(unit) {
@@ -661,7 +676,7 @@ export class Battle {
                 if (burstContains(action, enemy, rule)) {
                     this.damageEnemy(enemy, rule.damage, action.id);
                     // F12 冻结术式: survivors of the blast stay frozen.
-                    if (rule.freeze && this.enemies.has(enemy.id)) { enemy.stunUntil = Math.max(enemy.stunUntil, this.time + rule.freeze.duration); }
+                    if (rule.freeze && this.enemies.has(enemy.id)) { this.stunEnemy(enemy, rule.freeze.duration); }
                 }
             }
             return;
@@ -673,8 +688,7 @@ export class Battle {
             const boosted = [];
             for (const other of this.units.values()) {
                 if (other !== unit && areaContains(unit, other) && UNIT_RULES[other.type].kind !== "producer") {
-                    other.hasteUntil = this.time + rule.hasteDuration;
-                    other.haste = Math.max(active(other.hasteUntil, this.time) ? other.haste : 0, rule.haste);
+                    applyStatus(other, 'haste', 'hasteUntil', rule.haste, rule.hasteDuration, this.time);
                     boosted.push(other.id);
                 }
             }
@@ -688,7 +702,7 @@ export class Battle {
             if (action.kind === "enemyHit" && (enemy.row !== unit.row || Math.abs(enemy.x - (unit.col + .55)) > .08)) { return; }
             if (action.kind === "enemyShot" && enemy.row !== unit.row) { return; }
             const rule = ENEMY_RULES[enemy.type];
-            const unitRule = UNIT_RULES[unit.type];
+            const unitRule = this.unitRule(unit);
             if (action.kind === "enemyShot") { this.emit("enemyShot", { id: enemy.id, target: unit.id }); }
             const reduction = unit.guardUntil > this.time ? unitRule.guardReduction || 0 : 0;
             const weaken = active(enemy.weakenUntil, this.time) ? enemy.weaken : 0;
@@ -709,6 +723,16 @@ export class Battle {
                 const amount = Math.min(Math.round(rule.healing * (this.townHeal || 1)), healCap);
                 if (amount <= 0) { continue; }
                 ally.hp += amount;
+                if (rule.healShield) {
+                    const before = ally.shield;
+                    ally.shield = Math.max(before, Math.min(rule.maxShield, before + rule.healShield));
+                    ally.maxShield = Math.max(ally.maxShield, ally.shield);
+                    this.stats.shielded += ally.shield - before;
+                    if (ally.shield > before) this.emit("shielded", { id: ally.id, source: unit.id, shield: ally.shield });
+                }
+                if (rule.healHaste) {
+                    applyStatus(ally, 'haste', 'hasteUntil', rule.healHaste.amount, rule.healHaste.duration, this.time);
+                }
                 this.stats.healed += amount;
                 this.emit("healed", { id: ally.id, source: unit.id, amount, hp: ally.hp });
             }
@@ -718,7 +742,7 @@ export class Battle {
             const ally = this.units.get(action.target);
             if (!ally || !areaContains(unit, ally)) { return; }
             const before = ally.shield;
-            ally.shield = Math.min(rule.maxShield, ally.shield + rule.shield);
+            ally.shield = Math.max(before, Math.min(rule.maxShield, before + rule.shield));
             ally.maxShield = Math.max(ally.maxShield, ally.shield);
             this.stats.shielded += ally.shield - before;
             this.emit("shielded", { id: ally.id, source: unit.id, shield: ally.shield });
@@ -763,10 +787,10 @@ export class Battle {
             ? [...this.enemies.values()].filter(enemy => enemy.state !== "reviving" && attackContains(unit, enemy, rule))
             : [target];
         let amount = rule.damage;
-        if (special?.type === "critical") { amount *= special.multiplier; }
+        if (special?.type === "critical" || special?.type === "power") { amount *= special.multiplier; }
         if (special?.type === "expose") { amount = special.damage; }
         for (const enemy of victims) {
-            const onHit = {};
+            const onHit = { ...(rule.onHit || {}) };
             this.skillOnHit(special, onHit);
             if (this.rollSleep(enemy, rule)) {
                 this.emit("status", { id: enemy.id, statuses: ["stun"], source: unit.id });
@@ -785,6 +809,13 @@ export class Battle {
             this.emit("blocked", { id: unit.id, source, left: unit.barrierHits });
             return;
         }
+        let protection = 0;
+        for (const ally of this.units.values()) {
+            if (ally !== unit && areaContains(ally, unit)) {
+                protection = Math.max(protection, UNIT_RULES[ally.type].protection || 0);
+            }
+        }
+        amount = Math.max(1, Math.round(amount * (1 - protection)));
         let remaining = amount;
         if (unit.shield > 0) {
             const absorbed = Math.min(unit.shield, remaining);
@@ -800,7 +831,7 @@ export class Battle {
             return;
         }
         unit.hp = Math.max(0, unit.hp - remaining);
-        this.emit("unitHurt", { id: unit.id, amount, hp: unit.hp, shield: unit.shield, source, kind });
+        this.emit("unitHurt", { id: unit.id, amount, hp: unit.hp, shield: unit.shield, source, kind, protected: protection > 0 });
         if (unit.hp === 0) { this.stats.defeatedUnits++; this.removeUnit(unit, "defeated"); }
     }
 
@@ -822,8 +853,12 @@ export class Battle {
     // 近战与弹道两条路都走这里，保证概率与时长只有一处定义。
     rollSleep(enemy, rule) {
         if (!rule?.sleepChance || !this.rng || this.rng() >= rule.sleepChance) { return false; }
-        enemy.stunUntil = Math.max(enemy.stunUntil, this.time + 1.2);
+        this.stunEnemy(enemy, 1.2);
         return true;
+    }
+
+    stunEnemy(enemy, duration) {
+        enemy.stunUntil = Math.max(enemy.stunUntil, this.time + duration * (ENEMY_RULES[enemy.type].boss ? .45 : 1));
     }
     // on-hit statuses; critical/power/wave are already baked into the damage.
     skillOnHit(special, onHit) {
@@ -840,30 +875,28 @@ export class Battle {
         this.damageEnemy(enemy, Math.max(1, Math.round(damage)), source, options);
         if (!this.enemies.has(enemy.id) || enemy.state === "reviving") { return; }
         const hit = options.onHit || {};
+        const control = ENEMY_RULES[enemy.type].boss ? .45 : 1;
         const applied = [];
         if (hit.slow) {
-            enemy.slowFactor = active(enemy.slowUntil, this.time) ? Math.max(enemy.slowFactor, hit.slow) : hit.slow;
-            enemy.slowUntil = Math.max(enemy.slowUntil, this.time + hit.slowDuration); applied.push("slow");
+            const slow = hit.slow * control;
+            applyStatus(enemy, 'slowFactor', 'slowUntil', slow, hit.slowDuration, this.time); applied.push("slow");
         }
         if (hit.vulnerable) {
-            enemy.vulnerable = active(enemy.vulnerableUntil, this.time) ? Math.max(enemy.vulnerable, hit.vulnerable) : hit.vulnerable;
-            enemy.vulnerableUntil = Math.max(enemy.vulnerableUntil, this.time + hit.vulnerableDuration); applied.push("vulnerable");
+            applyStatus(enemy, 'vulnerable', 'vulnerableUntil', hit.vulnerable, hit.vulnerableDuration, this.time); applied.push("vulnerable");
         }
         if (hit.weaken) {
-            enemy.weaken = active(enemy.weakenUntil, this.time) ? Math.max(enemy.weaken, hit.weaken) : hit.weaken;
-            enemy.weakenUntil = Math.max(enemy.weakenUntil, this.time + hit.weakenDuration); applied.push("weaken");
+            applyStatus(enemy, 'weaken', 'weakenUntil', hit.weaken, hit.weakenDuration, this.time); applied.push("weaken");
         }
         if (hit.burn) {
-            enemy.burnDps = Math.max(active(enemy.burnUntil, this.time) ? enemy.burnDps : 0, hit.burn);
             if (!active(enemy.burnUntil, this.time)) { enemy.nextBurn = this.time + .5; }
-            enemy.burnUntil = Math.max(enemy.burnUntil, this.time + hit.burnDuration); applied.push("burn");
+            applyStatus(enemy, 'burnDps', 'burnUntil', hit.burn, hit.burnDuration, this.time); applied.push("burn");
         }
-        if (hit.stun) { enemy.stunUntil = Math.max(enemy.stunUntil, this.time + hit.stun); applied.push("stun"); }
+        if (hit.stun) { this.stunEnemy(enemy, hit.stun); applied.push("stun"); }
         if (hit.knockback) {
-            enemy.x = Math.min(this.level.cols + .6, enemy.x + hit.knockback);
+            enemy.x = Math.min(this.level.cols + .6, enemy.x + hit.knockback * control);
             enemy.state = "walking"; enemy.targetId = null; applied.push("knockback");
         }
-        if (hit.delayAttack) { enemy.nextAttack = Math.max(enemy.nextAttack, this.time) + hit.delayAttack; applied.push("delay"); }
+        if (hit.delayAttack) { enemy.nextAttack = Math.max(enemy.nextAttack, this.time + hit.delayAttack * control); applied.push("delay"); }
         if (applied.length) { this.emit("status", { id: enemy.id, statuses: applied, source }); }
     }
 
@@ -1093,9 +1126,9 @@ export class Battle {
         return out;
     }
     unitRule(unit) {
-        const base = UNIT_RULES[unit.type];
+        const base = this.growthRule(unit.type,unit.evolved);
         if (!unit.gear) { return this.withPairing(unit, base); }
-        const key = `${base.id}+${unit.gear}`;
+        const key = `${base.id}+${Number(!!unit.evolved)}+${unit.gear}`;
         if (!this._gearRuleCache) { this._gearRuleCache = new Map(); }
         if (!this._gearRuleCache.has(key)) {
             const merged = { ...base };
@@ -1142,6 +1175,19 @@ export class Battle {
 
         const rule = this._gearRuleCache.get(key);
         return this.withPairing(unit, rule);
+    }
+
+    growthRule(type,evolved) {
+        const rule=UNIT_RULES[type];
+        if(!evolved)return rule;
+        if(!this._evolvedRules.has(type)){
+            const grown={...rule,hp:Math.round(rule.hp*EVOLUTION_HEALTH)};
+            for(const key of ['damage','healing','shield','maxShield'])if(rule[key])grown[key]=Math.round(rule[key]*EVOLUTION_POWER);
+            if(rule.special?.damage)grown.special={...rule.special,damage:Math.round(rule.special.damage*EVOLUTION_POWER)};
+            if(rule.onHit?.burn)grown.onHit={...rule.onHit,burn:rule.onHit.burn*EVOLUTION_POWER};
+            this._evolvedRules.set(type,Object.freeze(grown));
+        }
+        return this._evolvedRules.get(type);
     }
 
     // 搭档加成叠加在 gear 合并之后的最终数值上（麻耶×惠、冠×荣依子）。
@@ -1243,6 +1289,7 @@ export class Battle {
     serializeEndless() {
         if (!this.level.endless || this.phase === "lost") { return null; }
         return { version: 2, level: this.level.id, runId: this.runId, seed: this.seed,
+            evolved:[...this.evolved],
             rngState: this.rng.state(), deck: [...this.deck], time: this.time,
             wave: this.wave, resource: Math.round(this.resource), restocks: this.restocks || 0,
             plannedWave: this.plannedWave, nextWaveAt: this.nextWaveAt, spawnIndex: this.spawnIndex,
@@ -1262,6 +1309,9 @@ export class Battle {
     static applyEndless(battle, data) {
         if (!data || ![1, 2].includes(data.version) || data.level !== battle.level.id || !battle.level.endless) { return false; }
         if (battle.phase !== "setup") { return false; }
+        if (data.evolved !== undefined && (!Array.isArray(data.evolved)
+            || data.evolved.some(id => typeof id !== 'string' || !id.startsWith('U') || !UNIT_RULES[id]))) { return false; }
+        const evolved = new Set(data.version === 2 ? data.evolved || [] : []);
         if (data.version === 2) {
             if (!Number.isInteger(data.seed) || !Number.isInteger(data.rngState) || data.rngState < 0 || data.rngState > 0xffffffff
                 || typeof data.runId !== "string" || !data.runId || !Number.isInteger(data.wave) || data.wave < 1
@@ -1306,6 +1356,8 @@ export class Battle {
                     || entry.row < 0 || entry.row >= battle.level.rows || entry.col < 0 || entry.col >= battle.level.cols
                     || !Number.isFinite(entry.hp) || entry.hp < 1 || entry.hp > 1e6 || entry.gear && (!UNIT_RULES[entry.gear]
                     || UNIT_RULES[entry.gear].kind !== "gear" || UNIT_RULES[entry.gear].gearFor?.length && !UNIT_RULES[entry.gear].gearFor.includes(entry.type))
+                    || entry.evolved !== undefined && typeof entry.evolved !== 'boolean'
+                    || (entry.evolved === true) !== evolved.has(entry.type)
                     || occupied.has(cellKey(entry.row, entry.col)) || !Object.values(entry).every(finite)) { return false; }
                 occupied.add(cellKey(entry.row, entry.col));
             }
@@ -1318,6 +1370,7 @@ export class Battle {
                 || !data.pickups.every(pickup => pickup && typeof pickup.id === "string" && Number.isInteger(pickup.row)
                     && pickup.row >= 0 && pickup.row < battle.level.rows && Number.isFinite(pickup.amount) && pickup.amount >= 0
                     && Object.values(pickup).every(finite))) { return false; }
+            battle.evolved = evolved;
             battle.seed = data.seed;
             battle.rng = mulberry32(data.seed, data.rngState);
             battle.runId = data.runId;
@@ -1365,9 +1418,6 @@ export class Battle {
             return true;
         }
         if (!Number.isInteger(data.seed)) { return false; }
-        battle.seed = data.seed;
-        battle.rng = mulberry32(data.seed);
-        battle.time = 0;
         // Restore the deck before units so gear validation sees the carriers.
         const deck = new Set(Array.isArray(data.deck) && data.deck.length ? data.deck : [...battle.deck]);
         for (const id of deck) { if (!DECK_ORDER.includes(id)) { return false; } }
@@ -1387,6 +1437,10 @@ export class Battle {
                 if (!gearRule || gearRule.kind !== "gear" || gearRule.gearFor?.length && !gearRule.gearFor.includes(entry.type)) { return false; }
             }
         }
+        battle.evolved = evolved;
+        battle.seed = data.seed;
+        battle.rng = mulberry32(data.seed);
+        battle.time = 0;
         battle.deck = deck;
         // Replay the planned waves up to the saved wave so endless state
         // (bounds, next wave time, roster unlocks) matches, then fast-forward
@@ -1458,6 +1512,7 @@ export class Battle {
     serializeSetup() {
         if (this.phase !== "setup") { return null; }
         return { version: 1, level: this.level.id, deck: [...this.deck], seed: this.level.endless ? this.seed : null,
+            evolved:[...this.evolved],
             resource: this.resource,
             readyAt: [...this.readyAt.entries()],
             units: [...this.units.values()].map(unit => ({ id: unit.id, type: unit.type, row: unit.row, col: unit.col, gear: unit.gear || null })),
@@ -1469,27 +1524,36 @@ export class Battle {
         if (battle.phase !== "setup") { return false; }
         if (battle.level.endless && data.seed !== null && data.seed !== battle.seed) { return false; }
         if (!Number.isFinite(data.resource) || data.resource < 0 || data.resource > 1e7) { return false; }
-        if (Array.isArray(data.readyAt) && data.readyAt.some(([type, at]) => typeof type !== "string" || !Number.isFinite(at) || at < 0)) { return false; }
+        if (data.readyAt !== undefined && (!Array.isArray(data.readyAt) || data.readyAt.some(row => !Array.isArray(row)
+            || row.length !== 2 || typeof row[0] !== 'string' || !Number.isFinite(row[1]) || row[1] < 0))) { return false; }
+        if (data.evolved !== undefined && (!Array.isArray(data.evolved)
+            || data.evolved.some(id => typeof id !== 'string' || !id.startsWith('U') || !UNIT_RULES[id]))) { return false; }
+        const evolved = new Set(data.evolved || []);
         const units = Array.isArray(data.units) ? data.units : [];
         const deck = new Set(Array.isArray(data.deck) && data.deck.length ? data.deck : [...battle.deck]);
         for (const id of deck) {
             if (!UNIT_RULES[id]) { return false; }
         }
-        battle.deck = deck;
+        const occupied = new Set(battle.occupancy.keys());
         for (const entry of units) {
-            const rule = UNIT_RULES[entry.type];
-            if (!rule || !deck.has(entry.type)) { return false; }
-            if (!Number.isInteger(entry.row) || !Number.isInteger(entry.col) ||
-                entry.row < 0 || entry.row >= battle.level.rows || entry.col < 0 || entry.col >= battle.level.cols) { return false; }
-            if (battle.occupancy.has(cellKey(entry.row, entry.col))) { return false; }
-            const unit = { id: battle.id("unit-"), type: entry.type, row: entry.row, col: entry.col,
+            const rule = UNIT_RULES[entry?.type], gear = entry?.gear && UNIT_RULES[entry.gear];
+            if (!rule || !deck.has(entry.type) || !Number.isInteger(entry.row) || !Number.isInteger(entry.col)
+                || entry.row < 0 || entry.row >= battle.level.rows || entry.col < 0 || entry.col >= battle.level.cols
+                || occupied.has(cellKey(entry.row, entry.col)) || entry.gear && (!gear || gear.kind !== 'gear'
+                || gear.gearFor?.length && !gear.gearFor.includes(entry.type))) { return false; }
+            occupied.add(cellKey(entry.row, entry.col));
+        }
+        battle.deck = deck;
+        battle.evolved = evolved;
+        for (const entry of units) {
+            const evolved=battle.evolved.has(entry.type),rule=battle.growthRule(entry.type,evolved);
+            const unit = { id: battle.id("unit-"), type: entry.type, row: entry.row, col: entry.col, evolved,
                 hp: rule.hp, maxHp: rule.hp, nextAction: 0,
                 nextIncome: rule.firstIncome || 0, nextGuard: 0, guardUntil: 0, createdAt: 0, attacks: 0,
                 shield: 0, maxShield: 0, barrierHits: 0, nextBarrier: 0,
                 nextSelfHeal: rule.selfHeal?.period || 0, hasteUntil: 0, haste: 0 };
             if (entry.gear) {
                 const gearRule = UNIT_RULES[entry.gear];
-                if (!gearRule || gearRule.kind !== "gear" || (gearRule.gearFor?.length && !gearRule.gearFor.includes(entry.type))) { return false; }
                 unit.gear = entry.gear;
                 if (gearRule.gear.maxHp) { unit.maxHp += gearRule.gear.maxHp; unit.hp = Math.min(unit.maxHp, unit.hp + (gearRule.gear.heal || 0)); }
                 if (gearRule.gear.barrier) { unit.barrierHits += gearRule.gear.barrier; }

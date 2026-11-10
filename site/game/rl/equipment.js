@@ -12,22 +12,9 @@
 import { weaponDefinition, weaponAffixes, canEquipWeapon, weaponProficiency } from "./weaponcatalog.js";
 import { weaponProfile } from "./weaponprofile.js";
 import { gadgetRuntime } from './gadgets.js';
+import { evolvedStats } from '../../core/evolution.js';
 
 let affixTable = null;
-
-// Highest first. Only skill-replacement conflicts use this order.
-export const SKILL_OVERRIDE_PRIORITY = Object.freeze(["weapon", "amulet", "armor", "charm"]);
-
-function replacementOrder(a, b) {
-    const rank = source => {
-        const index = SKILL_OVERRIDE_PRIORITY.indexOf(source.slot);
-        return index < 0 ? SKILL_OVERRIDE_PRIORITY.length : index;
-    };
-    return rank(a.source) - rank(b.source)
-        || Number(b.source.native) - Number(a.source.native)
-        || b.source.affixIndex - a.source.affixIndex
-        || b.source.effectIndex - a.source.effectIndex;
-}
 
 // affixTableFromPassives(passives) → table
 //   Builds the setAffixTable payload from weapons-rl.json's 162 passives
@@ -117,8 +104,8 @@ export function setAffixTable(table) {
 //   normalOverride / skillOverrides — type 8 child row ids, resolved per
 //                authored position (normal, first class skill, second class
 //                skill). Missing positions never shift another skill.
-//   skillReplacements — all declarations and their effective source, using
-//                SKILL_OVERRIDE_PRIORITY, then native/last-affix precedence.
+//   skillReplacements — only the weapon may strengthen skills. Native effects
+//                are read last; legacy accessory declarations remain inspectable.
 //   healingLockImmune type 2 trigger 0 — protects against Unhappy only.
 //   extraCardTriggers type 12 trigger 0 — added at placement/refresh, not retroactive.
 //   noops        type 3 (players have no stun gauge here),
@@ -209,20 +196,13 @@ export function passiveRuntime(items) {
             }
         }
     }
-    for (let i = 0; i < list.length; i++) {
-        if (list[i] && list[i].slot !== "weapon") {
-            read(list[i]);
-        }
-    }
-    for (let i = 0; i < list.length; i++) {
-        if (list[i] && list[i].slot === "weapon") {
-            read(list[i]);
-        }
+    for (const slot of ["amulet", "armor", "charm", "weapon"]) {
+        const item = list.find(item => item?.slot === slot);
+        if (item) read(item);
     }
     const winners = [null, null, null];
     for (const change of rt.skillReplacements) {
-        const current = winners[change.target];
-        if (!current || replacementOrder(change, current) < 0) winners[change.target] = change;
+        if (change.source.slot === "weapon") winners[change.target] = change;
     }
     for (const change of winners) {
         if (!change) continue;
@@ -233,6 +213,9 @@ export function passiveRuntime(items) {
             rt.skillOverrides[change.target - 1] = change.skillId;
         }
     }
+    const gear = gadgetRuntime(items);
+    rt.gaugeMult *= gear.gauge;
+    rt.lifesteal += gear.lifesteal;
     return rt;
 }
 
@@ -269,6 +252,7 @@ export function equipmentMultipliers(items, card) {
     const gadgets = gadgetRuntime(items);
     mults.atk *= gadgets.damage; mults.mgc *= gadgets.damage;
     mults.def *= gadgets.defense; mults.mdef *= gadgets.defense;
+    mults.hp *= gadgets.hp; crit += gadgets.crit;
     return { mults: mults, crit: crit, gadgets };
 }
 
@@ -301,7 +285,7 @@ export function applyEquipment(base, items, card) {
 
 // Shared by live re-equipping and read-only comparisons, including run stacks.
 export function calculateLoadout(base, items, counters) {
-    const stats = applyEquipment(base, items, counters && counters.card);
+    const stats = applyEquipment(evolvedStats(base,counters?.evolved), items, counters && counters.card);
     const passives = passiveRuntime(items);
     const stacks = [
         [passives.hitStack, (counters && counters.stackHits) || 0],
@@ -310,7 +294,7 @@ export function calculateLoadout(base, items, counters) {
     stacks.forEach(function (entry) {
         if (!entry[0] || !entry[1]) { return; }
         ["atk", "mgc", "def", "mdef"].forEach(function (key) {
-            if (entry[0][key]) { stats[key] *= 1 + entry[0][key] * entry[1]; }
+            if (entry[0][key]) { stats[key] *= 1 + Math.min(1, entry[0][key] * entry[1]); }
         });
     });
     return { stats: stats, passives: passives };

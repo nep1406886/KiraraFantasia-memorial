@@ -12,8 +12,8 @@ const PROFILE_KEYS = [...PROFILE_V1_KEYS, "runId"];
 const RESULT_KEYS = ["runId", "outcome", "volume", "floor", "cardId", "level", "coin",
     "equipmentCount", "gems", "newPages", "pages", "revision", "acknowledged"];
 const META_KEYS = ["chars", "levels", "lb", "pages", "enemies", "volumes", "gems", "shards",
-    "prologueSeen", "achievements", "tutorialSeen", "storySeen"];
-const RUN_KEYS = ["schemaVersion", "generatorVersion", "seed", "volume", "floor", "cardId",
+    "prologueSeen", "achievements", "tutorialSeen", "storySeen", "evolution"];
+const RUN_KEYS = ["schemaVersion", "generatorVersion", "seed", "volume", "floor", "cardId", "appearance", "evolved",
     "level", "exp", "hp", "gauge", "coin", "stackHits", "stackKills", "equipment", "roomClaims"];
 
 export function emptyProfile() {
@@ -165,6 +165,17 @@ export function createProfileValidator({ stats, weapons, mergeMeta, pageIds, ach
     function metaState(raw) {
         if (raw === null) { return null; }
         fields(raw, META_KEYS, "角色进度");
+        if(raw.evolution!==undefined){
+            const value=raw.evolution;fields(value,['experience','evolved','pearls'],'进化记录');
+            if(!plain(value.experience)||!Array.isArray(value.pearls)||value.pearls.length!==6)reject('进化素材格式不正确。');
+            for(const [id,amount] of Object.entries(value.experience)){
+                if(String(Number(id))!==id||!playable.has(Number(id)))reject('进化记录含未知角色。');
+                integer(amount,0,3,'同行阅历');
+            }
+            if (!Array.isArray(value.evolved) || value.evolved.some(id => typeof id !== 'string')) reject('进化角色编号格式不正确。');
+            idList(value.evolved,id=>String(Number(id))===id&&playable.has(Number(id)),playable.size,'进化角色');
+            value.pearls.forEach(n=>integer(n,0,9999,'进化珠'));
+        }
         if (raw.chars !== undefined) { idList(raw.chars, id => playable.has(id), playable.size, "角色", true); }
         for (const [key, min, max] of [["levels", 1, 100], ["lb", 0, 4]]) {
             if (raw[key] === undefined) { continue; }
@@ -213,6 +224,10 @@ export function createProfileValidator({ stats, weapons, mergeMeta, pageIds, ach
     function runState(raw) {
         if (raw === null) { return null; }
         fields(raw, RUN_KEYS, "冒险进度");
+        if (raw.appearance !== undefined && !['base', 'evolved'].includes(raw.appearance)) {
+            reject("角色形态必须是进化前或进化后。");
+        }
+        if(raw.evolved!==undefined&&typeof raw.evolved!=='boolean')reject('进化状态必须是有效标记。');
         integer(raw.volume, 1, 5, "卷号"); integer(raw.floor, 1, 20, "层号");
         integer(raw.level, 1, 100, "冒险等级");
         for (const key of ["exp", "coin", "stackHits", "stackKills"]) {

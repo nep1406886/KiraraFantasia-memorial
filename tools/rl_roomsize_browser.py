@@ -22,7 +22,7 @@ MIXED = """async()=>{
         const c=candidates[i],s=a.roomSize(types[i]),surface=c.group.getObjectByName('room-surface');
         checks.push({name:'并发候选独立尺寸 '+types[i],ok:c.size===s&&c.layout.size===s
             &&surface.geometry.parameters.width===s.w&&surface.geometry.parameters.height===s.h
-            &&surface.material.map.image.width===s.w*32&&surface.material.map.image.height===s.h*32
+            &&surface.material.map.image.width===s.w*48&&surface.material.map.image.height===s.h*48
             &&surface.position.x===s.w/2&&surface.position.z===s.h/2});
     }
     map.activateRoom(candidates[0]);const active=map.group;
@@ -54,7 +54,7 @@ def main():
         worker=threading.Thread(target=server.serve_forever,daemon=True);worker.start()
         try:
             with sync_playwright() as pw:
-                browser=pw.chromium.launch(args=['--use-gl=angle','--enable-unsafe-swiftshader'])
+                browser=pw.chromium.launch(channel='msedge',args=['--use-gl=angle','--enable-unsafe-swiftshader'])
                 base='http://127.0.0.1:%d'%server.server_address[1]
                 page=browser.new_page(viewport={'width':1280,'height':840})
                 page.on('pageerror',lambda e:report['errors'].append(str(e)))
@@ -80,12 +80,12 @@ def main():
                         page.wait_for_function("id=>kirafanRL.mapview.group?.name==='room:'+id&&!kirafanRL.world.frozen",arg=room['id'],timeout=40000)
                         page.evaluate('kirafanRL.step(0)')
                         row=page.evaluate(SNAPSHOT);row['entrySide']=side;report['entries'].append(row)
-                        size=[32,24] if room['type'] in ('battle','boss') else [16,12] if room['type']=='chest' else [20,16]
+                        size=[40,30] if room['type'] in ('battle','boss') else [16,12] if room['type']=='chest' else [20,16]
                         w,h=size
                         expected={'N':[w/2,1.2],'E':[w-1.2,h/2],'S':[w/2,h-1.2],'W':[1.2,h/2]}[side]
                         check(room['type']+' '+side+' 世界/地面/纹理/小地图/入场一致',
                             [row['width'],row['height']]==size and row['plane']==size and row['minimap']==size
-                            and row['center']==[w/2,h/2] and row['pixels']==[w*32,h*32]
+                            and row['center']==[w/2,h/2] and row['pixels']==[w*48,h*48]
                             and all(abs(x-y)<.02 for x,y in zip(row['player'],expected)),row)
                     page.screenshot(path=str(OUT/(room['type']+'.png')))
                 check('真实种子覆盖全部六房型',sampled=={'start','battle','shop','rest','chest','boss'},sampled)

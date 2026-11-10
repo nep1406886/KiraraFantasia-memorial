@@ -71,9 +71,11 @@ import { ROOM_SIZE, roomSize } from "../dungeon.js";
 import { createRoomLandmark, preloadRoomBuildings } from "./roomlandmarks.js";
 import { createRoomLayout } from "./roomlayout.js";
 import { floorShrineFor } from '../floorshrine.js';
+import { createAmbience } from '../../../core/ambience.js';
 import { createFloorShrineView, preloadFloorShrine } from './floorshrineview.js';
 import { createRestCampView } from './restcampview.js';
 import { createRoomSurface } from "./roomsurface.js";
+import { createGardenMotion, sceneryMotion } from './gardenmotion.js';
 
 let THREE = null;
 loader.loadModules().then(function (modules) {
@@ -155,26 +157,14 @@ const WHITE_SHEET = /_eff_white/i;
 // washtub the fight happens next to.
 //
 // So the ground is synthesized from the volume's authored colours
-// (floors.json `ground`) in three layers, all sharing one seamless canvas
-// texture and differing only by a colour multiplier:
-//
-//   surround — room plus overhang, darkened. Everything outside the wall line.
-//   floor    — exactly the room rect, full brightness. The step in brightness
-//              at its edge IS the wall: the room is bounded by collision, so
-//              the player has to be able to see where.
-//   arena    — a disc, for rooms whose recipe asks (boss). Decoration inside
-//              the floor rect, never a substitute for it.
+// (floors.json `ground`). A shared grain texture covers the darkened surround
+// and doorway strips. roomsurface.js owns the opaque room floor and its inlay.
 
 const GROUND_TILE = 256;        // canvas pixels per grain tile
 const GROUND_PATCH = 2.2;       // world units one grain tile covers
 const SURROUND_Y = -0.03;
 const GROUND_Y = -0.02;
-const ARENA_Y = -0.01;
 const SURROUND_DIM = 0x8c8c8c;  // outside the walls
-const ARENA_DIM = 0xc4c4c4;     // the boss stage disc
-const ARENA_RIM = 0x9c9c9c;     // and the ring that makes it read as raised
-const ARENA_RIM_WIDTH = 0.32;
-const ARENA_COVER = 0.92;       // disc diameter over the room's short side
 // Door strips (T21d): the lit path that opens the wall's brightness step at
 // each doorway. Width matches DOOR_CLEAR — the corridor the prop ring already
 // leaves empty — so the strip and the gap in the tree line read as one opening.
@@ -320,8 +310,6 @@ function groundKit(cfg) {
         amp: amp,
         floor: material(0xffffff),
         surround: material(SURROUND_DIM),
-        arena: material(ARENA_DIM),
-        rim: material(ARENA_RIM)
     };
     groundCache.set(key, kit);
     return kit;
@@ -411,7 +399,7 @@ function doorStrip(kit, side, amp, owner, size) {
     return mesh;
 }
 
-function groundGroup(cfg, arena, doors, owner) {
+function groundGroup(cfg, doors, owner) {
     const kit = groundKit(cfg);
     const size = owner.size, origin = { x: size.w / 2, y: size.h / 2 };
     const group = new THREE.Group();
@@ -424,25 +412,6 @@ function groundGroup(cfg, arena, doors, owner) {
     group.add(groundLayer(new THREE.PlaneGeometry(outerW, outerH,
         Math.ceil(outerW / TONE_SEGMENT), Math.ceil(outerH / TONE_SEGMENT)),
         kit.surround, outerW, outerH, SURROUND_Y, kit.amp, origin));
-    group.add(groundLayer(new THREE.PlaneGeometry(size.w, size.h,
-        Math.ceil(size.w / TONE_SEGMENT), Math.ceil(size.h / TONE_SEGMENT)),
-        kit.floor, size.w, size.h, GROUND_Y, kit.amp, origin));
-    if (arena) {
-        const d = Math.min(size.w, size.h) * ARENA_COVER;
-        // Rim first (it sits just outside the disc, so the two never overlap):
-        // a bright disc alone reads as a light patch, a disc with a darker ring
-        // around it reads as a raised stage — the same brightness-step trick
-        // the room rect uses for its wall line.
-        //
-        // Both get amp 0: a circle fan and a ring only have vertices on their
-        // rings, so tone written onto them could only vary with angle, which is
-        // a pinwheel, not ground.
-        const outer = d / 2 + ARENA_RIM_WIDTH;
-        group.add(groundLayer(new THREE.RingGeometry(d / 2, outer, 64),
-            kit.rim, outer * 2, outer * 2, ARENA_Y - 0.002, 0, origin));
-        group.add(groundLayer(new THREE.CircleGeometry(d / 2, 64),
-            kit.arena, d, d, ARENA_Y, 0, origin));
-    }
     (doors || []).forEach(function (side) {
         group.add(doorStrip(kit, side, kit.amp, owner, size));
     });
@@ -797,7 +766,7 @@ function pickPool(kits, categories, prefer, excludes) {
 // GroundSheet's plane lives at z=-0.12 — so tipping turns an invisible depth
 // offset into height and lays the mat 0.19 UNDER a floor only 0.02 down.
 // Seating the baked bbox erases the whole class without a per-card table.
-function collectGeometries(root, matrix, bucket, seat) {
+function collectGeometries(root, matrix, bucket, seat, entry) {
     root.updateMatrixWorld(true);
     root.traverse(function (child) {
         if (!child.isMesh || !child.geometry) { return; }
@@ -817,6 +786,7 @@ function collectGeometries(root, matrix, bucket, seat) {
             }
         });
         geometry.morphAttributes = {};
+        sceneryMotion(THREE, geometry, entry, seat);
         // mergeGeometries needs all-or-none indexed; quads are tiny, so
         // normalizing to non-indexed costs little and always merges
         if (geometry.index) {
@@ -957,6 +927,8 @@ export function createMapView(scene, volume) {
         if (candidate.landmark) { candidate.landmark.dispose(); }
         if (candidate.floorShrine) { candidate.floorShrine.dispose(); }
         if (candidate.restCamp) { candidate.restCamp.dispose(); }
+        candidate.ambience?.dispose();
+        candidate.motion?.dispose();
         const geometries = new Set();
         candidate.group.traverse(function (child) {
             // animated clones SHARE geometry with the cached template —
@@ -1051,6 +1023,10 @@ export function createMapView(scene, volume) {
                     mixer: null, doorMat: null, animatedRoots: [], disposed: false, result: null,
                     dispose: function () { if (active !== candidate) { releaseRoom(candidate); } } };
                 candidates.add(candidate);
+                candidate.motion = createGardenMotion();
+                candidate.ambience = createAmbience(THREE, { width: size.w, depth: size.h,
+                    night: cfg.night, count: Math.round(size.w * size.h * .22), seed: room.seed });
+                group.add(candidate.ambience.object);
 
                 // texture path → geometry list; one merged mesh per texture
                 const buckets = new Map();
@@ -1094,10 +1070,11 @@ export function createMapView(scene, volume) {
                     colliders.push(...restCamp.colliders); placements.push(...restCamp.placements);
                     taken.push(...restCamp.colliders);
                 }
-                const layout = createRoomLayout(landmark, doors, size, floorShrineFor(room), restCamp?.camp);
+                const layout = createRoomLayout(landmark, doors, size, floorShrineFor(room), restCamp?.camp, room);
                 candidate.layout = layout;
                 const surface = createRoomSurface(THREE, cfg, layout, room, vol);
                 candidate.surfaceMaterial = surface.material;
+                candidate.motion.surface(surface.material);
                 candidate.surfaceTexture = surface.texture;
                 group.add(surface.root);
                 function overlapsLandmark(entry, x, y, scale) {
@@ -1151,7 +1128,7 @@ export function createMapView(scene, volume) {
                     const matrix = flat
                         ? flatMatrix(x, y, cardH, scale)
                         : uprightMatrix(x, y, 0, scale);
-                    collectGeometries(unit.template, matrix, bucketOf(unit), flat);
+                    collectGeometries(unit.template, matrix, bucketOf(unit), flat, entry);
                     if (!flat) { addShadow(entry, x, y, scale); }
                     if (collider) { colliders.push(collider); }
                     placements.push({ name: entry.name, x: x, y: y, flat: !!flat });
@@ -1209,7 +1186,7 @@ export function createMapView(scene, volume) {
                 // The kits ship no tileable ground and no top-down dais (see
                 // §ground), so the whole surface is authored colour: darkened
                 // surround, room rect, and a disc for `arena` rooms.
-                groundGroup(cfg, !!recipe.arena, doors, candidate);
+                groundGroup(cfg, doors, candidate);
 
                 // -- border ring --------------------------------------------------
                 const borderPool = pool(["prop", "wall", "animated"],
@@ -1234,46 +1211,23 @@ export function createMapView(scene, volume) {
                     matchesAny(unit.entry.name, prefer.focal || []));
                 layout.beds.forEach(function (bed) {
                     const unit = pickFrom(preferredFocals.length ? preferredFocals : focalPool);
-                    if (unit) placeStatic(unit, bed.x, bed.y, false, true, 1.35);
+                    if (unit) placeStatic(unit, bed.x, bed.y, false, true, 1.6);
                 });
 
-                // -- stage ring: accent props framing the fight floor -------------
-                // A painted arena disc (boss) or plaza inlay (battle) alone is
-                // just ground colour; a ring of small kit cards just inside its
-                // edge gives the encounter a staged frame the way Hades' arenas
-                // read. Vocabulary comes from the volume's own scatter pool —
-                // v1 frames with shells and coral, v5 with temple stones. Slots
-                // sit half a step off both axes so door corridors stay open;
-                // placeStatic still rejects whatever the path mask protects.
-                const ringCount = recipe.ring ? Math.round(recipe.ring) : 0;
-                if (ringCount > 0) {
-                    const small = function (unit) {
-                        return !laysFlat(unit.entry)
-                            && Math.max(unit.entry.footprint[0], unit.entry.footprint[1]) <= .9;
-                    };
-                    // C.2: the ring composes from the volume's OWN signature
-                    // first (floors.json prefer.ring), falling back to the
-                    // scatter vocabulary — so vol 1's arena ring reads as
-                    // shell-and-coral, vol 3's as flowers, vol 5's as spirit
-                    // plants, while the fallback keeps volumes without a
-                    // curated list exactly as before.
-                    const ringPool = pool(["prop", "animated"],
-                        prefer.ring && prefer.ring.length ? prefer.ring : prefer.scatter,
-                        recipe.scatterPrefer).filter(small);
-                    const usableRing = ringPool.length ? ringPool : borderPool.filter(small);
-                    const ringRadius = recipe.arena
-                        ? Math.min(size.w, size.h) * ARENA_COVER / 2 - .8
-                        : layout.plazaRadius + 1.3;
-                    for (let i = 0; i < ringCount; i++) {
-                        const angle = (i + .5) * Math.PI * 2 / ringCount;
-                        const unit = pickFrom(usableRing);
-                        if (!unit) { continue; }
-                        placeStatic(unit,
-                            size.w / 2 + Math.cos(angle) * ringRadius,
-                            size.h / 2 + Math.sin(angle) * ringRadius,
-                            false, false, .95);
+                // Compose original small scenery around larger focal objects.
+                // Clusters are close enough to read in the play camera; static
+                // cards still join texture buckets and share collision checks.
+                const accents = pool(["prop", "animated"], prefer.ring || prefer.scatter,
+                    recipe.scatterPrefer).filter(unit => !laysFlat(unit.entry)
+                        && Math.max(...unit.entry.footprint) < .85);
+                layout.beds.forEach((bed, index) => {
+                    for (let i = 0; i < 11; i++) {
+                        const angle = rng() * Math.PI * 2, radius = bed.radius * (.3 + rng() * .6);
+                        const unit = accents[(index * 3 + i) % accents.length];
+                        if (unit) placeStatic(unit, bed.x + Math.cos(angle) * radius,
+                            bed.y + Math.sin(angle) * radius * .75, false, false, .95 + rng() * .35);
                     }
-                }
+                });
 
                 // -- anchor: the room's semantic landmark ------------------------
                 // Landmarks read as landmarks by being bigger than the ring.
@@ -1374,7 +1328,7 @@ export function createMapView(scene, volume) {
                     if (!merged) {
                         throw new Error("地图几何合并失败：" + key);
                     }
-                    const mesh = new THREE.Mesh(merged, materialCache.get(key));
+                    const mesh = new THREE.Mesh(merged, candidate.motion.scenery(materialCache.get(key)));
                     mesh.name = "kit:" + key;
                     mesh.frustumCulled = false;     // room-sized; one per texture
                     group.add(mesh);
@@ -1461,8 +1415,10 @@ export function createMapView(scene, volume) {
         });
     }
 
-    function update(dt) {
-        if (active && active.mixer) { active.mixer.update(dt || 0); }
+    function update(dt, reduced = false) {
+        active?.ambience?.update(dt, reduced);
+        active?.motion?.update(dt, reduced);
+        if (active && active.mixer) { active.mixer.update(reduced ? 0 : dt || 0); }
         if (active && active.landmark) { active.landmark.update(); }
         if (active && active.floorShrine) { active.floorShrine.update(dt); }
         if (active && active.restCamp) { active.restCamp.update(dt); }

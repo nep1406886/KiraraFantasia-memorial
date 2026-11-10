@@ -89,6 +89,9 @@ export function createInput() {
         if (!name || editable(event.target)) {
             return;
         }
+        // A pause/blur/rotation cancelled this hold. OS repeat must not revive
+        // it; a fresh key press after release explicitly starts the next hold.
+        if (event.repeat && !heldKeys.has(event.code)) { return; }
         // Stop the page from scrolling on Space / arrows while playing.
         if (event.code === "Space" || event.code.indexOf("Arrow") === 0) {
             event.preventDefault();

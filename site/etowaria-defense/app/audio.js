@@ -1,4 +1,6 @@
 import { siteUrl } from "./assets.js";
+import { MusicBus } from "../../core/music.js";
+import { suspendSe } from "../../core/audio.js";
 
 const KEY = "etowaria-defense.p0.settings.v1";
 const DEFAULTS = { music: true, musicVolume: 0.35, voice: true, seVolume: 0.7, reducedMotion: false };
@@ -24,9 +26,9 @@ export class AudioDirector {
                 }
             }
         } catch { /* A malformed preference never removes progress from another game. */ }
-        this.bgm = new Audio();
-        this.bgm.loop = true;
-        this.bgm.preload = "none";
+        this.music = new MusicBus(cue => siteUrl(`audio/bgm/${cue}_0.mp3`),
+            () => this.onNotice("音乐暂未开始播放，可在声音设置中重新开启。"));
+        this.music.suspend(true);
         this.voice = new Audio();
         this.voice.preload = "none";
         this.unlocked = false;
@@ -37,7 +39,11 @@ export class AudioDirector {
         this.theme = "day";
         this.cinematic = false;
         this.voice.addEventListener("ended", () => this.applyVolumes());
+        this.voice.addEventListener("playing", () => this.applyVolumes());
+        this.voice.addEventListener("error", () => this.applyVolumes());
     }
+
+    get bgm() { return this.music.audio; }
 
     unlock() {
         this.unlocked = true;
@@ -55,7 +61,7 @@ export class AudioDirector {
     applyVolumes() {
         // While a voice line plays, BGM ducks to half so the line reads.
         const duck = this.voice.paused ? 1 : 0.5;
-        this.bgm.volume = this.settings.musicVolume * duck;
+        this.music.setVolume(this.settings.musicVolume, duck);
         this.voice.volume = 0.8;
     }
 
@@ -64,62 +70,32 @@ export class AudioDirector {
         return this.setTrack(THEMES[theme] || THEMES.day);
     }
 
-    // Gapless switch: preload the next BGM so swapping on 开始巡守 doesn't stall.
     preload(cue) {
-        if (!this.bgmPool) { this.bgmPool = new Map(); }
-        if (!this.bgmPool.has(cue)) {
-            const probe = new Audio();
-            probe.preload = "auto";
-            probe.src = siteUrl(`audio/bgm/${cue}_0.mp3`);
-            this.bgmPool.set(cue, probe);
-        }
-        return this.bgmPool.get(cue);
+        return this.music.preload(cue);
     }
 
     async setTrack(cue) {
-        if (cue !== "bgm_battle_win") { this.preload(cue); }
-        this.bgm.loop = cue !== "bgm_battle_win";
-        if (this.track !== cue) {
-            this.track = cue;
-            const preloaded = this.bgmPool?.get(cue);
-            if (preloaded) {
-                // Swap in the preloaded element. The OLD element must stop:
-                // keeping it playing under the new one doubles the mix, and
-                // leaving it mid-track means returning to that cue later
-                // resumes at a stale offset.
-                if (this.bgm !== preloaded) { this.bgm.pause(); }
-                this.bgm = preloaded;
-            } else { this.bgm.src = siteUrl(`audio/bgm/${cue}_0.mp3`); }
-        }
+        this.track = cue;
         this.applyVolumes();
         return this.syncPlayback();
     }
 
     async syncPlayback() {
-        if (this.silent || !this.unlocked || !this.settings.music || this.suspended || this.cinematic) {
-            this.bgm.pause();
-            return;
-        }
-        if (this.bgm.src && this.bgm.paused) {
-            const track = this.track;
-            try { await this.bgm.play(); }
-            catch (error) {
-                if (error.name !== "AbortError" && track === this.track && !this.suspended && !this.cinematic && this.settings.music) {
-                    this.onNotice("音乐暂未开始播放，可在声音设置中重新开启。");
-                }
-            }
-        }
+        const paused = this.silent || !this.unlocked || !this.settings.music || this.suspended || this.cinematic;
+        this.music.suspend(paused);
+        if (this.track) return this.music.play(this.track, { loop: this.track !== "bgm_battle_win" });
     }
 
     suspend(value) {
         this.suspended = value;
+        suspendSe(value);
         if (value) { this.stopVoice(); }
         this.syncPlayback();
     }
 
     beginCinematic() {
         this.cinematic = true;
-        this.bgm.pause();
+        this.syncPlayback();
         this.stopVoice();
     }
 
@@ -133,6 +109,7 @@ export class AudioDirector {
     // The synth keeps its own volume knob in core/audio.js; mirror the user's
     // SE slider into it so one slider rules both.
     se(name, options) {
+        if (this.silent || this.suspended || !this.unlocked) return;
         if (globalThis.__defenseSEVolume) { globalThis.__defenseSEVolume(this.settings.seVolume); }
         if (globalThis.__defenseSE) { globalThis.__defenseSE(name, options); }
     }
@@ -160,9 +137,7 @@ export class AudioDirector {
     }
 
     dispose() {
-        this.bgm.pause();
-        this.bgm.removeAttribute("src");
-        this.bgm.load();
         this.stopVoice();
+        this.music.dispose();
     }
 }

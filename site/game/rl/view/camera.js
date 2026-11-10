@@ -9,7 +9,7 @@
 
 import { accessibility } from "../accessibility.js";
 
-export const VIEW_HALF_HEIGHT = 4.6;
+export const VIEW_HALF_HEIGHT = 5.5;
 // Keep a near-range threat beside the player readable on a portrait phone.
 // Wider screens retain their exact lens; the user's height/zoom still scales
 // both axes. Only extra vertical ground is revealed, never stretched.

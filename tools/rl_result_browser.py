@@ -50,7 +50,8 @@ def dismiss_dialogue(page):
 def start(page, url):
     page.goto(url, wait_until="load", timeout=60000)
     page.wait_for_selector(".roster-card", timeout=40000)
-    page.locator(".roster-card").first.click(); page.wait_for_timeout(100)
+    page.locator(".roster-card").first.click()
+    page.locator("#roster-start").click(); page.wait_for_timeout(100)
     # With the transaction matrix's rAF disabled, the queued room event needs
     # the same first driver tick that a real frame would provide.
     page.evaluate('window.kirafanRL?.step(1/60)')
@@ -281,7 +282,8 @@ def main():
                 page.wait_for_selector(".roster-card", timeout=40000)
                 check("next volume navigation removes debug floor", page.url.endswith("?volume=2"), page.url)
                 check("new volume has no stale continue", page.locator("#roster-continue").count() == 0)
-                page.locator(".roster-card").first.click(); page.wait_for_timeout(100)
+                page.locator(".roster-card").first.click()
+                page.locator("#roster-start").click(); page.wait_for_timeout(100)
                 page.wait_for_function("window.kirafanRL?.world?.dungeon", timeout=40000)
                 dismiss_dialogue(page)
                 check("next volume starts at floor one", page.evaluate("window.kirafanRL.world.floor === 1"))
@@ -374,12 +376,10 @@ def main():
                       slot(touch, "meta").get("volumes", 0) == 0)
                 touch.screenshot(path=str(SHOTS / "defeat-mobile.png"))
                 touch.locator("#result-restart").tap()
-                # Mobile portrait keeps the fresh roster behind the landscape
-                # gate: the card grid exists but must stay hidden until the
-                # viewport actually rotates back to landscape.
-                touch.wait_for_selector("#landscape-guard:not([hidden])", timeout=40000)
-                check("portrait restart shows the landscape gate, not the roster",
-                      not touch.locator(".roster-card").first.is_visible())
+                # Portrait browsing is available again after the run ends.
+                touch.wait_for_selector("#roster-start", timeout=40000)
+                check("portrait restart returns to the camp",
+                      not touch.locator("#landscape-guard").is_visible())
                 touch.set_viewport_size({"width": 844, "height": 390})
                 touch.wait_for_selector(".roster-card", timeout=40000)
                 check("touch restart starts a fresh selection", touch.url.endswith("?volume=1")

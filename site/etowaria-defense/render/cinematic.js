@@ -12,7 +12,7 @@ export async function createCinematic(assets, unit, audio) {
     const results = await Promise.allSettled([
         skill.loadSceneEntry(unit.ultimateScene),
         actorFactory.create({ resourceId: unit.resourceId, classId: unit.classId,
-            headId: unit.headId, skillId: unit.resourceId, weapon: "default", stageMotion: true })
+            headId: unit.headId, skillId: playback.ultimate.sceneId, weapon: "default", stageMotion: true })
     ]);
     const failure = results.find(result => result.status === "rejected");
     if (failure) {
@@ -42,7 +42,7 @@ export async function createCinematic(assets, unit, audio) {
         if (event.event === "weaponVisible") { actor.setWeaponVisible(Boolean(event.args[0])); }
     };
     const player = skill.createPlayer({ THREE, timeline, root, camera, aspect,
-        audio: skill.sceneAudio(unit.resourceId), onEvent: applyState, onState: applyState,
+        audio: skill.sceneAudio(playback.ultimate.sceneId), onEvent: applyState, onState: applyState,
         onEmitter: (index, active) => particles?.setActive(index, active),
         onVoice: cue => audio.playVoice(unit.voice, cue.cue) });
     let disposed = false;

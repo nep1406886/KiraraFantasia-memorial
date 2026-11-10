@@ -1,3 +1,5 @@
+import { MusicBus } from "../../core/music.js";
+
 // BGM System for Roguelike Mode
 // Task 4.1: Background music with scene-based switching
 //
@@ -81,167 +83,23 @@ let bgmManager = null;
  * @returns {Object} BGM manager with play/stop/setVolume methods
  */
 export function createBGMManager() {
-    const audio = new Audio();
-    audio.loop = true;
-    audio.volume = 0.5; // Default 50%
-
-    let currentTrack = null;
-    let targetVolume = 0.5;
-    let fadeInterval = null;
-
-    /**
-     * Build BGM URL from cue name
-     * @param {string} cueName - Track name from BGM_TRACKS
-     * @returns {string} Full URL to mp3 file
-     */
-    function buildURL(cueName) {
-        // Resolve against this module, not the page: Audio src alone escapes a
-        // /kirafan-timer/ deployment subpath (the page sits two levels deep).
-        return new URL(BGM_BASE_URL + cueName + "_0.mp3", import.meta.url).href;
-    }
-
-    /**
-     * Fade audio volume gradually
-     * @param {number} from - Start volume (0-1)
-     * @param {number} to - Target volume (0-1)
-     * @param {number} duration - Fade duration in ms
-     * @param {Function} onComplete - Callback when fade completes
-     */
-    function fade(from, to, duration, onComplete) {
-        if (fadeInterval) {
-            clearInterval(fadeInterval);
-        }
-
-        const steps = 20;
-        const stepDuration = duration / steps;
-        const volumeStep = (to - from) / steps;
-        let currentStep = 0;
-
-        audio.volume = from;
-
-        fadeInterval = setInterval(function() {
-            currentStep++;
-            audio.volume = Math.max(0, Math.min(1, from + volumeStep * currentStep));
-
-            if (currentStep >= steps) {
-                clearInterval(fadeInterval);
-                fadeInterval = null;
-                audio.volume = to;
-                if (onComplete) {
-                    onComplete();
-                }
-            }
-        }, stepDuration);
-    }
-
-    /**
-     * Play BGM track by scene name
-     * @param {string} scene - Scene name from BGM_TRACKS keys
-     * @param {Object} options - { fadeIn: ms, volume: 0-1 }
-     */
-    function play(scene, options) {
-        options = options || {};
-        const fadeInDuration = options.fadeIn !== undefined ? options.fadeIn : 1000;
-        const volume = options.volume !== undefined ? options.volume : targetVolume;
-
-        const trackName = bgmTrackFor(scene, chapterVolume);
-        if (!trackName) {
-            console.warn("BGM: Unknown scene", scene);
-            return;
-        }
-
-        // Same track already playing
-        if (currentTrack === trackName && !audio.paused) {
-            return;
-        }
-
-        currentTrack = trackName;
-        const url = buildURL(trackName);
-
-        // Fade out current, then switch
-        if (!audio.paused) {
-            fade(audio.volume, 0, 500, function() {
-                audio.src = url;
-                audio.load();
-                audio.play().then(function() {
-                    fade(0, volume, fadeInDuration);
-                }).catch(function(err) {
-                    console.warn("BGM play failed:", err);
-                });
-            });
-        } else {
-            // No current track, start directly
-            audio.src = url;
-            audio.volume = 0;
-            audio.load();
-            audio.play().then(function() {
-                fade(0, volume, fadeInDuration);
-            }).catch(function(err) {
-                console.warn("BGM play failed:", err);
-            });
-        }
-    }
-
-    /**
-     * Stop BGM with fade out
-     * @param {Object} options - { fadeOut: ms }
-     */
-    function stop(options) {
-        options = options || {};
-        const fadeOutDuration = options.fadeOut !== undefined ? options.fadeOut : 1000;
-
-        if (audio.paused) {
-            return;
-        }
-
-        fade(audio.volume, 0, fadeOutDuration, function() {
-            audio.pause();
-            currentTrack = null;
-        });
-    }
-
-    /**
-     * Set target volume (affects next play and current track)
-     * @param {number} volume - Volume 0-1
-     */
-    function setVolume(volume) {
-        targetVolume = Math.max(0, Math.min(1, volume));
-        if (!audio.paused) {
-            fade(audio.volume, targetVolume, 300);
-        }
-    }
-
-    /**
-     * Get current volume
-     * @returns {number} Volume 0-1
-     */
-    function getVolume() {
-        return targetVolume;
-    }
-
-    /**
-     * Check if BGM is playing
-     * @returns {boolean}
-     */
-    function isPlaying() {
-        return !audio.paused;
-    }
-
-    /**
-     * Get current track name
-     * @returns {string|null}
-     */
-    function getCurrentTrack() {
-        return currentTrack;
-    }
-
+    const music = new MusicBus(cue => new URL(BGM_BASE_URL + cue + "_0.mp3", import.meta.url).href,
+        error => console.warn("音乐播放暂时不可用：", error.message));
     return {
-        play: play,
-        stop: stop,
-        setVolume: setVolume,
-        getVolume: getVolume,
-        isPlaying: isPlaying,
-        getCurrentTrack: getCurrentTrack
+        play(scene, options = {}) {
+            const cue = bgmTrackFor(scene, chapterVolume);
+            if (!cue) return;
+            if (options.volume !== undefined) music.setVolume(options.volume);
+            return music.play(cue, { loop: scene !== "victory", fade: options.fadeIn ?? 800 });
+        },
+        stop: (options = {}) => music.stop(options.fadeOut ?? 700),
+        setVolume: volume => music.setVolume(volume),
+        duck: value => music.setVolume(music.volume, value),
+        suspend: value => music.suspend(value),
+        dispose: () => music.dispose(),
+        getVolume: () => music.volume,
+        isPlaying: () => !music.audio.paused,
+        getCurrentTrack: () => music.track
     };
 }
 

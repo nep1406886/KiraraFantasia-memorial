@@ -7,6 +7,7 @@ import { NativeEffects } from "./native-effects.js";
 import { NativeItems } from "./native-items.js";
 import { createCaptureTarget, readTargetPng, restoreRendererState, saveRendererState } from "./capture.js";
 import { premultipliedBlend } from "./materials.js";
+import { createAmbience } from "../../core/ambience.js";
 
 // OS 级「减少动态效果」：经 matchMedia change 监听保持现值（与 campaign.js
 // 的 osReducedMotion 现算口径一致）。守卫式写法与 battle-view.js 同款（也同
@@ -120,6 +121,8 @@ export class DefenseStage {
         this.renderer.domElement.addEventListener("webglcontextlost", this.onContextLost);
         assets.anisotropy = Math.min(8, this.renderer.capabilities.getMaxAnisotropy());
         this.scene = new THREE.Scene();
+        this.ambience = createAmbience(THREE, { width: 20, depth: 16, x: -10, z: -8, count: 40 });
+        this.scene.add(this.ambience.object);
         this.camera = new THREE.OrthographicCamera(-8, 8, 3.2, -3.2, 0.1, 100);
         this.camera.position.set(0, 18.55, 18 / Math.tan(PITCH));
         this.camera.lookAt(0, 0.55, 0);
@@ -757,6 +760,7 @@ export class DefenseStage {
             return;
         }
         this.time += dt;
+        this.ambience.update(dt, this.audio.settings.reducedMotion || OS_REDUCED);
         if (this.battleTick) {
             this.battleTick(dt);
             // 会心定帧门：hitStopFrames>0 时视觉层吃 vdt=0（模型动画、
@@ -984,6 +988,7 @@ export class DefenseStage {
         this.cinematic?.dispose();
         this.items.dispose();
         this.effects.dispose();
+        this.ambience.dispose();
         this.removeSort?.();
         for (const model of [...this.players, ...this.enemies]) { model.dispose(); }
         loader.disposeObject(this.environment);

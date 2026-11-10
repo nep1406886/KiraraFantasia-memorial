@@ -1,5 +1,5 @@
 // Equipment explanations consume the same resolved slots/sources as combat.
-import { passiveRuntime, SKILL_OVERRIDE_PRIORITY } from "../equipment.js";
+import { passiveRuntime } from "../equipment.js";
 import { decodeSkill, RECAST_SECONDS, TURN_SECONDS } from "../skills.js";
 import { skillWords } from "./infocard.js";
 
@@ -14,7 +14,6 @@ const node = (tag, className, text) => {
 
 export function skillSourceLabel(source) {
     if (!source) return "角色原技能";
-    if (source.style) return "武器职业普攻";
     return (SLOTS[source.slot] || "装备") + " · "
         + (source.native ? "原生被动" : "附加词条 " + (source.affixIndex + 1));
 }
@@ -24,14 +23,12 @@ const cooldown = skill => "基础冷却 " + Number((skill.cooldown || 0).toFixed
 
 export function equipmentSkillRules() {
     const box = node("details", "equipment-skill-rules");
-    box.appendChild(node("summary", "", "改技规则与优先级"));
+    box.appendChild(node("summary", "", "装备与招式"));
     const rules = node("ul");
     for (const text of [
-        "改技固定对应普攻、技能 2 或技能 3；未写改动的槽位不挪用。R 必杀永远保留角色原招。",
-        "同一槽位只生效一条改技：" + SKILL_OVERRIDE_PRIORITY.map(slot => SLOTS[slot]).join(" > ") + "，不看拾取或装配顺序。",
-        "同件装备：原生被动优先；多个附加词条冲突时，列表中靠后的词条优先。只覆盖声明的技能槽，不使整件装备失效。",
-        "更换技能继承该按键的剩余冷却，不通过换装刷新；下次施放按新技能计算。这里展示基础冷却，不含临时恢复效果。",
-        "封印不改变技能身份，只禁止施放；更换缚技护甲后解除，原有冷却继续计算。"
+        "普攻方式由角色职业决定。专武可强化对应招式，R 必杀始终保留角色原招。",
+        "护甲、护符与饰品提供属性和特殊效果，不替换招式。旧装备中的改技声明会标为未生效。",
+        "换装保留剩余冷却。缚技契约会封印技能，更换该护甲即可解除。"
     ]) rules.appendChild(node("li", "", text));
     box.appendChild(rules);
     return box;
@@ -169,7 +166,8 @@ export function equipmentSkillModifiers(item, options) {
         const status = !change.skill ? "资料缺失，未生效" : change.active
             ? (view ? (options.previewing ? "替换后生效" : "当前生效") : "单件配置；装配结果以技能对照为准")
                 + (sealed ? " · 但该按键被缚技契约封印" : "")
-            : winner ? "被「" + skillSourceLabel(winner.source) + "」覆盖；这条改技不生效"
+            : change.source.slot !== "weapon" ? "旧版改技 · 当前仅武器可强化招式；其他效果照常生效"
+                : winner ? "被「" + skillSourceLabel(winner.source) + "」覆盖；这条改技不生效"
                 : "该槽位未装配此技能";
         // Always visible: users must not open the detail to discover a conflict.
         summary.appendChild(node("span", change.active ? "modifier-effective" : "modifier-suppressed", status));

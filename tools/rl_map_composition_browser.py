@@ -82,7 +82,7 @@ BUILD = r"""async ({volume,floor,type,workTitle,seed=74061})=>{
     const report={volume,floor,type,workTitle,size,hash,pathsClear,disjoint,reachable,grounded,
         building:building||null,placements:result.placements.length,drawCalls:a.renderer.info.render.calls,
         surfacePixels:data.length/4,buildMs:result.buildMs,inputUnchanged:original===JSON.stringify(room),
-        surfaceMatchesBounds:canvas.width===size.w*32&&canvas.height===size.h*32
+        surfaceMatchesBounds:canvas.width===size.w*48&&canvas.height===size.h*48
             &&surface.geometry.parameters.width===size.w&&surface.geometry.parameters.height===size.h
             &&surface.position.x===size.w/2&&surface.position.z===size.h/2};
     report.surfaceBehindBuildings=allOpaque&&!surface.material.transparent&&surface.material.depthWrite
@@ -136,8 +136,9 @@ LAYERING = r"""()=>{
 OWNERSHIP = r"""async()=>{
     const a=nav,current=a.map.group,old=a.lastCandidate;
     const candidate=await a.map.prepareRoom(a.lastRoom,undefined,['N','E','S','W'],{strict:true});
-    const owned=[candidate.surfaceMaterial,candidate.surfaceTexture,candidate.group.getObjectByName('room-surface').geometry];
-    const counts=[0,0,0];owned.forEach((r,i)=>r.addEventListener('dispose',()=>counts[i]++));
+    const owned=[candidate.surfaceMaterial,candidate.surfaceTexture,candidate.group.getObjectByName('room-surface').geometry,
+        ...candidate.group.children.filter(n=>n.name.startsWith('kit:')).map(n=>n.material)];
+    const counts=owned.map(()=>0);owned.forEach((r,i)=>r.addEventListener('dispose',()=>counts[i]++));
     const oldCounts=[0,0,0];[old.surfaceMaterial,old.surfaceTexture,old.group.getObjectByName('room-surface').geometry]
         .forEach((r,i)=>r.addEventListener('dispose',()=>oldCounts[i]++));
     const separate=candidate.surfaceMaterial!==old.surfaceMaterial&&candidate.surfaceTexture!==old.surfaceTexture;
@@ -159,22 +160,42 @@ OWNERSHIP = r"""async()=>{
     return {separate,afterDispose,afterReplace,mismatch,noReferences:a.native.nativeCacheStats().refs===0};
 }"""
 
+MOTION = r"""()=>{
+    const a=nav,c=a.lastCandidate,T=a.T,target=new T.WebGLRenderTarget(960,640),previous=a.renderer.getRenderTarget();
+    const read=()=>{a.stage.scene.updateMatrixWorld(true);a.renderer.render(a.stage.scene,a.camera);
+        const pixels=new Uint8Array(960*640*4);a.renderer.readRenderTargetPixels(target,0,0,960,640,pixels);return pixels;};
+    const diff=(x,y)=>{let n=0;for(let i=0;i<x.length;i+=4)if(Math.abs(x[i]-y[i])+Math.abs(x[i+1]-y[i+1])+Math.abs(x[i+2]-y[i+2])>12)n++;return n;};
+    a.renderer.setRenderTarget(target);
+    try{
+        const before=read();a.map.update(2);const moving=read();
+        const time=c.motion.time.value;a.map.update(0);const paused=read();
+        const pausedTime=c.motion.time.value===time;
+        a.map.update(0,true);const reduced=read();a.map.update(2,true);const held=read();
+        let windVertices=0,waterVertices=0;
+        c.group.traverse(n=>{const attr=n.geometry?.getAttribute('gardenMotion');if(!attr)return;
+            for(let i=0;i<attr.count;i++){if(attr.getX(i)>0)windVertices++;if(attr.getY(i)>0)waterVertices++;}});
+        return {moving:diff(before,moving),paused:diff(moving,paused),reduced:diff(reduced,held),pausedTime,
+            reducedTime:c.motion.time.value===time,windVertices,waterVertices};
+    }finally{a.renderer.setRenderTarget(previous);target.dispose();}
+}"""
+
 
 def main():
     OUT.mkdir(parents=True,exist_ok=True)
-    evidence=json.loads((ROOT/'docs/original-town-building-data.json').read_text(encoding='utf8'))
-    report={'identity':[],'rooms':[],'works':[],'errors':[]}
+    evidence=json.loads((ROOT/'docs/data/original-town-building-data.json').read_text(encoding='utf8'))
+    report={'identity':[],'rooms':[],'works':[],'motion':[],'errors':[]}
     handler=functools.partial(NoCacheHandler,directory=str(ROOT))
     with Server(('127.0.0.1',0),handler) as server:
         thread=threading.Thread(target=server.serve_forever,daemon=True);thread.start()
         try:
             with sync_playwright() as pw:
-                browser=pw.chromium.launch(args=['--use-gl=angle','--enable-unsafe-swiftshader'])
+                browser=pw.chromium.launch(channel='msedge',args=['--use-gl=angle','--enable-unsafe-swiftshader'])
                 page=browser.new_page(viewport={'width':960,'height':640})
                 page.on('pageerror',lambda e:report['errors'].append(str(e)))
+                page.on('console',lambda m:report['errors'].append(m.text) if m.type=='error' else None)
                 page.route('**/composition-audit',lambda route:route.fulfill(content_type='text/html',body='<body style="margin:0"></body>'))
                 base='http://127.0.0.1:%d'%server.server_address[1]
-                page.goto(base+'/composition-audit');page.add_script_tag(url=base+'/site/asset/gacha/cards.js');page.evaluate(SETUP)
+                page.goto(base+'/site/game/composition-audit');page.add_script_tag(url=base+'/site/asset/gacha/cards.js');page.evaluate(SETUP)
                 report['identity']=page.evaluate(IDENTITY,evidence)
                 for row in report['identity']:check(row['name'],row['ok'])
                 contact=Image.new('RGB',(1600,4*239),'#efe9de');draw=ImageDraw.Draw(contact)
@@ -185,11 +206,19 @@ def main():
                             row['pathsClear'] and row['disjoint'] and row['reachable'] and row['grounded']
                             and not row['building'] and row['inputUnchanged'] and row['drawCalls']<120
                             and row['surfaceBehindBuildings'] and row['noTreeFragments']
-                            and row['surfacePixels']==1024*768 and row['surfaceMatchesBounds'] and row['buildMs']<1500,row)
+                            and row['surfacePixels']==1920*1440 and row['surfaceMatchesBounds'] and row['buildMs']<1500,row)
                         shot=OUT/('v%d-f%d.png'%(volume,floor));page.locator('canvas').screenshot(path=str(shot))
                         with Image.open(shot) as image:contact.paste(image.resize((320,213)),((volume-1)*320,seg*239+25))
                         draw.text(((volume-1)*320+6,seg*239+6),'V%d / F%d'%(volume,floor),fill='#30352d')
                 contact.save(OUT/'segments.png')
+                for volume,floor in [(3,1),(1,6)]:
+                    page.evaluate(BUILD,{'volume':volume,'floor':floor,'type':'battle'})
+                    motion=page.evaluate(MOTION);report['motion'].append(motion)
+                    check('garden shaders change visible pixels and respect pause/reduced motion '+str(volume),
+                        motion['moving']>1000 and motion['paused']<10 and motion['reduced']<10
+                        and motion['pausedTime'] and motion['reducedTime'],motion)
+                check('original vegetation and water both receive motion attributes',
+                    any(m['windVertices']>0 for m in report['motion']) and any(m['waterVertices']>0 for m in report['motion']),report['motion'])
                 first=page.evaluate(BUILD,{'volume':1,'floor':1,'type':'start'})
                 second=page.evaluate(BUILD,{'volume':1,'floor':1,'type':'start'})
                 check('same seed reproduces terrain pixels and placements',first['hash']==second['hash'] and first['placements']==second['placements'])

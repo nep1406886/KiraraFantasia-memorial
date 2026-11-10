@@ -1,7 +1,10 @@
 import { LEVELS, ENDLESS, UNIT_RULES, ENEMY_RULES, SAVE_KEY, DECK_KEY, DECK_SIZE, DECK_ORDER, ACHIEVEMENTS, canOpenLevel, levelById, unlockedUnits } from "../data/campaign.js";
 import { evaluateChallenge } from "./challenge-evaluator.js";
+import { emptyEvolution, normalizeEvolution, earnEvolution, evolutionQuote, evolveCandidate } from '../../core/evolution.js';
 
-export function emptyProgress() { return { version: 1, completed: [], best: {}, lastLevel: "1-1", endless: null, endlessRun: null, endlessRewards: null, materials: {}, town: {}, achievements: [] }; }
+const EVOLUTION_IDS = Object.keys(UNIT_RULES).filter(id=>id.startsWith('U'));
+
+export function emptyProgress() { return { version: 1, completed: [], best: {}, lastLevel: "1-1", endless: null, endlessRun: null, endlessRewards: null, materials: {}, town: {}, achievements: [], evolution:emptyEvolution() }; }
 
 // Levels are all open; a record only remembers what was cleared and how well.
 // Older saves (which required contiguous progress) remain valid as they are.
@@ -32,6 +35,7 @@ export function validateProgress(value, skipEndlessRun = false) {
         endlessRun: skipEndlessRun && value.endlessRun ? value.endlessRun : validateEndlessRun(value.endlessRun),
         endlessRewards: validateEndlessRewards(value.endlessRewards),
         materials: validateMaterials(value.materials),
+        evolution: normalizeEvolution(value.evolution, EVOLUTION_IDS),
         town: validateTown(value.town),
         achievements: Array.isArray(value.achievements) ? [...new Set(value.achievements)].filter(id => ACHIEVEMENTS[id]) : [] };
 }
@@ -46,11 +50,16 @@ function validateEndlessRun(value) {
     const deck = [...new Set(value.deck)];
     if (!deck.length || deck.length > DECK_SIZE) { return null; }
     const units = [];
+    if (value.evolved !== undefined && (!Array.isArray(value.evolved)
+        || value.evolved.some(id => typeof id !== 'string' || !EVOLUTION_IDS.includes(id)))) { return null; }
+    const evolved = new Set(value.version === 2 ? value.evolved || [] : []);
     const occupied = new Set();
     for (const entry of value.units) {
         if (!entry || typeof entry.type !== "string" || !DECK_ORDER.includes(entry.type) || !deck.includes(entry.type) || !Number.isInteger(entry.row) || !Number.isInteger(entry.col)
             || entry.row < 0 || entry.row >= ENDLESS.rows || entry.col < 0 || entry.col >= ENDLESS.cols
-            || !Number.isFinite(entry.hp) || entry.hp < 1 || entry.hp > 1e6) { return null; }
+            || !Number.isFinite(entry.hp) || entry.hp < 1 || entry.hp > 1e6
+            || entry.evolved !== undefined && typeof entry.evolved !== 'boolean'
+            || (entry.evolved === true) !== evolved.has(entry.type)) { return null; }
         const position = `${entry.row}:${entry.col}`;
         if (occupied.has(position)) { return null; }
         if (entry.gear != null && typeof entry.gear !== "string") { return null; }
@@ -60,6 +69,7 @@ function validateEndlessRun(value) {
         units.push({ ...entry, type: entry.type, row: entry.row, col: entry.col, gear: entry.gear || null, hp: Math.round(entry.hp) });
     }
     const base = { version: value.version, level: typeof value.level === "string" ? value.level : "endless", runId: typeof value.runId === "string" ? value.runId : null,
+        evolved:[...evolved],
         seed: value.seed, wave: value.wave, time: value.time, resource: value.resource, restocks: value.restocks, deck, units,
         stats: value.stats && typeof value.stats === "object" ? {
             kills: Math.max(0, Math.round(value.stats.kills || 0)), healed: Math.max(0, Math.round(value.stats.healed || 0)),
@@ -122,6 +132,7 @@ function validateEndlessRun(value) {
     }
     const pending = value.pending.map(action => ({ ...action }));
     if (pending.some(action => !finiteObject(action) || typeof action.kind !== "string" || !Number.isFinite(action.at) || action.at < 0)) { return null; }
+    if (value.projectiles.some(projectile => !projectile || !Array.isArray(projectile.hit))) { return null; }
     const projectiles = value.projectiles.map(projectile => ({ ...projectile, hit: [...projectile.hit] }));
     if (projectiles.some(projectile => !finiteObject(projectile) || typeof projectile.id !== "string" || typeof projectile.source !== "string"
         || !Array.isArray(projectile.hit) || projectile.hit.length > 120 || !Number.isInteger(projectile.row) || projectile.row < 0 || projectile.row >= ENDLESS.rows)) { return null; }
@@ -130,6 +141,7 @@ function validateEndlessRun(value) {
     const pickups = value.pickups.map(pickup => ({ ...pickup }));
     if (pickups.some(pickup => !finiteObject(pickup) || typeof pickup.id !== "string" || !Number.isInteger(pickup.row) || pickup.row < 0 || pickup.row >= ENDLESS.rows
         || !Number.isFinite(pickup.amount) || pickup.amount < 0 || !Number.isFinite(pickup.autoAt))) { return null; }
+    if (value.readyAt.some(row => !Array.isArray(row) || row.length !== 2)) { return null; }
     const readyAt = value.readyAt.map(row => [row[0], row[1]]);
     if (readyAt.some(row => !Array.isArray(row) || typeof row[0] !== "string" || !UNIT_RULES[row[0]] || !Number.isFinite(row[1]) || row[1] < 0)) { return null; }
     return { ...base, runId: value.runId, rngState: value.rngState, plannedWave: value.plannedWave, nextWaveAt: value.nextWaveAt,
@@ -174,8 +186,9 @@ export function validateDeck(value) {
 }
 
 export class CampaignSave {
-    constructor(storage) {
+    constructor(storage, catalogue) {
         this.storage = storage;
+        this.evolutionCards = new Map((catalogue?.units || []).map(card=>[card.id,{id:card.id,element:card.elementId,rarity:card.rarity}]));
         this.progress = emptyProgress();
         this.problem = null;
         this.finishedRuns = new Set();
@@ -191,6 +204,15 @@ export class CampaignSave {
     }
 
     get unlocked() { return unlockedUnits(); }
+    evolutionQuote(id) { return evolutionQuote(this.progress.evolution,this.evolutionCards.get(id)); }
+    evolve(id) {
+        const candidate=evolveCandidate(this.progress.evolution,this.evolutionCards.get(id));
+        if(candidate.reason)return {ok:false,reason:candidate.reason};
+        const previous=this.progress;
+        this.progress={...previous,evolution:candidate.state};
+        if(!this.persist()){this.progress=previous;return {ok:false,reason:'storage'};}
+        return {ok:true};
+    }
     canOpen(id) { return canOpenLevel(id, this.progress.completed); }
 
     get deck() {
@@ -238,6 +260,8 @@ export class CampaignSave {
         }
         if (battle.phase !== "won" || !this.canOpen(id)) { return { newRecord: false, achievements: [] }; }
         this.finishedRuns.add(runId);
+        const companions=[...battle.deck].map(id=>this.evolutionCards.get(id)).filter(Boolean);
+        this.progress.evolution=earnEvolution(this.progress.evolution,companions);
         const first = !this.progress.completed.includes(id);
         if (first) { this.progress.completed.push(id); }
         const result = { time: battle.time, gatesUsed: battle.stats.gatesUsed, healed: battle.stats.healed };
@@ -279,7 +303,7 @@ export class CampaignSave {
         this.progress = validateProgress(this.progress);
         this._endlessRunFresh = !!this.progress.endlessRun;
         this.persist();
-        return { newRecord, first, achievements, challenge };
+        return { newRecord, first, achievements, challenge, evolutionEarned:companions.length };
     }
 
     // Endless checkpoint, throttled by the caller (campaign.js). Storage
@@ -322,6 +346,10 @@ export class CampaignSave {
             },
             materials
         };
+        if(endlessRun){
+            const companions=endlessRun.deck.map(id=>this.evolutionCards.get(id)).filter(Boolean);
+            this.progress.evolution=earnEvolution(previous.evolution,companions);
+        }
         if (endlessRun) { this._endlessRunFresh = true; }
         if (!this.persist()) {
             this.progress = previous;

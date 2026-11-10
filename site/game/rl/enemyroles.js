@@ -3,7 +3,7 @@
 // Provenance and counterplay: docs/enemy-choreography-design.md.
 const PI = Math.PI;
 const move = (key, skillId, label, kind, values) => ({ key, skillId, label, kind,
-    warning: .9, active: .18, recovery: 1.0, clip: "skill_1", ...values });
+    warning: .9, active: .28, recovery: 1.0, clip: "skill_1", ...values });
 const sweep = (key, id, label, radius = 3.5, arc = PI * .8) => move(key, id, label, "sector", {
     radius, arc, warning: .8, recovery: 1.1, clip: "skill_0", counter: "离开正面，绕到侧后方反击" });
 const charge = (key, id, label, range = 7) => move(key, id, label, "charge", {
@@ -25,20 +25,25 @@ const profile = (key, moves, rotations) => ({ key, moves,
 
 export const ENEMY_ROLES = Object.freeze({
     99038006: profile("storm", [sweep("claw", 38004, "爪翼横扫"),
-        charge("dive", 38006, "俯冲利爪", 8), ring("eye", 38003, "疾风之眼", 2.3, 6.5)],
-        [["claw", "dive"], ["dive", "eye", "claw"], ["eye", "dive", "claw", "eye"]]),
+        charge("dive", 38006, "俯冲利爪", 8), ring("eye", 38003, "疾风之眼", 2.3, 6.5),
+        lanes("gale", 38003, "双翼风廊")],
+        [["claw", "dive"], ["dive", "eye", "claw"], ["gale", "dive", "eye", "claw"]]),
     99248003: profile("spice", [sweep("pour", 48006, "热汤倾倒", 5.2, PI * .6),
-        spots("spice", 48005, "香料落点", 1.55, 3), disc("boil", 48004, "沸腾震圈", 3.8)],
-        [["pour", "spice"], ["spice", "boil", "pour"], ["boil", "spice", "pour", "spice"]]),
+        spots("spice", 48005, "香料落点", 1.55, 3), disc("boil", 48004, "沸腾震圈", 3.8),
+        ring("simmer", 48004, "汤雾翻涌", 2.6, 7)],
+        [["pour", "spice"], ["spice", "boil", "pour"], ["simmer", "spice", "boil", "pour"]]),
     99318603: profile("spore", [sweep("vine", 18623, "触手横扫", 3.7, PI * 1.15),
-        spots("bloom", 18624, "孢子萌发", 1.45, 3), ring("burst", 18626, "孢子外爆", 2.4, 6.2)],
-        [["vine", "bloom"], ["bloom", "burst", "vine"], ["burst", "bloom", "vine", "burst"]]),
+        spots("bloom", 18624, "孢子萌发", 1.45, 3), ring("burst", 18626, "孢子外爆", 2.4, 6.2),
+        spots("garden", 18624, "满庭孢花", 1.25, 5)],
+        [["vine", "bloom"], ["bloom", "burst", "vine"], ["garden", "burst", "vine", "bloom"]]),
     99619003: profile("artillery", [line("aim", 19052, "锁定炮击"),
-        lanes("battery", 19059, "平行炮道"), cross("crossfire", 19060, "交叉扫射")],
-        [["aim", "battery"], ["battery", "crossfire", "aim"], ["crossfire", "aim", "battery"]]),
+        lanes("battery", 19059, "平行炮道"), cross("crossfire", 19060, "交叉扫射"),
+        cross("pursuit", 19060, "追踪交火", true)],
+        [["aim", "battery"], ["battery", "crossfire", "aim"], ["pursuit", "aim", "battery", "crossfire"]]),
     90238005: profile("eclipse", [ring("sanctum", 83010, "寂静内环", 2.5, 6.8),
-        cross("collapse", 83011, "崩解十字", true), spots("verdict", 83025, "终幕落点", 1.6, 3)],
-        [["sanctum", "collapse"], ["collapse", "verdict", "sanctum"], ["verdict", "sanctum", "collapse", "verdict"]]),
+        cross("collapse", 83011, "崩解十字", true), spots("verdict", 83025, "终幕落点", 1.6, 3),
+        disc("silence", 83010, "寂静收束", 4.2)],
+        [["sanctum", "collapse"], ["collapse", "verdict", "sanctum"], ["silence", "verdict", "sanctum", "collapse"]]),
     90013003: profile("salt", [sweep("sauce", 13012, "酱刃横扫"), spots("arrabbiata", 13016, "辛辣落点")]),
     99510002: profile("sugar", [disc("custard", 10020, "奶油重击"), charge("rush", 10021, "甜点冲撞")]),
     90222001: profile("sniper", [line("delay", 68011, "延迟狙击"), lanes("double", 68009, "双线狙击")]),

@@ -3,7 +3,8 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>百物語の残页 — きらファン外传</title>
+<title>花笺旅记 — きらファン外传</title>
+<link rel="icon" href="../favicon.png">
 <style>
     html, body {
         margin: 0;
@@ -903,10 +904,13 @@
 <link rel="stylesheet" href="./rl/ui/story.css">
 <link rel="stylesheet" href="./rl/ui/codex.css?v=20261031-3">
 <link rel="stylesheet" href="../css/kirara-cursor.css">
+<link rel="stylesheet" href="../css/adventure.css">
+<link rel="stylesheet" href="./rl/ui/camp.css">
+<link rel="stylesheet" href="./rl/ui/play.css">
 </head>
 <body>
 <div id="bar">
-    <h1>百物语的残页 <span class="game-edition">きらファン外传</span></h1>
+    <h1>花笺旅记 <span class="game-edition">きらファン外传</span></h1>
     <span id="status" role="status">读取中…</span>
 </div>
 <div id="stage">
@@ -929,6 +933,7 @@
     </div>
     <div id="minimap"></div>
     <div id="hint" role="status" hidden></div>
+    <div class="rl-battle-help" aria-hidden="true"><kbd>W A S D</kbd> 移动 · <kbd>鼠标</kbd> 攻击 · <kbd>空格</kbd> 闪避 · <kbd>E</kbd> 互动</div>
     <dialog id="shop-panel" class="panel hidden" aria-label="商店">
         <h2>商店 · <span id="shop-coin">金币 0</span></h2>
         <div id="shop-items"></div>

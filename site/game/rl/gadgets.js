@@ -1,16 +1,16 @@
 // Realtime-only equipment. Stable IDs/sealed slots persist, derived numbers do not.
 // These mechanics are explicitly separate from original weapon passives.
 export const GADGETS = Object.freeze([
-    { id: 'rhythm', name: '轻击腕带', slot: 'charm', rarity: 'rare', price: 40, minFloor: 1, rate: 1.2, normalDamage: .75,
-        benefit: '普攻节拍加快20%，前摇、判定窗和恢复同步加快', cost: '普攻每击伤害降低25%' },
-    { id: 'strider', name: '游走护符', slot: 'amulet', rarity: 'rare', price: 45, minFloor: 1, attackMove: .55, normalDamage: .9,
-        benefit: '普攻中可用55%移速走位，不打断本次攻击', cost: '普攻伤害降低10%；不影响技能施法与受击硬直' },
+    { id: 'rhythm', name: '轻击腕带', slot: 'charm', rarity: 'rare', price: 40, minFloor: 1, rate: 1.2, normalDamage: .9,
+        benefit: '普攻节拍加快20%，连续攻击伤害约提升8%', cost: '普攻每击伤害降低10%' },
+    { id: 'strider', name: '游走护符', slot: 'amulet', rarity: 'rare', price: 45, minFloor: 1, attackMove: .75, normalDamage: .9,
+        benefit: '普攻时的移动速度由45%提高至75%', cost: '普攻伤害降低10%' },
     { id: 'reach', name: '延展刻印', slot: 'amulet', rarity: 'rare', price: 45, minFloor: 1, range: 1.25, defense: .9,
         benefit: '普通攻击射程或挥击长度增加25%', cost: '物防、魔防降低10%；不扩大技能范围' },
     { id: 'wide', name: '宽弧指环', slot: 'charm', rarity: 'rare', price: 40, minFloor: 1, width: 1.3, normalDamage: .88,
         benefit: '普攻扇面、突刺厚度或弹体半径增加30%', cost: '普攻伤害降低12%；不延长射程' },
-    { id: 'aim', name: '瞄准饰章', slot: 'charm', rarity: 'rare', price: 30, minFloor: 1, assist: 1,
-        benefit: '手动按普攻时辅助对准可见敌人', cost: '不代替攻击；手动瞄准与移动朝向优先' },
+    { id: 'aim', name: '聚焦饰章', slot: 'charm', rarity: 'rare', price: 30, minFloor: 1, range: 1.12,
+        benefit: '普通攻击距离增加12%', cost: '占用饰品栏；不改变技能范围' },
     { id: 'sentry', name: '守望机关', slot: 'armor', rarity: 'epic', price: 90, minFloor: 5, assist: 2, damage: .8,
         benefit: '可开启自动索敌和普攻，角色不会自动移动', cost: '物攻、魔攻降低20%；不自动使用技能或必杀' },
     { id: 'hunter', name: '巡猎罗盘', slot: 'armor', rarity: 'epic', price: 130, minFloor: 9, assist: 3, damage: .75, defense: .8,
@@ -29,12 +29,30 @@ export const GADGETS = Object.freeze([
     { id: 'aegis', name: '坚壁徽章', slot: 'armor', rarity: 'rare', price: 45, minFloor: 1, defense: 1.2, normalDamage: .9,
         benefit: '物防、魔防提升20%，正面承受更稳',
         cost: '普攻伤害降低10%；不提升生命上限' },
-    { id: 'kite', name: '纸翼护符', slot: 'amulet', rarity: 'rare', price: 45, minFloor: 1, attackMove: .4, range: 1.1, defense: .85,
-        benefit: '普攻中可用40%移速走位，普攻距离增加10%，不打断本次攻击',
+    { id: 'kite', name: '纸翼护符', slot: 'amulet', rarity: 'rare', price: 45, minFloor: 1, attackMove: .65, range: 1.1, defense: .85,
+        benefit: '普攻中可用65%移速走位，普攻距离增加10%',
         cost: '物防、魔防降低15%；不影响技能施法与受击硬直' },
-    { id: 'comet', name: '流星缎带', slot: 'charm', rarity: 'epic', price: 110, minFloor: 5, rate: 1.1, normalDamage: .85,
-        benefit: '普攻节拍加快10%，前摇、判定窗和恢复同步加快',
-        cost: '普攻每击伤害降低15%' }
+    { id: 'comet', name: '流星缎带', slot: 'charm', rarity: 'epic', price: 110, minFloor: 5, rate: 1.3, normalDamage: .9, defense:.9,
+        benefit: '普攻节拍加快30%，连续攻击伤害约提升17%',
+        cost: '普攻每击伤害与物防、魔防各降低10%' },
+    { id:'cotton', name:'旅人软披肩', slot:'armor', rarity:'common', price:25, minFloor:1, relic:true, hp:1.12,
+        benefit:'生命上限提升12%，适合旅途初始的稳妥选择', cost:'占用护甲栏；换装保持当前生命比例' },
+    { id:'ribbon', name:'晨光发结', slot:'charm', rarity:'common', price:25, minFloor:1, relic:true, crit:.04,
+        benefit:'暴击率提高4个百分点', cost:'占用饰品栏；不能突破100%暴击上限' },
+    { id:'leaf', name:'新叶书签', slot:'amulet', rarity:'common', price:25, minFloor:1, relic:true, gauge:1.12,
+        benefit:'必杀槽获取速度提升12%', cost:'占用护符栏；不会立即补满必杀槽' },
+    { id:'bloom', name:'花庭斗篷', slot:'armor', rarity:'rare', price:60, minFloor:1, relic:true, hp:1.25, defense:1.08, damage:.95,
+        benefit:'生命上限提升25%，物防、魔防提升8%', cost:'物攻、魔攻降低5%；换装保持当前生命比例' },
+    { id:'bell', name:'星灯风铃', slot:'amulet', rarity:'rare', price:60, minFloor:1, relic:true, gauge:1.3, normalDamage:.94,
+        benefit:'必杀槽获取速度提升30%，更快迎来下一次必杀', cost:'普攻每击伤害降低6%' },
+    { id:'edge', name:'蔷薇胸针', slot:'charm', rarity:'rare', price:60, minFloor:1, relic:true, crit:.1, defense:.92,
+        benefit:'暴击率提高10个百分点，普攻与技能均可受益', cost:'物防、魔防降低8%' },
+    { id:'petal', name:'花守礼装', slot:'armor', rarity:'epic', price:110, minFloor:1, relic:true, hp:1.35, defense:1.15, rate:.94,
+        benefit:'生命上限提升35%，物防、魔防提升15%', cost:'普攻节拍减慢6%；换装保持当前生命比例' },
+    { id:'moon', name:'月露怀表', slot:'amulet', rarity:'epic', price:110, minFloor:1, relic:true, lifesteal:.035, damage:.94,
+        benefit:'造成伤害时回复其3.5%的生命，可由普攻与技能触发', cost:'物攻、魔攻降低6%；治疗封锁期间不能回血' },
+    { id:'solstice', name:'映日花冠', slot:'charm', rarity:'epic', price:110, minFloor:1, relic:true, crit:.14, damage:1.08, hp:.9,
+        benefit:'暴击率提高14个百分点，物攻、魔攻提升8%', cost:'生命上限降低10%；换装保持当前生命比例' }
 ].map(Object.freeze));
 export const GADGET_IDS = Object.freeze(GADGETS.map(row => row.id));
 const BY_ID = new Map(GADGETS.map(row => [row.id, row]));
@@ -77,12 +95,14 @@ export function gadgetTerms(item, skillNames = []) {
 }
 
 export function gadgetRuntime(items) {
-    const result = { rate: 1, attackMove: 0, range: 1, width: 1, normalDamage: 1,
-        damage: 1, defense: 1, assist: 0, noCrit: false, noAdvantage: false, sealedSlots: [] };
+    const result = { rate: 1, attackMove: .45, range: 1, width: 1, normalDamage: 1,
+        damage: 1, defense: 1, hp:1, gauge:1, crit:0, lifesteal:0,
+        assist: 1, noCrit: false, noAdvantage: false, sealedSlots: [] };
     for (const item of items || []) {
         const row = gadgetDefinition(item);
         if (!row) continue;
-        for (const key of ['rate', 'range', 'width', 'normalDamage', 'damage', 'defense']) result[key] *= row[key] || 1;
+        for (const key of ['rate', 'range', 'width', 'normalDamage', 'damage', 'defense', 'hp', 'gauge']) result[key] *= row[key] || 1;
+        result.crit += row.crit || 0; result.lifesteal += row.lifesteal || 0;
         result.attackMove = Math.max(result.attackMove, row.attackMove || 0);
         result.assist = Math.max(result.assist, row.assist || 0);
         result.noCrit ||= row.noCrit === true;
@@ -104,6 +124,16 @@ const SOURCE_WEIGHTS = {
     shop: { ...BASIC_WEIGHTS, sentry: 3, hunter: 2, steady: 2, prism: 1, binding: 1 }
 };
 const RARITIES = ['common', 'rare', 'epic', 'legendary'];
+
+// New ordinary accessories have a fixed identity and one coherent purpose.
+// Legacy affix items still resolve through equipment.js and are never rewritten.
+export function rollAccessory(rng, slot, rarity) {
+    const tier = Math.min(2, RARITIES.indexOf(rarity));
+    const choices = GADGETS.filter(row => row.relic && row.slot === slot
+        && RARITIES.indexOf(row.rarity) === tier);
+    if (!choices.length) throw new Error('未知旅装槽位或品质');
+    return makeGadget(choices[Math.floor(rng() * choices.length)].id);
+}
 
 export function rollGadget(rng, source, floor, minRarity = 'common') {
     if (!Object.hasOwn(SOURCE_WEIGHTS, source)) throw new Error('未知机制来源：' + source);
@@ -129,6 +159,7 @@ export function sameGadgetEffect(left, right) {
 }
 
 export function gadgetAcquisition(row) {
+    if (row.relic) return '旅途掉落、宝箱、精英与商店；同名旅装的效果固定';
     if (row.contract) return '第' + row.minFloor + '层起：守卫、首领、商店、营地修缮与祭坛誓约';
     if (row.id === 'hunter') return '第9层起：守卫、首领、商店、营地与祭坛誓约';
     if (row.id === 'sentry') return '第5层起：精英、守卫、首领、商店、营地与祭坛誓约';

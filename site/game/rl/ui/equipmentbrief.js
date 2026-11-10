@@ -60,7 +60,8 @@ export function equipmentBrief(preview) {
         }
         const blocked = new Set(to.replacements.filter(change => !change.active
             && change.source.slot === preview.item?.slot).map(change => change.target));
-        if (blocked.size) notes.push([...blocked].map(target => ['普攻', '技能 2', '技能 3'][target]).join('、') + '改写被覆盖');
+        if (blocked.size) notes.push(preview.item?.slot !== 'weapon'
+            ? '旧版改技未生效：仅武器可强化招式' : '武器原生招式优先生效');
     }
     if (preview.passives) {
         const from = preview.passives.current, to = preview.passives.candidate;

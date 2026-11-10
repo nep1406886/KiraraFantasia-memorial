@@ -185,7 +185,12 @@ export function createHud(options) {
     const identity = el("div", "hud-identity");
     const playerName = el("span", "hud-player-name");
     const playerLevel = el("span", "hud-player-level");
-    identity.append(playerName, playerLevel);
+    const portrait = el("img", "hud-player-portrait");
+    portrait.alt = "";
+    portrait.hidden = true;
+    portrait.addEventListener("error", () => { portrait.hidden = true; });
+    let portraitId = null;
+    identity.append(portrait, playerName, playerLevel);
     if (hudPanel) { hudPanel.prepend(identity); }
 
     // --- 装备四槽芯片（hud-identity 下，spec/01 §4 左上身份区新增行） ---------
@@ -228,6 +233,7 @@ export function createHud(options) {
                 view.icon.hidden = true;
             }
             const name = item ? equipmentName(item, context.weapons, context.cards) : "未装备";
+            view.chip.classList.toggle('equipped', !!item);
             text(view.name, name);
             attr(view.chip, "aria-label", view.label + " · " + name + "（点击查看词条）");
         });
@@ -357,7 +363,6 @@ export function createHud(options) {
     attackBtn.type = "button"; dodgeBtn.type = "button";
     const interactBtn = el("button", "touch-btn touch-interact hud-hidden", "交互");
     interactBtn.type = "button";
-    interactBtn.addEventListener("click", function () { if (options.onInteract) { options.onInteract(); } });
     const pauseBtn = el("button", "touch-btn hud-pause", "菜单");
     pauseBtn.type = "button";
     pauseBtn.appendChild(el("kbd", "hud-menu-key", "Esc"));
@@ -393,7 +398,7 @@ export function createHud(options) {
 
     zone.addEventListener("pointerdown", function (event) {
         event.preventDefault();
-        if (stickId !== null) {
+        if (stickId !== null || event.button > 0 || !currentWorld?.player || currentWorld.frozen || currentWorld.transition || currentWorld.player.dead) {
             return;
         }
         stickId = event.pointerId;
@@ -409,7 +414,7 @@ export function createHud(options) {
             // the zone still fire for touches that stay within it.
         }
     });
-    zone.addEventListener("pointermove", function (event) {
+    function stickMove(event) {
         if (event.pointerId !== stickId || !origin) {
             return;
         }
@@ -427,21 +432,22 @@ export function createHud(options) {
         const k = len > STICK_RADIUS ? STICK_RADIUS / len : 1;
         input.state.move.x = (dx * k) / STICK_RADIUS;
         input.state.move.y = (dy * k) / STICK_RADIUS;
-    });
-    function stickEnd(event) {
-        if (event.pointerId !== stickId) {
-            return;
-        }
-        stickId = null;
+    }
+    function clearStick() {
+        const id = stickId; stickId = null;
         origin = null;
+        if (id !== null && zone.hasPointerCapture(id)) { zone.releasePointerCapture(id); }
         input.state.move.x = 0;
         input.state.move.y = 0;
         [stickBase, stickKnob].forEach(function (n) {
             n.classList.add("hud-hidden");
         });
     }
-    zone.addEventListener("pointerup", stickEnd);
-    zone.addEventListener("pointercancel", stickEnd);
+    function stickEnd(event) { if (event.pointerId === stickId) { clearStick(); } }
+    window.addEventListener("pointermove", stickMove);
+    window.addEventListener("pointerup", stickEnd);
+    window.addEventListener("pointercancel", stickEnd);
+    zone.addEventListener("lostpointercapture", stickEnd);
 
     const attackAim = createAttackAim(attackBtn, input, {
         press() { press("attack", 0); },
@@ -453,39 +459,34 @@ export function createHud(options) {
     // Native click is not dispatched for a second finger while the attack or
     // movement finger is held. Keep mouse/keyboard click semantics, and handle
     // only that missing secondary-touch tap on release (never twice).
-    let pauseTouch = null, suppressPauseClick = false;
-    pauseBtn.addEventListener("pointerdown", function (event) {
-        suppressPauseClick = false;
-        if (event.pointerType === "touch" && !event.isPrimary && !pauseBtn.disabled && !pauseTouch) {
-            pauseTouch = { id: event.pointerId, x: event.clientX, y: event.clientY };
-        }
-    });
-    pauseBtn.addEventListener("pointerup", function (event) {
-        if (!pauseTouch || pauseTouch.id !== event.pointerId) { return; }
-        const start = pauseTouch; pauseTouch = null;
-        if (pauseBtn.disabled || Math.hypot(event.clientX - start.x, event.clientY - start.y) > 10
-                || !pauseBtn.contains(document.elementFromPoint(event.clientX, event.clientY))) { return; }
-        event.preventDefault(); suppressPauseClick = true;
-        if (onMenu) { onMenu(); }
-    });
-    function cancelPauseTouch(event) {
-        if (pauseTouch?.id === event.pointerId) { pauseTouch = null; }
-    }
-    pauseBtn.addEventListener("pointercancel", cancelPauseTouch);
-    pauseBtn.addEventListener("lostpointercapture", cancelPauseTouch);
-    pauseBtn.addEventListener("click", function (event) {
-        const duplicate = suppressPauseClick && event.detail !== 0;
-        suppressPauseClick = false;
-        if (duplicate) { return; }
-        if (onMenu) {
-            onMenu();
-        }
-    });
-    for (const type of ["keydown", "keyup"]) {
-        pauseBtn.addEventListener(type, function (event) {
+    function bindTap(node, action) {
+        let touch = null, suppressClick = false;
+        node.addEventListener("pointerdown", event => {
+            suppressClick = false;
+            if (event.pointerType === "touch" && !event.isPrimary && !node.disabled && !touch) {
+                touch = { id:event.pointerId, x:event.clientX, y:event.clientY };
+            }
+        });
+        node.addEventListener("pointerup", event => {
+            if (!touch || touch.id !== event.pointerId) { return; }
+            const start = touch; touch = null;
+            if (node.disabled || Math.hypot(event.clientX-start.x,event.clientY-start.y)>10
+                || !node.contains(document.elementFromPoint(event.clientX,event.clientY))) { return; }
+            event.preventDefault(); suppressClick = true; action?.();
+        });
+        const cancel = event => { if (touch?.id === event.pointerId) { touch = null; } };
+        node.addEventListener("pointercancel", cancel);
+        node.addEventListener("lostpointercapture", cancel);
+        node.addEventListener("click", event => {
+            const duplicate = suppressClick && event.detail !== 0; suppressClick = false;
+            if (!duplicate && !node.disabled) { action?.(); }
+        });
+        for (const type of ["keydown", "keyup"]) node.addEventListener(type, event => {
             if (event.key === "Enter" || event.key === " ") { event.stopPropagation(); }
         });
+        return () => { touch = null; };
     }
+    const clearMenuTap = bindTap(pauseBtn, onMenu), clearInteractTap = bindTap(interactBtn, options.onInteract);
 
     [skillbar, gauge, zone, stickBase, stickKnob,
      attackBtn, dodgeBtn, interactBtn].forEach(function (node) {
@@ -499,9 +500,8 @@ export function createHud(options) {
     let touchOn = null;
     function clearInput() {
         attackAim.clear();
-        pauseTouch = null;
-        input.clear(); latches.clear(); stickId = null; origin = null;
-        stickBase.classList.add("hud-hidden"); stickKnob.classList.add("hud-hidden");
+        clearMenuTap(); clearInteractTap(); clearStick();
+        input.clear(); latches.clear();
         if (tooltip) { tooltip.hide(); }
         closeBrief(); clearPulses();
     }
@@ -604,6 +604,11 @@ export function createHud(options) {
         const shrineReady = !!world.canCommuneAtShrine && (!options.isShrineVisible || options.isShrineVisible());
         text(playerName, p?.card?.characterZh || p?.card?.name || "");
         text(playerLevel, p ? "Lv " + p.level : "");
+        if (p?.card?.id && portraitId !== (p.displayCardId || p.card.id)) {
+            portraitId = p.displayCardId || p.card.id;
+            portrait.hidden = false;
+            portrait.src = new URL(`../../../asset/img/rl/icon/${portraitId}.webp`, import.meta.url).href;
+        }
         assistBtn.classList.toggle("hud-hidden", !p || tier < 2);
         attr(assistBtn, "aria-disabled", locked);
         attr(assistBtn, "aria-pressed", !!assistance?.enabled);
@@ -811,6 +816,9 @@ export function createHud(options) {
             window.removeEventListener("pointerdown", pointerMode, true);
             window.removeEventListener("keydown", keyboardMode, true);
             window.removeEventListener("blur", clearInput);
+            window.removeEventListener("pointermove", stickMove);
+            window.removeEventListener("pointerup", stickEnd);
+            window.removeEventListener("pointercancel", stickEnd);
             document.removeEventListener("visibilitychange", visibilityInput);
             [skillbar, gauge, identity, equipRow, effects, assistBtn, pauseBtn, ...touchEls, stickBase, stickKnob].forEach(node => node.remove());
         },

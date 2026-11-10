@@ -87,8 +87,8 @@ test("不完整技能表不会留下空阶段或借用其他敌人的技能", ()
     const spec = specs.get(99038006), set = enemyMoveset(data.skills, spec.skills);
     const only = set.attacks.find(s => s.id === 38003);
     const role = enemyRole(99038006, { attacks: [only] });
-    assert.equal(role.moves.length, 1);
-    assert.ok(role.rotations.every(keys => keys.length && keys.every(key => key === "eye")));
+    assert.ok(role.moves.length > 0 && role.moves.every(move => move.skill === only));
+    assert.ok(role.rotations.every(keys => keys.length && keys.every(key => role.moves.some(move => move.key === key))));
     assert.equal(enemyRole(99038006, enemyMoveset(data.skills, specs.get(99248003).skills)), null);
 });
 test("圆、环、扇形与圆端通道在八方向使用真实身体边缘", () => {

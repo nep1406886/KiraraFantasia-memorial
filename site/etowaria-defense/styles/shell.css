@@ -218,9 +218,6 @@ body[data-title-scene="train"] .title-art::after { background-image: url("../../
 .load-bones .load-bone:nth-child(3n+2) { width: 86%; }
 .load-bones .load-bone:nth-child(3n) { width: 72%; }
 @keyframes load-bone-breath { from { background-position: 100% 0; } to { background-position: 0% 0; } }
-.portrait-notice { position: absolute; inset: 0; display: grid; place-items: center; z-index: 9; background: rgb(241 246 226 / 96%); padding: 20px; }
-.portrait-notice .panel { padding: 10px; }
-.portrait-notice p { margin: 16px 0; }
 body.cinematic-active { overflow: hidden; }
 body.cinematic-active .stage-header, body.cinematic-active .stage-loadout, body.cinematic-active .stage-controls, body.cinematic-active .stage-status { display: none; }
 body.cinematic-active .stage-screen { display: block; min-height: 0; }

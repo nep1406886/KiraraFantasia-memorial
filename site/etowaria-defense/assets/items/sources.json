@@ -1,0 +1,21 @@
+{
+  "F01": [
+    "prefab/room/desk/desk_1001.muast",
+    "prefab/room/goods/goods_1083.muast"
+  ],
+  "F11": [
+    "prefab/room/desk/desk_1001.muast",
+    "prefab/room/goods/goods_1072.muast"
+  ],
+  "F13": [
+    "model/enemy/model_en_5200.muast"
+  ],
+  "F10": [
+    "model/weapon/wpn_1400.muast",
+    "ElementIconFire.png"
+  ],
+  "F12": [
+    "model/weapon/wpn_1400.muast",
+    "ElementIconWater.png"
+  ]
+}

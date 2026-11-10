@@ -10,8 +10,9 @@ setAffixPool(['a','b','c','d'], []);
 setAffixTable({a:{mults:{atk:1.1}},b:{mults:{def:1.1}},c:{mults:{mgc:1.1}},d:{mults:{hp:1.1}}});
 let total=0,failed=0;
 function check(name,run){total++;try{run();console.log('PASS '+name);}catch(e){failed++;console.error('FAIL '+name+': '+e.stack);}}
-const BASIC=['rhythm','strider','reach','wide','aim'];
-const PRICE={rhythm:40,strider:45,reach:45,wide:40,aim:30,sentry:90,hunter:130,steady:120,prism:160,binding:180};
+const BASIC=['rhythm','strider','reach','wide','aim','aegis','kite'];
+const PRICE={rhythm:40,strider:45,reach:45,wide:40,aim:30,aegis:45,kite:45,comet:110,sentry:90,hunter:130,steady:120,prism:160,binding:180};
+const isMechanic = item => !!item.gadgetId && !gadgets.gadgetDefinition(item).relic;
 const ADVANCED=['sentry','hunter','steady','prism','binding'];
 function batch(source,floor,count=12000){const rng=createRandom(81511+floor),out=[];
     for(let i=0;i<count;i++)out.push(...rollLoot(rng,floor,0,null,{source}));return out;}
@@ -24,24 +25,29 @@ function equip(w,item){const entry={x:w.player.x,y:w.player.y,items:[item]};w.dr
 function snapshot(w){return JSON.stringify({coin:w.coin,hp:w.player.hp,equipment:w.player.equipment,claims:w.getRoomClaims(),events:w.events});}
 
 check('机制固有品质与定价固定，旧品质仍可读取而不改能力',()=>{
-    for(const id of [...BASIC,...ADVANCED]){const seal=id==='binding'?1:undefined;
+    for(const id of [...BASIC,'comet',...ADVANCED]){const seal=id==='binding'?1:undefined;
         const row=gadgets.gadgetDefinition(gadgets.makeGadget(id,undefined,seal));
         assert.equal(row.price,PRICE[id]);assert.equal(row.rarity,BASIC.includes(id)?'rare':'epic');
         assert.equal(gadgets.makeGadget(id,undefined,seal).rarity,row.rarity);
         assert.deepEqual(gadgets.gadgetRuntime([gadgets.makeGadget(id,'common',seal)]),gadgets.gadgetRuntime([gadgets.makeGadget(id,'legendary',seal)]));}
 });
-check('普通敌人不再按词条哈希改造成机制',()=>{for(const floor of [1,5,9,20])assert.ok(batch('enemy',floor).every(i=>!i.gadgetId));});
-check('宝箱保底稀有，基础机制45%，高级机关不混入',()=>{const items=batch('chest',1),count=items.filter(i=>i.gadgetId).length;
+check('普通敌人不再按词条哈希改造成机制',()=>{for(const floor of [1,5,9,20])assert.ok(batch('enemy',floor).every(i=>!isMechanic(i)));});
+check('宝箱保底稀有，基础机制45%，高级机关不混入',()=>{const items=batch('chest',1),count=items.filter(isMechanic).length;
     assert.equal(items.length,12000);assert.ok(items.every(i=>i.rarity!=='common'));
-    assert.ok(Math.abs(count/12000-.45)<.02);assert.ok(items.filter(i=>i.gadgetId).every(i=>BASIC.includes(i.gadgetId)));
-    assert.deepEqual([...new Set(items.filter(i=>i.gadgetId).map(i=>i.gadgetId))].sort(),BASIC.slice().sort());
+    assert.ok(Math.abs(count/12000-.45)<.02);assert.ok(items.filter(isMechanic).every(i=>BASIC.includes(i.gadgetId)));
+    assert.deepEqual([...new Set(items.filter(isMechanic).map(i=>i.gadgetId))].sort(),BASIC.slice().sort());
 });
-check('精英独立35%机制渠道，守望按第五层开放',()=>{for(const floor of [4,5,9]){const items=batch('elite',floor),mechanics=items.filter(i=>i.gadgetId);
+check('精英独立35%机制渠道，守望按第五层开放',()=>{for(const floor of [4,5,9]){const items=batch('elite',floor),mechanics=items.filter(isMechanic);
     assert.equal(items.length,12000);assert.ok(items.every(i=>i.rarity!=='common'));assert.ok(Math.abs(mechanics.length/12000-.35)<.02);
     assert.equal(mechanics.some(i=>i.gadgetId==='sentry'),floor>=5);assert.ok(!mechanics.some(i=>i.gadgetId==='hunter'));}});
+check('流星缎带从第五层开放，宝箱仍不产出高级机关',()=>{
+    for(const floor of [4,5,9]){const items=batch('chest',floor).filter(isMechanic);
+        assert.equal(items.some(i=>i.gadgetId==='comet'),floor>=5);
+        assert.ok(items.every(i=>[...BASIC,'comet'].includes(i.gadgetId)));}
+});
 check('守卫和首領按25%/40%开放高级机制，其余为武器，绝无普通品质',()=>{
     for(const [source,chance] of [['guardian',.25],['boss',.4]])for(const floor of [4,5,8,9,20]){
-        const items=batch(source,floor);assert.equal(items.length,12000);const gear=items.filter(i=>i.gadgetId);
+        const items=batch(source,floor);assert.equal(items.length,12000);const gear=items.filter(isMechanic);
         assert.ok(Math.abs(gear.length/12000-(floor<5?0:chance))<.02);
         assert.ok(items.every(i=>i.gadgetId?ADVANCED.includes(i.gadgetId):i.slot==='weapon'));
         assert.equal(gear.some(i=>i.gadgetId==='hunter'),floor>=9);
@@ -64,7 +70,7 @@ check('真实死亡管线区分普通敌/精英/守卫/首领，清层和重返�
         w.danmaku.emit('aimed',{x:15,y:12,angle:0},{side:'player',power:99999999,coef:1,count:1,speed:10,life:3});
         for(let i=0;i<60&&!target.dead;i++)w.update(1/60);
         assert.equal(target.dead,true);const items=w.drops.flatMap(d=>d.items);
-        if(source!=='enemy')assert.equal(items.length,1);else assert.ok(items.every(i=>!i.gadgetId));
+        if(source!=='enemy')assert.equal(items.length,1);else assert.ok(items.every(i=>!isMechanic(i)));
         if(source==='guardian'||source==='boss')assert.ok(items.every(i=>i.gadgetId?['sentry','hunter','steady'].includes(i.gadgetId):i.slot==='weapon'));
         const before=JSON.stringify(items),coin=w.coin;for(let i=0;i<120;i++)w.update(1/60);
         assert.equal(w.floor,9);assert.equal(w.player.equipment.length,0);assert.equal(JSON.stringify(w.drops.flatMap(d=>d.items)),before);
@@ -74,7 +80,7 @@ check('真实死亡管线区分普通敌/精英/守卫/首领，清层和重返�
 check('主动开宝箱才发对应渠道的一件奖励，不能重开重领',()=>{
     for(let seed=0;seed<30;seed++){const w=fixture(1);w.rng=createRandom(seed);w.enterRoom(2);
         assert.equal(w.drops.length,0);assert.ok(w.openChest());assert.equal(w.drops.length,1);
-        const item=w.drops[0].items[0];assert.notEqual(item.rarity,'common');assert.ok(!item.gadgetId||BASIC.includes(item.gadgetId));
+        const item=w.drops[0].items[0];assert.notEqual(item.rarity,'common');assert.ok(!isMechanic(item)||[...BASIC,'comet'].includes(item.gadgetId));
         assert.equal(w.openChest(),null);assert.equal(w.drops.length,1);
     }
 });
@@ -82,7 +88,7 @@ check('商店三货位有明确分工，机制按身份收费和层数开放',()
     for(const floor of [1,4,5,8,9,20]){const found=new Set();for(let seed=0;seed<100;seed++){
         const w=fixture(floor);w.dungeon.rooms[1].seed=seed;w.enterRoom(1);const rows=w.getShopOffer();
         assert.equal(rows.length,3);assert.equal(rows[0].item.slot,'weapon');assert.ok(!rows[0].item.gadgetId);
-        assert.ok(rows[1].item.slot!=='weapon'&&!rows[1].item.gadgetId);
+        assert.ok(rows[1].item.slot!=='weapon'&&gadgets.gadgetDefinition(rows[1].item).relic);
         assert.ok(rows[2].item.gadgetId);assert.equal(rows[2].price,PRICE[rows[2].item.gadgetId]);found.add(rows[2].item.gadgetId);
     }assert.equal(found.has('sentry'),floor>=5);assert.equal(found.has('hunter'),floor>=9);}
 });

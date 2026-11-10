@@ -79,11 +79,12 @@ def run(page, base, check, report):
     page.goto(base + '?volume=1&floor=13&seed=176', wait_until='load', timeout=60000)
     page.wait_for_selector('.roster-card', timeout=60000)
     page.locator('.roster-card').filter(has=page.locator('img[src$="/22002001.webp"]')).click()
+    page.locator('#roster-start').click()
     ready(page)
     original = state(page)
     check('正常选角无装备，技能采用角色原招', original['items'] == [] and all(x is None for x in original['sources']))
 
-    partial = {'slot': 'amulet', 'rarity': 'epic', 'affixes': ['12002011']}
+    partial = {'slot': 'weapon', 'rarity': 'epic', 'affixes': ['12002011']}
     offer_drop(page, partial)
     dialog = page.locator('#rl-equipment-choice')
     check('默认简述只列实际改动，完整对照需要展开',
@@ -95,7 +96,7 @@ def run(page, base, check, report):
     check('拾取前明确显示技能3前后名称、效果和基础冷却', skill3.count() == 1
           and skill3.locator('[data-skill-id="120020113"]').count() == 1
           and '基础冷却' in skill3.inner_text() and '自身' in skill3.inner_text()
-          and '护符 · 附加词条 1' in skill3.inner_text())
+          and '武器 · 附加词条 1' in skill3.inner_text())
     check('空位不移位，技能2与R在比较中明确保留', dialog.locator('.equipment-skill-change[data-skill-slot="1"]').count() == 0
           and '技能 2' in dialog.locator('.equipment-skill-unchanged').inner_text()
           and 'R 必杀' in dialog.locator('.equipment-skill-unchanged').inner_text())
@@ -103,8 +104,8 @@ def run(page, base, check, report):
           and frame_fits(page, '#equipment-confirm'))
     summary = dialog.locator(':scope > .comparison-summary')
     check('候选概要先说明装备名称、槽位和当前装备', summary.count() == 1
-          and summary.locator('.comparison-summary-name').inner_text() == '史诗 · 护符'
-          and '护符槽' in summary.inner_text() and '当前未装备' in summary.inner_text())
+          and summary.locator('.comparison-summary-name').inner_text() == '史诗 · 武器'
+          and '武器槽' in summary.inner_text() and '当前未装备' in summary.inner_text())
     layout = summary_layout(page)
     check('滚动长技能对照时装备身份保持可见', all(layout.get(key) for key in ['exists','visible','fixed','scrolled','noOverflow'])
           and layout['content'] >= 100, layout)
@@ -135,32 +136,32 @@ def run(page, base, check, report):
     page.evaluate('window.blockWrites=false'); page.locator('#equipment-confirm').click(); advance(page)
     equipped = state(page)
     check('确认后只替换正确槽位，来源与预览一致', equipped['ids'][1] == original['ids'][1]
-          and equipped['ids'][2] == 120020113 and equipped['sources'][2]['slot'] == 'amulet'
+          and equipped['ids'][2] == 120020113 and equipped['sources'][2]['slot'] == 'weapon'
           and equipped['ids'][0] == original['ids'][0])
     check('技能栏只为被改写的技能显示改字和可读来源', page.locator('.hud-skill[data-slot="2"]').get_attribute('data-overridden') == 'true'
           and page.locator('.hud-skill[data-slot="1"]').get_attribute('data-overridden') == 'false'
           and page.locator('.hud-skill[data-slot="2"] .hud-skill-origin').is_visible()
-          and '护符' in page.locator('.hud-skill[data-slot="2"]').get_attribute('aria-label'))
+          and '武器' in page.locator('.hud-skill[data-slot="2"]').get_attribute('aria-label'))
     page.locator('.hud-skill[data-slot="2"]').hover()
     page.wait_for_selector('.hud-skill-tooltip:not([hidden])')
-    check('悬停提示解释当前改技来源', '护符 · 附加词条 1' in page.locator('.skill-tooltip-source').inner_text())
+    check('悬停提示解释当前改技来源', '武器 · 附加词条 1' in page.locator('.skill-tooltip-source').inner_text())
     page.screenshot(path=str(OUT / 'skill-source-hud.png'))
     page.mouse.move(600, 250)
     page.wait_for_selector('.hud-skill-tooltip', state='hidden')
     page.locator('.hud-skill[data-slot="1"]').focus(); page.keyboard.press('Tab')
     check('键盘焦点也能读取改技来源', page.locator('.hud-skill[data-slot="2"]').evaluate('el=>el===document.activeElement')
           and page.locator('.skill-tooltip-source').is_visible()
-          and '护符' in page.locator('.skill-tooltip-source').inner_text())
+          and '武器' in page.locator('.skill-tooltip-source').inner_text())
     page.keyboard.press('Escape'); advance(page)
 
     menu_equipment(page)
     current = page.locator('#rl-equipment-collection')
     check('当前装备页展示真实技能、来源和可展开的角色原招', current.locator('.equipment-skill-overview [data-skill-slot="2"]').get_attribute('data-skill-id') == '120020113'
           and current.locator('.equipment-original-skill').count() >= 1
-          and '护符 · 附加词条 1' in current.locator('.equipment-skill-overview').inner_text())
+          and '武器 · 附加词条 1' in current.locator('.equipment-skill-overview').inner_text())
     current.locator('.equipment-skill-rules > summary').first.click()
-    check('规则展示固定优先级、空位和剩余冷却继承', '武器 > 护符 > 护甲 > 饰品' in current.inner_text()
-          and '剩余冷却' in current.inner_text() and '不挪用' in current.inner_text())
+    check('规则说明职业普攻、仅武器改技和冷却继承', '普攻方式由角色职业决定' in current.inner_text()
+          and '剩余冷却' in current.inner_text() and '不替换招式' in current.inner_text())
     page.locator('#equipment-tab-content').evaluate('el=>el.scrollTop=0')
     page.screenshot(path=str(OUT / 'current-loadout-desktop.png'))
     page.locator('#equipment-tab-catalog').click()
@@ -184,9 +185,9 @@ def run(page, base, check, report):
     dialog = page.locator('#rl-equipment-choice')
     expand_comparison(page)
     candidate = dialog.locator('.comparison-columns > section').nth(1)
-    check('购买前逐槽说明部分生效：护甲技能3被护符覆盖', candidate.locator('.equipment-modifier[data-target="2"][data-active="false"]').count() == 1
-          and '被「护符 · 附加词条 1」覆盖' in candidate.inner_text()
-          and dialog.locator('.equipment-skill-change[data-skill-slot="1"] [data-skill-id="100220012"]').count() == 1)
+    check('旧护甲改技明确未生效，购买不替换现有招式', candidate.locator('.equipment-modifier[data-target="2"][data-active="false"]').count() == 1
+          and '仅武器可强化招式' in candidate.inner_text()
+          and dialog.locator('.equipment-skill-change').count() == 0)
     page.screenshot(path=str(OUT / 'shop-partial-conflict.png'))
     for width, height in [(667, 375), (568, 320)]:
         page.set_viewport_size({'width': width, 'height': height})
@@ -201,7 +202,7 @@ def run(page, base, check, report):
     before = state(page); page.locator('#equipment-keep').click()
     check('取消购买不扣钱或改变技能', state(page) == before)
     page.locator('#shop-items [data-index="1"]').click(); page.locator('#equipment-confirm').click(); advance(page)
-    check('实际购买与逐槽预览相同，只扣费一次', state(page)['ids'][1:] == [100220012, 120020113]
+    check('实际购买与逐槽预览相同，只扣费一次', state(page)['ids'][1:] == equipped['ids'][1:]
           and state(page)['coin'] == 380 and page.evaluate('kirafanRL.world.getShopOffer()[1].bought'))
     press(page, 'Escape'); page.wait_for_selector('#shop-panel', state='hidden')
     check('Esc只退出商店，不误开暂停菜单或保留菜单按键', not page.locator('#menu-panel').is_visible()
@@ -288,7 +289,7 @@ def main():
     worker = threading.Thread(target=server.serve_forever, daemon=True); worker.start()
     try:
         with sync_playwright() as pw:
-            browser = pw.chromium.launch(args=['--use-gl=angle', '--enable-unsafe-swiftshader'])
+            browser = pw.chromium.launch(channel='msedge', args=['--use-gl=angle', '--enable-unsafe-swiftshader'])
             context = browser.new_context(viewport={'width': 1280, 'height': 840}, has_touch=True)
             context.add_init_script("""window.requestAnimationFrame=()=>0;window.cancelAnimationFrame=()=>{};
                 if(!localStorage.getItem('kirafan-rl:profile'))localStorage.setItem('kirafan-rl:meta',

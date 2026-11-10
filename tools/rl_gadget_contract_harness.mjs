@@ -94,7 +94,7 @@ check('攻击构造和命中呈现都遵守禁暴，不抽取暴击随机数', (
     assert.equal(visible.crit, false); assert.equal(visible.hitFlag, 0);
 });
 check('旧七件保留，三契约固定身份、品质、价格与门槛', () => {
-    assert.equal(gadgets.GADGETS.length, 13);
+    assert.equal(gadgets.GADGETS.length, 22);
     for (const id of BASE_IDS) assert.equal(gadgets.gadgetDefinition(make(id)).id, id);
     for (const [id, [minFloor, price]] of Object.entries(CONTRACTS)) {
         const def = gadgets.gadgetDefinition(make(id));
@@ -182,13 +182,13 @@ check('面板禁暴/解除完全还原，重复重算不改基础数据', () => 
     }
     assert.equal(truth.luck, 1200);
 });
-check('预览显示当前/候选具体技能，替换有原作改技的护甲时不拿旧技能名冒充', () => {
+check('替换旧版改技护甲时保留角色招式，契约显示真正被封印的技能', () => {
     const w = fixture(null, { equipment: [{ slot: 'armor', rarity: 'rare', affixes: ['32032001'] }] });
     const before = JSON.stringify(w.player.equipment), current = w.player.skills.slots.map(s => s.name);
     const preview = w.previewEquipment(make('binding', 2));
     assert.deepEqual(preview.skillNames.current, current);
     assert.equal(preview.skillNames.candidate[2], table.player[9002].name);
-    assert.notEqual(preview.skillNames.candidate[2], current[2]); assert.equal(JSON.stringify(w.player.equipment), before);
+    assert.equal(preview.skillNames.candidate[2], current[2]); assert.equal(JSON.stringify(w.player.equipment), before);
     const terms = gadgets.gadgetTerms(make('binding', 2), preview.skillNames.candidate);
     assert.ok(terms.cost.includes('技能3') && terms.cost.includes(table.player[9002].name));
 });

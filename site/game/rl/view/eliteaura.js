@@ -27,8 +27,13 @@ const PULSE_SECONDS = 2.4;
 const BOSS_OUTER = 1.22;
 const BOSS_OUTER_OPACITY = 0.55;
 
-function ringGeometry(THREE, inner, outer) {
-    return new THREE.RingGeometry(inner, outer, 48);
+function ringGeometry(THREE, inner, outer, segmented = false) {
+    const geometry = new THREE.RingGeometry(inner, outer, 48);
+    if (segmented) {
+        const indices = Array.from(geometry.index.array).filter((_, i) => Math.floor(i / 6) % 3 !== 2);
+        geometry.setIndex(indices);
+    }
+    return geometry;
 }
 
 export function createEliteAura(THREE, scene, radius, element, kind) {
@@ -47,14 +52,14 @@ export function createEliteAura(THREE, scene, radius, element, kind) {
     });
     const root = new THREE.Group();
     root.name = "elite-aura";
-    const inner = new THREE.Mesh(ringGeometry(THREE, radius * 0.72, radius * 0.92), material);
+    const inner = new THREE.Mesh(ringGeometry(THREE, radius * .87, radius * .91), material);
     inner.rotation.x = -Math.PI / 2;
     inner.renderOrder = LAYER.enemy - 12;
     root.add(inner);
     let outer = null;
     if (kind === "boss") {
         outer = new THREE.Mesh(
-            ringGeometry(THREE, radius * 0.98, radius * BOSS_OUTER), material);
+            ringGeometry(THREE, radius * (BOSS_OUTER - .04), radius * BOSS_OUTER, true), material);
         outer.rotation.x = -Math.PI / 2;
         outer.renderOrder = LAYER.enemy - 12;
         // The outer ring runs on a cloned material: the pulse phases differ, so

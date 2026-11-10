@@ -1,6 +1,7 @@
 import { loadCatalogue, portraitMarkup, siteUrl, uiUrl, classIcons, elementIcons } from "./assets.js";
 import { loadBones, loadBoneCell } from "./load-shell.js";
 import { AudioDirector } from "./audio.js";
+import { UNIT_RULES } from "../data/campaign.js";
 import { se as defenseSE, setSeVolume as setSynthVolume, unlock as unlockSynth } from "../../core/audio.js";
 globalThis.__defenseSE = defenseSE;
 globalThis.__defenseSEVolume = setSynthVolume;
@@ -21,32 +22,6 @@ window.addEventListener("keydown", armSynth, { capture: true });
 const $ = id => document.getElementById(id);
 const PARTY_KEY = "etowaria-defense.p0.party.v1";
 const REVIEW_CLOCK = new URLSearchParams(location.search).get("review") === "1";
-const HELP = {
-    U01: "在同一路持续施放土魔法，周期职业技覆盖小范围。",
-    U02: "以水魔法处理群体敌人，招式后的自加速形成输出节奏。",
-    U03: "以变化球与攻击技能卡为依据，规划越障抛投与追加落点。",
-    U04: "原卡具备下一击必定会心的能力，适合蓄力后的高质量一击。",
-    U05: "原卡可缩短自身再使用时间，规划为有明显空窗的周期连发。",
-    U06: "用范围炎魔法和有利属性增伤，处理适合自己的威胁。",
-    U07: "风属性战士。靠近来敌后打开物理防线，不是一次性爆破角色。",
-    U08: "蓄力后的水属性重击有很高单体威力，也需要同伴照顾空档。",
-    U09: "月属性战士。原技能的会心支援让物理队伍抓住出手机会。",
-    U10: "对睡眠目标有原作特攻，需要其他同伴先创造控制机会。",
-    U11: "炎属性骑士。以物理防御与仇恨提升守住最前面的道路。",
-    U12: "攻击后提高防御，适合持续接敌；需要后排同伴补足火力。",
-    U13: "三次完全格挡是这张卡的核心。拦截能力有次数，而非永久无敌。",
-    U14: "原必杀具备净化、自愈和限次数屏障，照顾异常环境中的防线。",
-    U15: "阳属性僧侣。用原作治疗能力及时照顾承受压力的同伴。",
-    U16: "水属性僧侣。治疗技能卡是支援重点，水属性不等于冰冻攻击。",
-    U17: "原卡能净化并暂时阻止异常状态，为队伍留一张可靠保险。",
-    U18: "以治疗与行动速度支援维持同路伙伴的节奏，自己的输出并不高。",
-    U19: "原卡确有行动速度下降和减少充能，适合为防线争取准备时间。",
-    U20: "降低敌方魔防、物攻与充能，为魔法队伍打开缺口。",
-    U21: "两条职业技分别削弱物防和魔防；睡眠必杀可与玛莉·梦魔配合。",
-    U22: "关注敌人的蓄力时机，以减少充能和魔防削弱提供反制。",
-    U23: "保留原技的双刃剑：饥饿与双攻削弱，也会加快敌人的行动。",
-    U24: "束缚、物防削弱与阳耐性下降有原卡依据，不凭属性创造冰冻。"
-};
 const state = { screen: "title", catalogue: null, party: [], selected: "U01", filter: "all", stage: null, epoch: 0 };
 let toastTimer;
 let campaign;
@@ -82,22 +57,25 @@ function showDetails(unit) {
     image.classList.toggle("icon-only", !unit.card);
     $("card-gap").hidden = !!unit.card;
     $("detail-name").textContent = unit.name;
-    $("detail-work").textContent = `${unit.work}　五星进化卡`;
+    $("detail-work").textContent = unit.work;
     const identity = $("detail-identity");
     identity.replaceChildren();
     for (const [name, alt] of [[`ClassIcon${classIcons[unit.classId]}`, unit.className], [`ElementIcon${elementIcons[unit.elementId]}`, unit.elementName]]) {
         const icon = document.createElement("img"); icon.src = uiUrl(name); icon.alt = alt; identity.append(icon);
     }
     const label = document.createElement("span"); label.textContent = `${unit.className} · ${unit.elementName}`; identity.append(label);
-    $("detail-role").textContent = HELP[unit.id];
-    $("detail-cost").textContent = `规划费用 ${unit.plannedCost}　当前为动作与场景试演`;
+    const rule = UNIT_RULES[unit.id];
+    $("detail-role").textContent = rule.help;
+    $("detail-cost").textContent = `${rule.role} · 部署需要 ${rule.cost} 应援`;
     const skills = $("detail-skills");
     skills.replaceChildren();
-    const evidence = document.createElement("p"); evidence.textContent = `原卡 ${unit.cardId} / 模型 ${unit.resourceId}。这里保留原技能日文；当前巡守开放的卡牌和塔防效果以关卡说明为准。`; skills.append(evidence);
+    const original = document.createElement("details");
+    const summary = document.createElement("summary"); summary.textContent = "原作招式资料";
+    original.append(summary); skills.append(original);
     for (const skill of unit.skills) {
         const heading = document.createElement("h4"); heading.textContent = skill.name;
         const description = document.createElement("p"); description.textContent = skill.detail;
-        skills.append(heading, description);
+        original.append(heading, description);
     }
     const included = state.party.includes(unit.id);
     $("toggle-party").textContent = included ? "移出本次场景" : "加入本次场景";
@@ -118,7 +96,7 @@ function renderRoster() {
         button.dataset.unit = unit.id;
         button.classList.toggle("is-in-party", state.party.includes(unit.id));
         button.classList.toggle("is-current", state.selected === unit.id);
-        button.setAttribute("aria-label", `${unit.name}，${unit.className}，${unit.elementName}属性，${unit.role}，规划费用${unit.plannedCost}`);
+        button.setAttribute("aria-label", `${unit.name}，${unit.className}，${unit.elementName}属性，${UNIT_RULES[unit.id].role}，规划费用${UNIT_RULES[unit.id].cost}`);
         const portrait = portraitMarkup(unit);
         // 首载垫块：portrait-icon 是 1:1 方形，骨块先占住同一块方地；
         // 已缓存（img.complete）的图直接跳过，切职业筛选不会反复闪骨架。
@@ -131,7 +109,7 @@ function renderRoster() {
             face.addEventListener("error", settle, { once: true });
         }
         button.append(portrait);
-        for (const [tag, cls, text] of [["strong", "", unit.name], ["span", "unit-role", unit.role], ["span", "unit-cost", `费用 ${unit.plannedCost}`]]) {
+        for (const [tag, cls, text] of [["strong", "", unit.name], ["span", "unit-role", UNIT_RULES[unit.id].role], ["span", "unit-cost", `费用 ${UNIT_RULES[unit.id].cost}`]]) {
             const node = document.createElement(tag); node.className = cls; node.textContent = text; button.append(node);
         }
         button.addEventListener("click", () => showDetails(unit));
@@ -245,11 +223,11 @@ function buildLoadout(units) {
     bar.replaceChildren();
     for (const [index, unit] of units.entries()) {
         const button = document.createElement("button"); button.className = "loadout-unit"; button.dataset.unit = unit.id;
-        button.setAttribute("aria-pressed", "false"); button.title = `${index + 1}：${unit.name}，${unit.role}`;
+        button.setAttribute("aria-pressed", "false"); button.title = `${index + 1}：${unit.name}，${UNIT_RULES[unit.id].role}`;
         button.append(portraitMarkup(unit, { identity: false }));
         const text = document.createElement("span");
         const name = document.createElement("strong"); name.textContent = unit.name;
-        const role = document.createElement("small"); role.textContent = unit.role;
+        const role = document.createElement("small"); role.textContent = UNIT_RULES[unit.id].role;
         text.append(name, role); button.append(text);
         button.addEventListener("click", () => state.stage?.select(unit.id));
         bar.append(button);
@@ -317,7 +295,7 @@ async function enterStage() {
 }
 
 function showError(error) {
-    console.error("里之守望：", error);
+    console.error("星灯守望：", error);
     $("stage-loading").hidden = true;
     $("error-message").textContent = error.message || String(error);
     if (!$("error-dialog").open) { $("error-dialog").showModal(); }
@@ -340,9 +318,7 @@ function togglePause() {
 }
 
 function updateOrientation() {
-    const compactPortrait = innerWidth < 700 && innerHeight > innerWidth;
-    $("portrait-notice").hidden = !compactPortrait;
-    state.stage?.setPaused("orientation", compactPortrait);
+    state.stage?.resize();
 }
 
 function syncSettings() {
@@ -362,7 +338,6 @@ $("open-roster").addEventListener("click", openRoster);
 $("roster-enter").addEventListener("click", enterStage);
 $("roster-back").addEventListener("click", () => { showScreen("title"); audio.playTheme("day"); });
 $("stage-back").addEventListener("click", openRoster);
-$("portrait-back").addEventListener("click", openRoster);
 $("toggle-party").addEventListener("click", () => {
     const index = state.party.indexOf(state.selected);
     if (index >= 0) { if (state.party.length > 1) { state.party.splice(index, 1); } }
@@ -477,22 +452,7 @@ if (REVIEW_CLOCK) {
     });
 }
 
-// 标题背景轮换：从全站零引用的四张场景横幅里随机挑一张做标题底图。
-// CSS 背景没有 onerror，先用 new Image() 预探测，加载成功才写
-// data-title-scene 交给 shell.css 的 ::after 淡入；失败则移除属性、
-// 回落默认的 title.webp。
-const TITLE_SCENES = ["village", "town", "inn", "train"];
-
-function rotateTitleScene() {
-    const scene = TITLE_SCENES[Math.floor(Math.random() * TITLE_SCENES.length)];
-    const probe = new Image();
-    probe.addEventListener("load", () => { document.body.dataset.titleScene = scene; });
-    probe.addEventListener("error", () => { delete document.body.dataset.titleScene; });
-    probe.src = siteUrl(`asset/img/rl/ui/scene_${scene}.webp`);
-}
-
 async function boot() {
-    rotateTitleScene();
     syncSettings();
     try {
         state.catalogue = await loadCatalogue();

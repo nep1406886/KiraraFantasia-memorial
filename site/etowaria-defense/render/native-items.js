@@ -38,7 +38,10 @@ export class NativeItems {
     }
     async bottle(height = .48) {
         if (!this.template) { await this.prepare(); }
-        if (!this.template) { throw new Error("原药瓶尚未准备好"); }
+        return this.createBottle(height);
+    }
+    createBottle(height) {
+        if (!this.template || this.disposed) { throw new Error("原药瓶尚未准备好"); }
         const group = new this.THREE.Group();
         const turn = new this.THREE.Group();
         const artwork = this.template.root.clone(true);
@@ -69,10 +72,12 @@ export class NativeItems {
             side: THREE.DoubleSide, blending: THREE.AdditiveBlending, opacity: .85 });
         const mesh = new THREE.Mesh(geometry, material); mesh.renderOrder = 874000000; mesh.frustumCulled = false;
         this.stage.scene.add(mesh);
-        return { mesh, geometry, material, positions, count, samples: [] };
+        return { mesh, geometry, material, positions, count, head: 0, sampleCount: 0,
+            samples: Array.from({ length: count }, () => new THREE.Vector3()) };
     }
     launch({ model, to, attached, onImpact, texture }) {
-        const item = this.bottle(.4 * Math.max(.9, model.scale));
+        // prepareTrail has completed before deployment; launches stay synchronous.
+        const item = this.createBottle(.4 * Math.max(.9, model.scale));
         const from = model.muzzlePoint();
         const target = to.clone();
         const flight = { item, from, to: target, position: from.clone(), age: 0, duration: .64,
@@ -108,12 +113,11 @@ export class NativeItems {
             flight.item.group.position.copy(flight.position);
             flight.item.turn.rotation.z = -t * Math.PI * 2;
             const trail = flight.trail;
-            // 轨迹采样点是每帧新增的、必须保留的历史位置，只能分配；
-            // 但顶点计算可以复用同一组暂存向量。
-            trail.samples.unshift(flight.position.clone());
-            if (trail.samples.length > trail.count) { trail.samples.pop(); }
+            trail.head = (trail.head + trail.count - 1) % trail.count;
+            trail.samples[trail.head].copy(flight.position);
+            trail.sampleCount = Math.min(trail.count, trail.sampleCount + 1);
             for (let i = 0; i < trail.count; i++) {
-                const point = trail.samples[Math.min(i, trail.samples.length - 1)];
+                const point = trail.samples[(trail.head + Math.min(i, trail.sampleCount - 1)) % trail.count];
                 const halfWidth = .09 * (1 - i / trail.count);
                 for (let side = 0; side < 2; side++) {
                     sample.copy(point);

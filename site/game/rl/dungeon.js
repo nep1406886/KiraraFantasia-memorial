@@ -43,7 +43,7 @@ const DIRS = [
 // area to keep the density; the balance instrument is analytic
 // (rl_balance_harness models uptime, not geometry), so T16 gates were
 // re-run as the safety net, not as the measurer.
-export const ROOM_SIZE = Object.freeze({ w: 32, h: 24 });
+export const ROOM_SIZE = Object.freeze({ w: 40, h: 30 });
 const SERVICE_ROOM_SIZES = Object.freeze({
     start: Object.freeze({ w: 20, h: 16 }),
     chest: Object.freeze({ w: 16, h: 12 }),
@@ -220,8 +220,8 @@ export function generateDungeon(seed, floorCfg) {
             // enemy pool (T01 data, stage 3)
             room.enemies.push({
                 kind: room.type === "boss" ? "boss" : "sentry",
-                x: 2.5 + roomRng() * (ROOM_SIZE.w - 5),
-                y: 1.5 + roomRng() * (ROOM_SIZE.h - 3)
+                x: room.type === "boss" ? ROOM_SIZE.w * .5 : 2.5 + roomRng() * (ROOM_SIZE.w - 5),
+                y: room.type === "boss" ? ROOM_SIZE.h * .5 : 1.5 + roomRng() * (ROOM_SIZE.h - 3)
             });
         }
     });

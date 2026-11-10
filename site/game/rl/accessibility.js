@@ -13,5 +13,6 @@ export function applyAccessibility(settings) {
     accessibility.reducedShake = settings["reduced-shake"] === true;
     accessibility.reducedFlash = settings["reduced-flash"] === true;
     accessibility.simplifiedUltimates = settings["simplified-ultimates"] === true;
+    if (typeof document !== 'undefined') document.body.classList.toggle('reduced-motion', accessibility.reducedFlash);
     return accessibility;
 }

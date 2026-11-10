@@ -100,7 +100,7 @@ export class Facility extends BoardProp {
 export class Scarecrow extends BoardProp {
     constructor(view) {
         super(view, { name: "defense-scarecrow", height: 1.2,
-            unit: { id: "F13", shortName: "稻草人", name: "稻草人诱饵" } });
+            unit: { id: "F13", shortName: "训练机关", name: UNIT_RULES.F13.name } });
     }
     async load(view) {
         const loaded = await loader.load("model/enemy/model_en_5200.muast", { kind: "enemy" });
@@ -117,6 +117,12 @@ export class Scarecrow extends BoardProp {
     }
     bodyPoint() { return super.bodyPoint(.7); }
     update(dt) { if (this.motion) { this.motion.apply(dt); } if (this.mixer) { this.mixer.update(dt); } }
+    dispose() {
+        super.dispose();
+        if (!this.root) return;
+        this.mixer?.stopAllAction(); this.mixer?.uncacheRoot(this.root);
+        loader.disposeObject(this.root); this.root = null;
+    }
 }
 
 export class BattleView {
@@ -142,7 +148,7 @@ export class BattleView {
         this.options = options;
         this.level = options.level;
         this.catalogue = options.catalogue;
-        this.battle = new Battle(options.level, { deck: options.deck, seed: options.seed });
+        this.battle = new Battle(options.level, { deck: options.deck, seed: options.seed, evolved:options.evolved });
         this.models = new Map();
         this.allModels = new Set();
         this.unitPools = new Map();
@@ -168,13 +174,6 @@ export class BattleView {
         // 比 Set 少一次哈希，也省掉每帧 clear()。
         this.threatenedRows = [];
         this.throttle = new Map();
-        // 原作语音表（units.json 的 voice.cues）按 unit id 缓存；只有带表
-        // 的角色必杀才播语音。pickVoiceCue 轮换取句。
-        this.unitVoice = new Map();
-        this.voicePick = new Map();
-        for (const unit of options.catalogue?.units || []) {
-            if (unit?.voice?.cues && Object.keys(unit.voice.cues).length) { this.unitVoice.set(unit.id, unit.voice); }
-        }
         this.selected = null;
         this.recallMode = false;
         this.ready = false;
@@ -338,6 +337,7 @@ export class BattleView {
         if (rule.splash || rule.onHit?.splash || rule.special?.type === "wave") { names.push(ELEMENT_BURST[unit.elementId]); }
         if (["healer", "guard"].includes(rule.kind) || rule.selfHeal) { names.push("ef_btl_recover_00", "ef_btl_recover_01"); }
         if (["shielder", "beacon"].includes(rule.kind) || rule.barrier || rule.guardReduction) { names.push("ef_btl_buff_ring", "ef_btl_buff_line"); }
+        if (rule.healShield || rule.barrier || rule.kind === "shielder") { names.push("ef_btl_barrier_00"); }
         // lastStand 免死与 killHaste 击杀提速都要恢复系特效。
         if (rule.lastStand || rule.hasteOnKill) { names.push("ef_btl_recover_00", "ef_btl_recover_01", "ef_btl_buff_line"); }
         await this.stage.effects.prepare(names, copies);
@@ -728,8 +728,9 @@ export class BattleView {
         const track = document.createElement("span"); track.className = "life-track";
         const fill = document.createElement("span"); fill.className = "life-fill"; track.append(fill);
         const shield = document.createElement("span"); shield.className = "shield-fill"; shield.hidden = true;
+        const cycle = document.createElement("span"); cycle.className = "skill-cycle"; cycle.hidden = true;
         const text = document.createElement("span"); text.className = "sr-only";
-        button.append(name, badges, track, shield, text);
+        button.append(name, badges, track, shield, cycle, text);
         button.addEventListener("click", event => {
             event.stopPropagation();
             const unit = this.battle.units.get(model.entityId) || this.battle.enemies.get(model.entityId);
@@ -748,6 +749,7 @@ export class BattleView {
         model.labelAnchor = "head";
         model.hpFill = fill;
         model.shieldFill = shield;
+        model.skillCycle = cycle;
         model.badges = badges;
         model.hpText = text;
         model.statusKey = null;
@@ -773,12 +775,26 @@ export class BattleView {
             }
         }
         const hasted = model.kind !== "enemy" && entity.hasteUntil > time;
-        const key = `${Math.round(ratio * 200)}:${Math.round(guard || 0)}:${statuses.join()}:${hasted}`;
+        const ruleKey = entity.type + ":" + entity.gear;
+        if (model.cycleRuleKey !== ruleKey) {
+            model.cycleRuleKey = ruleKey;
+            const rule = model.kind !== "enemy" && this.battle.unitRule(entity);
+            model.cycleEvery = rule && (rule.gearSkill?.every || rule.special?.every);
+        }
+        const every = model.cycleEvery;
+        const count = every ? entity.attacks % every : 0;
+        const key = `${Math.round(ratio * 200)}:${Math.round(guard || 0)}:${statuses.join()}:${hasted}:${count}:${every}`;
         if (model.statusKey === key) { return; }
         model.statusKey = key;
         model.hpFill.style.transform = `scaleX(${ratio})`;
         model.label.classList.toggle("critical", ratio <= .25);
-        model.label.classList.toggle("shown", ratio < .999 || guard > 0 && ratio < .999 || statuses.length > 0 || model.kind === "enemy" && entity.maxArmor > 0 && guard < entity.maxArmor);
+        model.label.classList.toggle("shown", !!every || ratio < .999 || statuses.length > 0 || model.kind === "enemy" && entity.maxArmor > 0 && guard < entity.maxArmor);
+        model.skillCycle.hidden = !every;
+        if (every) {
+            model.skillCycle.textContent = count === every - 1 ? "✦ 下击强化" : `✦ ${count} / ${every}`;
+            model.skillCycle.classList.toggle("ready", count === every - 1);
+            model.skillCycle.style.setProperty("--cycle", `${count / every * 100}%`);
+        }
         model.shieldFill.hidden = !(guard > 0);
         model.shieldFill.classList.toggle("armor", model.kind === "enemy");
         if (guard > 0) { model.shieldFill.style.transform = `scaleX(${Math.min(1, guard / Math.max(1, guardMax))})`; }
@@ -883,7 +899,7 @@ export class BattleView {
                     if (!(this.options.audio.settings.reducedMotion || OS_REDUCED)) { this.stage.hitStopFrames = 3; }
                     if (this.once("shake:crit", .3)) { this.stage.shake?.(.03, 15); }
                 }
-                else { this.seOnce(`hit:${event.id}`, .18, "hit", 0.4); }
+                else if (event.source !== "burn") { this.seOnce("enemy-hit", .09, "hit", 0.4); }
                 // 灼烧持续伤害的原作表现：火元素全体伤害图按 tick 抖动，
                 // 音效静默（灼烧的火声在点燃那一下，不在每跳）。
                 if (event.source === "burn" && this.once(`burnfx:${event.id}`, .5)) {
@@ -893,6 +909,10 @@ export class BattleView {
             break;
         case "unitHurt":
             if (model) {
+                if (event.protected && this.once(`protection:${event.id}`, 1)) {
+                    this.emit("ef_btl_barrier_00", model.bodyPoint(), .5);
+                    this.floater(model, "营地守护", "shield");
+                }
                 // 同伴被打：同样按攻击者（来客）属性取元素受击图。原作里
                 // 来客各带属性，受击不应是一张白图。
                 this.startSquash(model, .8);
@@ -1058,9 +1078,8 @@ export class BattleView {
         if (!model) { return; }
         model.play("skill_1", false);
         this.emit("ef_btl_buff_ring", model.group.position.clone(), .9);
-        this.floater(model, "バトルクライ！", "enemy-heal");
-        // 狼嚎：上行扫频的啸声（原作技能的听感依据），一次一只不叠加。
-        this.options.audio.se?.("whoosh", { volume: 0.5 });
+        this.floater(model, "群行号令", "enemy-heal");
+        this.seOnce("enemy-rally", 1.2, "enemy_rally", .36);
         for (const id of event.boosted.slice(0, 6)) {
             const other = this.models.get(id);
             if (other) { this.emit("ef_btl_buff_line", other.bodyPoint(), .6); }
@@ -1072,8 +1091,7 @@ export class BattleView {
         if (!model) { return; }
         model.play("skill_1", false);
         this.emit("ef_btl_debuff_line", model.group.position.clone(), 1);
-        // 低吼：低频下坠的轰声，比狼嚎更沉。
-        this.options.audio.se?.("death", { volume: 0.45 });
+        this.seOnce("enemy-roar", 1.2, "enemy_roar", .35);
         for (const id of event.affected.slice(0, 6)) {
             const other = this.models.get(id);
             // 迟缓统一走 slow 观感（与 status() 的 STATUS_BADGES 路径同族，
@@ -1260,23 +1278,10 @@ export class BattleView {
                 this.emit(effect.effect, receiver.group.position.clone(), live.scale, { facing: -1 });
             } });
         }
-        if (event.action === "barrier") { this.emit("ef_btl_barrier_00", model.bodyPoint(), .9, { facing: model.kind === "enemy" ? 1 : -1 }); this.floater(model, "屏障×3", "shield"); }
+        if (event.action === "barrier") { this.emit("ef_btl_barrier_00", model.bodyPoint(), .9, { facing: model.kind === "enemy" ? 1 : -1 }); this.floater(model, `屏障×${this.battle.units.get(event.id)?.barrierHits || 0}`, "shield"); }
         if (event.special === "critical" || event.special === "power") { this.emit("ef_btl_buff_line", model.group.position.clone(), model.scale, { facing: model.kind === "enemy" ? 1 : -1 }); }
-        // 必杀技配音：action === "skill"（sim 的周期必杀）才播，普攻与
-        // 治疗/屏障等支援动作都不播。同角色 6 秒限流防复读机。
-        if (event.action === "skill" && this.unitVoice?.has(model.unit.id) && this.once(`voice:${event.id}`, 6)) {
-            this.options.audio.playVoice(this.unitVoice.get(model.unit.id), this.pickVoiceCue(model.unit.id));
-        }
-    }
-
-    // 角色原作语音：units.json 里带 voice 表的角色才有。命中的 cue 从
-    // 表里轮换（000→001→…），让每次必杀不重复同一句。
-    pickVoiceCue(unitId) {
-        const table = this.unitVoice.get(unitId);
-        const keys = Object.keys(table.cues);
-        const counter = this.voicePick.get(unitId) || 0;
-        this.voicePick.set(unitId, (counter + 1) % keys.length);
-        return keys[counter];
+        // Periodic skills use their SE. The original ultimate scene owns its
+        // complete voice timeline; isolated dialogue fragments do not belong here.
     }
 
     projectile(event) {
@@ -1305,7 +1310,7 @@ export class BattleView {
         // 定帧期间的停拍位置：每颗投射物一份（emit 时建一次，不在帧循环
         // 里分配对象）。
         const frozenAt = { point: null };
-        const slot = this.stage.effects.emit(graphic.effect, { from, scale, facing: -1,
+        this.stage.effects.emit(graphic.effect, { from, scale, facing: -1,
             position: () => {
                 const projectile = this.battle.projectiles.get(event.id);
                 if (!projectile) { return null; }
@@ -1331,9 +1336,7 @@ export class BattleView {
                 position.x = (projectile.x + this.level.colOffset - 4) * 1.3;
                 return position;
             } });
-        // A busy pool now grows on demand (native-effects emit); if this shot
-        // still misses a slot the sim keeps running — the projectile exists in
-        // the simulation and still damages, it simply has no art for one frame.
+        // NativeEffects keeps a small projectile silhouette when rich slots are busy.
     }
 
     projectileRemoved(event) {
@@ -1366,12 +1369,12 @@ export class BattleView {
         // 近战敌人挥击的破空声比玩家侧更闷。命中那一刻的 hit 在
         // unitHurt 事件里，这里只是「起手」。
         if (event.ranged) {
-            this.seOnce(`eshot:${event.id}`, .4, "shoot_moon", 0.22);
+            this.seOnce("enemy-shot", .16, "enemy_shot", .22);
             model.play("skill_1", false);
             const target = this.models.get(event.target);
             if (target) { this.emit(ENEMY_SHOT, model.bodyPoint(), .75, { to: target.bodyPoint(), flight: Math.max(.2, event.windup - .05), facing: 1 }); }
         } else {
-            this.seOnce(`eswing:${event.id}`, .35, "swing", 0.18);
+            this.seOnce("enemy-swipe", .16, "enemy_swipe", .18);
             model.play("skill_0", false);
         }
     }
@@ -1545,7 +1548,7 @@ export class BattleView {
         // 击退来客：death 短促低落。同伴倒下音量更低——那是失分事件，
         // 不能比击退来客更响。召回不响（那是玩家自己的决定）。
         if (reason === "defeated" && (model.kind === "enemy" || model.kind === "player")) {
-            this.seOnce(`dead:${id}`, .5, "death", model.kind === "enemy" ? 0.35 : 0.2);
+            this.seOnce("dissolve", .12, "death", model.kind === "enemy" ? .28 : .2);
         }
         model.retiring = true;
         model.retireTime = this.visualTime;

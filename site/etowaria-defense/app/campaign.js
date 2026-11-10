@@ -2,6 +2,9 @@ import { LEVELS, CHAPTERS, ENDLESS, UNIT_RULES, ENEMY_RULES, ENEMY_FIRST_SEEN, D
 import { CampaignSave } from "./campaign-save.js";
 import { evaluateChallenge } from "./challenge-evaluator.js";
 import { portraitMarkup, siteUrl } from "./assets.js";
+import { readFormPreferences, formName, saveFormPreference, withCardForm } from "../../core/card-forms.js";
+import { isEvolved, EVOLUTION_HEALTH, EVOLUTION_POWER } from '../../core/evolution.js';
+import { createEvolutionPanel, showEvolutionResult } from '../../core/evolution-view.js';
 import { ICONS } from "./icons.js";
 // 来客小像：懒拍池内模型本体。模块本身零重依赖（three/拍摄管线都在
 // 拍摄函数内部按需动态导入），在选关图载入它没有额外成本。
@@ -69,41 +72,6 @@ const osReducedMotion = () => typeof matchMedia === "function" && matchMedia("(p
 // 图鉴大图页的来客留影尺寸：网格缩略仍是 enemy-icons.js 的 96px，
 // 只有大图页按 288 现拍，避免缩略缓存膨胀。
 const CODEX_VIEW_CAPTURE = 288;
-// ── 里程碑 ★4 语音 ──────────────────────────────────────────────────
-// audio/voice/ 下 33 个 ★4 sheet（*4_A 目录，共 138 条 mp3，均为
-// voice_kirarajump 系）在 units.json 的语音表里零引用——表只配了 ★5
-// sheet。目录名第二、三、四段（作品_角色_职业）与 units.json voice.sheet
-// 同构；sheet 已覆盖的作品按 sheet 推导，未覆盖的用 WORK 别名字面表
-// 补齐（罗马字逐条对照 asset/rl/_raw/NamedList.json 的 m_ResouceBaseName
-// 核实，未能确认归属的目录不收录——宁可不播，也不播错作品的语音）。
-// 每目录的实际条数按 ls 实测写死，里程碑时随机取一条。
-const VOICE4_FILE_COUNTS = {
-    AChannel_Toru_Fighter: 3, Acchikocchi_Tumiki_Priest: 5, Anhapi_Hanako_Knight: 3,
-    Anima_Kohane_Magician: 5, Blends_Maika_Magician: 3, Gakkou_Yuki_Priest: 3,
-    GA_Tomokane_Fighter: 4, Gochiusa_Cocoa_Fighter: 4, Hanayamata_Naru_Priest: 7,
-    Harukana_Haruka_Knight: 3, Harumination_Harumi_Priest: 3, Hidamari_Yuno_Priest: 3,
-    Hitugi_Kuro_Alchemist: 3, Keion_Yui_Fighter: 7, Killme_Yasuna_Knight: 3,
-    KinMosa_Alice_Alchemist: 3, KinMosa_Karen_Fighter: 3, Koharu_Koharu_Knight: 11,
-    Koiasu_Mira_Alchemist: 6, Komiga_Kaoruko_Priest: 3, Matikado_Yuko_Priest: 7,
-    NewGame_Aoba_Magician: 3, Pawasuma_Mayu_Alchemist: 6, Sakura_Haruka_Priest: 3,
-    Sansha_Futaba_Fighter: 7, SlowStart_Hana_Priest: 3, Stella_Tamaki_Magician: 3,
-    Tamayomi_Yomi_Magician: 6, Urara_Chiya_Knight: 3, Yumekui_Merry_Fighter: 3,
-    Yurukyan_Nadesiko_Fighter: 3, Yurukyan_Rin_Magician: 3, YuyuShiki_Yui_Knight: 3
-};
-// sheet 推导不到的作品别名：作品名 = units.json 的 work 字段字面值。
-const VOICE4_EXTRA_WORKS = {
-    轻音少女: "Keion_Yui_Fighter",
-    "NEW GAME!": "NewGame_Aoba_Magician",
-    街角魔族: "Matikado_Yuko_Priest",
-    一起一起这里那里: "Acchikocchi_Tumiki_Priest",
-    "Anima Yell!": "Anima_Kohane_Magician",
-    悠悠式: "YuyuShiki_Yui_Knight",
-    "Slow Start": "SlowStart_Hana_Priest",
-    晴海国度: "Harumination_Harumi_Priest"
-};
-// units.json voice.sheet 形如 Voice_Stella_Tamaki_Magician5_A，去掉
-// Voice_ 前缀与 5_A 尾缀即与 ★4 目录的工作表名对齐。
-const sheetToken = name => name.replace(/^Voice_/, "").replace(/\d_A$/, "");
 const markup = `
   <div class="campaign-map" data-view="map">
     <header class="panel campaign-header"><button class="native-button compact" data-action="back">返回标题</button><h2>里口花径</h2><span>巡守手记</span><button class="native-button compact" data-action="save">巡守记录</button><button class="native-button compact" data-action="town">城镇</button></header>
@@ -147,7 +115,6 @@ const markup = `
       <div class="milestone-toast" data-role="milestone" role="status" hidden></div>
       <div class="battle-pause-overlay" data-role="pause-overlay" hidden><div class="panel"><h3>巡守已暂停</h3><p>波次、生产、冷却与攻击全部暂停。</p><div class="pause-actions"><button class="native-button primary compact" data-action="resume">继续巡守</button><button class="native-button compact" data-action="settings">声音设置</button><button class="native-button compact" data-action="leave">返回关卡</button></div></div></div>
       <div class="stage-loading" data-role="loading" hidden><div class="panel loading-card"><h3>把这次布阵准备好</h3><p data-role="load-text">读取原生场地…</p><div data-role="load-bones"></div><progress data-role="load-progress" max="1" value="0"></progress></div></div>
-      <div class="portrait-notice" data-role="portrait" hidden><div class="panel"><h3>横屏看清整条防线</h3><p>战斗已经暂停。可以旋转屏幕，或返回关卡选择。</p><button class="native-button compact" data-action="leave">返回关卡</button></div></div>
     </div>
   </div>
   <dialog class="panel app-dialog campaign-dialog" data-role="brief-dialog" aria-labelledby="campaign-brief-title"><h2 id="campaign-brief-title">出发之前</h2><div data-role="story"></div><p data-role="opening-tip"></p><ol class="opening-steps" aria-label="新手流程"><li><strong>先部署</strong><span>选择卡牌，再点一格；卡牌说明会告诉你费用、射程和作用。</span></li><li><strong>再收集</strong><span>应援台和自然资源会生成クリエ，看到资源徽章就点击“收取”。</span></li><li><strong>开始巡守</strong><span>确认布阵后点击“开始巡守”；波次、冷却和敌人行动才会推进。</span></li><li><strong>遇险处理</strong><span>可以随时暂停查看详情；来客突破时，对应道路的结界会自动触发，争取重新布阵。</span></li></ol><p class="muted">场上身影为练习投影，可按费用和冷却重复召唤。对白与塔防数值是本作同人改编。</p><div class="dialog-actions"><button class="native-button primary compact" data-action="brief-close">开始布阵</button></div></dialog>
@@ -167,6 +134,8 @@ export class Campaign {
         this.options = options;
         this.host = options.host;
         this.catalogue = options.catalogue;
+        this.formPreferences = readFormPreferences();
+        this.formUnits = new Map();
         this.audio = options.audio;
         this.host.innerHTML = markup;
         this.view = null;
@@ -191,11 +160,14 @@ export class Campaign {
         if (options.manualClock) {
             storage = { getItem: key => localStorage.getItem(`${key}.review`), setItem: (key, value) => localStorage.setItem(`${key}.review`, value) };
         }
-        this.save = new CampaignSave(storage);
+        this.save = new CampaignSave(storage, this.catalogue);
         this.levelId = this.save.progress.lastLevel;
+        this.deckSearch = "";
+        this.deckFamily = "全部";
+        this.createJournalControls();
         this.bind();
         this.renderMap();
-        this.onResize = () => this.orientation();
+        this.onResize = () => { this.view?.stage.resize(); this.view?.notify(); };
         this.onVisibility = () => {
             if (!options.manualClock) { this.view?.setPaused("visibility", document.hidden); }
         };
@@ -215,7 +187,175 @@ export class Campaign {
         if (!cache.has(action)) { cache.set(action, this.host.querySelector(`[data-action="${action}"]`)); }
         return cache.get(action);
     }
-    unit(id) { return this.catalogue.units.find(unit => unit.id === id); }
+    unit(id) {
+        const evolved=this.mode==='battle' && this.battleEvolution
+            ? this.battleEvolution.has(id) : isEvolved(this.save.progress.evolution,id);
+        if (!this.formUnits.has(id) || this.formUnits.get(id).evolved!==evolved) {
+            const card = this.catalogue.units.find(unit => unit.id === id);
+            if (card) this.formUnits.set(id, {...withCardForm(card, evolved?formName(card,this.formPreferences):'base'),evolved});
+        }
+        return this.formUnits.get(id);
+    }
+    createJournalControls() {
+        const navigation = document.createElement("nav");
+        navigation.className = "chapter-navigation";
+        navigation.setAttribute("aria-label", "巡守章节");
+        for (const [id, label] of [...CHAPTERS.map((chapter, i) => [chapter.id, `第${["一", "二", "三", "四", "五"][i]}章`]), ["endless", "无尽"]]) {
+            const button = document.createElement("button");
+            button.type = "button"; button.textContent = label; button.dataset.chapterNav = String(id);
+            button.addEventListener("click", () => {
+                const levels = id === "endless" ? [ENDLESS] : LEVELS.filter(level => level.chapter === id);
+                this.levelId = (levels.find(level => this.save.canOpen(level.id) && !this.save.progress.completed.includes(level.id)) || levels[0]).id;
+                this.renderMap();
+            });
+            navigation.append(button);
+        }
+        this.chapterNavigation = navigation;
+        this.get("levels").before(navigation);
+        const progress = document.createElement("div");
+        progress.className = "journey-progress";
+        this.journeyLabel = document.createElement("span");
+        this.journeyMeter = document.createElement("progress");
+        this.journeyMeter.max = LEVELS.length;
+        this.journeyMeter.setAttribute("aria-label", "已完成巡守关卡");
+        progress.append(this.journeyLabel, this.journeyMeter);
+        this.get("chapter-panel").querySelector(".chapter-description").append(progress);
+
+        const browser = document.createElement("div");
+        browser.className = "deck-browser";
+        const search = document.createElement("input");
+        search.type = "search"; search.placeholder = "搜索伙伴、作品或战术…";
+        search.setAttribute("aria-label", "搜索布阵卡牌");
+        search.addEventListener("input", () => { this.deckSearch = search.value.trim().toLocaleLowerCase(); this.filterDeck(); });
+        const filters = document.createElement("div");
+        filters.className = "deck-filters";
+        filters.setAttribute("aria-label", "按职业筛选卡牌");
+        for (const family of ["全部", "设施", "战士", "魔法使", "骑士", "僧侣", "炼金术士"]) {
+            const button = document.createElement("button");
+            button.type = "button"; button.textContent = family;
+            button.setAttribute("aria-pressed", String(family === this.deckFamily));
+            button.addEventListener("click", () => {
+                this.deckFamily = family;
+                for (const chip of filters.children) chip.setAttribute("aria-pressed", String(chip === button));
+                this.filterDeck();
+            });
+            filters.append(button);
+        }
+        const work = document.createElement("select");
+        work.setAttribute("aria-label", "按作品筛选卡牌");
+        for (const title of ["全部作品", ...new Set(this.catalogue.units.map(unit => unit.work))]) {
+            const option = document.createElement("option"); option.value = title; option.textContent = title; work.append(option);
+        }
+        work.addEventListener("change", () => { this.deckWork = work.value; this.filterDeck(); });
+        const rarity = document.createElement("select");
+        rarity.setAttribute("aria-label", "按卡牌星级筛选");
+        for (const [value, label] of [["featured", "五星与特殊换装"], ["five", "仅五星"], ["all", "全部（含旧版收藏）"]]) {
+            const option = document.createElement("option"); option.value = value; option.textContent = label; rarity.append(option);
+        }
+        this.deckRarity = "featured";
+        rarity.addEventListener("change", () => { this.deckRarity = rarity.value; this.filterDeck(); });
+        const options = document.createElement("details"); options.className = "deck-options";
+        const summary = document.createElement("summary"); summary.textContent = "筛选与推荐";
+        const panel = document.createElement("div"); panel.className = "deck-options-panel";
+        const field = (label, control) => {
+            const row = document.createElement("label"); row.textContent = label; row.append(control); return row;
+        };
+        const apply = document.createElement("button"); apply.type = "button"; apply.className = "native-button primary";
+        apply.addEventListener("click", () => { options.open = false; summary.focus(); });
+        panel.append(field("作品", work), field("星级", rarity), filters, this.get("deck-presets"), apply);
+        options.append(summary, panel); browser.append(search, options);
+        this.deckFilterSummary = summary; this.deckFilterApply = apply;
+        options.addEventListener("keydown", event => {
+            if (event.key === "Escape" && options.open) { event.preventDefault(); event.stopPropagation(); options.open = false; summary.focus(); }
+        });
+        options.addEventListener("focusout", event => {
+            if (event.relatedTarget && !options.contains(event.relatedTarget)) options.open = false;
+        });
+        this.get("deck-detail").setAttribute("role", "status");
+        this.formDialog = document.createElement("dialog"); this.formDialog.className = "app-dialog card-form-dialog";
+        this.formDialog.setAttribute("aria-label", "角色卡面与形态"); this.host.append(this.formDialog);
+        this.get("deck-grid").before(browser);
+        this.deckEmpty = document.createElement("p");
+        this.deckEmpty.className = "deck-empty"; this.deckEmpty.hidden = true;
+        this.deckEmpty.textContent = "没有符合条件的伙伴。试试其他名字，或切换到全部职业。";
+        this.deckEmpty.setAttribute("role", "status");
+        this.get("deck-grid").after(this.deckEmpty);
+        this.boardGuide = document.createElement("p");
+        this.boardGuide.className = "board-guide";
+        this.boardGuide.textContent = "先选应援台，再点场地部署。准备好后，点击开始巡守。";
+        this.get("viewport").append(this.boardGuide);
+    }
+
+    filterDeck() {
+        let count = 0;
+        for (const entry of this.get("deck-grid").children) {
+            const button = entry.querySelector(".deck-card"), rule = UNIT_RULES[entry.dataset.card];
+            const card = this.unit(entry.dataset.card), work = card?.work || "设施";
+            const match = (this.deckFamily === "全部" || rule.family === this.deckFamily)
+                && (!card || this.deckRarity === "all" || card.rarity === 5 || this.deckRarity === "featured" && card.seasonal)
+                && (!this.deckWork || this.deckWork === "全部作品" || work === this.deckWork)
+                && `${rule.name} ${work} ${rule.family} ${rule.role} ${rule.help}`.toLocaleLowerCase().includes(this.deckSearch);
+            entry.hidden = button.hidden = !match;
+            if (match) count++;
+        }
+        this.deckEmpty.hidden = count !== 0;
+        const active = Number(this.deckFamily !== "全部") + Number(!!this.deckWork && this.deckWork !== "全部作品") + Number(this.deckRarity !== "featured");
+        this.deckFilterSummary.textContent = active ? `筛选 · ${active}项` : "筛选与推荐";
+        this.deckFilterApply.textContent = `查看 ${count} 张卡牌`;
+    }
+
+    showCardForms(id = this.unit(this.deckFocus) ? this.deckFocus : this.deckChoice.find(id => this.unit(id)) || "U01") {
+        const card = this.unit(id), dialog = this.formDialog;
+        if (!card) return;
+        let preview=card.appearance;
+        const image = document.createElement("img"); image.className = "card-form-art"; image.alt = card.name + "完整卡面";
+        const copy = document.createElement("div"), heading = document.createElement("h2"), description = document.createElement("p");
+        heading.textContent = card.name; description.textContent = `★${card.rarity} · ${card.work} · ${UNIT_RULES[id].help}`;
+        const controls = document.createElement("div"); controls.className = "card-form-controls";
+        const status=document.createElement('p');status.setAttribute('role','status');
+        const evolve=document.createElement('button');evolve.type='button';evolve.className='native-button primary';evolve.dataset.action='evolve-card';
+        const retention='编队、装备与城镇成长均保留；已保存的巡守继续使用该局的成长状态。';
+        const rule=UNIT_RULES[id],statRows=[['hp','生命',EVOLUTION_HEALTH],['damage','单次攻击',EVOLUTION_POWER],['healing','单次治疗',EVOLUTION_POWER],['shield','护盾',EVOLUTION_POWER]];
+        const growthPreview={caption:'巡守基础能力 · 未计装备与城镇',stats:statRows.filter(([key])=>rule[key]>0)
+            .map(([key,label,factor])=>({label,before:rule[key],after:Math.round(rule[key]*factor)}))};
+        const growth=createEvolutionPanel({button:evolve,activity:'同行巡守',retention,
+            reward:'战役胜利或无尽每完成5波，编队伙伴获得1点阅历，每种编队属性带回1枚进化珠。'});
+        const sync = () => {
+            const quote=this.save.evolutionQuote(id);image.src=siteUrl(card.forms[preview].card);
+            for (const button of controls.children) {
+                button.setAttribute('aria-pressed',String(button.dataset.form===preview));
+                button.textContent=button.dataset.form==='base'?'进化前':quote.evolved?'进化后':'进化后 · 预览';
+            }
+            growth.update(quote,growthPreview);
+        };
+        for (const [form, label] of [["base", "进化前"], ["evolved", "进化后"]]) {
+            if (!card.forms?.[form]) continue;
+            const button = document.createElement("button"); button.type = "button"; button.className = "native-button";
+            button.textContent = label; button.dataset.form = form;
+            button.addEventListener("click", () => {
+                preview=form;
+                if(this.save.evolutionQuote(id).evolved)saveFormPreference(card,form,this.formPreferences);
+                this.formUnits.delete(id);
+                const art = this.get("deck-grid").querySelector(`[data-card="${id}"] .deck-illustration`);
+                if (art) art.src = siteUrl(this.unit(id).card);
+                this.renderDeckPicker(); sync();
+            }); controls.append(button);
+        }
+        evolve.addEventListener('click',()=>{
+            const result=this.save.evolve(id);
+            if(!result.ok){status.textContent=result.reason==='storage'?'保存失败，素材未扣除。请导出记录或恢复存储后重试。':'尚未满足进化条件。';return;}
+            preview='evolved';saveFormPreference(card,preview,this.formPreferences);this.formUnits.delete(id);
+            const art=this.get('deck-grid').querySelector(`[data-card="${id}"] .deck-illustration`);
+            if(art)art.src=siteUrl(this.unit(id).card);
+            this.renderDeckPicker();sync();image.classList.remove('evolution-reveal');void image.offsetWidth;image.classList.add('evolution-reveal');
+            this.audio.se('chime');status.textContent='进化完成。下一次巡守将使用新的成长能力。';
+            showEvolutionResult({name:card.name,before:siteUrl(card.forms.base.card),after:siteUrl(card.forms.evolved.card),preview:growthPreview,retention});
+        });
+        const close = document.createElement("button"); close.type = "button"; close.className = "native-button primary"; close.textContent = "确认形态";
+        close.addEventListener("click", () => dialog.close()); copy.append(heading,description,controls,growth.element,status,close);
+        dialog.replaceChildren(image, copy); sync(); dialog.showModal();
+    }
+
     unitArt(id) {
         const unit = this.unit(id);
         if (unit) { return portraitMarkup(unit); }
@@ -236,7 +376,7 @@ export class Campaign {
         const image = document.createElement("img");
         image.className = "facility-image";
         image.src = new URL(`../assets/items/${id}.png`, import.meta.url).href;
-        image.alt = id === "F10" ? "原药瓶道具，本作爆破用途" : "原桌台与旅程书册组合";
+        image.alt = rule?.name || "设施";
         image.draggable = false;
         return image;
     }
@@ -296,42 +436,6 @@ export class Campaign {
         clearTimeout(this.milestoneTimer);
         this.milestoneTimer = setTimeout(() => { toast.hidden = true; }, 3600);
     }
-    // ★4 语音池：作品 → sheet 目录 + 实际台词数。sheet 推导的作品映射
-    // 第一次用到时建好并缓存（83 个 unit 只扫一遍）。
-    milestoneVoiceSheets() {
-        if (this._voice4Sheets) { return this._voice4Sheets; }
-        const workOfToken = new Map();
-        for (const unit of this.catalogue.units) {
-            if (unit.voice?.sheet) { workOfToken.set(sheetToken(unit.voice.sheet), unit.work); }
-        }
-        for (const [work, token] of Object.entries(VOICE4_EXTRA_WORKS)) { workOfToken.set(token, work); }
-        const sheets = [];
-        for (const [token, count] of Object.entries(VOICE4_FILE_COUNTS)) {
-            const work = workOfToken.get(token);
-            if (!work) { continue; } // 作品归属未能确认的目录不用，宁缺毋错
-            const lines = Array.from({ length: count }, (_, i) => `voice_kirarajump_${String(i).padStart(3, "0")}_0.mp3`);
-            sheets.push({ work, dir: `Voice_${token}4_A`, lines });
-        }
-        return this._voice4Sheets = sheets;
-    }
-    // 里程碑配音：只在「在场同伴的作品」命中的 sheet 里随机取一条，
-    // 配不上就不播——不播无关作品的语音。app/audio.js:139 的 voice
-    // 开关关闭时 playVoice 自身静默。
-    playMilestoneVoice() {
-        if (!this.view) { return; }
-        const works = new Set();
-        for (const unit of this.view.battle.units.values()) {
-            const profile = this.unit(unit.type);
-            if (profile?.work) { works.add(profile.work); }
-        }
-        if (!works.size) { return; }
-        const pool = this.milestoneVoiceSheets().filter(sheet => works.has(sheet.work));
-        if (!pool.length) { return; }
-        const sheet = pool[Math.floor(Math.random() * pool.length)];
-        const line = sheet.lines[Math.floor(Math.random() * sheet.lines.length)];
-        this.audio.playVoice({ cues: { milestone: `${sheet.dir}/${line}` } }, "milestone");
-    }
-
     bind() {
         const actions = {
             back: () => this.options.onBack(), prepare: () => this.showDeckPicker(),
@@ -426,13 +530,9 @@ export class Campaign {
             names.append(title, detail);
             const status = document.createElement("span"); status.className = "level-state"; status.textContent = completed ? "已守住" : open ? "可挑战" : "🔒 先守上一关";
             button.append(number, names, status);
-            let lastClick = 0;
             button.addEventListener("click", () => {
-                const again = Date.now() - lastClick < 400;
-                lastClick = Date.now();
                 this.levelId = level.id; this.renderMap();
-                if (again) { this.startLevel(level.id); return; }
-                if (this.save.canOpen(level.id)) { this.showDeckPicker(); }
+                this.get("levels").querySelector(`[data-level="${level.id}"]`)?.focus({ preventScroll: true });
             });
             return button;
         };
@@ -441,10 +541,11 @@ export class Campaign {
             const levels = LEVELS.filter(level => level.chapter === chapterInfo.id);
             const group = document.createElement("section"); group.className = "campaign-chapter-group";
             group.dataset.chapter = String(chapterInfo.id);
+            group.hidden = selected.endless || chapterInfo.id !== selected.chapter;
             const head = document.createElement("header"); head.className = "chapter-group-head";
             const title = document.createElement("h3"); title.className = "chapter-group-title"; title.textContent = chapterInfo.title;
             const openCount = levels.filter(level => this.save.canOpen(level.id)).length;
-            const meta = document.createElement("span"); meta.className = "chapter-group-meta"; meta.textContent = `${openCount}/${levels.length} 已开放`;
+            const meta = document.createElement("span"); meta.className = "chapter-group-meta"; meta.textContent = `${levels.filter(level => this.save.progress.completed.includes(level.id)).length}/${levels.length} 已守住 · ${openCount}关开放`;
             head.append(title, meta);
             const cards = document.createElement("div"); cards.className = "chapter-levels";
             for (const level of levels) { cards.append(makeButton(level)); }
@@ -452,12 +553,20 @@ export class Campaign {
         }
 
         const endlessGroup = document.createElement("section"); endlessGroup.className = "campaign-chapter-group endless-group";
+        endlessGroup.hidden = !selected.endless;
         const endlessHead = document.createElement("header"); endlessHead.className = "chapter-group-head";
         const endlessTitle = document.createElement("h3"); endlessTitle.className = "chapter-group-title"; endlessTitle.textContent = "无尽巡守";
         const endlessMeta = document.createElement("span"); endlessMeta.className = "chapter-group-meta"; endlessMeta.textContent = "随时可挑战";
         endlessHead.append(endlessTitle, endlessMeta);
         const endlessCards = document.createElement("div"); endlessCards.className = "chapter-levels"; endlessCards.append(makeButton(ENDLESS));
         endlessGroup.append(endlessHead, endlessCards); list.append(endlessGroup);
+        for (const button of this.chapterNavigation.children) {
+            button.setAttribute("aria-pressed", String(button.dataset.chapterNav === String(selected.endless ? "endless" : selected.chapter)));
+        }
+        this.journeyLabel.textContent = `已守住 ${this.save.progress.completed.length} / ${LEVELS.length} 关`;
+        this.journeyMeter.value = this.save.progress.completed.length;
+        this.button("prepare").disabled = !this.save.canOpen(selected.id);
+        this.button("prepare").textContent = this.save.canOpen(selected.id) ? "选择阵容 →" : "完成前一关后开放";
 
         this.text("level-title", selected.title); this.text("level-subtitle", selected.subtitle);
         this.text("area", `${selected.rows}行 × ${selected.cols}列`); this.text("budget", `${selected.startResource} クリエ`); this.text("waves", WAVE_LABEL(selected));
@@ -487,7 +596,7 @@ export class Campaign {
         if (!level) { this.clearSetupCache(); return; }
         const banner = document.createElement("div"); banner.className = "setup-banner";
         const copy = document.createElement("p");
-        copy.append("上次的布阵还没开始：「", cache.level, " ", level.title, "」已部署 ", String(cache.units.length), " 张卡牌，要继续吗？");
+        copy.append("上次的布阵还没开始：「", level.endless ? "∞" : level.id, " ", level.title, "」已部署 ", String(cache.units.length), " 张卡牌，要继续吗？");
         const actions = document.createElement("div"); actions.className = "setup-banner-actions";
         const resume = document.createElement("button"); resume.className = "native-button primary compact";
         resume.textContent = "继续布阵";
@@ -515,10 +624,13 @@ export class Campaign {
     }
     hideDeckPicker() { const picker = this.get("deck-picker"); picker.hidden = true; this.host.classList.remove("deck-open"); }
     renderDeckPicker() {
+        const focusedChip = document.activeElement?.dataset.chosen;
+        const focusedIndex = focusedChip ? [...this.get("deck-chosen").children].indexOf(document.activeElement) : -1;
         const chosen = this.get("deck-chosen"); chosen.replaceChildren();
         this.deckChoice.forEach((id, index) => {
             const rule = UNIT_RULES[id];
             const chip = document.createElement("button"); chip.type = "button"; chip.className = "deck-chosen-chip";
+            chip.dataset.chosen = id;
             chip.setAttribute("aria-pressed", "true");
             chip.setAttribute("aria-label", `移出${rule.name}`);
             const order = document.createElement("b"); order.textContent = String(index + 1);
@@ -529,33 +641,52 @@ export class Campaign {
             chip.append(order, art, name);
             chosen.append(chip);
         });
-        const grid = this.get("deck-grid"); grid.replaceChildren();
-        for (const id of DECK_ORDER) {
+        const grid = this.get("deck-grid");
+        // Card identities never change during a session. Keep images and their
+        // decoded surfaces mounted when only the eight-card selection changes.
+        if (!grid.children.length) for (const id of DECK_ORDER) {
             const rule = UNIT_RULES[id];
-            const orderIndex = this.deckChoice.indexOf(id);
-            const picked = orderIndex >= 0;
-            const button = document.createElement("button"); button.className = "deck-card";
+            const entry = document.createElement("div"); entry.className = "deck-entry"; entry.dataset.card = id;
+            const button = document.createElement("button"); button.type = "button"; button.className = "deck-card";
             button.dataset.card = id;
-            button.setAttribute("aria-pressed", String(picked));
-            button.setAttribute("aria-label", picked ? `${rule.name}，费用${rule.cost}，阵容第${orderIndex + 1}张` : `${rule.name}，费用${rule.cost}，未在阵容`);
-            const order = document.createElement("span"); order.className = "order"; order.textContent = picked ? String(orderIndex + 1) : "";
-            if (picked) { button.append(order); }
-            const art = document.createElement("span"); art.className = "seed-art"; art.append(this.unitArt(id));
+            const art = document.createElement("span"); art.className = "seed-art";
+            const original = this.unit(id);
+            if (original?.card) {
+                const image = document.createElement("img"); image.className = "deck-illustration";
+                image.src = siteUrl(original.card); image.alt = ""; image.loading = "lazy"; image.decoding = "async";
+                art.append(image);
+            } else art.append(this.unitArt(id));
             const name = document.createElement("span"); name.className = "seed-name"; name.textContent = rule.name;
             const cost = document.createElement("span"); cost.className = "seed-cost";
             cost.innerHTML = ICONS.crea; cost.append(String(rule.cost));
-            button.append(art, name, cost);
-            // Thumbnails are real assets; if one never decodes (offline, missing
-            // file) the card would otherwise render as an empty hole with no
-            // clue which card it is. Fall back to the name first character.
+            const role = document.createElement("span"); role.className = "seed-role"; role.textContent = rule.role;
+            button.append(art, name, role, cost);
+            const work = document.createElement("small"); work.className = "seed-work"; work.textContent = original?.work || "巡守设施";
+            button.append(work);
+            // Fall back to the verified portrait if a full illustration fails.
             const icon = art.querySelector("img");
             if (icon) {
                 icon.addEventListener("error", () => {
-                    art.replaceChildren(Object.assign(document.createElement("span"), { className: "seed-fallback", textContent: rule.name.slice(0, 1) }));
-                });
+                    art.replaceChildren(original?.card ? this.unitArt(id) : Object.assign(document.createElement("span"), { className: "seed-fallback", textContent: rule.name.slice(0, 1) }));
+                }, { once: true });
             }
             button.addEventListener("click", () => this.toggleDeckCard(id));
-            grid.append(button);
+            entry.append(button);
+            if (original) {
+                const inspect = document.createElement("button"); inspect.type = "button"; inspect.className = "deck-peek";
+                inspect.textContent = "卡面与成长 ↗"; inspect.setAttribute("aria-label", `查看${rule.name}的卡面与成长`);
+                inspect.addEventListener("click", () => this.showCardForms(id)); entry.append(inspect);
+            }
+            grid.append(entry);
+        }
+        for (const button of grid.querySelectorAll(".deck-card")) {
+            const id = button.dataset.card, rule = UNIT_RULES[id], index = this.deckChoice.indexOf(id);
+            button.setAttribute("aria-pressed", String(index >= 0));
+            button.setAttribute("aria-label", `${rule.name}，费用${rule.cost}，${index >= 0 ? `阵容第${index + 1}张` : "未在阵容"}`);
+            let order = button.querySelector(".order");
+            if (index < 0) { order?.remove(); continue; }
+            if (!order) { order = document.createElement("span"); order.className = "order"; button.prepend(order); }
+            order.textContent = String(index + 1);
         }
         this.text("deck-count", `已选 ${this.deckChoice.length} / ${DECK_SIZE}`);
         const level = levelById(this.levelId);
@@ -572,8 +703,10 @@ export class Campaign {
             }
             return `推荐搭配：${[...tally].map(([family, count]) => `${family}×${count}`).join("、")}（${recommended.length}张）`;
         })();
-        this.text("deck-detail", focus ? `${focus.name}【${counterTags(focus)}】：${focus.help}` : recommendation || (DECK_ORDER.length > this.deckChoice.length ? "点一张卡看它的作用，再点一次加入或移出阵容。" : ""));
+        this.text("deck-detail", focus ? `${focus.name}【${counterTags(focus)}】：${focus.help}` : recommendation || "点卡牌加入或移出阵容；卡面与成长可单独查看。");
         this.button("deck-start").disabled = !this.deckChoice.length;
+        this.filterDeck();
+        if (focusedChip) (chosen.querySelector(`[data-chosen="${focusedChip}"]`) || chosen.children[Math.min(focusedIndex, chosen.children.length - 1)] || grid.querySelector(`.deck-card[data-card="${focusedChip}"]`))?.focus();
     }
 
     // 推荐配置：一套按职业配比预设的整队按钮。当前关卡有推荐卡组时优先
@@ -586,6 +719,8 @@ export class Campaign {
     };
     renderPresets(level) {
         const host = this.get("deck-preset-buttons"); if (!host) { return; }
+        if (host.dataset.level === level?.id && host.children.length) return;
+        host.dataset.level = level?.id || "";
         host.replaceChildren();
         const entries = [];
         if (level?.recommended?.length) { entries.push(["本关推荐", level.recommended.slice(0, DECK_SIZE)]); }
@@ -666,18 +801,21 @@ export class Campaign {
 
     async startLevel(id, options = {}) {
         if (!this.save.canOpen(id)) { return; }
+        const level = levelById(id);
         this.hideDeckPicker();
-        const startTheme = levelById(id)?.theme;
+        const startTheme = level.theme;
         this.audio.preload(startTheme === "night" ? "bgm_battle_2"
             : startTheme === "dawn" ? "bgm_adv_9" : "bgm_battle_1");
         const cached = !options.skipCache && this.readSetupCache();
         const resuming = cached && cached.level === id ? cached : null;
         this.releaseBattle();
+        const growthSnapshot = resuming || (level.endless && this.save.progress.endlessRun?.wave >= 2 ? this.save.progress.endlessRun : null);
+        this.battleEvolution = new Set(growthSnapshot
+            ? Array.isArray(growthSnapshot.evolved) ? growthSnapshot.evolved : [] : this.save.progress.evolution.evolved);
         this.levelId = id;
         this.save.rememberLevel(id);
         this.mode = "battle";
         const epoch = this.epoch;
-        const level = levelById(id);
         let deck = [...(this.save.deck || DEFAULT_DECK)].filter(unit => DECK_ORDER.includes(unit) && this.save.unlocked.includes(unit));
         if (!deck.length) { deck = DEFAULT_DECK.slice(); }
         this.runId = `${id}:${Date.now()}:${epoch}`;
@@ -693,7 +831,7 @@ export class Campaign {
         if (!this._levelBones) { this._levelBones = loadBones(this.get("load-bones"), { rows: 3 }); }
         this.get("setup").hidden = false;
         this.get("pause-overlay").hidden = true;
-        this.text("battle-title", `${id}　${level.title}`);
+        this.text("battle-title", `${level.endless ? "∞" : id}　${level.title}`);
         // 新一场战斗的布阵缓存基线归零：revision 计数从新 battle 对象重新开始。
         this._lastSetupRevision = -1;
         this._lastSetupCache = null;
@@ -706,7 +844,9 @@ export class Campaign {
         try {
             const { BattleView } = await import("../render/battle-view.js");
             if (epoch !== this.epoch || this.disposed) { return; }
-            const view = await BattleView.create({ level, deck, catalogue: this.catalogue, audio: this.audio,
+            const catalogue = { ...this.catalogue, units:this.catalogue.units.map(unit => this.unit(unit.id)) };
+            const view = await BattleView.create({ level, deck, catalogue, audio: this.audio,
+                evolved:[...this.battleEvolution],
                 host: this.get("canvas"), labels, overlay, manualClock: this.options.manualClock,
                 isCurrent: () => epoch === this.epoch && !this.disposed,
                 onProgress: (value, text) => { if (epoch === this.epoch) { this.get("load-progress").value = value; this.text("load-text", text); } },
@@ -739,11 +879,9 @@ export class Campaign {
                     this._lastEndlessSave = battle.spawnIndex * 100000 + Math.floor(battle.time / 30);
                     this.text("checkpoint-label", "已存");
                     if (milestone) {
-                        // 里程碑走独立 toast，与紧随其后的素材入账 notice 并存；
-                        // 同时按在场同伴的作品随机播一条 ★4 语音（voice 设置
-                        // 关闭时 playVoice 自身静默）。
+                        // Milestones have a reward cue; character dialogue belongs to its authored scene.
                         this.milestoneToast(`里程碑：${milestone.label}。额外素材×${bonusDrops.length}`);
-                        this.playMilestoneVoice();
+                        this.audio.se("chime", { volume: .3 });
                     }
                     const earned = [...drops, ...bonusDrops];
                     if (earned.length) {
@@ -789,7 +927,6 @@ export class Campaign {
             }
             this.get("loading").hidden = true;
             this.showBrief(level);
-            this.orientation();
             if (document.hidden && !this.options.manualClock) { view.setPaused("visibility", true); }
             view.notify(); view.stage.resize();
         } catch (error) { if (epoch === this.epoch) { this.error(error); } }
@@ -913,6 +1050,11 @@ export class Campaign {
     }
 
     updateHud(state, controls) {
+        this.host.classList.toggle("ui-paused", !!state.pauses.length);
+        this.boardGuide.hidden = state.phase !== "setup" || !!controls.selected || !!controls.recall;
+        // A projected health label can overlap a different lane. During placement
+        // let the canvas resolve the pointed ground cell instead of that unit.
+        this.get("viewport").classList.toggle("is-placing", !!controls.selected || !!controls.recall);
         this.renderObjectives(state);
         this.text("crea", String(state.resource)); this.text("time", TIME(state.time));
         if (state.endless) {
@@ -1097,6 +1239,7 @@ export class Campaign {
         this.text("result-copy", won ? `${battle.level.title}完成。${event.stats.gatesUsed ? "结界替大家争取了时间。" : "每一条道路都守住了。"}`
             : endless ? `本次守到第${event.wave}波，击退${event.stats.kills}位来客。`
             : `第${event.row + 1}路被突破。可以试着减少前期支出，或更早补上这一条路的输出。`);
+        if(result.evolutionEarned)this.get('result-copy').append(' 同行伙伴阅历 +1，对应属性进化珠已带回；可在「卡面与形态」中进化。');
         const stats = this.get("result-stats"); stats.replaceChildren();
         // 纯数字格做 800ms count-up（击退/治疗/结界/波次数）；「巡守时间
         // 1:23」这类带格式的值直接渲染终值。review=1（manualClock）、应用
@@ -1274,21 +1417,14 @@ export class Campaign {
         this.view.setPaused("leave", true); this.get("leave-dialog").showModal();
     }
     setSettingsPaused(paused) { this.view?.setPaused("settings", paused); }
-    orientation() {
-        if (this.mode !== "battle") { return; }
-        const narrow = innerWidth < 640 && innerHeight > innerWidth;
-        this.get("portrait").hidden = !narrow;
-        this.view?.setPaused("orientation", narrow);
-        this.view?.stage.resize();
-    }
 
     // ─── 图鉴 ───────────────────────────────────────────────────────────
     // One dialog browses every companion, facility and enemy with its real
     // card art, original identity and combat stats. Tabs switch sections.
     codexSections() {
         return [
-            { key: "companion", label: "同伴", rows: DECK_ORDER.filter(id => UNIT_RULES[id].kind !== "producer" && UNIT_RULES[id].kind !== "burst") },
-            { key: "facility", label: "设施", rows: DECK_ORDER.filter(id => UNIT_RULES[id].kind === "producer" || UNIT_RULES[id].kind === "burst") },
+            { key: "companion", label: "同伴", rows: DECK_ORDER.filter(id => id.startsWith("U")) },
+            { key: "facility", label: "设施", rows: DECK_ORDER.filter(id => id.startsWith("F")) },
             { key: "gear", label: "装备", rows: GEAR_ORDER },
             { key: "enemy", label: "来客", rows: Object.keys(ENEMY_RULES) },
             { key: "achievement", label: "成就", rows: Object.keys(ACHIEVEMENTS) }
@@ -1866,7 +2002,7 @@ export class Campaign {
     }
     exportSave() {
         const url = URL.createObjectURL(new Blob([this.save.export()], { type: "application/json" }));
-        const link = document.createElement("a"); link.href = url; link.download = "里之守望-巡守记录.json"; link.click();
+        const link = document.createElement("a"); link.href = url; link.download = "星灯守望-巡守记录.json"; link.click();
         setTimeout(() => URL.revokeObjectURL(url), 1000);
     }
     importSave() {

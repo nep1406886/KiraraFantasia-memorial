@@ -35,6 +35,8 @@ class Element {
         this.style = {};
         this.attributes = {};
         this.listeners = new Map();
+        this.dataset = {};
+        this.hidden = false;
     }
     appendChild(child) {
         assert.equal(child.parentNode, null);
@@ -58,6 +60,10 @@ class Element {
         next.parentNode = this;
     }
     setAttribute(name, value) { this.attributes[name] = String(value); }
+    getAttribute(name) { return this.attributes[name]; }
+    append(...children) { children.forEach(child => this.appendChild(child)); }
+    remove() { this.parentNode?.removeChild(this); }
+    replaceWith(next) { this.parentNode.replaceChild(next, this); }
     insertAdjacentHTML(position, html) {
         assert.equal(position, "beforeend");
         this.markup = (this.markup || "") + html;
@@ -102,6 +108,9 @@ try {
             const selected = [];
             const overlay = mount({ onSelect: id => selected.push(id) });
             gridCards(overlay)[index].fire("click");
+            assert.deepEqual(selected, [], "previewing never starts a run");
+            assert.equal(overlay.parentNode, document.body);
+            walk(overlay, node => node.id === "roster-start").fire("click");
             assert.deepEqual(selected, [card.id]);
             assert.equal(overlay.parentNode, null);
         });
@@ -135,8 +144,9 @@ try {
         const overlay = mount({ onSelect: id => { selected = id; } });
         const node = gridCards(overlay).at(-1);
         node.children.find(child => child.tagName === "IMG").fire("error");
-        assert.equal(node.children.find(child => child.className === "art missing").textContent, "海凪 日和");
+        assert.equal(node.children.find(child => child.className === "art missing").textContent, "海");
         node.fire("click");
+        walk(overlay, node => node.id === "roster-start").fire("click");
         assert.equal(selected, 47002001);
     });
     check("camp actions leave selection mounted", () => {
@@ -155,15 +165,37 @@ try {
     });
     const selected = showRoster(cards);
     gridCards(document.getElementById("roster-overlay")).at(-1).fire("click");
+    walk(document.getElementById("roster-overlay"), node => node.id === "roster-start").fire("click");
     assert.equal(await selected, 47002001);
     checks++; console.log("PASS showRoster promise resolves the previously hidden card");
-    const cancelled = showRoster(cards);
-    walk(document.getElementById("roster-overlay"), node => node.textContent === "取消").fire("click");
-    await assert.rejects(cancelled, { message: "Roster selection cancelled" });
-    checks++; console.log("PASS cancellation still rejects and removes the overlay");
+    check("search and element filters intersect without losing the selected companion", () => {
+        let selectedId = null;
+        const overlay = mount({ onSelect: id => { selectedId = id; } });
+        gridCards(overlay).at(-1).fire("click");
+        const search = walk(overlay, node => node.type === "search");
+        search.value = "不存在的伙伴"; search.fire("input");
+        assert.ok(gridCards(overlay).every(node => node.hidden));
+        assert.equal(walk(overlay, node => node.className === "rl-roster-empty").hidden, false);
+        search.value = "海凪"; search.fire("input");
+        assert.equal(gridCards(overlay).filter(node => !node.hidden).length, 1);
+        const filters = walk(overlay, node => node.className === "rl-roster-filters");
+        const wrongElement = (cards.at(-1).element + 1) % 6;
+        filters.children[wrongElement + 1].fire("click");
+        assert.ok(gridCards(overlay).every(node => node.hidden));
+        filters.children[0].fire("click");
+        assert.equal(gridCards(overlay).filter(node => !node.hidden).length, 1);
+        const start = walk(overlay, node => node.id === "roster-start");
+        start.fire("click"); start.fire("click");
+        assert.equal(selectedId, cards.at(-1).id);
+    });
+    check("empty roster disables departure", () => {
+        const overlay = mount({ cards: [] });
+        assert.equal(walk(overlay, node => node.id === "roster-start").disabled, true);
+        overlay.remove();
+    });
     assert.equal(JSON.stringify(cards), before, "rendering does not mutate source cards");
     assert.equal(document.body.children.length, 0, "no mounted overlays left");
-    assert.equal(document.head.children.length, 1, "style is injected once");
+    assert.equal(document.head.children.length, 0, "styles are loaded by the page, never injected per selection");
     checks++; console.log("PASS source ownership and overlay cleanup");
 } finally {
     if (oldDocument === undefined) delete globalThis.document;

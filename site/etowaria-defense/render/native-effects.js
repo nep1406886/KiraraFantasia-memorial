@@ -11,6 +11,8 @@ export class NativeEffects {
         this.pools = new Map();
         this.pending = new Map();
         this.active = new Set();
+        this.fallbacks = [];
+        this.fallbackGeometry = null;
         this.history = [];
         this.disposed = false;
         // 飞行插值的每帧暂存向量：placeCentered 只读取不保存。
@@ -71,8 +73,13 @@ export class NativeEffects {
     }
 
     graph(unit, skillId) {
-        const graphic = this.assets.native.skills[String(skillId)];
-        return this.assets.native.graphics[`${graphic}:${elementKeys[unit.elementId]}`]?.events || [];
+        const graphic = unit.skills.find(skill => skill.id === skillId)?.graphics
+            || this.assets.native.skills[String(skillId)];
+        const element = elementKeys[unit.elementId];
+        // Card-specific variants share their class choreography when not exported.
+        const graph = this.assets.native.graphics[`${graphic}:${element}`]
+            || this.assets.native.graphics[`${graphic?.replace(/_\d+$/, "")}:${element}`];
+        return graph?.events || [];
     }
 
     actionPlan(unit, kind) {
@@ -88,7 +95,7 @@ export class NativeEffects {
             || event.kind === "TrailAttach" && this.assets.native.trails?.[elementKeys[unit.elementId]]);
         const recovery = skill.effects.some(effect => effect.m_Type === 1);
         const barrier = skill.effects.some(effect => effect.m_Type === 13);
-        const defense = unit.classId === 3 && skill.effects.some(effect => effect.m_Type === 2 || effect.m_Type === 18);
+        const defense = skill.effects.some(effect => [2, 6, 8, 18, 29, 30].includes(effect.m_Type));
         if (recovery) {
             events.push({ effect: "ef_btl_recover_00", frame: 16, kind: "Support", anchor: "ally" });
             events.push({ effect: "ef_btl_recover_01", frame: 20, kind: "Support", anchor: "ally" });
@@ -104,30 +111,22 @@ export class NativeEffects {
         const slots = this.pools.get(name);
         if (!slots) { throw new Error(`特效尚未准备：${name}`); }
         let slot = slots.find(candidate => !candidate.busy);
+        if (this.disposed) { return null; }
         if (!slot) {
-            // The pool is momentarily exhausted (volley/multi-lane cards fire
-            // faster than slots recycle). Grow it on demand instead of
-            // returning false — an invisible attack is worse than a late one,
-            // and stopping the battle over a visual is never acceptable.
-            this.prepareOne(name, (this.pools.get(name)?.length || 0) + 2)
-                .then(() => {
-                    const fresh = this.pools.get(name)?.find(candidate => !candidate.busy);
-                    if (fresh) {
-                        fresh.busy = true; fresh.age = 0; fresh.options = options;
-                        fresh.impactSent = false; fresh.wrapper.visible = true;
-                        fresh.pivot.position.set(0, 0, 0);
-                        const scale = options.scale || 1.4;
-                        fresh.wrapper.scale.set(scale * (options.facing || 1), scale, scale);
-                        fresh.particles?.reset(); fresh.player.seek(0); fresh.player.play();
-                        fresh.wrapper.position.copy(options.from);
-                        this.active.add(fresh);
-                        this.history.push({ effect: name, flight: options.flight || 0 });
-                        if (this.history.length > 24) { this.history.shift(); }
-                    }
-                })
-                .catch(() => { /* pool growth failed; the sim is unaffected */ });
-            return null;
+            // Warm future capacity, but never replay an old hit after loading.
+            if (slots.length < 8) { this.prepareOne(name, Math.min(8, slots.length + 2)).catch(() => {}); }
+            slot = slots.reduce((oldest, candidate) => candidate.options?.position || candidate.options?.flight
+                ? oldest : !oldest || candidate.age > oldest.age ? candidate : oldest, null);
+            if (slot) this.release(slot);
         }
+        if (this.active.size >= 48) {
+            const cosmetic = [...this.active].find(candidate => !candidate.options?.position && !candidate.options?.flight);
+            if (cosmetic) this.release(cosmetic);
+            else slot = null;
+        }
+        // Up to 24 cheap silhouettes preserve travelling attacks during effect bursts.
+        if (!slot && (options.position || options.flight)) slot = this.reserveFallback(name);
+        if (!slot) return null;
         slot.busy = true;
         slot.age = 0;
         slot.options = options;
@@ -137,8 +136,8 @@ export class NativeEffects {
         const scale = options.scale || 1.4;
         slot.wrapper.scale.set(scale * (options.facing || 1), scale, scale);
         slot.particles?.reset();
-        slot.player.seek(0);
-        slot.player.play();
+        slot.player?.seek(0);
+        slot.player?.play();
         slot.wrapper.position.copy(options.from);
         this.active.add(slot);
         this.history.push({ effect: name, flight: options.flight || 0 });
@@ -146,9 +145,28 @@ export class NativeEffects {
         return slot;
     }
 
+    reserveFallback(name) {
+        let slot = this.fallbacks.find(row => !row.busy);
+        if (!slot && this.fallbacks.length < 24) {
+            const T = this.THREE;
+            this.fallbackGeometry ||= new T.SphereGeometry(.11, 8, 6);
+            const material = new T.MeshBasicMaterial({ color: 0xffd8eb, transparent: true, opacity: .85, depthWrite: false });
+            const wrapper = new T.Group(), pivot = new T.Group();
+            pivot.add(new T.Mesh(this.fallbackGeometry, material)); wrapper.add(pivot);
+            this.scene.add(wrapper);
+            slot = { wrapper, pivot, material, fallback: true, busy: false };
+            this.fallbacks.push(slot);
+        }
+        if (slot) {
+            const colors = { fire: 0xffb17a, water: 0xa9dbff, earth: 0xf4d088, wind: 0xc2ecc5, moon: 0xd8baff, sun: 0xffefac };
+            slot.material.color.setHex(colors[elementKeys.find(key => name.includes(key))] || 0xffd8eb);
+        }
+        return slot;
+    }
+
     placeCentered(slot, position, recenter) {
         slot.wrapper.position.copy(position);
-        if (!recenter) { return; }
+        if (!recenter || slot.fallback) { return; }
         // 特效可见质量的中心只在半帧率重算：飞行途中美术主体的
         // 漂移以 30Hz 跟随已不可辨，但省掉了每帧的整树矩阵更新
         // 加全特效包围盒。
@@ -175,13 +193,13 @@ export class NativeEffects {
     update(dt) {
         for (const slot of this.active) {
             slot.age += dt;
-            slot.player.update(dt);
+            slot.player?.update(dt);
             slot.particles?.update(dt);
             const options = slot.options;
             if (options.position) {
                 const position = options.position();
                 if (!position) { this.release(slot); continue; }
-                if (slot.player.finished) { slot.player.seek(0); slot.player.play(); }
+                if (slot.player?.finished) { slot.player.seek(0); slot.player.play(); }
                 slot.recenter = !(slot.recenter || false);
                 this.placeCentered(slot, position, slot.recenter);
                 continue;
@@ -198,7 +216,7 @@ export class NativeEffects {
                     options.onImpact?.();
                 }
             }
-            if (slot.player.finished || (options.flight && slot.age >= options.flight + 0.12)) {
+            if (slot.player?.finished || (options.flight && slot.age >= options.flight + 0.12)) {
                 if (!slot.impactSent && options.onImpact) { options.onImpact(); }
                 this.release(slot);
             }
@@ -206,7 +224,7 @@ export class NativeEffects {
     }
 
     release(slot) {
-        slot.player.pause();
+        slot.player?.pause();
         slot.wrapper.visible = false;
         slot.busy = false;
         slot.options = null;
@@ -230,5 +248,8 @@ export class NativeEffects {
         this.reset();
         for (const slots of this.pools.values()) { slots.forEach(slot => this.disposeSlot(slot)); }
         this.pools.clear();
+        for (const slot of this.fallbacks) { slot.wrapper.removeFromParent(); slot.material.dispose(); }
+        this.fallbackGeometry?.dispose();
+        this.fallbacks.length = 0;
     }
 }

@@ -25,8 +25,9 @@ for (let job = 0; job < 5; job++) {
         assert.equal(effect.duration, .25 / 1.2, "近战适配不改变当前攻速与特效寿命");
         assert.equal(effect.startFrame, job === 0 ? 9 : job === 3 ? 11 : undefined,
             "只对已过前摇的剑/枪衔接明确的原作出手帧");
-        assert.equal(effect.combatPivot, job === 0 || job === 3 ? true : undefined,
-            "身体支点不猜测套用到法术/治疗等原作场景");
+        assert.equal(!!effect.melee, job === 0 || job === 3,
+            "只有剑与枪将原作刀光映射至实际攻击平面");
+        if(effect.melee){assert.equal(effect.melee.range,swing.weaponProfile.range);assert.ok(effect.melee.width>0);}
         assert.equal(JSON.stringify(swing), saved, "表现配置不修改装备和世界快照");
         checks++;
         for (const event of expected.events.filter(row => row.kind.startsWith("Effect"))) {

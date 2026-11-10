@@ -57,6 +57,7 @@ import { applyEquipment, equipmentMultipliers, passiveRuntime, calculateLoadout,
 import { gadgetRuntime, gadgetDefinition, gadgetTerms, rollGadget, sameGadgetEffect } from './gadgets.js';
 import { createAssistance } from './assistance.js';
 import { restEventChoices, altarEventChoices } from './roomevents.js';
+import { evolvedStats } from '../../core/evolution.js';
 
 let nextId = 1;
 
@@ -262,13 +263,14 @@ export function createWorld(options) {
                     ? world.encounter.playerLevel : 1);
             // With a card the six stats are the shipped growth curve; without
             // one they are stage-2's literals, which the stage-1 gates assert.
-            const base = card && table ? table.statsFor(card.id, level) : {
+            const truth = card && table ? table.statsFor(card.id, level) : {
                 hp: s.hp !== undefined ? s.hp : 10,
                 atk: s.atk !== undefined ? s.atk : 1,
                 mgc: 0,
                 def: s.def !== undefined ? s.def : 0,
                 mdef: 0, spd: 100, luck: 0
             };
+            const base=evolvedStats(truth,s.evolved===true);
             // Native weapons add their table stats before the affix multipliers.
             // Legacy items retain their original multiplier-only behavior.
             if ((s.equipment || []).some(item => !canEquipWeapon(item, card))) {
@@ -287,6 +289,7 @@ export function createWorld(options) {
                 id: nextId++,
                 kind: "player",
                 card: card,
+                evolved:s.evolved===true,
                 level: level,
                 element: card ? card.element : undefined,
                 model: s.model,
@@ -306,7 +309,7 @@ export function createWorld(options) {
                 // Pre-equipment truth of the current level: equipping and
                 // levelling re-derive `base` from here, never from `base`
                 // itself, so cycles cannot accumulate residue.
-                truthBase: base,
+                truthBase: truth,
                 // Live equipment, one item per slot; explicit confirmation replaces it.
                 equipment: (s.equipment || []).slice(),
                 weaponProfile: weaponProfile(card, s.equipment || []),
@@ -1157,8 +1160,8 @@ export function createWorld(options) {
     // Re-derive `base` from the current level's truth curve plus the live
     // equipment. Called on every equip and every level-up; because it starts
     // from the truth table every time it has the same no-residue property
-    // applyEquipment itself has. maxHp gains are handed to hp one-for-one so
-    // a heavier breastplate is never a net heal-then-clip.
+    // applyEquipment itself has. Health scales with the existing ratio, so
+    // swapping maximum-health gear cannot manufacture healing.
     function reapplyEquipment(p) {
         let truth = p.truthBase;
         if (p.card && world.tables.stats) {
@@ -1189,7 +1192,7 @@ export function createWorld(options) {
 
     function healthForLoadout(p, loadout) {
         const maxHp = p.hpOverride !== undefined ? p.hpOverride : Math.max(1, Math.round(loadout.stats.hp));
-        const hp = maxHp > p.maxHp ? Math.min(maxHp, p.hp + maxHp - p.maxHp) : p.hp;
+        const hp = maxHp === p.maxHp ? p.hp : Math.max(p.hp > 0 ? 1 : 0, Math.floor(p.hp * maxHp / Math.max(1, p.maxHp)));
         return { maxHp, hp: Math.min(hp, Math.round(maxHp * (1 + (loadout.passives.overheal || 0)))) };
     }
 

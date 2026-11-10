@@ -388,19 +388,20 @@ body.touch-on .hud-equip-chip .hud-equip-chip-name { display:none; }
     border:1px solid var(--kf-line); border-radius:var(--ui-radius); background:var(--kf-sky); }
 .comparison-summary-icon { flex:none; width:44px; height:44px; object-fit:contain; }
 .comparison-summary-icon[hidden] { display:none; }
-.comparison-summary-copy { min-width:0; }
+.comparison-summary-copy { min-width:0; flex:1; display:grid; grid-template-columns:minmax(0,1fr) auto; column-gap:8px; }
+.comparison-summary-meta, .comparison-verdict { grid-column:1 / -1; }
 .rl-decision .comparison-summary-name { margin:0; color:var(--kf-ink); font-size:15px; line-height:1.4; overflow-wrap:anywhere; }
 .rl-decision .comparison-summary-meta { margin:3px 0 0; font-size:12px; line-height:1.4; color:var(--kf-ink-soft); }
 /* 稀有度徽章（decisions.js 比较弹层）：只描边+文字，不加任何 img——
    item-art 浏览器对 .comparison-columns 的 img 有严格单元素断言。
    普通/稀有 mint 边，史诗/传说 gold 边（data-tier="high"）。 */
-.comparison-rarity { display:inline-block; margin-top:2px; padding:0 8px;
+.comparison-rarity { grid-column:2; grid-row:1; align-self:start; display:inline-block; margin-top:2px; padding:0 8px;
     border:1.5px solid var(--kf-mint); border-radius:999px;
     color:var(--kf-ink); font-size:11px; line-height:18px; }
 .comparison-rarity[data-tier="high"] { border-color:var(--kf-gold); }
 /* 换/留结论行：放进 comparison-summary 内部（矮屏 identity 区），加粗墨字
    与 stat-up 同一语言；有 --kf-cost-ink 的代价行保持派生莓墨。 */
-.comparison-verdict { margin:3px 0 0; font-size:12px; line-height:1.5;
+.rl-decision .comparison-verdict { margin:3px 0 0; font-size:12px; line-height:1.5;
     font-weight:700; color:var(--kf-ink); overflow-wrap:anywhere; }
 @media (max-height:480px) {
     .comparison-summary { padding:6px 8px; margin-bottom:8px; gap:8px; }
@@ -408,7 +409,7 @@ body.touch-on .hud-equip-chip .hud-equip-chip-name { display:none; }
     .rl-decision .comparison-summary-name { font-size:13px; }
     .rl-decision .comparison-summary-meta { font-size:11px; }
     .comparison-rarity { line-height:16px; }
-    .comparison-verdict { margin-top:2px; font-size:11px; line-height:1.4; }
+    .rl-decision .comparison-verdict { margin-top:2px; font-size:11px; line-height:1.4; }
 }
 .comparison-scroll { min-height: 0; overflow-y: auto; overscroll-behavior: contain; }
 #rl-equipment-choice { width:min(520px,calc(100% - 24px)); }
@@ -775,7 +776,7 @@ body.touch-on .hud-menu-key { display:none; }
 body.touch-on #hint:not([hidden]) { display:block; max-width:calc(100% - clamp(64px,15vw,96px) - 36px); }
 /* Short landscape keeps core readouts and controls above the action strip.
    Full status text remains scrollable instead of growing over the hint. */
-@media (max-height:480px) and (min-width:600px) {
+@media (max-height:480px) and (min-width:480px) {
     #stage { --rl-compact-hud-width:min(220px,calc(50% - 154px)); }
     #stage #hud { width:220px; display:grid; grid-template-columns:minmax(0,1fr) 66px;
         grid-template-areas:"identity assist" "health assist" "floor coin" "effects effects";
@@ -899,26 +900,4 @@ body.touch-on #hint:not([hidden]) { display:block; max-width:calc(100% - clamp(6
 .skill-tooltip-source { padding:6px 8px; border-radius:6px; background:var(--kf-mint); color:var(--kf-ink); font-size:11px; }
 .skill-tooltip-state { border-top:1px solid var(--kf-line); padding-top:8px; font-variant-numeric:tabular-nums; }
 
-.landscape-guard { position:fixed; inset:var(--save-status-height,0px) 0 0; z-index:1150;
-    display:grid; place-items:center; overflow:auto; padding:24px; box-sizing:border-box;
-    background:var(--kf-sky); color:var(--kf-ink); font:14px/1.7 var(--font-sans); }
-.landscape-guard[hidden] { display:none; }
-.landscape-sheet { box-sizing:border-box; width:min(380px,100%); padding:28px 24px;
-    border:1px solid var(--kf-line); border-radius:var(--ui-radius); background:var(--kf-paper);
-    box-shadow:var(--ui-shadow); text-align:center; }
-.landscape-sheet h2 { font:600 23px/1.4 var(--font-serif); margin:16px 0 12px; }
-.landscape-sheet p { margin:12px 0; }
-.landscape-symbol { display:block; width:70px; height:40px; margin:auto; border:2px solid var(--kf-gold);
-    border-radius:9px; position:relative; }
-.landscape-symbol::after { content:""; position:absolute; right:5px; top:50%; height:5px; width:5px;
-    border:1px solid var(--kf-gold); border-radius:50%; transform:translateY(-50%); }
-.landscape-sheet button { min-height:44px; width:100%; margin:8px 0; padding:10px 14px;
-    border:1px solid var(--kf-line); border-radius:10px; background:var(--kf-mint); color:var(--kf-ink);
-    font:600 14px var(--font-sans); cursor:pointer; }
-.landscape-sheet button:hover { border-color:var(--kf-gold); }
-.landscape-sheet button:active { background:var(--kf-sky); }
-.landscape-sheet button:focus-visible { outline:2px solid var(--kf-gold); outline-offset:3px; }
-.landscape-sheet button:disabled { opacity:.5; cursor:wait; }
-.landscape-status { color:var(--kf-ink-soft); font-size:12px; }
-body.landscape-required :is(#stage,#roster-overlay) { visibility:hidden; }
 @media (prefers-reduced-motion:reduce) { .hud-skill-tooltip, .hud-equip-brief { animation:none; } }

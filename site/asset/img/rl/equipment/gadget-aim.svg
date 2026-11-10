@@ -1,12 +1,11 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="96" height="96" viewBox="0 0 96 96">
-  <title>瞄准饰章</title><metadata>kirafan-timer original; manual aim brooch</metadata>
-  <g stroke="#716454" stroke-width="2.5" stroke-linejoin="round" stroke-linecap="round">
-    <path d="m30 62-7 26 17-10 8 11 8-27" fill="#c3899d"/>
-    <path d="m66 62 7 26-17-10-8 11-8-27" fill="#a5718f"/>
-    <circle cx="48" cy="43" r="32" fill="#e6c37b"/>
-    <circle cx="48" cy="43" r="24" fill="#fdf2d9"/>
-    <circle cx="48" cy="43" r="14" fill="#9dc6c7"/>
-    <path d="M48 13v17M48 56v17M18 43h17M61 43h17" fill="none" stroke="#806958" stroke-width="3"/>
-    <path d="m48 36 7 7-7 7-7-7Z" fill="#fff9ec"/>
-  </g>
+<svg xmlns="http://www.w3.org/2000/svg" width="128" height="128" viewBox="0 0 128 128">
+<title>聚焦饰章</title><metadata>Original vector illustration for Kirafan Timer's side story; not native game artwork.</metadata>
+<defs>
+<linearGradient id="gold" x2=".8" y2="1"><stop stop-color="#fff1ca"/><stop offset=".48" stop-color="#dcba7b"/><stop offset="1" stop-color="#9c7045"/></linearGradient>
+<linearGradient id="cloth" x2="1" y2="1"><stop stop-color="#b4bacf"/><stop offset="1" stop-color="#686c9b"/></linearGradient>
+<linearGradient id="gem" x2=".8" y2="1"><stop stop-color="#fff8f0"/><stop offset=".28" stop-color="#d5d4e9"/><stop offset="1" stop-color="#8482bb"/></linearGradient>
+<linearGradient id="ivory" x2="1" y2="1"><stop stop-color="#fffcf2"/><stop offset="1" stop-color="#ded2bb"/></linearGradient>
+<filter id="shadow" x="-30%" y="-30%" width="160%" height="180%"><feDropShadow dx="0" dy="4" stdDeviation="3" flood-color="#604456" flood-opacity=".25"/></filter>
+</defs><g stroke="#826672" stroke-width="1.3" stroke-linejoin="round" stroke-linecap="round" filter="url(#shadow)"><path d="m36 70-7 37 24-13 11 16 11-16 24 13-7-37" fill="url(#cloth)"/><circle cx="64" cy="54" r="33" fill="url(#gold)"/><circle cx="64" cy="54" r="25" fill="url(#gem)"/><circle cx="64" cy="54" r="12" fill="none" stroke="#fff8e5" stroke-width="3"/><path d="M64 25v17m0 24v17M35 54h17m24 0h17" stroke="#fff8e5" stroke-width="3"/></g>
+<path d="m106 18 2 6 6 2-6 2-2 6-2-6-6-2 6-2ZM19 74l1 3 4 1-4 1-1 4-1-4-3-1 3-1Z" fill="#f9e5bc"/>
 </svg>

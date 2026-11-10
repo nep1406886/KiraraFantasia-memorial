@@ -51,7 +51,7 @@ export function weaponAffixes(item) {
 
 export function rollWeapon(rng, floor, rarity, card) {
     if (!card || !byId.size) { return null; }
-    let generic = genericByClass.get(card.class) || [];
+    const generic = genericByClass.get(card.class) || [];
     if (!generic.length) { return null; }
     if (rarity === "legendary") {
         const stages = (dedicatedByChara.get(card.id) || []).filter(row => row.class === card.class
@@ -60,11 +60,7 @@ export function rollWeapon(rng, floor, rarity, card) {
             return stages.reduce((best, row) => row.evolution > best.evolution ? row : best);
         }
     }
-    // Most drops suit the card; one in five offers a deliberate off-class build.
-    if (rng() < 0.2) {
-        const other = [...genericByClass].filter(([id]) => id !== card.class).flatMap(([, rows]) => rows);
-        if (other.length) { generic = other; }
-    }
+    // New drops always fit the character. Legacy off-class items remain readable.
     const stars = rarity === "common" ? 3 : 4;
     const pool = generic.filter(row => row.rare === stars);
     return (pool.length ? pool : generic)[Math.floor(rng() * (pool.length || generic.length))];

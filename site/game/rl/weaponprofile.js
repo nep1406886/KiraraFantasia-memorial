@@ -1,6 +1,6 @@
 // Real-time delivery is an adaptation of the five original class roles.
 // Coefficients, damage type and dedicated overrides remain original skill data.
-import { weaponDefinition, weaponProficiency } from "./weaponcatalog.js";
+import { weaponProficiency } from "./weaponcatalog.js";
 import { inMeleeArc } from "./combat.js";
 import { segmentDistanceSquared } from "./geometry.js";
 import { PLAYER_TIMING } from "./actorstate.js";
@@ -17,8 +17,7 @@ const LEGACY = { name: "普通攻击", kind: "slash", range: PLAYER_TIMING.attac
 
 export function weaponProfile(card, items = []) {
     const item = items.find(row => row.slot === "weapon");
-    const weapon = weaponDefinition(item);
-    const classId = weapon ? weapon.class : card?.class;
+    const classId = card?.class;
     const profile = { ...(PROFILES[classId] || LEGACY), classId, proficiency: weaponProficiency(item, card) };
     const gadgets = gadgetRuntime(items);
     profile.range *= gadgets.range;

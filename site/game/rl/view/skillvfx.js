@@ -7,6 +7,7 @@ import { loadNativeIndex, acquireNative, preloadNative, loadEnemyAttacks, acquir
 import { characterTiltX } from "./tilt.js";
 import { LAYER, CHARACTER_SCALE, COMBAT_HEIGHT } from "./layers.js";
 import { graphicFor, projectileEvent, normalEffectConfig, ELEMENT_NAMES } from "./effectcatalog.js";
+import { createCombatMarks } from './combatmarks.js';
 export { graphicFor, ELEMENT_NAMES } from "./effectcatalog.js";
 
 export const EFFECT_TYPES = { SKILL_CAST: "cast", SKILL_TRAIL: "trail", HIT_IMPACT: "impact", CHARGE: "charge", HEAL: "heal" };
@@ -53,6 +54,8 @@ export function createSkillVFX(scene, THREE, options) {
     // shader; the next swing then stalls on the same program all over again.
     const idle = new Map(), idleLimit = Math.min(8, cap);
     const trailMaps = new Map();
+    const marks = createCombatMarks(scene, THREE, opts.camera);
+    let positionOfUnit = unit => unit;
     let seenBullets = new WeakMap();
     const projectileTurn = new THREE.Quaternion(), zAxis = new THREE.Vector3(0, 0, 1);
     const directionOffset = new THREE.Vector3();
@@ -65,10 +68,10 @@ export function createSkillVFX(scene, THREE, options) {
     // ~120px above the logical flight line while the invisible bullet was
     // exactly on it, 2026-09-17 实机反馈). Cache each template's LOCAL
     // bounding-box centre once, so the follow placement can compensate.
-    const centreCache = new Map();
-    const PROJECTILE_CENTRE_K = 1.68;
+    const centreCache = new WeakMap();
+    const PROJECTILE_CENTRE_K = 1;
     function visualCentreOf(root) {
-        if (centreCache.has(root)) { return centreCache.get(root); }
+        if (centreCache.has(root)) { return centreCache.get(root).centre; }
         const keep = { p: root.position.clone(), q: root.quaternion.clone(),
             s: root.scale.clone() };
         root.position.set(0, 0, 0);
@@ -83,7 +86,7 @@ export function createSkillVFX(scene, THREE, options) {
         root.position.copy(keep.p); root.quaternion.copy(keep.q);
         root.scale.copy(keep.s);
         root.updateMatrixWorld(true);
-        centreCache.set(root, centre);
+        centreCache.set(root, { centre, size:box.getSize(new THREE.Vector3()) });
         return centre;
     }
     const ready = loadNativeIndex().then(data => {
@@ -139,13 +142,9 @@ export function createSkillVFX(scene, THREE, options) {
             projectileTurn.setFromAxisAngle(zAxis, Math.atan2(sy, sx));
             root.quaternion.multiply(projectileTurn);
         } else { root.rotation.set(characterTiltX(), 0, -Math.atan2(body.vy, body.vx)); }
-        // Ride the VISUAL CENTRE on the bullet, not the authored anchor: the
-        // art's local bounding-box centre (scaled, rotated by the final
-        // quaternion) is subtracted so the swoosh flies ON the logical
-        // flight line instead of ~1.1u above it.
-        // k: the bbox centre under-estimates the pixel mass (faint outer
-        // frames pull it down); calibrated on the real page so the bright
-        // swoosh rides the line (residual <=10px, was ~120px uncorrected).
+        // Centre the active frame's local bounds on the logical projectile.
+        // Scale and rotate the offset with the art; the contact core is drawn
+        // independently at the same interpolated position by danmakuview.
         const centre = visualCentreOf(root);
         projectileOffset.copy(centre).multiplyScalar(PROJECTILE_CENTRE_K)
             .multiply(root.scale).applyQuaternion(root.quaternion);
@@ -153,33 +152,29 @@ export function createSkillVFX(scene, THREE, options) {
     }
     function placeDirectional(record) {
         const cfg = record.config, root = record.instance.root;
-        let angle = -cfg.angle, projectedHeight = COMBAT_HEIGHT * Math.cos(characterTiltX());
+        const bounds = cfg.melee && centreCache.get(root);
+        if (bounds) {
+            // Map the original blade scene onto the same horizontal reach plane
+            // as combat. The authored timeline, meshes and textures stay intact.
+            const {range,width} = cfg.melee;
+            root.scale.set(-range / Math.max(.01,bounds.size.x), width / Math.max(.01,bounds.size.y), CHARACTER_SCALE);
+            root.rotation.set(-Math.PI/2,0,-cfg.angle);
+            root.position.set(record.x + Math.cos(cfg.angle)*range*.5,COMBAT_HEIGHT,record.y + Math.sin(cfg.angle)*range*.5);
+            directionOffset.copy(bounds.centre).multiply(root.scale).applyQuaternion(root.quaternion);
+            root.position.sub(directionOffset);
+            return;
+        }
+        let angle = -cfg.angle;
         root.rotation.set(characterTiltX(), 0, 0);
         if (opts.camera) {
             opts.camera.updateMatrixWorld();
             const e = opts.camera.matrixWorld.elements;
             const dx = Math.cos(cfg.angle), dy = Math.sin(cfg.angle);
             angle = Math.atan2(dx * e[4] + dy * e[6], dx * e[0] + dy * e[2]);
-            projectedHeight = COMBAT_HEIGHT * e[5];
             root.quaternion.copy(opts.camera.quaternion);
         }
         root.rotateZ((cfg.mirror ? 0 : Math.PI) + angle);
         root.position.set(record.x, cfg.height || 0, record.y);
-        if (cfg.combatPivot) {
-            // The source art contains its own body-height offset. Rotate that
-            // offset ABOUT the projected combat point by the CAMERA
-            // quaternion only: the offset is "up along the character's body",
-            // which is screen-up no matter where the player aims. Rotating it
-            // by the aim-rotated root quaternion (the old code) made the
-            // effect ORBIT the character as the aim swept — aiming right put
-            // the slash below the unit, aiming up/down put it beside them
-            // (2026-09-17 实机反馈：弹丸特效方向/位置不对).
-            const baseScale = cfg.scale === undefined ? CHARACTER_SCALE : cfg.scale;
-            directionOffset.set(0, projectedHeight * root.scale.y / baseScale, 0)
-                .applyQuaternion(opts.camera.quaternion);
-            root.position.y += COMBAT_HEIGHT;
-            root.position.sub(directionOffset);
-        }
     }
     function emit(effect, x, y, config) {
         const cfg = config || {};
@@ -200,7 +195,7 @@ export function createSkillVFX(scene, THREE, options) {
             : (cfg.enemyAttack ? acquireEnemyAttack(effect) : acquireNative("effects", effect))
                 .then(instance => ({ instance, particles: null, timeline: null }));
         acquired.then(resource => {
-            if (disposed || record.closed || (token !== generation && !cfg.enemyAttack)
+            if (disposed || record.closed || token !== generation
                     || (cfg.follow && !currentProjectile(record))) {
                 release(resource); retire(record, false); return;
             }
@@ -226,7 +221,6 @@ export function createSkillVFX(scene, THREE, options) {
                 });
             }
             scene.add(root);
-            visualCentreOf(root);
             if (!resource.timeline) {
                 resource.particles = createEmitters({ THREE, root });
                 resource.timeline = createTimelinePlayer({ THREE, root, timeline: instance.timeline,
@@ -248,6 +242,11 @@ export function createSkillVFX(scene, THREE, options) {
             record.timeline.restart();
             if (Number.isFinite(cfg.startFrame)) { record.timeline.seek(cfg.startFrame); }
             if (cfg.frameRange) { record.timeline.seek(cfg.frameRange[0]); }
+            // Measure the active pose, never the empty frame before the timeline.
+            centreCache.delete(root);
+            visualCentreOf(root);
+            if (cfg.follow) { placeProjectile(record); }
+            else if (cfg.melee) { placeDirectional(record); }
             root.traverse(node => {
                 if (!node.isMesh) { return; }
                 node.renderOrder = LAYER.vfx + (node.renderOrder % 10000);
@@ -292,6 +291,7 @@ export function createSkillVFX(scene, THREE, options) {
             // the same plane the bolt flies in — not at the unit's feet.
             emit(ev.effect, unit.x, unit.y, { ...(normal ? normalEffectConfig(unit) : { duration: duration || .48 }),
                 height: COMBAT_HEIGHT,
+                anchorUnit: normal ? unit : null,
                 mirror: Math.cos(unit.facing) > 0, kind: "cast",
                 angle: !skill || skill.damage ? unit.facing : undefined });
         });
@@ -313,7 +313,38 @@ export function createSkillVFX(scene, THREE, options) {
         mesh.renderOrder = LAYER.vfx; scene.add(mesh); trails.push({ mesh, age: 0 });
     }
 
+    function enemyAction(unit, action) {
+        if (!action || disposed) { return; }
+        const effect = ELEMENT_IMPACT[unit.element] || "ef_btl_dmg_single_00";
+        let remaining = 6;
+        for (const area of action.shapes) {
+            const points = [];
+            if (area.kind === "lane") {
+                const length = Math.hypot(area.x2 - area.x1, area.y2 - area.y1);
+                const count = Math.min(3, Math.max(1, Math.ceil(length / 3)));
+                for (let i = 0; i < count; i++) {
+                    const t = (i + .5) / count;
+                    points.push([area.x1 + (area.x2 - area.x1) * t, area.y1 + (area.y2 - area.y1) * t, area.radius * 1.4]);
+                }
+            } else if (area.kind === "annulus" || area.kind === "sector") {
+                const ring = area.kind === "annulus", arc = ring ? Math.PI * 2 : area.arc;
+                const radius = ring ? (area.inner + area.outer) / 2 : area.radius * .65;
+                const count = ring ? 4 : 3;
+                for (let i = 0; i < count; i++) {
+                    const angle = (ring ? 0 : area.angle - arc / 2) + arc * (i + .5) / count;
+                    points.push([area.x + Math.cos(angle) * radius, area.y + Math.sin(angle) * radius, ring ? (area.outer - area.inner) * .45 : .9]);
+                }
+            } else { points.push([area.x, area.y, area.radius * .8]); }
+            for (const [x, y, scale] of points) {
+                if (remaining-- <= 0) { return; }
+                emit(effect, x, y, { kind: "impact", height: .2,
+                    scale: Math.min(1.8, Math.max(.6, scale)), duration: .65 });
+            }
+        }
+    }
+
     function syncProjectiles(danmaku, positionOf) {
+        positionOfUnit = positionOf || (unit => unit);
         if (disposed || !index || !player) { return; }
         for (const record of active.slice()) {
             if (record.kind !== "projectile") { continue; }
@@ -346,11 +377,16 @@ export function createSkillVFX(scene, THREE, options) {
 
     function update(dt) {
         const step = Number.isFinite(dt) ? Math.max(0, dt) : 0; time += step;
+        marks.update(step, positionOfUnit);
         for (const record of active.slice()) {
             const cfg = record.config, body = cfg.follow;
             if (body && (!body.alive || body.spawnId !== cfg.spawnId)) { retire(record); continue; }
             if (!record.instance) { continue; }
             if (time - record.start >= record.duration) { retire(record); continue; }
+            if (cfg.anchorUnit) {
+                const at = positionOfUnit(cfg.anchorUnit);
+                record.x = at.x; record.y = at.y;
+            }
             if (body) {
                 placeProjectile(record);
             } else if (Number.isFinite(cfg.angle)) { placeDirectional(record); }
@@ -394,21 +430,25 @@ export function createSkillVFX(scene, THREE, options) {
         }
     }
     function clear() {
+        marks.clear();
         generation++;
-        // A record whose scene is still loading has nothing on screen yet;
-        // retiring it here would discard the effect the moment it arrives
-        // (enemy attack bursts are requested exactly when a room begins).
-        active.slice().filter(record => record.instance).forEach(record => retire(record, false));
+        active.slice().forEach(record => retire(record, false));
         idle.forEach(release); idle.clear();
         seenBullets = new WeakMap();
         trails.forEach(t => { t.mesh.removeFromParent(); t.mesh.material.dispose(); }); trails.length = 0;
     }
     return {
-        prepare, ready, update, clear, syncProjectiles, projectileVisualReady, emitNative: emit,
+        prepare, ready, update, clear, syncProjectiles, projectileVisualReady, emitNative: emit, emitEnemyAction: enemyAction,
         emitSkillCast(unit, skill) { cast(unit, skill, .48); },
-        emitSlash(unit) { cast(unit, unit.skills && unit.skills.normal, .25, true); },
+        emitSlash(unit) {
+            // Original animated blade scenes and exact contact silhouettes share
+            // one swing snapshot; the latter also survives missing native assets.
+            marks.cast(unit, trailMaps.get(ELEMENT_NAMES[unit.element]));
+            cast(unit, unit.skills && unit.skills.normal, .25, true);
+        },
         emitTrail,
         emitHitImpact(x, y, element, crit) {
+            marks.impact(x, y, element, crit);
             // 2026-09-18 原素材美术: a hit lands in the attacker's element
             // colour (ef_btl_dmg_all_<element>_00, 0=炎..5=陽), not the one
             // neutral ef_btl_dmg_single_00. Unknown/out-of-range elements and
@@ -432,6 +472,6 @@ export function createSkillVFX(scene, THREE, options) {
         get stats() { return { active: active.length, loaded: active.filter(r => r.instance).length,
             cached: idle.size, cacheCapacity: idleLimit,
             trails: trails.length, sources: active.map(r => r.effect), errors: errors.slice() }; },
-        dispose() { disposed = true; clear(); trailGeometry.dispose(); trailMaps.forEach(t => t.dispose()); trailMaps.clear(); }
+        dispose() { disposed = true; clear(); marks.dispose(); trailGeometry.dispose(); trailMaps.forEach(t => t.dispose()); trailMaps.clear(); }
     };
 }

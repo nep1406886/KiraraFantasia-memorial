@@ -32,10 +32,12 @@ export function playWithBudget(level, deck = level.recommended) {
     const enemies = () => [...battle.enemies.values()];
     const has = (row, test) => units().some(unit => unit.row === row && test(unit));
     const kindOf = unit => UNIT_RULES[unit.type].kind;
-    const attackers = ["U04", "U03", "U06", "U05", "U20", "U02", "U01", "U19", "U24", "U21", "U23", "U22"].filter(id => cards.has(id));
-    const walls = ["U12", "U13", "U14", "U11"].filter(id => cards.has(id));
-    const melee = ["U10", "U08", "U09", "U07"].filter(id => cards.has(id));
-    const supports = ["U17", "U16", "U15", "U18"].filter(id => cards.has(id));
+    const choices = (preferred, kinds) => [...new Set([...preferred, ...cards])]
+        .filter(id => cards.has(id) && kinds.includes(UNIT_RULES[id].kind));
+    const attackers = choices(["U04", "U03", "U06", "U05", "U20", "U02", "U01", "U19", "U24", "U21", "U23", "U22"], ["shooter", "lobber"]);
+    const walls = choices(["U12", "U13", "U14", "U11"], ["guard"]);
+    const melee = choices(["U10", "U08", "U09", "U07"], ["fighter"]);
+    const supports = choices(["U17", "U16", "U15", "U18"], ["healer", "shielder", "beacon"]);
     act("F01", mid, 0);
     act(cards.has("U01") ? "U01" : attackers.at(-1), mid, 1);
     act("F01", order[1], 0);
@@ -83,10 +85,13 @@ export function playWithBudget(level, deck = level.recommended) {
                 }
                 if (building) { continue; }
                 if (shooters.length < 2 && battle.resource >= 175) { for (const id of attackers) { if (act(id, row, 2)) { break; } } }
-                if (shooters.length >= 2 && shooters.length < 3 && battle.resource >= 325 && battle.time > 90) { for (const id of attackers) { if (act(id, row, 3)) { break; } } }
+                if (!supports.length && shooters.length >= 2 && shooters.length < 3 && battle.resource >= 325 && battle.time > 90) { for (const id of attackers) { if (act(id, row, 3)) { break; } } }
                 const guard = units().find(unit => unit.row === row && kindOf(unit) === "guard");
                 if (guard && battle.resource >= 150 && !has(row, unit => ["healer", "shielder", "beacon"].includes(kindOf(unit)))) {
-                    for (const id of supports) { if (act(id, row, 4)) { break; } }
+                    for (const id of supports) {
+                        const rule = UNIT_RULES[id], col = rule.kind === "healer" && !rule.area ? 3 : 4;
+                        if (act(id, row, col)) break;
+                    }
                 }
                 if (guard && melee.length && battle.resource >= 200 && !has(row, unit => kindOf(unit) === "fighter")) {
                     for (const id of melee) { if (act(id, row, Math.min(guard.col - 1, 4))) { break; } }
@@ -849,6 +854,64 @@ test("the four chapter-five companions cover critical/lobber/pierce/guard archet
         assert.ok(unit.icon && unit.resourceId, `${id} has no icon/model binding`);
         assert.ok(unit.skills[0]?.id, `${id} has an ultimate skill id`);
     }
+});
+
+test("new companions execute their own periodic attacks and capped tempo", () => {
+    const battle = new Battle(fixture({ spawns: [{ at: 1000, row: 0, type: "E01", wave: 1 }] }), { deck: ["U88", "U89"] });
+    battle.deploy("U88", 0, 4); battle.deploy("U89", 0, 2); battle.start();
+    const sonya = [...battle.units.values()].find(u => u.type === "U88");
+    const mio = [...battle.units.values()].find(u => u.type === "U89");
+    const enemy = battle.spawn({ type: "E01", row: 0, x: 5, wave: 1, hpScale: 20 });
+    sonya.attacks = 2; sonya.nextAction = 0; battle.updateUnit(sonya);
+    const strike = battle.pending.find(action => action.source === sonya.id);
+    assert.equal(strike.special.type, "power");
+    const hp = enemy.hp; battle.resolveAction(strike); assert.equal(hp - enemy.hp, 77);
+    mio.attacks = 100; assert.equal(battle.cadence(mio, 1), .72);
+    mio.haste = .3; mio.hasteUntil = 5; assert.equal(battle.cadence(mio, 1), .7);
+    const next = sonya.nextAction; enemy.hp = 1; battle.hitEnemy(enemy, 1, sonya.id);
+    assert(Math.abs(sonya.nextAction - (next - 1.05 * .35)) < 1e-8);
+});
+test("camp protection covers adjacent friends once and expires on removal", () => {
+    const battle = new Battle(fixture({ rows: 3 }), { deck: ["U91", "U12"] });
+    battle.deploy("U91", 0, 4); battle.deploy("U12", 1, 4);
+    const guard = [...battle.units.values()].find(u => u.type === "U12");
+    battle.readyAt.set("U91", 0); battle.deploy("U91", 2, 4);
+    let hp = guard.hp; battle.hurtUnit(guard, 100, "test"); assert.equal(hp - guard.hp, 84);
+    battle.recall(0, 4); battle.recall(2, 4);
+    hp = guard.hp; battle.hurtUnit(guard, 100, "test"); assert.equal(hp - guard.hp, 100);
+});
+test("Chiaki accelerates only an actually healed ally, without stacking haste", () => {
+    const battle = new Battle(fixture({ spawns: [{ at: 1000, row: 0, type: "E01", wave: 1 }] }), { deck: ["U92", "U12"] });
+    battle.deploy("U92", 0, 3); battle.deploy("U12", 0, 5); battle.start();
+    const healer = [...battle.units.values()].find(u => u.type === "U92");
+    const guard = [...battle.units.values()].find(u => u.type === "U12");
+    const action = { kind: "heal", source: healer.id, target: guard.id };
+    battle.resolveAction(action); assert.equal(guard.hasteUntil, 0);
+    guard.hp -= 100; battle.resolveAction(action); assert.equal(guard.hp, guard.maxHp - 28);
+    assert.equal(guard.haste, .18); assert.equal(guard.hasteUntil, 3);
+    guard.haste = .3; battle.resolveAction(action); assert.equal(guard.haste, .3);
+    battle.time = 4; assert.equal(battle.cadence(guard, 1), 1);
+});
+test("boss control resistance is shared by bottles, freeze and sleep", () => {
+    const battle = new Battle(fixture(), { deck: ["F12"] }); battle.start();
+    const boss = battle.spawn({ type: "E42", row: 0, x: 5, wave: 1 });
+    battle.hitEnemy(boss, 1, "test", { onHit: { slow: .4, slowDuration: 3, stun: 2, delayAttack: 1 } });
+    assert.equal(boss.stunUntil, .9); assert(Math.abs(boss.slowFactor - .18) < 1e-8);
+    for (let i = 0; i < 20; i++) battle.hitEnemy(boss, 1, "test", { onHit: { delayAttack: 1 } });
+    assert.equal(boss.nextAttack, .45);
+    boss.stunUntil = 0; battle.rng = () => 0; battle.rollSleep(boss, { sleepChance: 1 }); assert.equal(boss.stunUntil, .54);
+    battle.resolveAction({ kind: "burst", type: "F12", id: "freeze", row: 0, col: 5 }); assert.equal(boss.stunUntil, 1.8);
+});
+test("stored income has a slower payback and higher long-run yield per cell", () => {
+    const income = type => {
+        const b = new Battle(fixture({ naturalFirst: 10000, spawns: [{ at: 1000, row: 0, type: "E01", wave: 1 }] }), { deck: [type] });
+        b.deploy(type, 0, 0); b.start(); advance(b, 30); const early = b.stats.produced;
+        advance(b, 100); return { early, late: b.stats.produced };
+    };
+    const small = income("F01"), stored = income("F11");
+    assert.equal(small.early, 44); assert.equal(stored.early, 50);
+    assert(small.early >= UNIT_RULES.F01.cost); assert(stored.early < UNIT_RULES.F11.cost);
+    assert(stored.late > small.late); assert(UNIT_RULES.U12.hp / UNIT_RULES.U12.cost < 22);
 });
 
 const runs = [];

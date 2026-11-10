@@ -635,16 +635,14 @@ export function createSkills(options) {
         // skillOverrides retain their authored class-slot positions (after
         // the character skill); null positions do not replace anything. Restoring happens
         // by calling with empty overrides — base rows come back verbatim.
-        applyWeapon: function (runtime, classId = card.class) {
+        applyWeapon: function (runtime) {
             const rt = runtime || {};
             const previous = slots.slice();
-            const classNormal = (table.normalAttacks || {})[classId];
             const child = rt.normalOverride
                 ? weaponChildren[String(rt.normalOverride)] : null;
             api.normal = child
                 ? decodeSkill(child, rt.normalOverride, recastSeconds, table.skillCards)
-                : (classNormal && classId !== card.class
-                    ? decodeSkill(classNormal, classNormal.id, recastSeconds, table.skillCards) : normal);
+                : normal;
             for (let i = 0; i < slots.length; i++) {
                 slots[i] = baseSlots[i];
             }
@@ -671,8 +669,7 @@ export function createSkills(options) {
                     active: !!row && change.active && actual?.id === change.skillId,
                     skill: row ? decodeSkill(row, change.skillId, recastSeconds, table.skillCards) : null };
             });
-            normalSource = replacements.find(change => change.active && change.target === 0)?.source
-                || (classId !== card.class && classNormal ? Object.freeze({ slot: "weapon", style: true }) : null);
+            normalSource = replacements.find(change => change.active && change.target === 0)?.source || null;
             slotSources = slots.map((slot, index) => slot.ultimate ? null
                 : replacements.find(change => change.active && change.target === index - firstClass + 1)?.source || null);
         },

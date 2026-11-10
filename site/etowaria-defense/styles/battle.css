@@ -175,6 +175,8 @@
 .battle-unit-status.shown, .battle-unit-status:hover, .battle-unit-status:focus-visible { opacity: 1; }
 .battle-unit-status .life-track { display: block; height: 6px; border-radius: 3px; background: #2b2118b0; box-shadow: 0 0 0 1px #fff8, 0 1px 2px #0005; overflow: hidden; }
 .battle-unit-status .life-fill { display: block; height: 100%; border-radius: 3px; background: linear-gradient(#6fd07f, #2f9a52); transform-origin: left; transition: transform .15s; }
+.battle-unit-status .skill-cycle { position: absolute; top: 14px; left: 50%; transform: translateX(-50%); width: 64px; padding: 1px 3px 2px; border-radius: 4px; background: linear-gradient(90deg, #f7c7dc var(--cycle), #fff9f4 var(--cycle)); color: #6b435a; border: 1px solid #e4bdcb; font-size: 9px; line-height: 13px; white-space: nowrap; pointer-events: none; }
+.battle-unit-status .skill-cycle.ready { color: #9b2254; border-color: #ce638d; box-shadow: 0 0 6px #f5bdd077; }
 .battle-unit-status.enemy .life-fill { background: linear-gradient(#ff9a86, #d8453a); }
 .battle-unit-status.critical .life-fill { background: linear-gradient(#ff8a8a, #b3261e); }
 .battle-unit-status .shield-fill { position: absolute; left: 3px; right: 3px; top: 1px; height: 2px; border-radius: 1px; background: #bfe6ff; transform-origin: left; }

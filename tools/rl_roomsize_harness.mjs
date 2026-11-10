@@ -12,7 +12,7 @@ function check(name, run) {
     catch (error) { failures++; console.error("FAIL " + name + ": " + error.message); }
 }
 const expected = { start: [20, 16], chest: [16, 12], shop: [20, 16], rest: [20, 16],
-    battle: [32, 24], boss: [32, 24] };
+    battle: [40, 30], boss: [40, 30] };
 const sizeOf = room => dungeon.roomSize ? dungeon.roomSize(room) : dungeon.ROOM_SIZE;
 const rooms = Object.keys(expected).map((type, i) => ({ id: i + 1, type, x: i, y: 0, w: 1, h: 1, seed: i + 21, enemies: [] }));
 const graph = { rooms, doors: rooms.slice(1).map(r => ({ a: 1, b: r.id, side: "E" })), start: 1, boss: 6 };
@@ -61,7 +61,7 @@ check("1000 seeds keep deterministic graphs and correct door coordinates", () =>
 });
 check("room sizing is immutable and never mutates the combat default", () => {
     assert.ok(Object.isFrozen(sizeOf({ type: "rest" })));
-    assert.deepEqual(dungeon.ROOM_SIZE, { w: 32, h: 24 });
+    assert.deepEqual(dungeon.ROOM_SIZE, { w: 40, h: 30 });
 });
 console.log(`${checks - failures}/${checks} passed`);
 process.exitCode = failures ? 1 : 0;

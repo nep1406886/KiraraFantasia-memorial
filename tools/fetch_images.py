@@ -38,6 +38,7 @@ from __future__ import annotations
 import argparse
 import collections
 import io
+from http.client import HTTPException
 import json
 import subprocess
 import sys
@@ -418,7 +419,7 @@ def fetch_bytes(url: str, attempts: int = 5) -> bytes:
             if data.startswith(PNG_MAGIC):
                 return data
             last_error = RuntimeError(f"not a PNG ({len(data)} bytes)")
-        except (OSError, urllib.error.URLError, urllib.error.HTTPError) as error:
+        except (OSError, urllib.error.URLError, urllib.error.HTTPError, HTTPException) as error:
             last_error = error
         # urllib 500s some of the 2–4 MB bg_menu files that curl gets as 200.
         curl_data = fetch_via_curl(url)

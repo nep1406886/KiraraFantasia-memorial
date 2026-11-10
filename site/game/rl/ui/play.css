@@ -1,0 +1,103 @@
+/* Battle journal: compact translucent paper, native skill art, authored gear. */
+:root { --kf-paper:var(--ad-white); --kf-sky:var(--ad-wash); --kf-mint:#f3dce6; --kf-gold:var(--ad-gold); --kf-ink:var(--ad-ink); --kf-ink-soft:var(--ad-muted); --kf-line:var(--ad-line); --kf-shadow:#58293e20; --kf-hp:#c65c85; --ui-shadow:0 6px 20px #58293e22,inset 0 0 0 1px #fff9; --ui-radius:14px; }
+.rl-save-status { background:linear-gradient(100deg,#fff9fc,#f7e6ee); border-bottom:1px solid #dab6c7; padding:6px 20px; }
+.rl-save-status button { border-radius:9px; font-size:11px; background:#fffafc; }
+#bar h1 { font:600 17px var(--ad-serif); letter-spacing:.1em; }
+#stage #hud { width:272px; padding:15px 17px 12px; display:flex; flex-direction:column; gap:5px; border:1px solid #e2bacb; border-radius:22px 10px 18px 10px; background:linear-gradient(135deg,#fffdf6f5,#fff5f9e8); backdrop-filter:blur(10px); }
+.hud-identity { align-items:center; margin:0 0 5px; gap:12px; }
+.hud-player-portrait { width:50px; height:50px; border-radius:50%; object-fit:cover; background:var(--ad-wash); border:2px solid #e9c493; box-shadow:0 0 0 3px #fff9f1,0 4px 8px #8d586027; }
+.hud-player-name { flex:1; font:600 16px var(--ad-serif); }
+.hud-player-level { padding:3px 6px; border-radius:5px; background:#eddae7; color:#895c78; }
+#floor-display { font-size:10px; color:var(--ad-muted); margin:1px 0 5px; }
+#hp-display { font-size:12px; }
+.player-health-track { height:8px; border-radius:6px; background:#ead4df; border:1px solid #fff7; box-shadow:inset 0 1px 2px #8055681a; }
+.player-health-track i { background:linear-gradient(90deg,#ba4779,#eb97b6); border-radius:inherit; }
+#coin-display { font-size:11px; margin-top:2px; }
+#stage .hud-equip { order:6; display:flex; gap:8px; border-top:1px solid #dec7d28f; padding-top:9px; margin-top:4px; }
+#stage .hud-equip[hidden] { display:none; }
+#stage .hud-equip-chip { flex:1; width:46px; height:46px; padding:2px; justify-content:center; border-radius:10px; background:#fff9fb; border:1px dashed #d6b8c8; }
+#stage .hud-equip-chip.equipped { border-style:solid; background:radial-gradient(ellipse,#fff9eb,#f0dce8); box-shadow:inset 0 0 0 2px #fff8; }
+#stage .hud-equip-chip-icon { width:40px; height:40px; }
+#stage .hud-equip-chip:not(.equipped) .hud-equip-chip-icon { opacity:.5; width:26px; height:26px; }
+#stage .hud-equip-chip .hud-equip-chip-name { display:none; }
+#stage .hud-equip-chip:hover { transform:translateY(-3px); border-color:var(--ad-accent); }
+#stage #minimap { background:#fff9f0ec; border:1px solid #cdb3bb; border-radius:10px 20px 10px 18px; padding:9px; box-shadow:var(--ui-shadow); backdrop-filter:blur(8px); }
+#stage #minimap::before { content:'旅途手记'; display:block; padding:0 3px 5px; color:#8f6878; font:11px var(--ad-serif); letter-spacing:.2em; }
+#stage .hud-skillbar { gap:12px; }
+#stage .hud-skill { border-radius:15px 15px 10px 10px; background:linear-gradient(145deg,#fffdf4,#f6e0ec); border-color:#caa6bb; box-shadow:0 4px 0 #c9a5b8,0 8px 16px #58314926; }
+#stage .hud-skill.hud-skill-ready { border-color:#bb6d90; box-shadow:0 4px 0 #a75b7e,0 8px 18px #58314930,inset 0 0 0 2px #fff9; }
+.hud-skill-key { background:#fff5dc; border-color:#ddc08b; color:#8b593e; border-radius:5px; }
+#stage .hud-skill-icon { filter:drop-shadow(0 2px 3px #ae6a7e30); }
+#stage .hud-skill[aria-disabled="false"]:hover { transform:translateY(-4px); }
+#stage .hud-gauge { border-radius:18px 10px 18px 10px; background:linear-gradient(125deg,#fff9e9,#fae7ee); border:1px solid #d9b2a2; box-shadow:0 4px 0 #c9a5a1,0 8px 18px #58314926; overflow:hidden; }
+#stage .hud-gauge.ready[aria-disabled="false"] { animation:ad-glow 2.8s ease-in-out infinite; }
+#stage .hud-gauge.ready::after { content:''; position:absolute; inset:0; width:45%; background:linear-gradient(90deg,transparent,#fff9,transparent); pointer-events:none; animation:ad-sheen 3.6s ease-in-out infinite; }
+#stage .hud-gauge-fill { height:5px; background:linear-gradient(90deg,#bc5986,#f1b4be,#f2cf86); }
+.rl-battle-help { position:absolute; bottom:20px; left:50%; transform:translateX(-50%); padding:8px 14px; border:1px solid #e1b7c6; border-radius:20px; background:#fff9f0e0; color:#84646f; font-size:10px; pointer-events:none; box-shadow:0 3px 12px #58314915; }
+.rl-battle-help kbd { margin:0 3px; font:10px var(--ad-sans); color:var(--ad-accent); }
+body.touch-on .rl-battle-help { display:none; }
+#stage #hint { border-left:3px solid var(--ad-gold); padding:10px 14px; background:#fff9f1ee; }
+#menu-panel { background:linear-gradient(135deg,#fffdf7,#fbe8f1); border:1px solid #d7b2c3; border-radius:22px; padding:26px; box-shadow:0 20px 70px #58293e33,inset 0 0 0 5px #fff8; }
+#menu-panel h2 { font:600 25px var(--ad-serif); }
+#menu-panel #menu-resume { background:linear-gradient(135deg,#b84b76,#92375e); color:#fff8f0; border-color:#9b3d67; }
+#menu-panel label { font-size:12px; color:var(--ad-muted); }
+#menu-panel #menu-restart { color:#985844; }
+#dialogue-box { border:1px solid #d5b1c2; border-top:3px solid var(--ad-accent); border-radius:18px; background:linear-gradient(110deg,#fffbf5f5,#fae8f1f5); box-shadow:0 12px 44px #58293e24; }
+#dialogue-skip { border:1px solid var(--ad-line); border-radius:8px; background:var(--ad-wash); color:var(--ad-accent); padding:8px 16px; min-height:40px; font:12px var(--ad-sans); }
+body #rl-result { border-color:var(--ad-line); border-radius:20px; box-shadow:0 20px 80px #58293e44; }
+body #rl-result h2 { font-family:var(--ad-serif); color:var(--ad-accent); }
+body #rl-result .result-actions button { border-radius:9px; min-height:44px; }
+/* A clear item identity sits above the comparison, not buried in its details. */
+.rl-decision { background:linear-gradient(140deg,#fffdf6,#fff1f7); border:1px solid #ddbcc9; border-radius:20px; box-shadow:0 22px 80px #63344844,inset 0 0 0 5px #fff7; }
+.rl-decision[open],#menu-panel:not(.hidden),#rl-result[open] { animation:ad-arrive .28s ease-out both; }
+.comparison-summary { gap:18px; padding:16px; margin-bottom:12px; border:1px solid #e1c4d0; border-radius:14px; background:linear-gradient(110deg,#f5e0eb,#fff8ed); }
+.comparison-summary-icon { width:108px; height:108px; object-fit:contain; padding:5px; border:1px solid #e0bd95; border-radius:18px; background:radial-gradient(ellipse,#fffcf2,#ead6de); box-shadow:inset 0 0 0 3px #fff8,0 6px 16px #8055641c; }
+.rl-decision .comparison-summary-name { font:600 21px/1.5 var(--ad-serif); }
+.comparison-summary[data-rarity="epic"] { background:linear-gradient(115deg,#eee0f4,#fff6e5); }
+.comparison-summary[data-rarity="legendary"] { background:linear-gradient(115deg,#f8e5bc,#fff3e8); }
+.equipment-brief { border-left:3px solid #c58b9e; margin:4px 0 16px; padding:7px 12px; background:#fffaf6; }
+.equipment-detail { display:flow-root; }
+.equipment-detail > .equipment-icon { float:left; margin:0 14px 12px 0; padding:5px; width:90px; height:90px; background:radial-gradient(ellipse,#fffaf0,#efdce6); border:1px solid #dfc2cc; border-radius:15px; }
+.equipment-detail h4 { clear:both; color:#90607a; }
+.equipment-detail .equipment-name { font:600 17px/1.5 var(--ad-serif); padding-top:10px; }
+.equipment-detail .equipment-meta { font-size:11px; }
+.equipment-loadout > section { padding:14px; border:1px solid #e5cbd7; border-radius:14px; background:#fffaf5; }
+.equipment-loadout > section h3 { margin:0 0 12px; font:600 14px var(--ad-serif); color:#a1627f; }
+.gadget-benefit { padding:10px 12px; border-radius:8px; background:#f3e2ed; color:#73425b; }
+.gadget-cost { padding:0 12px; }
+.hud-equip-brief .equipment-detail > .equipment-icon { width:64px; height:64px; }
+@media (min-width:1000px) and (min-height:600px) { #stage .hud-skill { width:88px; height:88px; } #stage .hud-gauge { height:88px; width:270px; } }
+@media (max-width:1100px) { .rl-battle-help { display:none; } }
+@media (max-height:480px) and (min-width:480px) {
+  #stage #hud { display:grid; padding:7px 10px; gap:2px 10px; width:220px; border-radius:12px; }
+  #stage #hud .hud-equip { display:none; } .hud-player-portrait { width:25px; height:25px; border-width:1px; box-shadow:none; }
+  .hud-player-name { font-size:12px; } .hud-player-level { padding:1px 3px; font-size:9px; }
+  .hud-identity { gap:5px; } #stage #minimap { padding:6px; } #stage #minimap::before,.minimap-graph { display:none; }
+  .rl-save-status { padding:4px 10px; }
+}
+@media (max-height:480px) {
+  .comparison-summary { padding:6px 8px; gap:8px; }
+  .comparison-summary-icon { width:48px; height:48px; padding:3px; border-radius:10px; }
+  .rl-decision .comparison-summary-name { font-size:13px; }
+}
+/* Portrait uses a compact top journal and a separate thumb-control shelf. */
+@media (max-width:600px) and (orientation:portrait) {
+  #stage { --rl-minimap-width:88px; --rl-minimap-right:8px; --rl-minimap-padding:5px; --rl-action-height:60px; --rl-control-bottom:max(12px,env(safe-area-inset-bottom,0px)); }
+  #stage #hud { top:8px; left:8px; padding:8px; width:calc(100% - 118px); max-width:calc(100% - 118px); gap:3px; border-radius:14px; }
+  .hud-player-portrait { width:30px; height:30px; box-shadow:none; } .hud-player-name { font-size:12px; } .hud-identity { gap:5px; margin-bottom:2px; }
+  #floor-display { margin:0; font-size:9px; } #coin-display { font-size:10px; margin:0; }
+  #stage #minimap { top:8px; right:8px; padding:5px; } #stage #minimap::before { font-size:9px; letter-spacing:.05em; } .minimap-graph { height:35px; }
+  #stage .hud-equip { gap:4px; padding-top:5px; margin-top:2px; } #stage .hud-equip-chip { min-width:0; width:44px; height:44px; } #stage .hud-equip-chip-icon { width:32px; height:32px; }
+  #stage .hud-skillbar { left:10px; width:calc(58% - 16px); gap:6px; }
+  #stage .hud-skill { min-width:0; width:0; flex:1; height:60px; border-radius:12px; padding:3px; }
+  #stage .hud-skill-icon { width:28px; height:28px; } .hud-skill-name { font-size:8px; } .hud-skill-key { font-size:9px; }
+  #stage .hud-gauge { right:10px; width:calc(42% - 20px); height:60px; padding:6px; grid-template-columns:18px minmax(0,1fr); gap:3px; border-radius:12px; }
+  #stage .hud-gauge-icon { width:18px; height:24px; } #stage .hud-gauge-name { font-size:9px; } #stage .hud-gauge-label { font-size:9px; } .hud-gauge-readout { grid-column:2; font-size:10px; }
+  #stage .touch-zone { top:40%; bottom:90px; width:52%; }
+  #stage .touch-attack { bottom:calc(var(--rl-control-bottom) + 78px); right:12px; width:68px; height:68px; font-size:15px; }
+  #stage .touch-dodge { bottom:calc(var(--rl-control-bottom) + 90px); right:92px; width:50px; height:50px; font-size:12px; }
+  #stage .touch-interact { bottom:calc(var(--rl-control-bottom) + 158px); right:16px; width:52px; height:52px; font-size:12px; }
+  #stage #hint { bottom:calc(var(--rl-control-bottom) + 220px); left:10px; font-size:10px; padding:6px 8px; }
+  #stage #boss-bar { top:calc(var(--rl-hud-height,160px) + 20px); width:calc(100% - 20px); }
+  #stage #boss-voice { top:calc(var(--rl-hud-height,160px) + 104px); }
+}

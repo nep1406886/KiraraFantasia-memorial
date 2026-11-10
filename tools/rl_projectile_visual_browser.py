@@ -65,7 +65,9 @@ PIXELS = r"""() => {
             const dark=(x,y)=>data[(y*w+x)*4]<128 && data[(y*w+x)*4+1]<128;
             const ys=[],xs=[];for(let i=0;i<h;i++)if(dark(x,i))ys.push(i);
             for(let i=0;i<w;i++)if(dark(i,y))xs.push(i);
-            rows.push({half,dpr,pattern,radius,want:radius*h/half,
+            // The hit radius ends at fully transparent texels. The visible
+            // dark rim is the .96 gradient stop, with pixel raster rounding.
+            rows.push({half,dpr,pattern,radius,want:radius*h/half*.96,
                 width:xs.length?xs.at(-1)-xs[0]+1:0,height:ys.length?ys.at(-1)-ys[0]+1:0,
                 centre:ys.length?Math.abs((ys.at(-1)+ys[0]+1)/2-(p.y+1)*h/2):Infinity});
         }
@@ -76,7 +78,7 @@ PIXELS = r"""() => {
 
 NATIVE_GEOMETRY = r"""() => {
     const a=audit,{T}=a;
-    const roots=a.scene.children.filter(n=>n.userData.rlOverlay&&!n.isInstancedMesh&&!n.isPoints)
+    const roots=a.scene.children.filter(n=>n.userData.rlOverlay&&!n.isMesh&&!n.isPoints)
         .sort((x,y)=>x.position.x-y.position.x);
     return a.list().sort((x,y)=>x.x-y.x).map((b,i)=>{
         const root=roots[i];if(!root)return {ready:false};
@@ -117,7 +119,8 @@ def gameplay(browser,base,report,check,label):
             trace.append({'at':at,**row})
         page.goto(base+'/site/game/roguelike.html?seed=73061&volume=1',wait_until='load',timeout=60000)
         page.wait_for_selector('.roster-card',timeout=60000)
-        page.locator('.roster-card').filter(has=page.locator('img[src$="/23002001.webp"]')).click()
+        page.locator('.roster-card[data-card-id="23002001"]').click()
+        page.locator('#roster-start').click()
         page.wait_for_function('window.kirafanRL?.world?.player && window.kirafanRL.pending===0',polling=100,timeout=60000)
         dismiss(page)
         snapshot('dismissed')
@@ -142,7 +145,7 @@ def gameplay(browser,base,report,check,label):
             return {shots:bullets.length,native:bullets.filter(b=>k.effects.projectileVisualReady?.(b)).length,
                 generic:k.views.danmaku.count+k.views.danmaku.streakCount,effects:k.effects.stats};}""")
         report['scenarios']['gameplay']=row
-        check('正常选角与真实普攻输入只绘制一次原作投射物',row['shots']>0 and row['native']==row['shots'] and row['generic']==0)
+        check('正常普攻逐弹绘制原作轨迹和准确弹芯',row['shots']>0 and row['native']==row['shots'] and row['generic']==row['shots'])
         page.screenshot(path=str(OUT/(label+'-gameplay.png')))
     except Exception:
         snapshot('failure')
@@ -217,10 +220,10 @@ def main():
                 page.wait_for_function("audit.fx.stats.loaded>0",timeout=30000)
                 page.evaluate('audit.render(0)')
                 state=page.evaluate('audit.state()')
-                check('仅加载完成但尚未推进有效帧时玩家弹不画兜底圆(2026-09-16 用户反馈)',state['generic']==0 and state['native']==0)
+                check('原作时间线尚未推进时准确弹芯已经可见',state['generic']==1 and state['native']==0)
                 page.evaluate("audit.render(.1)")
                 state=page.evaluate("audit.state()");report["scenarios"]["ready"]=state
-                check("原作弹体就绪后不再叠画通用弹",state["native"]==1 and state["generic"]==0)
+                check("原作弹体就绪后保留准确弹芯",state["native"]==1 and state["generic"]==1)
                 page.screenshot(path=str(OUT/(label+"-native.png")))
                 # The real class regression: the Alchemist catalogue has an
                 # EffectAttach, not an EffectProjectile event. Before the fix
@@ -236,8 +239,8 @@ def main():
                 page.wait_for_function("audit.fx.stats.loaded===1",timeout=30000)
                 page.evaluate("audit.render(.1)")
                 state=page.evaluate("audit.state()")
-                check("炼金术师普攻使用原作投掷弹而非通用圆弹",
-                      state["native"]==1 and state["generic"]==0
+                check("炼金术师原作投掷弹与准确弹芯一同飞行",
+                      state["native"]==1 and state["generic"]==1
                       and state["effects"]["sources"]==["ef_btl_alchemist_attack_fire_01"])
                 page.screenshot(path=str(OUT/(label+"-alchemist-native.png")))
                 page.evaluate("""async()=>{const a=audit;a.unit.card.class=1;
@@ -247,7 +250,7 @@ def main():
                 page.wait_for_function("audit.fx.stats.loaded>0 || audit.fx.stats.active===0",timeout=30000)
                 page.evaluate("audit.render(.1)")
                 state=page.evaluate("audit.state()");report["scenarios"]["clear-live"]=state
-                check("清理特效后活动弹仍可重新绑定",state["native"]==1 and state["generic"]==0)
+                check("清理特效后活动弹仍可重新绑定",state["native"]==1 and state["generic"]==1)
                 page.evaluate("audit.bullets.clear();audit.render(.02)")
                 state=page.evaluate("audit.state()")
                 check("弹体回收后原作跟随者退场，唯一引用是有界离场缓存",state["effects"]["active"]==0
@@ -273,7 +276,7 @@ def main():
                 page.evaluate('audit.render(0)');page.wait_for_function('audit.fx.stats.loaded===1',timeout=30000)
                 page.evaluate('audit.render(.1)')
                 state=page.evaluate('audit.state()')
-                check('直接池复用只留下新投射物的一个实例',state['native']==1 and state['generic']==0 and state['cache']['refs']==1)
+                check('直接池复用只留下新投射物的一组轨迹与弹芯',state['native']==1 and state['generic']==1 and state['cache']['refs']==1)
                 events=page.evaluate("""async()=>{const a=audit;a.fx.clear();a.bullets.clear();
                     const specs=[['emitPickup','ef_btl_buff_ring'],['emitBreak','ef_btl_dmg_single_00'],
                         ['emitBuff','ef_btl_buff_line'],['emitStun','ef_btl_stun_occur'],['emitCharge','ef_btl_buff_ring']];
@@ -300,7 +303,7 @@ def main():
                 page.wait_for_function("audit.fx.stats.loaded>0",timeout=30000)
                 page.evaluate("audit.render(.1)")
                 state=page.evaluate("audit.state()");report["scenarios"]["capacity"]=state
-                check("原作特效达到上限时未接管弹也不画兜底圆",state["native"]==1 and state["generic"]==0)
+                check("原作特效达到上限时两颗弹芯均可见",state["native"]==1 and state["generic"]==2)
                 page.close()
 
                 page=make_page(fail=True)
@@ -308,20 +311,20 @@ def main():
                 page.wait_for_function("audit.fx.stats.errors.some(x=>x.includes('ef_btl_magician_attack_fire_01'))",timeout=30000)
                 page.evaluate("audit.render(.1)")
                 state=page.evaluate("audit.state()");report["scenarios"]["missing"]=state
-                check("原作资源失败时弹体不可见且不虚报接管",state["generic"]==0 and state["native"]==0)
+                check("原作资源失败时弹芯可见且不虚报接管",state["generic"]==1 and state["native"]==0)
                 page.close()
 
                 held=[];page=make_page(preload=False,held=held)
                 page.evaluate("audit.fire();audit.render(.02)")
                 page.wait_for_timeout(100)
                 state=page.evaluate("audit.state()");report["scenarios"]["pending"]=state
-                check("原作资源尚未就绪时玩家弹不画兜底圆",bool(held) and state["generic"]==0 and state["native"]==0)
+                check("原作资源尚未就绪时玩家弹芯可见",bool(held) and state["generic"]==1 and state["native"]==0)
                 page.evaluate("audit.fx.clear();audit.bullets.clear();audit.fire(Math.PI);audit.render(.02)")
                 for route in held:route.continue_()
                 page.wait_for_function("audit.fx.stats.loaded>0",timeout=30000)
                 page.evaluate("audit.render(.1)")
                 state=page.evaluate("audit.state()");report["scenarios"]["recycled"]=state
-                check("迟到资源不复活旧弹且新池代正确接管",state["native"]==1 and state["generic"]==0 and state["effects"]["active"]==1)
+                check("迟到资源不复活旧弹且新池代正确接管",state["native"]==1 and state["generic"]==1 and state["effects"]["active"]==1)
                 page.evaluate("audit.view.dispose();audit.fx.dispose();audit.bullets.clear()")
                 state=page.evaluate("audit.state()")
                 check("销毁后没有特效实例引用残留",state["cache"]["refs"]==0 and state["effects"]["active"]==0)

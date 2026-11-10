@@ -1,4 +1,4 @@
-"""Real hover/focus and mobile rotation gates. OS lock success uses labelled API fixtures."""
+"""Real hover/focus regression. Mobile rotation and touch are covered by adventure_viewports_browser.py."""
 import functools
 import json
 import threading
@@ -30,51 +30,6 @@ def settled(page, touch=False):
     advance(page, 1/60)
 
 
-def lock_lifecycle(browser, base, check, errors):
-    # The browser cannot emulate an OS rotation lock. Isolate and label the API
-    # fixture; viewport rotation and the real game's freeze are checked below.
-    context = browser.new_context(viewport={'width':375,'height':812}, is_mobile=True, has_touch=True)
-    context.route('**/__orientation_lifecycle', lambda route: route.fulfill(
-        content_type='text/html', body='<meta name="viewport" content="width=device-width,initial-scale=1">'))
-    page = context.new_page(); page.on('pageerror', lambda e: errors.append(str(e)))
-    page.goto(base + '/__orientation_lifecycle')
-    page.evaluate("""async()=>{
-        const {createLandscapeGuard}=await import('/site/game/rl/ui/orientation.js');
-        window.lockCalls={requested:[],unlocked:0,changes:[]};
-        document.documentElement.requestFullscreen=async()=>{};
-        Object.defineProperty(screen.orientation,'lock',{configurable:true,
-            value:async value=>lockCalls.requested.push(value)});
-        Object.defineProperty(screen.orientation,'unlock',{configurable:true,
-            value:()=>lockCalls.unlocked++});
-        window.newGuard=()=>createLandscapeGuard({onChange:value=>lockCalls.changes.push(value)});
-        window.guard=newGuard();
-    }""")
-    result = page.evaluate("""()=>{guard.dispose();guard.dispose();window.dispatchEvent(new Event('resize'));
-        return {...lockCalls,panel:!!document.getElementById('landscape-guard'),
-            blocked:document.body.classList.contains('landscape-required')};}""")
-    check('未取得方向锁的销毁不解锁其他所有者（接口夹具）',
-          result['unlocked']==0 and result['changes']==[True,False] and not result['panel'] and not result['blocked'], result)
-    page.evaluate('guard=newGuard()')
-    page.locator('#landscape-fullscreen').tap()
-    page.wait_for_function('!document.getElementById("landscape-fullscreen").disabled', polling=50)
-    result = page.evaluate("""()=>{guard.dispose();guard.dispose();return {...lockCalls};}""")
-    check('成功取得的方向锁仅释放一次，重复销毁安全（接口夹具）',
-          result['requested']==['landscape'] and result['unlocked']==1
-          and result['changes']==[True,False,True,False], result)
-    page.evaluate("""()=>{Object.defineProperty(screen.orientation,'lock',{configurable:true,
-        value:()=>new Promise(resolve=>window.finishLock=resolve)});guard=newGuard();}""")
-    page.locator('#landscape-fullscreen').tap()
-    page.wait_for_function('typeof window.finishLock==="function"', polling=50)
-    page.evaluate('guard.dispose();finishLock()')
-    page.wait_for_function('lockCalls.unlocked===2', polling=50)
-    result = page.evaluate("""()=>{window.dispatchEvent(new Event('resize'));return {...lockCalls,
-        panel:!!document.getElementById('landscape-guard'),blocked:guard.blocked};}""")
-    check('异步方向锁在销毁后才成功时立即归还且不复活保护层（接口夹具）',
-          result['unlocked']==2 and result['changes']==[True,False,True,False,True,False]
-          and not result['panel'] and not result['blocked'], result)
-    context.close()
-
-
 def main():
     OUT.mkdir(parents=True, exist_ok=True)
     report = {'checks': [], 'errors': [], 'source_before': fingerprints()}
@@ -94,7 +49,8 @@ def main():
             desktop.add_init_script(INIT)
             page = desktop.new_page(); page.on('pageerror', lambda e: report['errors'].append(str(e)))
             page.goto(url, wait_until='load', timeout=60000)
-            page.locator('.roster-card').filter(has=page.locator('img[src$="/32002001.webp"]')).click(timeout=60000)
+            page.locator('.roster-card[data-card-id="32002001"]').click(timeout=60000)
+            page.locator('#roster-start').click()
             settled(page)
             page.locator('.hud-skill[data-slot="1"]').hover()
             tip = page.locator('.hud-skill-tooltip')
@@ -155,137 +111,6 @@ def main():
             check('Escape关闭后在同一按钮内轻微移动不会立刻重开',not tip.is_visible())
             desktop.close()
 
-            mobile = browser.new_context(viewport={'width':375,'height':812}, is_mobile=True, has_touch=True)
-            mobile.add_init_script(INIT)
-            page = mobile.new_page(); page.on('pageerror', lambda e: report['errors'].append(str(e)))
-            page.goto(url, wait_until='load', timeout=60000)
-            page.locator('#landscape-guard').wait_for(state='visible', timeout=60000)
-            check('手机竖屏在选角前要求横屏', not page.locator('#roster-overlay').is_visible()
-                  and page.evaluate('kirafanRL.world.frozen'))
-            page.screenshot(path=str(OUT / 'portrait-required.png'))
-            page.locator('#save-status-open').tap(); page.locator('#rl-storage').wait_for(state='visible')
-            check('横屏要求不阻挡存档和备份', page.locator('#storage-export').is_visible())
-            page.locator('#storage-close').tap()
-            check('关闭备份后仍保留横屏保护', page.locator('#landscape-guard').is_visible())
-            page.evaluate("""()=>{window.orientationCalls=[];
-                document.documentElement.requestFullscreen=async()=>{orientationCalls.push('fullscreen');throw new DOMException('test denial','NotAllowedError');};
-            }""")
-            page.locator('#landscape-fullscreen').tap()
-            page.wait_for_function("!document.getElementById('landscape-fullscreen').disabled", polling=50)
-            check('全屏被拒绝时仍暂停且明确手动旋转（故障注入）',
-                  page.evaluate("orientationCalls[0]==='fullscreen'&&kirafanRL.world.frozen")
-                  and '请开启设备的自动旋转' in page.locator('.landscape-status').inner_text())
-            page.evaluate("""()=>{
-                document.documentElement.requestFullscreen=async()=>{orientationCalls.push('fullscreen-ok');};
-                Object.defineProperty(screen.orientation,'lock',{configurable:true,value:async value=>orientationCalls.push(value)});
-                Object.defineProperty(screen.orientation,'unlock',{configurable:true,value:()=>{}});
-            }""")
-            page.locator('#landscape-fullscreen').tap()
-            page.wait_for_function("!document.getElementById('landscape-fullscreen').disabled", polling=50)
-            check('方向锁成功回调不能代替实际横屏（接口夹具）',
-                  page.evaluate("orientationCalls.includes('landscape')&&kirafanRL.world.frozen") and page.locator('#landscape-guard').is_visible())
-            page.set_viewport_size({'width':812,'height':375})
-            page.locator('#landscape-guard').wait_for(state='hidden')
-            page.locator('.roster-card').filter(has=page.locator('img[src$="/32002001.webp"]')).tap(timeout=60000)
-            settled(page, touch=True)
-            check('旋转后才可正常选角和游玩', page.evaluate('!!kirafanRL.world.player&&!kirafanRL.world.frozen'))
-            page.mouse.move(140,220)
-            page.touchscreen.tap(600,200);page.wait_for_timeout(180)
-            check('触控层出现在静止鼠标下方时不误切回键鼠',
-                  page.evaluate('document.body.classList.contains("touch-on")')
-                  and page.locator('.touch-attack').is_visible())
-            page.screenshot(path=str(OUT / 'mobile-landscape.png'))
-            cdp = mobile.new_cdp_session(page)
-            start_x = page.evaluate('kirafanRL.world.player.x')
-            cdp.send('Input.dispatchTouchEvent', {'type':'touchStart','touchPoints':[{'x':140,'y':220}]})
-            cdp.send('Input.dispatchTouchEvent', {'type':'touchMove','touchPoints':[{'x':200,'y':220}]})
-            advance(page,.15)
-            movement = page.evaluate("""()=>({x:kirafanRL.world.player.x,move:kirafanRL.input.state.move,
-                frozen:kirafanRL.world.frozen,touch:document.body.classList.contains('touch-on'),
-                target:document.elementFromPoint(140,220)?.className})""")
-            check('转屏前真实触控摇杆可移动', movement['x']>start_x, movement)
-            page.set_viewport_size({'width':375,'height':812})
-            page.locator('#landscape-guard').wait_for(state='visible')
-            state = page.evaluate("""()=>{const w=kirafanRL.world,p=w.player,i=kirafanRL.input.state;
-                return {x:p.x,y:p.y,hp:p.hp,gauge:p.skills.gauge,frozen:w.frozen,move:i.move,attack:i.attack,skill:i.skill};}""")
-            check('竖屏即时冻结并清除未松开的输入', state['frozen'] and state['move']=={'x':0,'y':0}
-                  and not state['attack'] and not any(state['skill']), state)
-            cdp.send('Input.dispatchTouchEvent', {'type':'touchEnd','touchPoints':[]})
-            page.keyboard.down('KeyJ'); advance(page,2); page.keyboard.up('KeyJ')
-            after = page.evaluate("""()=>{const w=kirafanRL.world,p=w.player;return {x:p.x,y:p.y,hp:p.hp,gauge:p.skills.gauge};}""")
-            check('竖屏等待和误按不会暗中战斗或移动', after=={k:state[k] for k in after}, after)
-            page.set_viewport_size({'width':812,'height':375}); page.locator('#landscape-guard').wait_for(state='hidden')
-            advance(page,1/60)
-            check('回到横屏不残留移动或攻击', page.evaluate("""s=>{const w=kirafanRL.world,p=w.player,i=kirafanRL.input.state;
-                return !w.frozen&&p.x===s.x&&p.y===s.y&&!i.attack&&!i.move.x&&!i.move.y; }""", state))
-            page.locator('.hud-pause').tap(); advance(page,1/60)
-            page.set_viewport_size({'width':375,'height':812}); page.locator('#landscape-guard').wait_for(state='visible')
-            page.set_viewport_size({'width':812,'height':375}); page.locator('#landscape-guard').wait_for(state='hidden')
-            check('转回横屏不会解除原有菜单暂停', page.locator('#menu-panel').is_visible() and page.evaluate('kirafanRL.world.frozen'))
-            page.screenshot(path=str(OUT / 'landscape-menu.png'))
-            page.locator('#menu-resume').tap(); advance(page,1/60)
-            page.locator('.hud-skill[data-slot="1"]').tap(); advance(page,1/60)
-            check('横屏触控技能仍即时响应且不弹出悬停卡', page.evaluate('kirafanRL.world.player.skills.slots[1].remaining>0')
-                  and not page.locator('.hud-skill-tooltip').is_visible())
-            page.mouse.move(600,200); page.locator('.hud-skill[data-slot="1"]').hover()
-            page.locator('.hud-skill-tooltip').wait_for(state='visible')
-            check('触屏设备接鼠标后只悬停就可查看说明，不需先点击',
-                  page.evaluate('!document.body.classList.contains("touch-on")&&!kirafanRL.input.state.skill.some(Boolean)'))
-            page.locator('.hud-pause').tap(); advance(page,1/60)
-            check('混合指针回到触控时收起说明并保留正常菜单操作',
-                  page.evaluate('document.body.classList.contains("touch-on")&&kirafanRL.world.frozen')
-                  and not page.locator('.hud-skill-tooltip').is_visible() and page.locator('#menu-panel').is_visible())
-            page.locator('#menu-resume').tap(); advance(page,1/60)
-
-            # Only replenish the meter as a fixture; trigger the real scene via
-            # the actual touch button and observe its own timeline and owner.
-            advance(page,.8)  # Let the preceding skill's real recovery finish.
-            check('必杀输入前角色已经结束普通技能动作', page.evaluate('kirafanRL.world.player.sm.state==="idle"'))
-            page.evaluate('kirafanRL.world.player.skills.addGauge(kirafanRL.world.player.skills.gaugeMax)')
-            advance(page,1/60); page.locator('.hud-gauge').tap(); advance(page,1/60)
-            page.wait_for_function('!!kirafanRL.ultimate.stage&&!kirafanRL.ultimate.loading', polling=50, timeout=60000)
-            advance(page,.3)
-            cinematic = page.evaluate("""()=>{const k=kirafanRL,p=k.world.player;window.rotationScene=k.ultimate.stage;
-                return {frame:k.ultimate.stage.frame,hp:p.hp,gauge:p.skills.gauge,x:p.x,y:p.y};}""")
-            page.set_viewport_size({'width':375,'height':812}); page.locator('#landscape-guard').wait_for(state='visible')
-            check('必杀演出在竖屏保护出现时立即暂停，不等下一逻辑帧',
-                  page.evaluate('kirafanRL.ultimate.stage===rotationScene&&!rotationScene.player.playing'))
-            press(page, 'Escape'); advance(page,2)
-            stopped = page.evaluate("""()=>{const k=kirafanRL,p=k.world.player;return {frame:k.ultimate.stage?.frame,
-                hp:p.hp,gauge:p.skills.gauge,x:p.x,y:p.y};}""")
-            check('竖屏等待不推进必杀时间线、重复结算或误跳过', stopped==cinematic, stopped)
-            page.set_viewport_size({'width':812,'height':375}); page.locator('#landscape-guard').wait_for(state='hidden')
-            advance(page,.2)
-            check('横屏从同一必杀帧继续，量能不重复扣除', page.evaluate("""s=>kirafanRL.ultimate.stage===rotationScene
-                &&rotationScene.frame>s.frame&&rotationScene.player.playing&&kirafanRL.world.player.skills.gauge===s.gauge""", cinematic))
-            page.locator('.rl-ultimate-skip').tap(); advance(page,1/60)
-
-            advance(page,.8)  # The cinematic freeze also paused the world's cast recovery.
-            check('再次必杀前已经退出演出且施放动作结束',
-                  page.evaluate('!kirafanRL.ultimate.stage&&!kirafanRL.world.frozen&&kirafanRL.world.player.sm.state==="idle"'))
-            held = []
-            page.route('**/site/asset/uniqueskill/scene/*.glb.gz', lambda route: held.append(route))
-            page.evaluate('kirafanRL.world.player.skills.addGauge(kirafanRL.world.player.skills.gaugeMax)')
-            advance(page,1/60); page.locator('.hud-gauge').tap(); advance(page,1/60)
-            for _ in range(200):
-                if held: break
-                page.wait_for_timeout(50)
-            pending = page.evaluate("""()=>({loading:kirafanRL.ultimate.loading,stage:!!kirafanRL.ultimate.stage,
-                state:kirafanRL.world.player.sm.state,input:kirafanRL.input.state.ultimate,
-                gauge:kirafanRL.world.player.skills.gauge,frozen:kirafanRL.world.frozen})""")
-            check('必杀资源延迟夹具确实处于加载中', bool(held) and pending['loading'] and not pending['stage'], pending)
-            page.set_viewport_size({'width':375,'height':812}); page.locator('#landscape-guard').wait_for(state='visible')
-            for route in held: route.continue_()
-            page.unroute('**/site/asset/uniqueskill/scene/*.glb.gz')
-            page.wait_for_function('!!kirafanRL.ultimate.stage&&!kirafanRL.ultimate.loading', polling=50, timeout=60000)
-            check('竖屏期间迟到的必杀资源保持首帧暂停，不自动播放',
-                  page.evaluate('kirafanRL.ultimate.stage.frame===0&&!kirafanRL.ultimate.stage.player.playing&&kirafanRL.world.frozen'))
-            page.set_viewport_size({'width':812,'height':375}); page.locator('#landscape-guard').wait_for(state='hidden')
-            advance(page,.1)
-            check('迟到演出只在实际横屏后开始', page.evaluate('kirafanRL.ultimate.stage.frame>0&&kirafanRL.ultimate.stage.player.playing'))
-            page.locator('.rl-ultimate-skip').tap(); advance(page,1/60)
-            mobile.close()
-            lock_lifecycle(browser, url.split('/game/')[0], check, report['errors'])
             browser.close()
         check('全部交互无未处理异常', not report['errors'], report['errors'])
     finally:

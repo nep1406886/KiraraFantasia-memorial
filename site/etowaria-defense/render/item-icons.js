@@ -1,5 +1,5 @@
 // Captures the actual scene objects, not a hand-drawn icon approximation.
-import { Facility } from "./battle-view.js";
+import { Facility, Scarecrow } from "./battle-view.js";
 import { posedBounds } from "./native-model.js";
 import { withCaptureTarget } from "./capture.js";
 
@@ -25,13 +25,32 @@ export async function captureDeploymentIcons(stage) {
     await stage.items.prepare();
     const book = stage.props.find(prop => prop.name === "producer-book")
         || await stage.loadProp(stage.assets.native.furniture.goods_1083, "producer-book", .32);
-    book.group.visible = false;
     const desk = stage.props.find(prop => prop.name === "desk");
-    const facility = new Facility({ stage, desk, book });
-    const bottle = stage.items.bottle(.8);
+    const lantern = stage.props.find(prop => prop.name === "lantern");
+    const view = { stage, desk, book, lantern };
+    const facility = new Facility(view), reserve = new Facility(view, "F11"), scarecrow = new Scarecrow(view);
+    const bottle = await stage.items.bottle(.8);
     try {
-        return { F01: capture(stage, facility.group), F10: capture(stage, bottle.group),
+        await scarecrow.load(view);
+        const fire = await elementalBottle(stage, bottle.group, "Fire");
+        const water = await elementalBottle(stage, bottle.group, "Water");
+        return { F01: capture(stage, facility.group), F11: capture(stage, reserve.group),
+            F13: capture(stage, scarecrow.group), F10: fire, F12: water,
             sources: { F01: ["prefab/room/desk/desk_1001.muast", "prefab/room/goods/goods_1083.muast"],
-                F10: ["model/weapon/wpn_1400.muast"] } };
-    } finally { facility.dispose(); stage.items.release(bottle); }
+                F11: ["prefab/room/desk/desk_1001.muast", "prefab/room/goods/goods_1072.muast"],
+                F13: ["model/enemy/model_en_5200.muast"],
+                F10: ["model/weapon/wpn_1400.muast", "ElementIconFire.png"],
+                F12: ["model/weapon/wpn_1400.muast", "ElementIconWater.png"] } };
+    } finally { facility.dispose(); reserve.dispose(); scarecrow.dispose(); stage.items.release(bottle); }
+}
+
+async function elementalBottle(stage, object, element) {
+    const art = new Image(), badge = new Image();
+    art.src = capture(stage, object);
+    badge.src = new URL(`../assets/ui/ElementIcon${element}.png`, import.meta.url).href;
+    await Promise.all([art.decode(), badge.decode()]);
+    const canvas = document.createElement("canvas"); canvas.width = canvas.height = 256;
+    const ctx = canvas.getContext("2d");
+    ctx.drawImage(art, 0, 0); ctx.drawImage(badge, 156, 152, 88, 88);
+    return canvas.toDataURL("image/png");
 }

@@ -4,26 +4,26 @@
 // メカこけし / ハイプリス. All lines original (harness-checked).
 window.kirafanDialogue = Object.assign(window.kirafanDialogue || {}, {
     v1_boss_pre: [
-        { who: "きらら", face: "surprise", text: "是暴风的化身！那些书页都卷在风里……先让它停下来！" },
-        { who: "うつつ", face: "default", text: "别急着往前冲。看清它的动作，等有空隙再靠近。" }
+        { who: "きらら", face: "surprise", text: "海风把散页都卷到这里了……那道身影挡住了回港的路。" },
+        { who: "うつつ", face: "default", text: "先看脚下的预兆。横移躲开正面，等它停下来，再靠近。" }
     ],
     v1_boss_post: [
-        { who: "きらら", face: "joy", text: "风暴停了！云后面的阳光照下来了，海面也重新亮了起来！" },
-        { who: "うつつ", face: "default", text: "把散开的页子收好。剩下的路，终于不用顶着风走了。" }
+        { who: "きらら", face: "joy", text: "路通了！听，码头的铃声又能传到这里了。" },
+        { who: "うつつ", face: "default", text: "书页还带着潮气。夹好再走，别让今天的字迹被海风吹散。" }
     ],
 
     v2_boss_pre: [
-        { who: "きらら", face: "shy", text: "好浓的香料味……它一动，沙子都跟着翻起来了！" },
-        { who: "うつつ", face: "default", text: "先看它要往哪边动。肚子再饿，也不能把对手当成晚饭。" }
+        { who: "きらら", face: "shy", text: "沙丘后面终于有影子了……不过，对方好像不打算让我们在这里歇脚。" },
+        { who: "うつつ", face: "default", text: "把水壶收好。落点一旦亮起就离开，别为了多打一下留在原地。" }
     ],
     v2_boss_post: [
-        { who: "きらら", face: "happy", text: "那股呛人的味道淡下来了。现在再闻，倒像有人刚做好一锅热饭。" },
+        { who: "きらら", face: "happy", text: "沙子安静下来了。现在，终于可以找个背风的地方喝口水了。" },
         { who: "うつつ", face: "default", text: "把菜单的事留到回去吧。先确认大家都没有受伤。" }
     ],
 
     v3_boss_pre: [
-        { who: "きらら", face: "sorrow", text: "蘑菇越聚越多，竟然合成了这么大一只！别、别再靠过来了！" },
-        { who: "うつつ", face: "default", text: "看着可爱也别伸手。我们先绕开它，再找靠近的机会。" }
+        { who: "きらら", face: "sorrow", text: "脚印在这里停住了。散页就在前面，可林子里的来客也在等我们。" },
+        { who: "うつつ", face: "default", text: "别被外表骗过去。看清圈内和圈外，留一条能退回来的路。" }
     ],
     v3_boss_post: [
         { who: "きらら", face: "happy", text: "鸟叫声回来了……原来刚才不是森林太安静，是声音都被它盖住了。" },
@@ -31,11 +31,11 @@ window.kirafanDialogue = Object.assign(window.kirafanDialogue || {}, {
     ],
 
     v4_boss_pre: [
-        { who: "きらら", face: "surprise", text: "好大的人偶！刚才还一动不动，怎么突然朝这边转过来了？" },
-        { who: "うつつ", face: "default", text: "它把我们当成了入侵者。先躲开，再想办法让它停下来。" }
+        { who: "きらら", face: "surprise", text: "工房的钟又响了。那边也跟着动起来了……这里还藏着最后一道试炼。" },
+        { who: "うつつ", face: "default", text: "留意地面的线，别沿着它逃。走进空隙，等攻击过去再出手。" }
     ],
     v4_boss_post: [
-        { who: "きらら", face: "joy", text: "它停下来了。刚才那么响的齿轮，现在只剩很轻的咔嗒声。" },
+        { who: "きらら", face: "joy", text: "这次停下来的，只有战斗。听，工房的钟还在一下一下地走。" },
         { who: "うつつ", face: "default", text: "别再惊动它。把这里的记录补好，也算替工房留个交代。" }
     ],
 

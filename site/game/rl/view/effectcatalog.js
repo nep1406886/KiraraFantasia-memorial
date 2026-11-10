@@ -63,7 +63,8 @@ export function normalEffectConfig(unit) {
     // authored blade, not a second preparation; keep its existing rate/tail.
     if (profile.kind === 'slash' || profile.kind === 'thrust') {
         config.startFrame = profile.kind === 'slash' ? 9 : 11;
-        config.combatPivot = true;
+        config.melee = { range:profile.range,
+            width:profile.kind === 'slash' ? 2 * profile.range * Math.sin(Math.min(Math.PI,profile.arc) / 2) : 2 * profile.width };
     }
     return config;
 }

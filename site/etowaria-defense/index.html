@@ -4,44 +4,39 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
   <meta name="theme-color" content="#fffde4">
-  <meta name="description" content="芳文幻想：里之守望。使用原生角色、场景与特效的非官方同人防卫企划。">
+  <meta name="description" content="闪耀幻想曲：星灯守望。使用原生角色、场景与特效的非官方同人防卫企划。">
   <meta name="referrer" content="no-referrer">
   <meta http-equiv="Content-Security-Policy" content="default-src 'self' blob: data:; script-src 'self' 'unsafe-inline' 'wasm-unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; media-src 'self' blob:; connect-src 'self' blob:; object-src 'none'; base-uri 'self'">
-  <title>里之守望 · 芳文幻想</title>
+  <title>星灯守望 · 闪耀幻想曲</title>
   <link rel="icon" href="../favicon.png">
   <link rel="stylesheet" href="./styles/shell.css?v=20261025-3">
   <link rel="stylesheet" href="./styles/campaign.css?v=20261101-1">
   <link rel="stylesheet" href="./styles/battle.css?v=20261031-2">
+  <link rel="stylesheet" href="../css/adventure.css">
+  <link rel="stylesheet" href="./styles/journal.css">
   <script type="importmap">{"imports":{"three":"../vendor/three/three.module.min.js"}}</script>
 </head>
 <body>
   <main id="app">
     <section id="title-screen" class="screen title-screen" aria-labelledby="game-title">
-      <div class="title-art" aria-hidden="true"></div>
-      <div class="title-wordmark">
-        <p class="franchise-name">芳文幻想</p>
-        <h1 id="game-title">里之守望</h1>
-        <p class="title-promise">今天也，一起守好这片日常。</p>
-        <p class="title-phase">黎明巡守 · 五章与无尽巡守</p>
-      </div>
-      <nav class="panel title-menu" aria-label="主菜单">
-        <h2>新的巡守，从这里开始</h2>
-        <p>选择伙伴，照顾每一条道路。</p>
-        <button class="native-button primary" id="start-campaign" disabled>准备资料中…</button>
-        <button class="native-button" id="open-roster">角色与招式</button>
-        <div class="menu-tools"><button class="native-button compact" id="enter-scene" disabled>动作观察（不计分）</button><button class="native-button compact" data-open-settings>声音设置</button></div>
-        <button class="text-button" id="open-about">素材与制作说明</button>
-        <p class="menu-note">音乐将在首次操作后开始播放</p>
-      </nav>
-      <div class="panel chapter-intro">
-        <div><h2>第一章　里口花径</h2><p>先画好布阵图，再迎接第一位来客。</p></div>
-        <div class="chapter-faces" aria-label="本田珠辉、千矢、由乃">
-          <img src="../asset/img/rl/icon/16002001.webp" alt="本田珠辉" width="84" height="84">
-          <img src="../asset/img/rl/icon/17002001.webp" alt="千矢" width="84" height="84">
-          <img src="../asset/img/rl/icon/10002001.webp" alt="由乃" width="84" height="84">
+      <nav class="ad-nav" aria-label="纪念站导航"><a class="ad-brand" href="../../index.html"><span class="ad-brand-mark" aria-hidden="true">✧</span>闪耀幻想曲 · 纪念之庭</a><div class="ad-nav-links"><span class="ad-current">星灯守望</span><a href="../game/roguelike.html">花笺旅记 ↗</a></div></nav>
+      <div class="watch-home">
+        <div class="watch-hero">
+          <div class="title-wordmark">
+            <p class="ad-eyebrow">闪耀幻想曲外传 · 策略塔防</p>
+            <h1 id="game-title">星灯<span>守望</span><i aria-hidden="true">✧</i></h1>
+            <p class="title-promise">今天也，一起守好这片日常。</p>
+            <p class="watch-description">风吹过熟悉的花径，伙伴们已经到齐。<br>把应援化作力量，让每一条回家的路都有回应。</p>
+            <div class="watch-facts"><span><b>05</b> 故事章节</span><span><b>32</b> 巡守关卡</span><span><b>∞</b> 无尽挑战</span></div>
+            <nav class="title-menu" aria-label="主菜单"><button class="native-button primary" id="start-campaign" disabled>准备资料中…</button><button class="native-button" id="open-roster">认识同行的伙伴</button></nav>
+            <p class="title-phase">黎明巡守 · 五章与无尽巡守</p>
+          </div>
+          <div class="watch-art" aria-hidden="true"><div class="title-art"></div><img class="watch-kirara" src="../imgs/original-characters/Kirara_StandPic_0.png" alt=""><img class="watch-lamp" src="../imgs/original-characters/Lamp_StandPic_0.png" alt=""><span class="watch-art-note">艾特瓦利亚 · 里外的花径</span><span class="watch-seal">日常<br>守护中</span></div>
         </div>
+        <section class="watch-playbook" aria-label="巡守指南"><div><span>01</span><h2>召集你的伙伴</h2><p>输出、守护、治疗与应援，<br>挑选一支属于你的队伍。</p></div><div><span>02</span><h2>画好一张布阵图</h2><p>自由部署，预览攻击范围，<br>准备好以后再迎接来客。</p></div><div><span>03</span><h2>把日常守到天亮</h2><p>收集应援，照顾每条防线，<br>将新的胜利写进巡守手记。</p></div></section>
+        <div class="watch-bottom"><div class="chapter-faces" aria-label="本田珠辉、千矢、由乃"><img src="../asset/img/rl/icon/16002001.webp" alt="本田珠辉" width="44" height="44"><img src="../asset/img/rl/icon/17002001.webp" alt="千矢" width="44" height="44"><img src="../asset/img/rl/icon/10002001.webp" alt="由乃" width="44" height="44"></div><p>熟悉的身影，新的相遇。<small>音乐会在首次操作后响起。</small></p><div class="menu-tools"><button class="native-button compact" id="enter-scene" disabled>动作观察（不计分）</button><button class="native-button compact" data-open-settings>声音与显示</button><button class="text-button" id="open-about">制作说明</button></div></div>
+        <footer class="ad-footer"><span>献给在艾特瓦利亚相遇的每一个你。</span><span>非官方同人作品 · 进度保存在当前浏览器</span></footer>
       </div>
-      <footer class="title-footer"><span>非官方同人企划</span><span>五章三十二关与无尽巡守</span></footer>
     </section>
 
     <section id="roster-screen" class="screen roster-screen" aria-labelledby="roster-heading" hidden>
@@ -92,7 +87,6 @@
         <p class="viewport-hint" id="viewport-hint">点选伙伴，再点空格调整位置</p>
         <div id="stage-labels" class="stage-labels" aria-hidden="true"></div>
         <div id="stage-loading" class="stage-loading" role="status" hidden><div class="panel loading-card"><h3>把大家的身影准备好</h3><p id="loading-progress">读取原生模型与表情…</p><div id="stage-loading-bones" class="loading-bones"></div><progress id="loading-progress-bar" max="1" value="0"></progress></div></div>
-        <div id="portrait-notice" class="portrait-notice" hidden><div class="panel"><h3>横过手机，看清完整防线</h3><p>编队和图鉴可在竖屏浏览。场景试演请使用横屏。</p><button id="portrait-back" class="native-button compact">返回编队</button></div></div>
       </div>
       <footer class="panel stage-controls">
         <div class="selected-unit-info"><strong id="selected-unit-name">本田珠辉</strong><span id="selected-unit-role">同路输出</span></div>
@@ -121,8 +115,8 @@
 
   <dialog id="about-dialog" class="panel app-dialog" aria-labelledby="about-title">
     <form method="dialog"><header><h2 id="about-title">素材与制作说明</h2><button class="native-button compact" value="close">关闭</button></header></form>
-    <p>《里之守望》是使用《きららファンタジア》原作素材的非官方同人防卫企划，不是原作官方续篇。</p>
-    <p>当前开放五章三十二关与无尽巡守：资源生产与拾取、部署、挡线、治疗、装备佩戴、波次与通关记录，巡守图鉴 92 张卡牌可自由组阵。无尽巡守每清 5 波掉落素材，可在「城镇」升级五栋建筑换取小幅加成。角色与招式页另保留原模型观察模式。</p>
+    <p>《星灯守望》是使用《きららファンタジア》原作素材的非官方同人防卫企划，不是原作官方续篇。</p>
+    <p>五章三十二关，167 位伙伴与 5 种设施。收集应援结晶，安排前排、输出与支援，守住每一条回家的路。无尽巡守每清 5 波可获得素材，用于升级城镇建筑。想慢慢欣赏大家时，也可以前往「角色与招式」。</p>
     <ul><li>角色由精确卡号绑定职业、属性、表情与模型。</li><li>界面使用原 CommonUIAtlas 的窗体、按钮和图标。</li><li>场景使用独立提取的原 Room 背景、地板和家具。</li><li>魔物行进是按原骨架制作的同人补充动作，不冒称原作行走动画。</li><li>新地图、布局与防卫故事属于本作改编。</li></ul>
     <p class="muted">所有权归原权利方。本地研究版本未经公开发布许可审查。</p>
   </dialog>

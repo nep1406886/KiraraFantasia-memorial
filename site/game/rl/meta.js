@@ -23,8 +23,10 @@
 // SETTLE_RATIO 换算成星彩石（原作货币，跨局成长资源），练级与限界突破花星彩石。
 
 import * as save from "./save.js";
-import { PLAYABLE_IDS } from "./rosterids.js";
+import { PLAYABLE_IDS, PLAYABLE_ROSTER } from "./rosterids.js";
 import { isStoryId } from "./story.js";
+import { emptyEvolution, normalizeEvolution, earnEvolution, evolutionQuote, evolveCandidate, isEvolved } from '../../core/evolution.js';
+const EVOLUTION_CARDS = new Map(PLAYABLE_ROSTER.map(card=>[card.id,{id:card.id,element:card.element,rarity:card.rare}]));
 
 const FIRST_12 = [
     10000000,   // ゆの
@@ -113,6 +115,7 @@ function defaults() {
         chars: ALL_ROSTER_IDS.slice(),
         levels: {},
         lb: {},
+        evolution: emptyEvolution(),
         pages: [],
         enemies: [],
         volumes: 0,
@@ -149,6 +152,7 @@ export function mergeState(raw) {
             if (n >= 0 && n <= MAX_LB) { base.lb[id] = n; }
         });
     }
+    base.evolution=normalizeEvolution(raw.evolution,PLAYABLE_IDS);
     if (Array.isArray(raw.pages)) {
         base.pages = Array.from(new Set(raw.pages));
     }
@@ -188,7 +192,7 @@ function settlementGems(items) {
 
 // Guards rescue one authored page only when the next floor commits. Keeping
 // this reducer pure lets failed loading/saving leave progression unchanged.
-export function descentReward(raw, { volume, floor }) {
+export function descentReward(raw, { volume, floor, cardId }) {
     if (!Number.isInteger(volume) || volume < 1 || volume > 5
             || !Number.isInteger(floor) || floor < 1 || floor >= 20) {
         throw new Error("下潜奖励的卷层无效。");
@@ -197,6 +201,8 @@ export function descentReward(raw, { volume, floor }) {
     const key = String(pages[(floor - 1) % pages.length]);
     const newPages = next.pages.some(id => String(id) === key) ? [] : [key];
     next.pages.push(...newPages);
+    const card=EVOLUTION_CARDS.get(cardId);
+    if(card)next.evolution=earnEvolution(next.evolution,[card]);
     return { meta: next, newPages };
 }
 
@@ -204,7 +210,7 @@ export function descentReward(raw, { volume, floor }) {
 // changes until save.completeRun accepts the whole result under its run ID.
 // T31: victory and defeat both convert the same equipped loot at SETTLE_RATIO;
 // victory additionally grants authored volume/finale progression.
-export function terminalReward(raw, { outcome, volume, items }) {
+export function terminalReward(raw, { outcome, volume, items, cardId }) {
     const next = mergeState(raw), newPages = [];
     let gems = 0;
     if (outcome === "defeat") {
@@ -214,6 +220,8 @@ export function terminalReward(raw, { outcome, volume, items }) {
         gems = settlementGems(items);
         next.gems += gems;
         next.volumes = Math.max(next.volumes, volume);
+        const card=EVOLUTION_CARDS.get(cardId);
+        if(card)next.evolution=earnEvolution(next.evolution,[card]);
         next.chars = Array.from(new Set(next.chars.concat(VOLUME_UNLOCKS[volume], volume === 5 ? [UTSUTSU] : [])));
         const owned = new Set(next.pages.map(String));
         for (const id of pagesForVolume(volume).concat(volume === 5 ? FINALE_PAGES : [])) {
@@ -347,6 +355,15 @@ export function createMeta() {
         },
 
         gems: function () { return state.gems; },
+        isEvolved(id) { return isEvolved(state.evolution,id); },
+        evolutionQuote(id) { return evolutionQuote(state.evolution,EVOLUTION_CARDS.get(Number(id))); },
+        evolve(id) {
+            const result=evolveCandidate(state.evolution,EVOLUTION_CARDS.get(Number(id)));
+            if(result.reason)return {ok:false,reason:result.reason};
+            const candidate={...state,evolution:result.state};
+            if(!save.write(SAVE_SLOT,candidate))return {ok:false,reason:'storage'};
+            state=candidate;return {ok:true};
+        },
 
         // T12: the prologue plays once per save (spec/05 §5 序章), not once
         // per boot — veterans of run two skip straight to the roster.

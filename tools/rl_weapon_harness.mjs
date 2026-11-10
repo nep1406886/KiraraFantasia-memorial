@@ -491,7 +491,7 @@ function eventsOf(world, type) {
     check(world.player.survivalUsed === 0,
         "setDungeon re-arms the charge for the new floor");
     check(!world.player.dead, "the player is still alive to descend");
-    foe = quietFoe(world, 11, 6);
+    foe = quietFoe(world, world.player.x + 3, world.player.y);
     step(world, 3);
     fireEnemyBullet(world, foe, 100000);
     step(world, 60);

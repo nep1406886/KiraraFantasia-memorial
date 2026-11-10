@@ -53,7 +53,7 @@ export function planEnemyAction(unit, world, move) {
     } else if (move.kind === "annulus") {
         shapes = [{ kind: "annulus", x, y, inner: move.inner, outer: move.outer }];
     } else if (move.kind === "spots") {
-        const offsets = move.count === 3 ? [0, -move.spacing, move.spacing] : [0, move.spacing];
+        const offsets = Array.from({ length: move.count }, (_, i) => (i - (move.count - 1) / 2) * move.spacing);
         shapes = offsets.map(offset => ({ kind: "disc", radius: move.radius,
             x: clamp(p.x - Math.sin(angle) * offset, move.radius, world.width - move.radius),
             y: clamp(p.y + Math.cos(angle) * offset, move.radius, world.height - move.radius) }));
@@ -187,7 +187,7 @@ export function updateEnemyAction(unit, world, dt, thresholds) {
             unit.pending = null;
             unit.sm.set(action.move.kind === "charge" ? "dash" : "skill");
             world.events.push({ type: "enemySkill", unit, skill: action.move.skill,
-                pattern: action.move.kind, bullets: 0, label: action.move.label });
+                pattern: action.move.kind, bullets: 0, label: action.move.label, action });
         }
     } else if (action.stage === "active") {
         let touches = false;

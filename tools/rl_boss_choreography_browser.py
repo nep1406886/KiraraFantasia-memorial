@@ -119,11 +119,14 @@ def gameplay(browser, base, volume, viewport, touch, report, check, floor=20):
         page=context.new_page();page.on("pageerror",lambda e:report["errors"].append(str(e)))
         page.on("console",lambda message:report["console"].append(label+": "+message.text)
             if message.type in ["warning","error"] and len(report["console"])<200 else None)
-        page.goto(base+'/site/game/roguelike.html?seed=73061&volume=%d&floor=%d' % (volume,floor),wait_until="load",timeout=60000)
+        # Seed 14 selects the primary boss in each volume's authored roster.
+        page.goto(base+'/site/game/roguelike.html?seed=14&volume=%d&floor=%d' % (volume,floor),wait_until="load",timeout=60000)
         page.wait_for_selector('.roster-card',timeout=60000)
         card=page.locator('.roster-card').filter(has=page.locator('img[src$="/14002001.webp"]'))
         if touch:card.tap()
         else:card.click()
+        if touch:page.locator('#roster-start').tap()
+        else:page.locator('#roster-start').click()
         page.wait_for_function('window.kirafanRL?.world?.player && kirafanRL.pending===0',polling=100,timeout=60000)
         dismiss_for_input(page,touch)
         # With rAF held, boot has not consumed its foyer-room event yet.
@@ -162,6 +165,7 @@ def gameplay(browser, base, volume, viewport, touch, report, check, floor=20):
                 touch:document.body.classList.contains('touch-on'),playerPoint:project(w.player),enemyPoint:project(e),
                 rotationY:k.views.enemies.find(v=>v.unit===e)?.object.rotation.y,frozen:w.frozen};} """)
         report["gameplay"][label]=snapshot
+        if floor==20:check(label+' 命中指定主首领',snapshot['enemyId']==[99038006,99248003,99318603,99619003,90238005][volume-1])
         check(label+" 正常入口显示同源预警与原作敌人模型",snapshot.get("stage")=="windup" and snapshot.get("count")==1 and snapshot["shapes"]>0 and snapshot["rotationY"] is not None and abs(snapshot["rotationY"])<1e-9)
         check(label+" 招式名、剩余秒数与反制在血条可读",snapshot["label"] is not None and snapshot["label"] in snapshot["readout"] and snapshot["advice"]==snapshot["counter"] and snapshot["adviceVisible"] and not snapshot["overflow"])
         check(label+" 输入模式与真实鼠标或触摸一致",snapshot["touch"]==touch)
@@ -176,10 +180,36 @@ def gameplay(browser, base, volume, viewport, touch, report, check, floor=20):
         active=page.evaluate("""()=>{const k=kirafanRL,e=k.world.enemies[0];for(let i=0;i<180&&e.action?.stage!=='active';i++)k.step(1/60);
             return {stage:e.action?.stage,count:k.views.telegraphs.count};} """)
         check(label+" 执行阶段保留红色危险区域",active["stage"]=="active" and active["count"]==1)
-        if volume==4 and not touch:page.screenshot(path=str(OUT/(label+'-active.png')))
+        page.wait_for_function('kirafanRL.views.skillVFX.stats.loaded>0',polling=100,timeout=20000)
+        advance(page,.1)
+        effects=page.evaluate('kirafanRL.views.skillVFX.stats')
+        snapshot['effects']=effects
+        check(label+' 原作攻击特效已载入且无资源错误',effects['loaded']>0 and not effects['errors'])
+        page.screenshot(path=str(OUT/(label+'-active.png')))
         recovered=page.evaluate("""()=>{const k=kirafanRL,e=k.world.enemies[0];for(let i=0;i<180&&e.action?.stage!=='recover';i++)k.step(1/60);
             return {stage:e.action?.stage,count:k.views.telegraphs.count,readout:document.querySelector('.boss-readout').textContent};} """)
-        check(label+" 恢复期立即撤去危险区域并显示反击窗口",recovered["stage"]=="recover" and recovered["count"]==0 and "破绽" in recovered["readout"])
+        check(label+" 恢复期显示反击窗口",recovered["stage"]=="recover" and "破绽" in recovered["readout"])
+        advance(page,.45)
+        check(label+" 无伤害余韵在0.42秒后回收",page.evaluate('kirafanRL.views.telegraphs.count')==0)
+        if floor==20:
+            page.evaluate('''()=>{const k=kirafanRL,w=k.world,e=w.enemies[0];
+                e.hp=e.maxHp*.2;w.player.iframes=100;w.player.x=e.x-3.2;w.player.y=e.y;
+                k.step(1/60);}''')
+            for _ in range(300):
+                advance(page,1/60)
+                if page.evaluate("kirafanRL.world.enemies[0].action?.stage==='windup'"):break
+            phase=page.evaluate('''()=>{const e=kirafanRL.world.enemies[0];return {phase:e.phase,
+                key:e.action?.move.key,shapes:e.action?.shapes.length,stage:e.action?.stage};}''')
+            snapshot['phase3']=phase
+            expected={1:'gale',2:'simmer',3:'garden',4:'pursuit',5:'silence'}
+            check(label+' 第三阶段解锁专属组合技',phase['phase']==3 and phase.get('key')==expected[volume])
+            advance(page,.3)
+            page.screenshot(path=str(OUT/(label+'-phase3-warning.png')))
+            page.evaluate('''()=>{const k=kirafanRL,e=k.world.enemies[0];
+                for(let i=0;i<180&&e.action?.stage!=='active';i++)k.step(1/60);}''')
+            page.wait_for_function('kirafanRL.views.skillVFX.stats.loaded>0',polling=100,timeout=20000)
+            advance(page,.12)
+            page.screenshot(path=str(OUT/(label+'-phase3-active.png')))
         retired=page.evaluate("""()=>{const k=kirafanRL,e=k.world.enemies[0],view=k.views.enemies[0];
             k.world.enterRoom(k.world.dungeon.start);k.step(0);
             return {cancelled:e.action===null,count:k.views.telegraphs.count,detached:!!view&&!view.object.parent,
@@ -200,7 +230,7 @@ def main():
         worker=threading.Thread(target=server.serve_forever,daemon=True);worker.start()
         try:
             with sync_playwright() as pw:
-                browser=pw.chromium.launch(args=["--use-gl=angle","--enable-unsafe-swiftshader"])
+                browser=pw.chromium.launch(channel="msedge",args=["--use-gl=angle","--enable-unsafe-swiftshader"])
                 report["browser"]=browser.version
                 page=browser.new_page(viewport={"width":800,"height":600})
                 page.on("pageerror",lambda e:report["errors"].append(str(e)))

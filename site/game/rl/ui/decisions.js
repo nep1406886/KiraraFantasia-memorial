@@ -138,7 +138,7 @@ function passiveWords(item) {
     for (const [key, label] of [["hitStack", "每次受击"], ["killStack", "每次击杀"]]) {
         const stack = rt[key];
         for (const [stat, name] of [["atk", "物攻"], ["mgc", "魔攻"], ["def", "物防"], ["mdef", "魔防"]]) {
-            if (stack && stack[stat]) { words.push(label + name + " +" + percent(stack[stat])); }
+            if (stack && stack[stat]) { words.push(label + name + " +" + percent(stack[stat]) + "（该来源最多+100%）"); }
         }
     }
     if (rt.debuffOnHit) {
@@ -156,6 +156,7 @@ export function equipmentDetails(item, options = {}) {
     const { weapons, cards } = options;
     const skillNames = options.skillLoadout?.slots.map(slot => slot.name) || options.skillNames;
     const content = node("div", "equipment-detail");
+    content.dataset.rarity = equipmentRarity(item) || 'common';
     const image = equipmentImage(item, weapons);
     if (image) { content.appendChild(image); }
     content.appendChild(node("p", "equipment-name", equipmentName(item, weapons, cards)));
@@ -165,8 +166,8 @@ export function equipmentDetails(item, options = {}) {
     if (gadget) {
         const terms = gadgetTerms(item, skillNames);
         content.dataset.gadgetId = gadget.id;
-        content.append(node("p", "equipment-meta", "外传机制装备 · " + SLOTS[gadget.slot] + "槽"),
-            node("h4", "", "操作变化"), node("p", "gadget-benefit", terms.benefit),
+        content.append(node("p", "equipment-meta", (gadget.relic ? "旅途珍藏 · " : "战术装备 · ") + SLOTS[gadget.slot] + "槽"),
+            node("h4", "", "装配效果"), node("p", "gadget-benefit", terms.benefit),
             node("h4", "", "取舍与边界"), node("p", "gadget-cost", terms.cost),
             node("p", "decision-muted", "固定机制，品质不增强效果；同槽装备互相替换，不叠加。"),
             node("h4", "", "获取途径"), node("p", "decision-muted", gadgetAcquisition(gadget)));
@@ -219,6 +220,7 @@ export function showEquipmentComparison(options) {
     // Keep identity outside the long skill/stat scroller. This is the same
     // candidate read model; no extra equipment calculation or commit path.
     const summary = node("section", "comparison-summary");
+    summary.dataset.rarity = equipmentRarity(options.item) || 'common';
     const image = equipmentImage(options.item, options.weapons, "comparison-summary-icon");
     if (image) summary.appendChild(image);
     const copy = node("div", "comparison-summary-copy");
@@ -242,9 +244,9 @@ export function showEquipmentComparison(options) {
     if (view) {
         // 换/留结论行：与简述同一份候选 read model，放进 identity 区
         // （矮屏 grid 里 summary 占 identity，不再多占一行）。
-        copy.appendChild(node("p", "comparison-verdict", "结论：" + (brief.costs.length
-            ? (brief.benefits.length ? "可换，收益与代价并存" : "暂留，没有新增收益")
-            : (brief.benefits.length ? "可换，只增不减" : "暂留，属性没有变化"))));
+        copy.appendChild(node("p", "comparison-verdict", brief.costs.length
+            ? (brief.benefits.length ? "各有所长，留意下面的取舍" : "保留当前装备会更稳妥")
+            : (brief.benefits.length ? "这件旅装能带来新的提升" : "效果相近，可按喜好选择")));
         const changes = node("section", "equipment-brief");
         changes.setAttribute("aria-label", "装备简述");
         changes.appendChild(node("p", "equipment-brief-benefit", brief.benefits.join(" · ")
@@ -279,8 +281,8 @@ export function showEquipmentComparison(options) {
             const note = to.proficiency < 1
                 ? "跨职业持有：原作属性与正向属性词条按 " + percent(to.proficiency) + " 生效。"
                 : "本职武器：原作属性与正向数值词条按 100% 计算。";
-            detailBody.appendChild(node("p", "equipment-style", "普攻：" + from.name + " → " + to.name + "。" + note
-                + "角色职业与 R 必杀不变；职业技能以改技对照为准。"));
+            detailBody.appendChild(node("p", "equipment-style", "职业普攻：" + to.name + "。" + note
+                + "专武的招式强化见上方对照。"));
         }
         const table = node("table", "comparison-stats");
         const head = node("tr");
@@ -384,13 +386,13 @@ export function showEquipmentCollection(options) {
         if (mode === "current") {
             body.className = "equipment-loadout";
             const overview = equipmentSkillOverview(options.skillLoadout);
-            if (overview) body.appendChild(overview);
             for (const [slot, name] of Object.entries(SLOTS)) {
                 const section = node("section");
                 section.append(node("h3", "", name), equipmentDetails(
                     options.items.find(item => item.slot === slot), options));
                 body.appendChild(section);
             }
+            if (overview) body.appendChild(overview);
         } else {
             body.className = "";
             renderCatalog();
@@ -439,7 +441,7 @@ export function showEquipmentCollection(options) {
                         const comparison = equipmentSkillComparison(preview);
                         if (comparison) detail.appendChild(comparison);
                         detail.appendChild(node("p", "decision-muted", canEquipWeapon(item, options.card)
-                            ? (weaponProficiency(item, options.card) < 1 ? "可跨职业装备 · 属性加成 65% · 改变普攻方式" : "本职武器 · 属性加成 100%")
+                            ? (weaponProficiency(item, options.card) < 1 ? "旧版跨职业装备 · 属性加成 65%" : "本职武器 · 属性加成 100%")
                             : "专用角色限定"));
                     }
                     stage.addEventListener("change", update); entry.append(stage, detail); update();

@@ -3,14 +3,14 @@
 // Browsers block audio until the first gesture, so nothing here starts until
 // unlock() has been called from a click handler. Games should call it from
 // their start button.
+import { MusicBus } from "./music.js";
 
 const BGM_ROOT = "../audio/bgm/";
 const VOICE_ROOT = "../audio/gacha/";
 const SE_ROOT = "../audio/se/";
 
 let unlocked = false;
-let current = null;
-let currentTrack = null;
+let music = null;
 let bgmVolume = 0.55;
 let voiceVolume = 1;
 let seVolume = 0.7;
@@ -24,78 +24,25 @@ export function isUnlocked() {
     return unlocked;
 }
 
-function fadeTo(element, target, duration, onDone) {
-    if (duration <= 0) {
-        element.volume = target;
-        if (onDone) { onDone(); }
-        return;
-    }
-    const start = element.volume;
-    const startedAt = performance.now();
-    function step(now) {
-        // Clamped at both ends. The floor is not paranoia: the timestamp rAF
-        // passes in is the frame's start time, which can predate the
-        // performance.now() taken just above it, making the first `progress`
-        // slightly negative. `volume` is a throwing setter, so an out-of-range
-        // value is not a quiet glitch -- it raises IndexSizeError, and since this
-        // runs inside the script's promise chain the whole chapter stops on a
-        // fade-in that was a fraction of a millisecond early.
-        const progress = Math.max(0, Math.min(1, (now - startedAt) / duration));
-        element.volume = Math.max(0, Math.min(1, start + (target - start) * progress));
-        if (progress < 1) {
-            requestAnimationFrame(step);
-        } else if (onDone) {
-            onDone();
-        }
-    }
-    requestAnimationFrame(step);
-}
-
-// Play a BGM track by manifest name, e.g. "bgm_battle_12_0".
-// Re-requesting the playing track is a no-op, so scenes can declare their
-// track without worrying about restarting it.
+// Keep the original API while sharing the games' bounded music lifecycle.
 export function bgm(track, options) {
-    const opts = options || {};
-    const fade = opts.fade === undefined ? 900 : opts.fade;
-    if (!unlocked) {
-        currentTrack = track;
-        return;
+    if (!unlocked) return;
+    const { fade = 900, loop = true } = options || {};
+    if (!track) return stopBgm(fade);
+    if (!music) {
+        music = new MusicBus(name => BGM_ROOT + name + ".mp3");
+        music.setVolume(bgmVolume);
     }
-    if (currentTrack === track && current && !current.paused) {
-        return;
-    }
-    currentTrack = track;
-    const previous = current;
-    if (previous) {
-        fadeTo(previous, 0, fade, function () {
-            previous.pause();
-            previous.src = "";
-        });
-    }
-    if (!track) {
-        current = null;
-        return;
-    }
-    const element = new Audio(BGM_ROOT + track + ".mp3");
-    element.loop = opts.loop !== false;
-    element.volume = 0;
-    current = element;
-    const play = element.play();
-    if (play && play.catch) {
-        play.catch(function () { /* interrupted by a newer request */ });
-    }
-    fadeTo(element, bgmVolume, fade);
+    return music.play(track, { fade, loop });
 }
 
-export function stopBgm(fade) {
-    bgm(null, { fade: fade === undefined ? 600 : fade });
+export function stopBgm(fade = 600) {
+    music?.stop(fade);
 }
 
 export function setBgmVolume(value) {
     bgmVolume = Math.max(0, Math.min(1, value));
-    if (current) {
-        current.volume = bgmVolume;
-    }
+    music?.setVolume(bgmVolume);
 }
 
 // Fire-and-forget voice clip. Path is relative to audio/gacha/.
@@ -129,22 +76,22 @@ export function setVoiceVolume(value) {
 // ---------------------------------------------------------------------------
 // Sound effects
 //
-// The game's own SE are unreachable: they shipped as CRIWARE ACB banks on
-// asset-krr-prd.star-api.com, which is gone with the service, and the surviving
-// community mirror carries only asset bundles -- which hold no audio objects at
-// all. So there is nothing to decode, and a cue like "footstep_run" has to be
-// produced rather than loaded.
+// No original SE banks are bundled locally, so missing cues are synthesised.
 //
 // Files still win when present: drop an mp3 into audio/se/ named after the cue
 // and it plays instead of the synth. That keeps the door open without blocking
 // on it.
 //
-// Synthesis is WebAudio, built per call and left to be collected. Nodes are
-// cheap; a pool would only add bookkeeping, and overlapping SE is normal (a
-// footstep sequence over a page turn), so shared elements would cut each other
-// off the way a single Audio element does.
+// One noise buffer and a compressed output bus. Short-lived sources are bounded
+// and disconnected on completion, so crowded fights cannot grow the audio graph.
 
 let audioContext = null;
+let seBus = null;
+let noiseBuffer = null;
+let seSuspended = false;
+const seSources = new Set();
+const seClips = new Set();
+const lastCue = new Map();
 const seFiles = new Map();     // cue -> loaded HTMLAudioElement
 const seAvailable = new Set(); // cues with a real file, per registerSeFiles()
 const seProbing = new Set();   // cue -> load in flight, don't start a second
@@ -155,6 +102,15 @@ function context() {
         if (!Ctor) { return null; }
         try {
             audioContext = new Ctor();
+            seBus = audioContext.createGain();
+            seBus.gain.value = seVolume;
+            const compressor = audioContext.createDynamicsCompressor();
+            compressor.threshold.value = -18;
+            compressor.knee.value = 12;
+            compressor.ratio.value = 5;
+            compressor.attack.value = .003;
+            compressor.release.value = .16;
+            seBus.connect(compressor).connect(audioContext.destination);
         } catch (error) {
             return null;
         }
@@ -173,15 +129,16 @@ function context() {
 
 // Short noise burst: footsteps, cloth, paper, impacts.
 function noiseBurst(ctx, when, opts) {
+    if (seSources.size >= 48) return;
     const duration = opts.duration;
-    const frames = Math.max(1, Math.floor(ctx.sampleRate * duration));
-    const buffer = ctx.createBuffer(1, frames, ctx.sampleRate);
-    const data = buffer.getChannelData(0);
-    for (let i = 0; i < frames; i++) {
-        data[i] = Math.random() * 2 - 1;
+    if (!noiseBuffer) {
+        noiseBuffer = ctx.createBuffer(1, ctx.sampleRate * 2, ctx.sampleRate);
+        const data = noiseBuffer.getChannelData(0);
+        for (let i = 0; i < data.length; i++) data[i] = Math.random() * 2 - 1;
     }
     const source = ctx.createBufferSource();
-    source.buffer = buffer;
+    source.buffer = noiseBuffer;
+    source.loop = true;
 
     const filter = ctx.createBiquadFilter();
     filter.type = opts.type || "lowpass";
@@ -198,13 +155,15 @@ function noiseBurst(ctx, when, opts) {
     gain.gain.exponentialRampToValueAtTime(opts.gain, when + (opts.attack || 0.004));
     gain.gain.exponentialRampToValueAtTime(0.0001, when + duration);
 
-    source.connect(filter).connect(gain).connect(ctx.destination);
-    source.start(when);
+    source.connect(filter).connect(gain).connect(seBus);
+    releaseOnEnd(source, [filter, gain]);
+    source.start(when, Math.random());
     source.stop(when + duration);
 }
 
 // Pitched blip: UI clicks, chimes, sparkles.
 function tone(ctx, when, opts) {
+    if (seSources.size >= 48) return;
     const duration = opts.duration;
     const osc = ctx.createOscillator();
     osc.type = opts.wave || "sine";
@@ -216,9 +175,27 @@ function tone(ctx, when, opts) {
     gain.gain.setValueAtTime(0.0001, when);
     gain.gain.exponentialRampToValueAtTime(opts.gain, when + (opts.attack || 0.005));
     gain.gain.exponentialRampToValueAtTime(0.0001, when + duration);
-    osc.connect(gain).connect(ctx.destination);
+    osc.connect(gain).connect(seBus);
+    releaseOnEnd(osc, [gain]);
     osc.start(when);
     osc.stop(when + duration);
+}
+
+function releaseOnEnd(source, nodes) {
+    seSources.add(source);
+    source.onended = () => {
+        source.disconnect();
+        nodes.forEach(node => node.disconnect());
+        seSources.delete(source);
+    };
+}
+
+export function suspendSe(value) {
+    seSuspended = value;
+    if (!value) return;
+    for (const source of seSources) { try { source.stop(); } catch {} }
+    for (const clip of seClips) clip.pause();
+    seClips.clear(); lastCue.clear();
 }
 
 // Cue recipes. Keyed by the names scripts already use; RECIPES is also the list
@@ -277,11 +254,6 @@ const RECIPES = {
     whoosh: function (ctx, at, level) {
         noiseBurst(ctx, at, { duration: 0.42, frequency: 240, sweepTo: 1800, gain: level * 1.1, type: "bandpass", q: 0.8, attack: 0.12 });
     },
-    // Battle: a hit that lands, and a magical one that blooms.
-    hit: function (ctx, at, level) {
-        noiseBurst(ctx, at, { duration: 0.12, frequency: 220, sweepTo: 80, gain: level * 0.5, q: 1.1 });
-        tone(ctx, at, { frequency: 150, glideTo: 60, duration: 0.1, gain: level * 0.25, wave: "square" });
-    },
     magic: function (ctx, at, level) {
         for (let i = 0; i < 5; i++) {
             tone(ctx, at + i * 0.045, {
@@ -306,19 +278,6 @@ const RECIPES = {
         noiseBurst(ctx, at, { duration: 0.13, frequency: 1500, sweepTo: 4200, gain: level * 0.55, type: "bandpass", q: 0.8 });
         noiseBurst(ctx, at + 0.09, { duration: 0.08, frequency: 2200, sweepTo: 1200, gain: level * 0.22, type: "bandpass", q: 0.9 });
     },
-    // A crit's accent on top of the hit thud: a tight metallic snap with a
-    // tone that pierces upward. Replaces the borrowed chime (plan §2.3).
-    crit: function (ctx, at, level) {
-        noiseBurst(ctx, at, { duration: 0.07, frequency: 3800, gain: level * 0.5, type: "bandpass", q: 1.6 });
-        tone(ctx, at + 0.01, { frequency: 1568, glideTo: 2349, duration: 0.16, gain: level * 0.12 });
-    },
-    // Loot into the bag: three quick ascending sines and a glint of air.
-    pickup: function (ctx, at, level) {
-        for (let i = 0; i < 3; i++) {
-            tone(ctx, at + i * 0.045, { frequency: 1320 * Math.pow(1.25, i), duration: 0.14, gain: level * 0.1 });
-        }
-        noiseBurst(ctx, at, { duration: 0.12, frequency: 6000, gain: level * 0.05, type: "highpass" });
-    },
     // A door unlocking and swinging open: the bolt's low thunk first, then
     // the hinge swells over a slow attack. The open-door moment is the
     // roomClear beat, not the crossing -- crossing keeps its page_fade.
@@ -328,7 +287,7 @@ const RECIPES = {
     },
     // Death as the story tells it (spec/05 §5): a page folding closed, not
     // a scream. Two soft descending tones over a low wash, resolving down.
-    death: function (ctx, at, level) {
+    defeat: function (ctx, at, level) {
         tone(ctx, at, { frequency: 660, glideTo: 440, duration: 0.5, gain: level * 0.12, wave: "triangle" });
         tone(ctx, at + 0.28, { frequency: 440, glideTo: 220, duration: 0.7, gain: level * 0.12, wave: "triangle" });
         noiseBurst(ctx, at + 0.2, { duration: 0.8, frequency: 1200, sweepTo: 300, gain: level * 0.18, type: "bandpass", q: 0.6, attack: 0.1 });
@@ -352,12 +311,7 @@ const RECIPES = {
         tone(ctx, at, { frequency: 1980, glideTo: 1400, duration: 0.14, gain: level * 0.12, wave: "triangle" });
         noiseBurst(ctx, at, { duration: 0.05, frequency: 3000, gain: level * 0.35, type: "bandpass", q: 2.2 });
     },
-    // B.3 首领换阶段: a low drum-and-bell toll — the fight's tempo changing,
-    // not a victory fanfare. The drum says "brace", the rising bell pair says
-    // "stronger". Two seconds total, ducked under the boss BGM like every cue.
-    // B.4 防卫战（里之守望）战斗提示音。原作 SE 无可用载荷（CRI 镜像只有
-    // BGM/voice），这里全部合成。配方按「瞬态+主体+特征」三层写，比单层
-    // 爆音更像真 SE。增益偏大是测量结果：lowpass 会扔掉白噪大半能量。
+    // 防卫战提示音，分为瞬态、主体与特征三层；最终音量由压缩总线控制。
     plant: function (ctx, at, level) {
         // 种植：两段落土——先软土（闷、慢），再一颗短促的定根「噗」。
         noiseBurst(ctx, at, { duration: 0.07, frequency: 900, sweepTo: 200, gain: level * 0.8, q: 0.6 });
@@ -432,9 +386,27 @@ const RECIPES = {
         noiseBurst(ctx, at, { duration: 0.3, frequency: 1600, sweepTo: 300, gain: level * 0.9, type: 'bandpass', q: 0.9 });
     },
     death: function (ctx, at, level) {
-        // 击退来客：短促下坠「呜」+一点散架噪声，不做惨叫。
-        tone(ctx, at, { frequency: 340, glideTo: 80, duration: 0.22, gain: level * 0.45, wave: 'triangle' });
-        noiseBurst(ctx, at + 0.03, { duration: 0.16, frequency: 1400, sweepTo: 260, gain: level * 0.6, q: 0.8 });
+        // Dissolve into light: no vocal/formant sweep on every defeated enemy.
+        noiseBurst(ctx, at, { duration: .16, frequency: 2600, sweepTo: 1100, gain: level * .35, type: 'highpass', q: .6 });
+        tone(ctx, at + .025, { frequency: 1760, duration: .13, gain: level * .1, wave: 'sine' });
+    },
+    enemy_rally: function (ctx, at, level) {
+        // A two-beat signal for the pack's haste, deliberately non-vocal.
+        [0, .14].forEach(delay => {
+            noiseBurst(ctx, at + delay, { duration: .12, frequency: 460, sweepTo: 180, gain: level * .7, q: .6 });
+            tone(ctx, at + delay, { frequency: 110, duration: .12, gain: level * .25, wave: 'sine' });
+        });
+    },
+    enemy_roar: function (ctx, at, level) {
+        noiseBurst(ctx, at, { duration: .38, frequency: 300, sweepTo: 100, gain: level * .8, q: .55 });
+        tone(ctx, at, { frequency: 65, duration: .3, gain: level * .25, wave: 'sine' });
+    },
+    enemy_shot: function (ctx, at, level) {
+        noiseBurst(ctx, at, { duration: .09, frequency: 1600, sweepTo: 650, gain: level * .65, type: 'bandpass', q: .7 });
+        tone(ctx, at, { frequency: 540, duration: .06, gain: level * .12, wave: 'sine' });
+    },
+    enemy_swipe: function (ctx, at, level) {
+        noiseBurst(ctx, at, { duration: .09, frequency: 1000, sweepTo: 380, gain: level * .65, type: 'bandpass', q: .6 });
     },
     pickup: function (ctx, at, level) {
         // 收取クリエ：清脆双音上行「叮铃」，PVZ 收阳光的爽感。
@@ -455,10 +427,13 @@ export const SE_CUES = Object.keys(RECIPES);
 // console warning) for an unknown cue -- a missing sound should never be able to
 // stop a scene.
 export function se(name, options) {
-    if (!unlocked || !name) { return; }
+    if (!unlocked || !name || seSuspended) { return; }
     const opts = options || {};
-    const level = seVolume * (opts.volume === undefined ? 1 : opts.volume);
-    if (level <= 0) { return; }
+    const level = opts.volume === undefined ? 1 : opts.volume;
+    if (level <= 0 || seVolume <= 0) { return; }
+    const now = performance.now();
+    if (now - (lastCue.get(name) ?? -Infinity) < 55) return;
+    lastCue.set(name, now);
 
     // A real recording beats the synth, but only one the manifest vouches for --
     // probing blindly would mean a 404 per cue on a site that ships no SE files
@@ -466,10 +441,14 @@ export function se(name, options) {
     if (seAvailable.has(name)) {
         const known = seFiles.get(name);
         if (known) {
+            if (seClips.size >= 12) return;
             const clip = known.cloneNode();
-            clip.volume = Math.min(1, level);
+            clip.volume = Math.min(1, level * seVolume);
+            seClips.add(clip);
+            clip.addEventListener("ended", () => seClips.delete(clip), { once: true });
+            clip.addEventListener("error", () => seClips.delete(clip), { once: true });
             const play = clip.play();
-            if (play && play.catch) { play.catch(function () {}); }
+            if (play && play.catch) { play.catch(() => seClips.delete(clip)); }
             return;
         }
         loadFile(name);
@@ -515,6 +494,8 @@ export function registerSeFiles(names) {
 
 export function setSeVolume(value) {
     seVolume = Math.max(0, Math.min(1, value));
+    if (seBus) seBus.gain.setTargetAtTime(seVolume, audioContext.currentTime, .015);
+    if (!seVolume) { for (const clip of seClips) clip.pause(); seClips.clear(); }
 }
 
 export function getSeVolume() {

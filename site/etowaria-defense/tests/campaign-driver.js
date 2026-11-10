@@ -17,6 +17,7 @@ export function createCampaignDriver() {
         actions, state,
         async begin(action = "prepare") {
             document.querySelector(`[data-action="${action}"]`).click();
+            if (action === "prepare") { document.querySelector('[data-action="deck-start"]').click(); }
             await waitForReady();
             document.querySelector('[data-action="brief-close"]').click();
             const level = LEVELS.find(row => row.id === state().level);
@@ -29,7 +30,7 @@ export function createCampaignDriver() {
             let battle = state().battle;
             if (battle.resource < UNIT_RULES[type].cost || battle.cooldowns[type] > .001
                 || battle.units.some(unit => unit.row === row && unit.col === col)) { return false; }
-            const card = document.querySelector(`[data-card="${type}"]`);
+            const card = document.querySelector(`.campaign-battle [data-card="${type}"]`);
             if (!card || card.disabled) { return false; }
             if (card.getAttribute("aria-pressed") !== "true") { card.click(); }
             const point = window.__defenseReview.cellPoint(row, col);

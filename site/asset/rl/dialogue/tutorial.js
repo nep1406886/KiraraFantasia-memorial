@@ -6,11 +6,11 @@
 // (move → attack/dodge/skill → interact) so the banner feels familiar.
 window.kirafanDialogue = Object.assign(window.kirafanDialogue || {}, {
     "tutorial": [
-        { who: "きらら", face: "happy", text: "欢迎来到司书的修行现场！我是前辈琪拉拉……嗯，前辈这个词，念起来真顺口！" },
-        { who: "きらら", face: "default", text: "工作内容很简单：把褪色书页里的大家平安带回来。操作就跟着屏幕上方的提示做，一条一条来！" },
-        { who: "きらら", face: "joy", text: "移动是 WASD 或方向键，攻击是 J 或鼠标左键。来，先在原地走两步试试脚感！" },
-        { who: "きらら", face: "happy", text: "危急关头按 K 或空格闪避，那一下是无敌的！技能键是 2 和 3，必杀键是 R——放出去的瞬间超帅气的！" },
-        { who: "きらら", face: "default", text: "看到会发光的东西就按 E 互动。残页、商店、篝火……它们都是书架这边的伙伴。" },
-        { who: "きらら", face: "happy", text: "那么出发！把故事一页一页救回来吧——欻——！" }
+        { who: "きらら", face: "happy", text: "召唤灯准备好了。出发前，先和我熟悉一下这段旅途吧。" },
+        { who: "きらら", face: "default", text: "用方向键或 WASD 移动，按 J 或鼠标左键攻击。屏幕上有触控按钮的话，也可以直接拖动和点击。" },
+        { who: "きらら", face: "joy", text: "靠近敌人时，普通攻击会帮你瞄准；想选定方向，就移动鼠标或拖动攻击按钮。挥击时也能慢慢走位。" },
+        { who: "きらら", face: "happy", text: "地面亮起预警时，先离开标记。按 K 或空格闪避可以短暂避开伤害，等对手收招，再用 2、3 技能反击；必杀蓄满后按 R。" },
+        { who: "きらら", face: "default", text: "发光的书页、商店和篝火，用 E 互动。拿到装备时先看看变化：武器可以强化招式，其他装备负责属性与战斗习惯。" },
+        { who: "きらら", face: "happy", text: "不用一下记住全部，菜单里随时能翻看指南。接下来，把今天的第一行写下来吧。" }
     ]
 });

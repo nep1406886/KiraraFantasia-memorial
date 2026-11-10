@@ -53,7 +53,7 @@ const INFOCARD_CSS = `
         width: clamp(72px, 14vmin, 104px);
         aspect-ratio: 3 / 4;
         border-radius: 9px;
-        object-fit: cover;
+        object-fit: contain;
         background: var(--kf-mint);
         display: block;
     }
@@ -512,6 +512,27 @@ export function showCharacterCard(card, skillsTable, options) {
     const overlay = document.createElement("div");
     overlay.className = "rl-infocard";
     overlay.id = "rl-charcard";
+    overlay.setAttribute("role", "dialog");
+    overlay.setAttribute("aria-modal", "true");
+    overlay.setAttribute("aria-label", (card.characterZh || card.name || "同行者") + "的人物与技能");
+    const previousFocus = document.activeElement;
+    function dismiss() {
+        overlay.remove();
+        if (previousFocus?.isConnected) previousFocus.focus();
+    }
+    overlay.addEventListener("keydown", function (event) {
+        if (event.key === "Escape") {
+            event.preventDefault(); event.stopPropagation(); dismiss();
+        } else if (event.key === "Tab") {
+            const buttons = [...overlay.querySelectorAll("button:not(:disabled)")];
+            const current = buttons.indexOf(document.activeElement);
+            if (event.shiftKey && current <= 0) {
+                event.preventDefault(); buttons[buttons.length - 1]?.focus();
+            } else if (!event.shiftKey && current === buttons.length - 1) {
+                event.preventDefault(); buttons[0]?.focus();
+            }
+        }
+    });
     const sheet = document.createElement("div");
     sheet.className = "sheet";
 
@@ -519,7 +540,7 @@ export function showCharacterCard(card, skillsTable, options) {
     head.className = "head";
     const art = document.createElement("img");
     art.className = "art";
-    art.src = opts.artBase + card.id + ".webp";
+    art.src = opts.artBase + (opts.artId || card.id) + ".webp";
     art.alt = "";
     art.addEventListener("error", function () {
         art.style.visibility = "hidden";
@@ -637,7 +658,7 @@ export function showCharacterCard(card, skillsTable, options) {
     const close = document.createElement("button");
     close.textContent = "返回";
     close.addEventListener("click", function () {
-        overlay.remove();
+        dismiss();
     });
     closeRow.appendChild(close);
     sheet.appendChild(closeRow);
@@ -645,7 +666,7 @@ export function showCharacterCard(card, skillsTable, options) {
     overlay.appendChild(sheet);
     overlay.addEventListener("pointerdown", function (event) {
         if (event.target === overlay && !opts.onSelect) {
-            overlay.remove();
+            dismiss();
         }
     });
     document.body.appendChild(overlay);

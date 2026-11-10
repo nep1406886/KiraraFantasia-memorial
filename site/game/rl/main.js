@@ -30,6 +30,8 @@ import { createClock } from "./clock.js";
 import { createMotionSampler } from "./view/motion.js";
 import { createInput } from "./input.js";
 import { PLAYABLE_IDS, PLAYABLE_ROSTER } from "./rosterids.js";
+import { readFormPreferences, formName, withCardForm } from "../../core/card-forms.js";
+import { evolvedStats } from '../../core/evolution.js';
 import { createRandom, hash32, seedFrom } from "./random.js";
 import { setAffixPool } from "./loot.js";
 import { setAffixTable, affixTableFromPassives } from "./equipment.js";
@@ -65,7 +67,6 @@ import { showEquipmentComparison, showSupplyChoice, showAltarChoice, showFloorDe
 import { showSkillCard } from "./ui/infocard.js";
 import { showCodex } from "./ui/codex.js";
 import { createHud } from "./ui/hud.js";
-import { createLandscapeGuard } from "./ui/orientation.js";
 import { accessibility, applyAccessibility } from "./accessibility.js";
 import { quality, applyQuality } from "./quality.js";
 import { showRunResult } from "./ui/result.js";
@@ -152,7 +153,7 @@ function setHint(text) {
 
 function interactHint() {
     if (!world || !world.player || !world.room
-            || shopOpen || menuOpen || codexOpen || decisionOpen || usLoading || usPlayer || dialogueBusy || landscapeBlocked) {
+            || shopOpen || menuOpen || codexOpen || decisionOpen || usLoading || usPlayer || dialogueBusy) {
         return null;
     }
     const p = world.player;
@@ -388,6 +389,7 @@ let usSkipButton = null;
 let bossVoiceData = null;   // asset/rl/bossvoices.json
 let bossVoiceLines = null;  // asset/rl/bossvoice-lines.json
 let bossVoiceAudio = null;  // HTMLAudioElement for voice_400 playback
+let bossVoicePaused = false;
 let bossVoiceTimer = 0;     // subtitle hide timeout (0 = none pending)
 // Subtitle hold. Audio is real-time — the line must hide on the wall clock
 // (setTimeout), not on rAF, which the preview pane can stall.
@@ -433,7 +435,6 @@ let meta = null;            // cross-run progression (meta.js, T11)
 let runPhase = "selecting";
 let activeRunId = null;
 let storageConflict = false;
-let landscapeBlocked = false;
 let runResult = null;
 let pendingDescent = null;
 const FLOOR_LOAD_TIMEOUT_MS = 20000;
@@ -479,10 +480,9 @@ function setup(modules) {
     mapView.setFloor(startFloor);   // segment-aware rooms from the first build
     danmakuView = createDanmakuView(scene, THREE, {
         capacity: world.danmaku.capacity,
-        camera: camera,  // the streak layer billboards against the live camera
-        projectileVisualReady: bullet => !!skillVFX && skillVFX.projectileVisualReady(bullet)
+        camera: camera  // the streak layer billboards against the live camera
     });
-    enemyTelegraphs = createEnemyTelegraphs(scene, THREE);
+    enemyTelegraphs = createEnemyTelegraphs(scene, THREE, { reducedMotion: () => accessibility.reducedFlash });
     // NOTE: playerwarning.js takes (scene, THREE) — the OPPOSITE order of
     // every other view factory here. Mixing them up passes the Scene instance
     // as THREE (Object.keys(scene) is the 38 Object3D fields) and the next
@@ -520,14 +520,6 @@ function setup(modules) {
             return { weapons: weaponsData, cards: tables && tables.stats ? tables.stats.all() : [] };
         },
         menuParent: document.querySelector(".save-status-actions"), floorsPerVolume: VOLUME_FLOORS });
-    createLandscapeGuard({ onChange(blocked) {
-        landscapeBlocked = blocked;
-        hud.clearInput();
-        hud.els.pause.disabled = blocked;
-        if (blocked && usPlayer) { usPlayer.pause(); }
-        syncWorldFrozen();
-    } });
-
     resize();
     window.addEventListener("resize", resize);
     // Last-chance autosave: a reload or tab close fires pagehide after the
@@ -543,6 +535,7 @@ function setup(modules) {
             pauseRoomLoad('页面已切到后台，房间装配已暂停。回到本页后请重试。');
             pauseDescent("页面已切到后台，加载已暂停。回到本页后请重试。");
         }
+        syncWorldFrozen();
     });
     // SE unlock (core/audio.js): the browser gates audio behind a gesture,
     // and the first gesture the game sees is the roster card click. Both
@@ -672,7 +665,7 @@ function setup(modules) {
         get floorBiome() { return volumeConfig(volume, world ? world.floor : 1).biome; },
         get floorLabel() { return floorBox ? floorBox.textContent : ""; },
         get views() { return { player: playerView, enemies: enemyViews, danmaku: danmakuView,
-            telegraphs: enemyTelegraphs, playerWarning: playerWarning,
+            telegraphs: enemyTelegraphs, skillVFX, playerWarning: playerWarning,
             deathStains: deathStains, comboMeter: comboMeter }; },
         // Same attach path the "summon" event takes, exposed so headless
         // fixtures can give a mid-test spawned unit its real view.
@@ -839,7 +832,7 @@ function syncViews(dt, motion, alpha) {
 
     const floorShrine = currentFloorShrine();
     if (floorShrine) { floorShrine.setState(world.floorExitReady, world.canCommuneAtShrine); }
-    mapView.update(effectDt);
+    mapView.update(effectDt, accessibility.reducedFlash);
     syncFloorShrineMarker(floorShrine);
     if (altarView) {
         altarView.update(effectDt);
@@ -886,6 +879,7 @@ function syncViews(dt, motion, alpha) {
 
 
 function resize() {
+    hud?.clearInput();
     const rect = stage.getBoundingClientRect();
     const width = Math.max(1, Math.round(rect.width));
     const height = Math.max(1, Math.round(rect.height));
@@ -1013,6 +1007,7 @@ function consumeEvents() {
             break;
         case "room":
             cancelRoomLoad();
+            stopBossVoice();
             if (usLoading || usPlayer) { stopUltimate(true); }
             if (damageTextLayer) { damageTextLayer.clear(); }
             if (healthBars) { healthBars.clear(); }
@@ -1491,6 +1486,8 @@ function consumeEvents() {
             audio.se("dodge", { volume: 0.6 });
             break;
         case "enemySkill":
+            skillVFX?.emitEnemyAction(event.unit, event.action);
+            audio.se(event.pattern === "charge" ? "whoosh" : event.pattern === "sector" ? "swing" : "magic", { volume: .45 });
             // The original's enemy attack burst (ef_btl_dmg_enemy_attack_*),
             // chosen by the skill's action plan: kind (slash/blow/bite/claw)
             // and grade. Played at the attacker, aimed along the swing.
@@ -1546,6 +1543,8 @@ function runPayload() {
         volume: volume,
         floor: world.floor,
         cardId: world.player.card ? world.player.card.id : 0,
+        appearance: world.player.appearance,
+        evolved: world.player.evolved,
         level: world.player.level,
         exp: world.player.exp || 0,
         hp: Math.max(1, Math.round(world.player.hp)),
@@ -1583,11 +1582,22 @@ function tickRunSave(dt) {
 }
 
 function syncWorldFrozen() {
+    const silent = document.hidden || menuOpen;
+    bgm?.suspend(silent || !!usPlayer);
+    audio.suspendSe(silent);
+    if (silent && bossVoiceAudio && !bossVoiceAudio.paused) {
+        bossVoicePaused = true; bossVoiceAudio.pause(); bgm?.duck(1);
+    } else if (!silent && bossVoicePaused && bossVoiceAudio) {
+        bossVoicePaused = false; bossVoiceAudio.play().catch(() => bgm?.duck(1));
+    }
     if (!world) { return; }
-    world.frozen = runPhase !== "active" || menuOpen || shopOpen || codexOpen || decisionOpen
+    const frozen = runPhase !== "active" || menuOpen || shopOpen || codexOpen || decisionOpen
         || achvOpen || howtoOpen
-        || dialogueBusy || dialogueQueue.length > 0 || usLoading || !!usPlayer || storageConflict || landscapeBlocked
-        || !!pendingRoomLoad;
+        || dialogueBusy || dialogueQueue.length > 0 || usLoading || !!usPlayer || storageConflict
+        || !!pendingRoomLoad || document.hidden;
+    if (frozen !== world.frozen) { hud?.clearInput(); }
+    world.frozen = frozen;
+    stage.classList.toggle('ui-paused', world.frozen);
 }
 
 // Defeat is terminal immediately. Boss defeat is a loot checkpoint; victory
@@ -1606,7 +1616,7 @@ function settleTerminalHit(event) {
         queueDialogue("v" + volume + "_boss_post");
     } else if (event.target.kind === "player" && finishRun("defeat")) {
         stopUltimate(true);
-        audio.se("death", { volume: 0.9 });
+        audio.se("defeat", { volume: 0.9 });
         queueDialogue("exit_" + playerDialogueName());
         if (bgm) { stopBGM({ fadeOut: 2000 }); }
     }
@@ -2650,7 +2660,7 @@ function updateEquipmentAppearance() {
 }
 
 function toggleMenu() {
-    if (runPhase !== "active" || decisionOpen || landscapeBlocked) { return; }
+    if (runPhase !== "active" || decisionOpen) { return; }
     menuOpen = !menuOpen;
     syncWorldFrozen();
     if (menuPanel) {
@@ -2954,7 +2964,7 @@ function updateMenuKey() {
 // "anywhere in the room" would fire the wrong one).
 function handleInteract() {
     if (!world || world.frozen || world.transition || !world.player || world.player.dead
-            || runPhase !== "active" || menuOpen || shopOpen || decisionOpen || usLoading || usPlayer || codexOpen || dialogueBusy || landscapeBlocked) {
+            || runPhase !== "active" || menuOpen || shopOpen || decisionOpen || usLoading || usPlayer || codexOpen || dialogueBusy) {
         return;
     }
     const room = world.room;
@@ -3019,7 +3029,7 @@ function initOverlays() {
     const resume = document.getElementById("menu-resume");
     if (equipmentRetry) {
         equipmentRetry.addEventListener("click", function () {
-            if (!menuOpen || decisionOpen || landscapeBlocked || runPhase !== "active" || !playerView) { return; }
+            if (!menuOpen || decisionOpen || runPhase !== "active" || !playerView) { return; }
             const view = playerView;
             const pending = view.retryEquipment();
             updateEquipmentAppearance();
@@ -3029,8 +3039,8 @@ function initOverlays() {
                 const focus = document.activeElement;
                 const target = view.equipment.status === "ready" ? resume : equipmentRetry;
                 // Do not pull focus out of another overlay/control while a
-                // slow request finishes, or focus a portrait-hidden menu.
-                if (menuOpen && !decisionOpen && !landscapeBlocked
+                // slow request finishes.
+                if (menuOpen && !decisionOpen
                         && (focus === equipmentRetry || focus === document.body)
                         && target && target.getClientRects().length) { target.focus(); }
             });
@@ -3175,34 +3185,41 @@ function showBossVoiceLine(name, line) {
     }, BOSS_VOICE_HOLD_MS);
 }
 
+function stopBossVoice() {
+    bossVoiceAudio?.pause();
+    bossVoiceAudio = null; bossVoicePaused = false; bgm?.duck(1);
+    clearTimeout(bossVoiceTimer); bossVoiceTimer = 0;
+    const box = document.getElementById("boss-voice");
+    if (box) box.style.display = "none";
+}
+
+function startBossVoice(file) {
+    stopBossVoice();
+    const voice = new Audio(new URL("../../audio/voice/" + file, import.meta.url).href);
+    bossVoiceAudio = voice;
+    const restore = () => { if (bossVoiceAudio === voice) { bossVoiceAudio = null; bossVoicePaused = false; bgm?.duck(1); } };
+    voice.addEventListener("playing", () => { if (bossVoiceAudio === voice) bgm?.duck(.45); });
+    voice.addEventListener("ended", restore, { once: true });
+    voice.addEventListener("error", restore, { once: true });
+    voice.play().catch(restore);
+}
+
 function playBossVoice(unit) {
     if (!bossVoiceData || !unit || !unit.voiceCueSheet) { return; }
     const rec = bossVoiceData.sheets[unit.voiceCueSheet];
     if (!rec || !rec.files || !rec.files.length) { return; }
-    if (bossVoiceAudio) {
-        bossVoiceAudio.pause();
-        bossVoiceAudio = null;
-    }
     // CRI sheets carry the cue as variants voice_400_0/_1 (the middleware
     // picks one at random); mirror that with a fair coin.
     const file = rec.files[Math.floor(Math.random() * rec.files.length)];
     // Module-relative: Audio src alone would resolve against the page URL and
     // escape a deployment subpath.
-    bossVoiceAudio = new Audio(new URL("../../audio/voice/" + file, import.meta.url).href);
-    bossVoiceAudio.play().catch(function (err) {
-        console.warn("boss voice playback failed:", err.message);
-    });
+    startBossVoice(file);
     const lines = bossVoiceLines && bossVoiceLines[unit.voiceCueSheet];
     showBossVoiceLine(unitName(unit), lines && lines.line);
 }
 
-// B.3 阶段化重做 — the phase-flip voice line. The opening voice (above) is
-// the warning-wave cue the original plays at BattleSystem.cs:3777; the flip
-// re-uses the SAME sheet (the boss has exactly one voice bank), but picks the
-// subtitle text that reads as escalation rather than greeting. Data-driven:
-// bossvoice-lines.json gains a `phases` array per sheet; a sheet without one
-// simply does not speak (the story bosses of volumes 1-4 ship no sheet at all,
-// matching the original's warning gate).
+// Phase captions are authored encounter text. The bundled warning recording
+// belongs only to arrival; replaying it here would contradict the new caption.
 const BOSS_PHASE_LINES = ["", "", "这局面，可有点不妙了……", "到此为止——认真起来了！", "最后一段乐章！"];
 function announceBossPhase(unit, phase) {
     if (!unit || !unit.voiceCueSheet || !bossVoiceData) { return; }
@@ -3211,13 +3228,6 @@ function announceBossPhase(unit, phase) {
     const lines = bossVoiceLines && bossVoiceLines[unit.voiceCueSheet];
     const custom = lines && lines.phases && lines.phases[phase];
     const text = custom || BOSS_PHASE_LINES[phase] || BOSS_PHASE_LINES[2];
-    if (bossVoiceAudio) {
-        bossVoiceAudio.pause();
-        bossVoiceAudio = null;
-    }
-    const file = rec.files[Math.floor(Math.random() * rec.files.length)];
-    bossVoiceAudio = new Audio(new URL("../../audio/voice/" + file, import.meta.url).href);
-    bossVoiceAudio.play().catch(function () { /* subtitle carries the beat */ });
     showBossVoiceLine(unitName(unit), text);
 }
 
@@ -3245,6 +3255,7 @@ async function playUltimate() {
         usLoading = false;
         return;
     }
+    stopBossVoice();
     const token = ++usRequest;
     const owner = world.player;
     const generation = roomGeneration;
@@ -3288,7 +3299,7 @@ async function playUltimate() {
         });
         usActor = actor;
         usPlayer.seek(0);
-        if (!menuOpen && !document.hidden && !landscapeBlocked) { usPlayer.play(); }
+        if (!menuOpen && !document.hidden) { usPlayer.play(); }
         loaded = null;
     } catch (error) {
         console.warn("uniqueskill presentation unavailable:", error.message);
@@ -3350,7 +3361,7 @@ function stopUltimate(discardEvents) {
 function updateUltimate(dt) {
     if (usSkipButton) { usSkipButton.hidden = !(usLoading || usPlayer) || menuOpen; }
     if (!usPlayer) { return; }
-    if (menuOpen || document.hidden || landscapeBlocked) { usPlayer.pause(); return; }
+    if (menuOpen || document.hidden) { usPlayer.pause(); return; }
     if (!usPlayer.player.playing && !usPlayer.finished) { usPlayer.play(); }
     usPlayer.update(dt);
     if (usPlayer.finished) { skipUltimate(); }
@@ -3523,12 +3534,10 @@ function loadTables() {
         json("bossvoices.json"),
         json("bossvoice-lines.json")
     ]).then(function (loaded) {
-        // T10 wiring: weapons-rl.json's 162 passives are both the affix pool
-        // loot.js rolls from and the multiplier table equipment.js applies
-        // (passives keys == weapons[].id, so one file feeds both).
+        // Read every passive for old saves; new random affixes never replace skills.
         const weapons = loaded[3];
         const passiveIds = Object.keys(weapons.passives);
-        setAffixPool(passiveIds, weapons.weapons.map(function (w) { return w.id; }));
+        setAffixPool(passiveIds, weapons.weapons.map(w => w.id), weapons.passives);
         setAffixTable(affixTableFromPassives(weapons.passives));
         setWeaponCatalog(weapons.catalog);
         setImportValidator(createProfileValidator({ stats: loaded[0], weapons: weapons, mergeMeta: mergeState,
@@ -3588,16 +3597,19 @@ function loadPlayer() {
         // not re-randomised here — it was decided once at module boot.
         const bootFloor = resume ? resume.floor : startFloor;
         say("读取中 " + (card.characterZh || card.character || card.name) + "…");
-        const evolved = row.id === card.evolvedId;
+        const evolved=resume?resume.evolved===true:meta.isEvolved(row.id);
+        const appearance = resume ? (resume.appearance || (row.id === card.evolvedId ? "evolved" : "base"))
+            : evolved?formName(card, readFormPreferences()):'base';
+        const visual = withCardForm(card, appearance);
         return actorModule.create({
-            resourceId: row.resourceId,
+            resourceId: visual.resourceId,
             classId: row.class,
-            headId: cards.headId(card, evolved),
+            headId: visual.headId,
             dedicatedWeapon: card.dedicatedWeapon,
             // The battle loadout, not the card's available dedicated weapon,
             // owns equipment. A resumed catalog item is applied by the view.
             weapon: "default",
-            skillId: row.resourceId
+            skillId: visual.resourceId
         }).then(function (actor) {
             // the volume's kits load once here; room switches only instantiate
             return mapView.preloadVolume(volume, bootFloor).then(function () {
@@ -3614,11 +3626,14 @@ function loadPlayer() {
                 const trained = row && meta ? meta.levelOf(row.id) : 1;
                 const player = world.spawnPlayer({
                     cardId: row ? row.id : undefined,
+                    evolved,
                     level: resume ? resume.level : Math.max(baseline, trained),
                     equipment: resume ? resume.equipment : undefined,
                     x: world.width / 2,
                     y: world.height / 2
                 });
+                player.appearance = visual.appearance;
+                player.displayCardId = visual.displayCardId;
                 if (resume) {
                     // Everything below is what the seeds cannot rebuild. hp is
                     // clamped (never trust a stale number past a re-derived
@@ -3667,6 +3682,10 @@ function loadPlayer() {
                 // the run's first battle room must not pay network + inflate
                 // for unseen enemy models on its strict load path.
                 loader.warmModels(world.floorEnemyModels()).catch(function () {});
+                if (!resume && meta && !meta.seenPrologue()) {
+                    queueDialogue("prologue");
+                    meta.markPrologueSeen();
+                }
                 if (resume) {
                     // The volume opening belongs to the run's first boot; a
                     // resume picks up mid-descent, so the camp stays quiet.
@@ -3751,6 +3770,15 @@ function loadPlayer() {
         loadCardIntoWorld(row, snapshot);
     }
     const rosterOptions = {
+        cardForms: gachaById,
+        evolutionQuote:id=>meta.evolutionQuote(id),
+        evolutionPreview:id=>{
+            const level=Math.max(world.encounter?.playerLevel || 1,meta.levelOf(id));
+            const before=tables.stats.statsFor(id,level),after=evolvedStats(before,true);
+            return {caption:`新旅程 Lv.${level} · 未计装备增益`,stats:[['hp','生命'],['atk','物攻'],['mgc','魔攻']]
+                .map(([key,label])=>({label,before:before[key],after:Math.round(after[key])}))};
+        },
+        onEvolve:id=>{const result=meta.evolve(id);if(result.ok)audio.se('chime',{volume:.35});return result;},
         onCodex: openCodex,
         onAchievements: openAchievements,
         onStorage: openStorage,
@@ -3907,10 +3935,6 @@ Promise.all([loader.loadModules(), loadTables()]).then(function (booted) {
     // with an unacknowledged receipt and expects zero storage writes until it
     // is confirmed, so the sweep must never fire on that path.
     sweepAchievements();
-    if (meta && !meta.seenPrologue()) {
-        queueDialogue("prologue");
-        meta.markPrologueSeen();
-    }
     if (tables && !encounter) {
         console.warn("no encounters.json row for volume " + volume);
     }

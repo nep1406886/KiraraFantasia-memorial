@@ -1,663 +1,282 @@
-// Character roster selection UI
-// Task 3.1: 40 playable characters; restyled 2026-09-04 (T21a) to spec/01:
-// the tokens come from rl/ui/theme.css, the panels are the original's rounded
-// paper cards (never dark glass), and each character shows her real 卡面
-// (asset/img/rl/card/<charaId>.webp, 750×1000, spec/01 §6.1 "它是门面，不裁")
-// instead of the old grey model-key placeholder.
-//
-// The styles are a scoped <style> block appended with the overlay (not inline
-// cssText) because hover/focus-visible/:active cannot be expressed inline, and
-// spec/01 §4.1 requires all four states on every clickable element.
-
 import { showCharacterCard } from "./infocard.js";
+import { readFormPreferences, formName, saveFormPreference, withCardForm } from "../../../core/card-forms.js";
+import { createEvolutionPanel, showEvolutionResult } from '../../../core/evolution-view.js';
 
-// Module-relative (this file lives at game/rl/ui/): a page-relative "../.."
-// would escape a /kirafan-timer/ deployment subpath.
-const CARD_ART_BASE = new URL("../../../asset/img/rl/card/", import.meta.url).href;
-
-// spec/01 §2: element colours are tokens, and an element never dyes a whole
-// component — here it is one small dot beside the name.
-// Data ring (T22i bake, proven against skill details): 0=炎 1=水 2=土
-// 3=風 4=月 5=陽. The old map was shifted one (1:fire…) and painted every
-// dot but 風 the wrong colour.
-const ELEMENT_VAR = { 0: "var(--el-fire)", 1: "var(--el-water)", 2: "var(--el-earth)",
-                      3: "var(--el-wind)", 4: "var(--el-moon)", 5: "var(--el-sun)" };
-
-// 选角屏横幅：铺 asset/img/rl/ui/select.webp（1600×1281 闲置场景图，2026-10
-// 盘点全站 0 引用，此处首次启用）。走 CSS background 而不是 <img>：横幅纯
-// 装饰，background 不产生 eager 解码也不进可达性树。ROSTER_CSS 注入的是
-// 最终样式文本，拿不到 import.meta，所以先在这里用模块相对 URL 解析出
-// 绝对地址（兼容 /kirafan-timer/ 部署子路径），再拼进样式串。
-const SELECT_BANNER_URL = new URL("../../../asset/img/rl/ui/select.webp", import.meta.url).href;
-
-const ROSTER_CSS = `
-    .rl-roster * { box-sizing: border-box; }
-    .rl-roster {
-        position: fixed;
-        inset: 0;
-        z-index: 1000;
-        overflow-y: auto;
-        /* 原作卡面的「空气感」：不是一块平涂的天蓝，而是上方高处偏亮、
-           接近地平线转暖的柔和渐变，再加两团极淡的暖光/薄荷光晕。
-           全部用 token 的 color-mix 派生，不引入新色值。 */
-        background:
-            radial-gradient(120vmax 70vmax at 18% -18%, color-mix(in srgb, var(--kf-paper) 78%, transparent), transparent 60%),
-            radial-gradient(90vmax 60vmax at 88% 8%, color-mix(in srgb, var(--kf-gold) 12%, transparent), transparent 62%),
-            linear-gradient(178deg,
-                color-mix(in srgb, var(--kf-sky) 82%, var(--kf-paper)) 0%,
-                var(--kf-sky) 46%,
-                color-mix(in srgb, var(--kf-mint) 70%, var(--kf-paper)) 100%);
-        background-attachment: fixed;
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        padding: clamp(16px, 4vmin, 40px) 1rem 2rem;
-        font-family: var(--font-sans);
-        color: var(--kf-ink);
-    }
-    .rl-roster h2 {
-        margin: 0 0 clamp(12px, 3vmin, 24px);
-        font-family: var(--font-serif);
-        font-size: clamp(1.5rem, 4vw, 2.4rem);
-        font-weight: 700;
-        letter-spacing: 0.04em;
-        color: var(--kf-ink);
-        text-align: center;
-        /* 标题下压一道极淡的暖金细线，呼应原作卷首的「书名」排法。 */
-        position: relative;
-        padding-bottom: 10px;
-    }
-    .rl-roster h2::after {
-        content: "";
-        position: absolute;
-        left: 50%;
-        bottom: 0;
-        width: 3.2em;
-        height: 2px;
-        transform: translateX(-50%);
-        border-radius: 2px;
-        background: linear-gradient(90deg,
-            transparent, color-mix(in srgb, var(--kf-gold) 70%, transparent), transparent);
-    }
-    /* 选角屏闲置横幅：select.webp 场景图整幅铺底，底部一道由 --kf-veil 派生的
-       纸色 scrim（纸里掺墨色帷幕，不引入新色值，spec/01 §2），压在图上的
-       ink 色题字始终可读。宽度上限与卡面网格一致，任何宽度不出横向滚动。
-       flex:none 必须有：.rl-roster 是可滚动 flex column，41 张卡会把可收缩
-       子项压到 0 高（实测），横幅的题字是 absolute，自身内容不撑高。 */
-    .rl-roster-banner {
-        flex: none;
-        position: relative;
-        width: 100%;
-        max-width: 1280px;
-        height: clamp(120px, 22vmin, 210px);
-        margin: 0 0 clamp(12px, 2.4vmin, 20px);
-        border-radius: var(--ui-radius);
-        overflow: hidden;
-        background: var(--kf-sky) center 30% / cover no-repeat url("${SELECT_BANNER_URL}");
-        box-shadow: var(--ui-shadow);
-    }
-    .rl-roster-banner::after {
-        content: "";
-        position: absolute;
-        inset: 0;
-        background: linear-gradient(180deg,
-            transparent 42%,
-            color-mix(in srgb, var(--kf-paper) 72%, var(--kf-veil)) 86%,
-            color-mix(in srgb, var(--kf-paper) 86%, var(--kf-veil)) 100%);
-    }
-    .rl-roster-banner p {
-        position: absolute;
-        left: 0;
-        right: 0;
-        bottom: 8px;
-        z-index: 1;
-        margin: 0;
-        padding: 0 16px;
-        font: italic 600 clamp(.92rem, 2.2vmin, 1.12rem)/1.5 var(--font-serif);
-        color: var(--kf-ink);
-        text-align: center;
-    }
-    .rl-roster-grid {
-        display: grid;
-        grid-template-columns: repeat(auto-fill, minmax(min(200px, 100%), 1fr));
-        gap: clamp(12px, 2.4vmin, 22px);
-        width: 100%;
-        max-width: 1280px;
-        margin-bottom: clamp(16px, 3vmin, 28px);
-    }
-    .rl-roster-card {
-        position: relative;
-        /* 卡面自己带原作金框（spec/01 §6「卡面是门面」），外层再压一道
-           墨色描边就成了双重边框、把卡面压平。这里外层只做「浮起的纸卡」：
-           米白底、无硬边、靠阴影分层；悬停时暖金描边从阴影里浮出来。 */
-        background: color-mix(in srgb, var(--kf-paper) 92%, var(--kf-sky));
-        border: 1.5px solid transparent;
-        border-radius: 16px;
-        padding: 10px;
-        cursor: pointer;
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        gap: 8px;
-        box-shadow:
-            0 1px 0 color-mix(in srgb, var(--kf-paper) 70%, transparent) inset,
-            0 3px 10px color-mix(in srgb, var(--kf-shadow) 70%, transparent),
-            0 12px 26px -12px color-mix(in srgb, var(--kf-shadow) 80%, transparent);
-        transition: transform 0.18s var(--ui-ease), box-shadow 0.18s var(--ui-ease),
-                    border-color 0.18s var(--ui-ease);
-    }
-    .rl-roster-card:hover, .rl-roster-card:focus-visible {
-        transform: translateY(-4px);
-        border-color: color-mix(in srgb, var(--kf-gold) 55%, transparent);
-        box-shadow:
-            0 1px 0 color-mix(in srgb, var(--kf-paper) 80%, transparent) inset,
-            0 6px 16px color-mix(in srgb, var(--kf-shadow) 85%, transparent),
-            0 20px 38px -14px color-mix(in srgb, var(--kf-gold) 30%, var(--kf-shadow));
-        outline: none;
-    }
-    .rl-roster-card:focus-visible {
-        outline: 2px solid var(--kf-gold);
-        outline-offset: 2px;
-    }
-    .rl-roster-card:active { transform: translateY(-1px); }
-    .rl-roster-card .art {
-        width: 100%;
-        aspect-ratio: 3 / 4;
-        border-radius: 10px;
-        background: var(--kf-mint);
-        object-fit: cover;
-        display: block;
-        /* 卡面自带金框与留白，再叠一层极淡的内阴影让它「嵌进」纸卡。 */
-        box-shadow: 0 0 0 1px color-mix(in srgb, var(--kf-ink-soft) 18%, transparent),
-                    0 2px 8px color-mix(in srgb, var(--kf-shadow) 55%, transparent) inset;
-    }
-    .rl-roster-card .art.missing {
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        color: var(--kf-ink-soft);
-        font-size: 0.85rem;
-        text-align: center;
-        padding: 0.5rem;
-    }
-    .rl-roster-card .rarity {
-        position: absolute;
-        top: 7px;
-        left: 7px;
-        color: var(--kf-gold);
-        font-size: 0.8rem;
-        line-height: 1;
-        letter-spacing: 1px;
-        text-shadow: 0 1px 0 var(--kf-paper);
-    }
-    /* spec/01 §4.2: 四芒星点缀每个面板至多一处 — the 5★ corner star. */
-    .rl-roster-card .star5 {
-        position: absolute;
-        top: 6px;
-        right: 6px;
-        width: 18px;
-        height: 18px;
-        pointer-events: none;
-    }
-    .rl-roster-card .who {
-        display: flex;
-        align-items: center;
-        gap: 6px;
-        font-size: 0.95rem;
-        font-weight: 600;
-        color: var(--kf-ink);
-        text-align: center;
-        word-break: break-word;
-    }
-    .rl-roster-card .who .el {
-        flex: none;
-        width: 8px;
-        height: 8px;
-        border-radius: 50%;
-        border: 1px solid var(--kf-ink-soft);
-    }
-    .rl-roster-card .stats {
-        font-size: 0.72rem;
-        color: var(--kf-ink-soft);
-        text-align: center;
-        width: 100%;
-        font-variant-numeric: tabular-nums;
-    }
-    .rl-roster-card .stats .row {
-        display: flex;
-        justify-content: space-between;
-        margin-bottom: 2px;
-    }
-    .rl-roster-card .rl-roster-info {
-        font: inherit;
-        font-size: 0.78rem;
-        font-weight: 600;
-        padding: 4px 16px;
-        background: color-mix(in srgb, var(--kf-paper) 92%, var(--kf-sky));
-        color: var(--kf-ink);
-        border: 1.5px solid color-mix(in srgb, var(--kf-ink-soft) 40%, transparent);
-        border-radius: 999px;
-        cursor: pointer;
-        transition: border-color 0.18s var(--ui-ease), background 0.18s var(--ui-ease);
-    }
-    .rl-roster-card .rl-roster-info:hover {
-        background: var(--kf-paper);
-    }
-    .rl-roster-card .rl-roster-info:hover,
-    .rl-roster-card .rl-roster-info:focus-visible {
-        border-color: var(--kf-gold);
-        outline: none;
-    }
-    .rl-roster-card .rl-roster-info:focus-visible {
-        outline: 2px solid var(--kf-gold);
-        outline-offset: 2px;
-    }
-    .rl-roster-actions {
-        display: flex;
-        flex-wrap: wrap;
-        justify-content: center;
-        gap: 10px;
-    }
-    /* C.1 element filter chips: six data-ring dots + an "all" chip. Same
-       paper-chip grammar as the actions row, one row, no fixed widths. */
-    .rl-roster-filters {
-        display: flex;
-        flex-wrap: wrap;
-        justify-content: center;
-        gap: 8px;
-        width: 100%;
-        max-width: 1280px;
-        margin: 0 0 clamp(12px, 2.4vmin, 20px);
-    }
-    .rl-roster-filter {
-        font: inherit;
-        font-size: 0.85rem;
-        font-weight: 600;
-        display: inline-flex;
-        align-items: center;
-        gap: 6px;
-        padding: 5px 14px;
-        background: color-mix(in srgb, var(--kf-paper) 88%, transparent);
-        color: var(--kf-ink-soft);
-        border: 1.5px solid color-mix(in srgb, var(--kf-ink-soft) 32%, transparent);
-        border-radius: 999px;
-        cursor: pointer;
-        backdrop-filter: blur(2px);
-        transition: border-color 0.18s var(--ui-ease), color 0.18s var(--ui-ease),
-                    background 0.18s var(--ui-ease);
-    }
-    .rl-roster-filter:hover {
-        background: var(--kf-paper);
-        color: var(--kf-ink);
-    }
-    .rl-roster-filter:hover, .rl-roster-filter:focus-visible {
-        border-color: var(--kf-gold);
-        outline: none;
-    }
-    .rl-roster-filter:focus-visible {
-        outline: 2px solid var(--kf-gold);
-        outline-offset: 2px;
-    }
-    .rl-roster-filter[aria-pressed="true"] {
-        color: var(--kf-ink);
-        border-color: var(--kf-gold);
-        box-shadow: inset 0 -2px 0 var(--kf-gold);
-    }
-    .rl-roster-filter .dot {
-        flex: none;
-        width: 9px;
-        height: 9px;
-        border-radius: 50%;
-        border: 1px solid var(--kf-ink-soft);
-    }
-    .rl-roster-card[data-filtered-out="true"] { display: none; }
-    .rl-roster-actions button {
-        font: inherit;
-        font-weight: 600;
-        padding: 0.7rem 1.8rem;
-        background: var(--kf-paper);
-        color: var(--kf-ink);
-        border: 1.5px solid var(--kf-ink-soft);
-        border-radius: 999px;
-        cursor: pointer;
-        box-shadow: 0 2px 0 var(--kf-shadow);
-        transition: background 0.18s ease-out, border-color 0.18s ease-out,
-                    transform 0.18s ease-out;
-    }
-    .rl-roster-actions button:hover, .rl-roster-actions button:focus-visible {
-        border-color: var(--kf-gold);
-        outline: none;
-    }
-    .rl-roster-actions button:focus-visible {
-        outline: 2px solid var(--kf-gold);
-        outline-offset: 2px;
-    }
-    .rl-roster-actions button:active { transform: translateY(1px); }
-    @media (prefers-reduced-motion: reduce) {
-        .rl-roster-card, .rl-roster-actions button { transition: none; }
-        .rl-roster-card:hover, .rl-roster-card:focus-visible { transform: none; }
-    }
-`;
-
-// spec/01 §4.2: the four-point star, gold stroke — inline SVG so it needs no
-// asset and inherits nothing from the page.
-const STAR5_SVG = '<svg class="star5" viewBox="0 0 24 24" aria-hidden="true">'
-    + '<path d="M12 1 L14.2 9.8 L23 12 L14.2 14.2 L12 23 L9.8 14.2 L1 12 L9.8 9.8 Z" '
-    + 'fill="var(--kf-paper)" stroke="var(--kf-gold)" stroke-width="1.6" '
-    + 'stroke-linejoin="round"/></svg>';
-
-function injectRosterStyles() {
-    if (document.getElementById("rl-roster-style")) {
-        return;
-    }
-    const style = document.createElement("style");
-    style.id = "rl-roster-style";
-    style.textContent = ROSTER_CSS;
-    document.head.appendChild(style);
+const SITE = new URL("../../../", import.meta.url);
+const CARD_ART_BASE = new URL("asset/img/rl/card/", SITE).href;
+const ELEMENT_NAMES = ["炎", "水", "土", "风", "月", "阳"];
+const CLASS_NAMES = ["战士", "魔法使", "僧侣", "骑士", "炼金术士"];
+const CLASS_HELP = ["近身连击，灵活闪避。适合喜欢主动进攻的你。", "以魔法攻击远处的敌人，把握距离与施法时机。", "用恢复与增益延长旅程，稳稳走过每个房间。", "用更坚实的防御面对来敌，寻找反击的机会。", "以削弱与状态效果创造优势，让战斗按你的节奏进行。"];
+function node(tag, className, text) {
+    const el = document.createElement(tag);
+    if (className) el.className = className;
+    if (text !== undefined) el.textContent = text;
+    return el;
 }
 
-/**
- * Create the roster UI overlay
- * @param {Object} options - Configuration
- * @param {Array} options.cards - Card data from cards-rl.json
- * @param {Function} options.onSelect - Callback when character selected (cardId)
- * @param {Function} options.onCancel - Callback when cancelled
- * @param {Object} options.skillsTable - parsed skills-rl.json, for the 人物卡
- * @returns {HTMLElement} The roster overlay element
- */
+/** The caller owns unlocks and persistence. This surface only chooses an ID. */
 export function createRosterUI(options) {
-    const { cards, onSelect, onCancel, onCodex, onAchievements, onContinue, onTrain, onStorage, skillsTable } = options;
-
-    // The caller owns the playable roster and unlock filtering. Preserve its
-    // order and same-name deduplication without a second, UI-local size cap.
-    // Element 0 is 炎, a full member of the data ring (0=炎…5=陽).
-    const uniqueChars = new Map();
+    const { cards, onSelect, onCodex, onAchievements, onContinue, onTrain, onStorage, skillsTable } = options;
+    const unique = new Map();
     for (const card of cards) {
-        if (!uniqueChars.has(card.characterZh) && card.element >= 0 && card.element <= 5) {
-            uniqueChars.set(card.characterZh, card);
-        }
+        if (!unique.has(card.characterZh) && card.element >= 0 && card.element <= 5) unique.set(card.characterZh, card);
     }
-    const roster = Array.from(uniqueChars.values());
-
-    injectRosterStyles();
-
-    // Create overlay container
-    const overlay = document.createElement("div");
-    overlay.id = "roster-overlay";
-    overlay.className = "rl-roster";
-
-    // Header
-    const header = document.createElement("h2");
-    header.textContent = "选择角色";
-    overlay.appendChild(header);
-
-    // 选角屏横幅（闲置素材复用）：纯装饰 + 一行题字，无任何交互元素，
-    // 不影响 Tab 序；下方 #roster-codex 等按钮的挂载契约原样保留
-    // （rl_story_roster_browser 依赖它可见可点）。
-    const banner = document.createElement("div");
-    banner.className = "rl-roster-banner";
-    const motto = document.createElement("p");
-    motto.textContent = "把散落的故事，一页一页救回来";
-    banner.appendChild(motto);
-    overlay.appendChild(banner);
-
-    // C.1 element filter row: the data ring 0=炎…5=陽. A chip toggles its
-    // element; "全部" clears the filter. The filter hides cards via
-    // data-filtered-out so the grid keeps its layout math (no reflow churn),
-    // and the card click contract is untouched — hidden cards are not
-    // clickable, visible cards behave exactly as before (roster gate).
-    const ELEMENT_NAMES = ["炎", "水", "土", "風", "月", "陽"];
-    const filters = document.createElement("div");
-    filters.className = "rl-roster-filters";
+    const roster = [...unique.values()];
+    let selected = roster[0] || null;
+    const preferences = readFormPreferences();
+    const appearance = card => options.cardForms?.get(card.id);
+    const growth = card => options.evolutionQuote?.(card.id);
+    const equippedForm = card => growth(card)?.evolved===false?'base':formName(appearance(card),preferences);
+    const shownCard = card => appearance(card) ? withCardForm(appearance(card), equippedForm(card)).displayCardId : card.id;
+    let previewForm=null;
     let activeElement = null;
-    function applyFilter() {
-        grid.querySelectorAll(".rl-roster-card").forEach((el) => {
-            const card = el.__rlCard;
-            const out = activeElement !== null && card && card.element !== activeElement;
-            el.dataset.filteredOut = out ? "true" : "false";
+    let search = "";
+    let departing = false;
+    const overlay = node("main", "rl-roster");
+    overlay.id = "roster-overlay";
+    overlay.setAttribute("aria-label", "花笺旅记 · 冒险营地");
+    const nav = node("nav", "ad-nav");
+    nav.setAttribute("aria-label", "纪念站导航");
+    nav.innerHTML = `<a class="ad-brand" href="${new URL("../index.html", SITE).href}"><span class="ad-brand-mark" aria-hidden="true">✧</span>闪耀幻想曲 · 纪念之庭</a><div class="ad-nav-links"><span class="ad-current">花笺旅记</span><a href="${new URL("etowaria-defense/", SITE).href}">星灯守望 ↗</a></div>`;
+    overlay.appendChild(nav);
+    const content = node("div", "rl-camp-content");
+    overlay.appendChild(content);
+    const hero = node("section", "rl-camp-hero");
+    hero.innerHTML = `<div class="rl-camp-copy"><p class="ad-eyebrow">闪耀幻想曲外传 · 动作探索</p><h1>花笺<span>旅记</span><i aria-hidden="true">✧</i></h1><p class="rl-camp-motto">故事还没有结束。<br>和熟悉的你，再出发一次。</p><p class="rl-camp-description">走进褪色的世界，找回散落的书页。<br>在每一次相遇中，把回忆重新染上颜色。</p><div class="rl-camp-pills"><span>五卷故事</span><span>随机探索</span><span>原作角色与招式</span></div></div><div class="rl-camp-art" aria-hidden="true"><div class="rl-camp-map"></div><img src="${new URL("imgs/original-characters/Kirara_StandPic_0.png", SITE).href}" alt="" class="rl-camp-guide"><span class="rl-camp-art-caption">旅途的下一页，等你来写。</span></div>`;
+    content.appendChild(hero);
+    const actions = node("nav", "rl-roster-actions");
+    actions.setAttribute("aria-label", "营地功能");
+    for (const [id, text, callback] of [
+        ["continue", "继续上次冒险 →", onContinue], ["train", "营地培养", onTrain],
+        ["codex", "残页图鉴", onCodex], ["achv", "旅途成就", onAchievements], ["storage", "存档与备份", onStorage]
+    ]) {
+        if (!callback) continue;
+        const button = node("button", "ad-button" + (id === "continue" ? " ad-button-primary" : ""), text);
+        button.type = "button";
+        button.id = "roster-" + id;
+        button.addEventListener("click", () => {
+            if (id === "continue") {
+                if (departing) return;
+                departing = true;
+                overlay.remove();
+            }
+            callback();
         });
+        actions.appendChild(button);
     }
-    const allChip = document.createElement("button");
-    allChip.type = "button";
-    allChip.className = "rl-roster-filter";
-    allChip.textContent = "全部";
-    allChip.setAttribute("aria-pressed", "true");
-    allChip.addEventListener("click", function () {
-        activeElement = null;
-        chips.forEach((chip) => chip.setAttribute("aria-pressed", "false"));
-        allChip.setAttribute("aria-pressed", "true");
-        applyFilter();
+    const guide = node("button", "ad-button", "初次冒险指南");
+    guide.type = "button";
+    guide.id = "roster-guide";
+    guide.setAttribute("aria-expanded", "false");
+    guide.setAttribute("aria-controls", "roster-guide-content");
+    actions.appendChild(guide);
+    content.appendChild(actions);
+    const help = node("section", "rl-camp-help");
+    help.id = "roster-guide-content";
+    help.hidden = true;
+    help.innerHTML = `<div><b>01 · 选择同行者</b><p>选中角色后点击出发。完成楼层积累阅历与属性进化珠，在营地进化伙伴，解锁新的身影和能力。</p></div><div><b>02 · 探索与战斗</b><p><kbd class="ad-key">W A S D</kbd> 移动 · 鼠标攻击 · <kbd class="ad-key">空格</kbd> 闪避<br><kbd class="ad-key">2 / 3</kbd> 技能 · <kbd class="ad-key">R</kbd> 必杀 · <kbd class="ad-key">E</kbd> 互动</p></div><div><b>03 · 带回新的回忆</b><p>清理房间、收集装备、寻找出口。进度自动保存在当前浏览器；手机横竖屏均可使用摇杆与触控按钮。</p></div>`;
+    guide.addEventListener("click", () => {
+        help.hidden = !help.hidden;
+        guide.setAttribute("aria-expanded", String(!help.hidden));
     });
-    filters.appendChild(allChip);
+    content.appendChild(help);
+    const atelier = node("section", "rl-companions");
+    atelier.setAttribute("aria-labelledby", "roster-heading");
+    const heading = node("header", "rl-companion-heading");
+    heading.innerHTML = `<div><p class="ad-eyebrow">准备下一次相遇</p><h2 id="roster-heading">这一次，和谁一起？</h2></div>`;
+    const count = node("span", "rl-roster-count");
+    count.setAttribute("role", "status");
+    heading.appendChild(count);
+    atelier.appendChild(heading);
+    const layout = node("div", "rl-roster-layout");
+    const preview = node("aside", "rl-companion-preview");
+    preview.id = "roster-preview";
+    const artwork = node("img", "rl-selected-art");
+    artwork.alt = "";
+    const copy = node("div", "rl-selected-copy");
+    const work = node("p", "ad-eyebrow");
+    const name = node("h3");
+    name.tabIndex = -1;
+    const identity = node("p", "rl-selected-identity");
+    const role = node("p", "rl-selected-help");
+    const details = node("button", "ad-button", "查看人物与技能");
+    details.id = "roster-details";
+    details.type = "button";
+    details.hidden = !skillsTable;
+    const start = node("button", "ad-button ad-button-primary", "选择伙伴后出发");
+    start.id = "roster-start";
+    start.type = "button";
+    const forms = node("div", "rl-form-controls"); forms.setAttribute("aria-label", "角色外观形态");
+    for (const [value, label] of [["base", "进化前"], ["evolved", "进化后"]]) {
+        const button = node("button", "ad-button", label); button.type = "button"; button.dataset.form = value;
+        button.addEventListener("click", () => {
+            const card = appearance(selected); if (!card) return;
+            previewForm=value;
+            if(growth(selected)?.evolved!==false)saveFormPreference(card,value,preferences);
+            select(selected);
+            const entry = cardNodes.find(item => item.card.id === selected.id);
+            const art = entry?.button.querySelector("img"); if (art) art.src = CARD_ART_BASE + shownCard(selected) + ".webp";
+        }); forms.append(button);
+    }
+    const evolve=node('button','ad-button ad-button-primary','消耗进化珠 · 进化');evolve.type='button';evolve.id='roster-evolve';
+    const evolveStatus=node('p','rl-form-note');evolveStatus.setAttribute('role','status');
+    const retention='等级、培养和装备均保留；正在进行的冒险仍按本局成长继续。';
+    const evolution=createEvolutionPanel({button:evolve,activity:'完成楼层',retention,
+        reward:'每次成功前往下一层或完成整卷，获得1点同行阅历与1枚对应属性进化珠。'});
+    const growthDetails=node('details','rl-growth');growthDetails.hidden=!options.onEvolve;
+    const growthToggle=node('summary','rl-growth-toggle');
+    const growthCopy=node('span',''),growthProgress=node('small','rl-growth-progress'),growthState=node('span','evolution-state');
+    growthCopy.append(node('strong','','同行成长'),growthProgress);growthToggle.append(growthCopy,growthState);
+    growthDetails.append(growthToggle,evolution.element,evolveStatus);
+    function refreshGrowth() {
+        const quote=selected&&growth(selected);if(!quote)return;
+        evolution.update(quote,options.evolutionPreview?.(selected.id));
+        growthDetails.dataset.state=quote.evolved?'evolved':quote.reason?'growing':'ready';
+        growthState.textContent=quote.evolved?'已进化':quote.reason?'查看进度':'可以进化';
+        growthProgress.textContent=quote.evolved?'新卡面与成长能力已解锁':`阅历 ${quote.experience}/${quote.needed} · 进化珠 ${quote.owned}/${quote.needed}`;
+    }
+    evolve.addEventListener('click',()=>{
+        const result=options.onEvolve(selected.id);
+        if(!result.ok){evolveStatus.textContent=result.reason==='storage'?'保存失败，素材和成长未改变。请先恢复存储。':'尚未满足进化条件。';return;}
+        previewForm='evolved';saveFormPreference(appearance(selected),'evolved',preferences);select(selected);
+        const art=cardNodes.find(item=>item.card.id===selected.id)?.button.querySelector('img');if(art)art.src=artwork.src;
+        artwork.classList.remove('evolution-reveal');void artwork.offsetWidth;artwork.classList.add('evolution-reveal');
+        evolveStatus.textContent='进化完成。下一次旅途将拥有新的能力。';
+        const card=appearance(selected);
+        showEvolutionResult({name:selected.characterZh || selected.name,
+            before:new URL(withCardForm(card,'base').card,SITE).href,after:artwork.src,
+            preview:options.evolutionPreview?.(selected.id),retention});
+    });
+    copy.append(work, name, identity, role, forms, details);
+    preview.append(artwork, copy, growthDetails);
+    // Closing camp training restores focus here; refresh derived values from
+    // the owner so the preview never retains the pre-training starting level.
+    overlay.addEventListener('focusin',event=>{
+        if(!event.relatedTarget||!overlay.contains(event.relatedTarget))refreshGrowth();
+    });
+    layout.appendChild(preview);
+    const catalogue = node("div", "rl-roster-catalogue");
+    const searchLabel = node("label", "rl-roster-search");
+    searchLabel.appendChild(node("span", "", "寻找同行者"));
+    const searchBox = node("input");
+    searchBox.type = "search";
+    searchBox.placeholder = "搜索角色、作品或职业…";
+    searchBox.setAttribute("aria-label", "搜索角色、作品或职业");
+    searchBox.autocomplete = "off";
+    searchLabel.appendChild(searchBox);
+    catalogue.appendChild(searchLabel);
+    const filters = node("div", "rl-roster-filters");
+    filters.setAttribute("aria-label", "按属性筛选");
+    const grid = node("div", "rl-roster-grid");
+    grid.setAttribute("aria-label", "同行者列表");
+    const empty = node("p", "rl-roster-empty", "还没有找到这位伙伴。试试其他名字，或切回全部属性。");
+    empty.hidden = true;
+    const cardNodes = [];
     const chips = [];
-    for (let el = 0; el <= 5; el++) {
-        const chip = document.createElement("button");
+    const departure=node('div','rl-departure'),current=node('button','rl-current-companion');current.type='button';
+    const currentArt=node('img','');currentArt.alt='';const currentCopy=node('span',''),currentName=node('strong','');
+    currentCopy.append(currentName,node('small','','卡面与成长 ↗'));current.append(currentArt,currentCopy);
+    current.addEventListener('click',()=>{preview.scrollIntoView({block:'start'});name.focus({preventScroll:true});});
+    departure.append(current,start);
+    function filter() {
+        let visible = 0;
+        for (const { card, button } of cardNodes) {
+            const matches = (activeElement === null || card.element === activeElement)
+                && [card.characterZh, card.titleZh, card.classZh].join(" ").toLocaleLowerCase().replace(/\s/g, "").includes(search);
+            button.hidden = !matches;
+            button.dataset.filteredOut = String(!matches);
+            if (matches) visible++;
+        }
+        count.textContent = `${visible} / ${roster.length} 位同行者`;
+        empty.hidden = visible > 0;
+    }
+    for (const [index, label] of ["全部", ...ELEMENT_NAMES].entries()) {
+        const chip = node("button", "rl-roster-filter", label);
         chip.type = "button";
-        chip.className = "rl-roster-filter";
-        const dot = document.createElement("span");
-        dot.className = "dot";
-        dot.style.background = ELEMENT_VAR[el];
-        chip.appendChild(dot);
-        // textContent assignment, not createTextNode: the entry harness's
-        // mock document implements createElement/appendChild but not
-        // createTextNode, and textContent covers the same need.
-        chip.textContent = ELEMENT_NAMES[el];
-        chip.setAttribute("aria-pressed", "false");
-        chip.addEventListener("click", function () {
-            if (activeElement === el) { return; }
-            activeElement = el;
-            chips.forEach((c) => c.setAttribute("aria-pressed", "false"));
-            allChip.setAttribute("aria-pressed", "false");
-            chip.setAttribute("aria-pressed", "true");
-            applyFilter();
+        chip.setAttribute("aria-pressed", String(index === 0));
+        chip.addEventListener("click", () => {
+            activeElement = index === 0 ? null : index - 1;
+            chips.forEach((item, i) => item.setAttribute("aria-pressed", String(i === index)));
+            filter();
         });
         chips.push(chip);
         filters.appendChild(chip);
     }
-    overlay.appendChild(filters);
-
-    // Grid container
-    const grid = document.createElement("div");
-    grid.className = "rl-roster-grid";
-
-    // Create character cards
-    roster.forEach((card) => {
-        const cardEl = createCharacterCard(card, () => {
-            if (onSelect) {
-                onSelect(card.id);
-            }
-            document.body.removeChild(overlay);
-        });
-        // C.1 filter lookup: the element chip reads the card's data ring
-        // element off the DOM node — no second roster array to keep in sync.
-        cardEl.__rlCard = card;
-        // T22i 人物卡: a dedicated 详情 button opens the character sheet
-        // (title/profile/skills, with its own 出发). The card body stays a
-        // one-click select — the established flow both players and the
-        // browser gates drive.
-        if (skillsTable) {
-            const infoBtn = document.createElement("button");
-            infoBtn.className = "rl-roster-info";
-            infoBtn.textContent = "详情";
-            infoBtn.setAttribute("aria-label", "查看" + (card.characterZh || "") + "的人物卡");
-            infoBtn.addEventListener("click", function (event) {
-                event.stopPropagation();
-                showCharacterCard(card, skillsTable, {
-                    artBase: CARD_ART_BASE,
-                    onSelect: function (cardId) {
-                        if (onSelect) {
-                            onSelect(cardId);
-                        }
-                        document.body.removeChild(overlay);
-                    }
-                });
-            });
-            cardEl.appendChild(infoBtn);
+    function select(card) {
+        if(selected?.id!==card.id){previewForm=null;evolveStatus.textContent='';}
+        selected = card;
+        const selectedForm=previewForm || (appearance(card)?equippedForm(card):'base');
+        const displayId=appearance(card)?withCardForm(appearance(card),selectedForm).displayCardId:card.id;
+        artwork.src = CARD_ART_BASE + displayId + ".webp";
+        const original = appearance(card); forms.hidden = !original?.evolvedId;
+        const quote=growth(card);
+        for (const button of forms.children){
+            button.setAttribute('aria-pressed',String(original&&button.dataset.form===selectedForm));
+            button.textContent=button.dataset.form==='base'?'进化前':quote?.evolved===false?'进化后 · 预览':'进化后';
         }
-        grid.appendChild(cardEl);
+        refreshGrowth();
+        artwork.hidden = false;
+        artwork.alt = card.characterZh + "的角色卡";
+        work.textContent = card.titleZh || "闪耀幻想曲";
+        name.textContent = card.characterZh || card.name;
+        identity.textContent = `${card.classZh || CLASS_NAMES[card.class] || "同行者"} · ${ELEMENT_NAMES[card.element]}属性`;
+        role.textContent = CLASS_HELP[card.class] || "和这位伙伴一起，找回散落的故事。";
+        start.textContent = `与${card.characterZh || card.name}出发 →`;
+        currentArt.src = CARD_ART_BASE + shownCard(card) + '.webp';
+        currentName.textContent = card.characterZh || card.name;
+        current.setAttribute('aria-label',`查看${currentName.textContent}的卡面与成长`);
+        start.disabled = false;
+        for (const item of cardNodes) item.button.setAttribute("aria-pressed", String(item.card.id === card.id));
+    }
+    function depart(id) {
+        if (departing) return;
+        departing = true;
+        overlay.remove();
+        onSelect?.(id);
+    }
+    artwork.addEventListener("error", () => { artwork.hidden = true; });
+    start.addEventListener("click", () => { if (selected) depart(selected.id); });
+    details.addEventListener("click", () => {
+        if (selected && skillsTable) showCharacterCard(selected, skillsTable, { artBase: CARD_ART_BASE, artId:shownCard(selected), onSelect: depart });
     });
-
-    overlay.appendChild(grid);
-
-    const actions = document.createElement("div");
-    actions.className = "rl-roster-actions";
-    if (onStorage) {
-        const storageBtn = document.createElement("button");
-        storageBtn.id = "roster-storage";
-        storageBtn.textContent = "存档与备份";
-        storageBtn.addEventListener("click", onStorage);
-        actions.appendChild(storageBtn);
+    for (const card of roster) {
+        const button = node("button", "roster-card rl-roster-card");
+        button.type = "button";
+        button.dataset.cardId = String(card.id);
+        button.setAttribute("aria-label", `选择${card.characterZh}，${card.classZh || "同行者"}，${ELEMENT_NAMES[card.element]}属性`);
+        button.setAttribute("aria-pressed", "false");
+        const art = node("img", "art");
+        art.src = CARD_ART_BASE + shownCard(card) + ".webp";
+        art.alt = "";
+        art.loading = "lazy";
+        art.decoding = "async";
+        art.addEventListener("error", () => {
+            art.replaceWith(node("span", "art missing", (card.characterZh || "伙伴").slice(0, 1)));
+        }, { once: true });
+        button.append(art, node("span", "who", card.characterZh || card.name), node("span", "rl-card-role", `${ELEMENT_NAMES[card.element]} · ${card.classZh || CLASS_NAMES[card.class] || "同行者"}`));
+        button.addEventListener("click", () => select(card));
+        cardNodes.push({ card, button });
+        grid.appendChild(button);
     }
-    if (onTrain) {
-        const trainBtn = document.createElement("button");
-        trainBtn.id = "roster-train";
-        trainBtn.textContent = "营地培养";
-        trainBtn.addEventListener("click", onTrain);
-        actions.appendChild(trainBtn);
-    }
-
-    // Cancel button
-    const cancelBtn = document.createElement("button");
-    cancelBtn.textContent = "取消";
-    cancelBtn.addEventListener("click", () => {
-        if (onCancel) {
-            onCancel();
-        }
-        document.body.removeChild(overlay);
-    });
-    actions.appendChild(cancelBtn);
-
-    // 残页図鑑 (T13): the collection is a camp feature, so the roster screen
-    // (which IS the camp surface between runs) exposes it pre-run. The roster
-    // overlay stays up underneath — the codex stacks on top and dismissing it
-    // returns here, so a peek never drops the selection.
-    if (onCodex) {
-        const codexBtn = document.createElement("button");
-        codexBtn.id = "roster-codex";
-        codexBtn.textContent = "残页图鉴";
-        codexBtn.addEventListener("click", () => {
-            onCodex();
-        });
-        actions.appendChild(codexBtn);
-    }
-
-    // 成就 (plan 阶段 8): same camp-peek contract as the codex — the overlay
-    // stacks over the roster and dismissing it returns here.
-    if (onAchievements) {
-        const achvBtn = document.createElement("button");
-        achvBtn.id = "roster-achv";
-        achvBtn.textContent = "成就";
-        achvBtn.addEventListener("click", () => {
-            onAchievements();
-        });
-        actions.appendChild(achvBtn);
-    }
-
-    // 局内续档: a saved run in flight resumes from here. The roster overlay
-    // comes down with the resume (unlike the codex peek, which stacks), so
-    // the button owns its removal — the showRoster promise stays pending,
-    // which loadPlayer's caller already tolerates.
-    if (onContinue) {
-        const continueBtn = document.createElement("button");
-        continueBtn.id = "roster-continue";
-        continueBtn.textContent = "继续冒险";
-        continueBtn.addEventListener("click", () => {
-            document.body.removeChild(overlay);
-            onContinue();
-        });
-        actions.appendChild(continueBtn);
-    }
-
-    overlay.appendChild(actions);
-
+    searchBox.addEventListener("input", () => { search = searchBox.value.toLocaleLowerCase().replace(/\s/g, ""); filter(); });
+    catalogue.append(filters, grid, empty, departure);
+    layout.appendChild(catalogue);
+    atelier.appendChild(layout);
+    content.appendChild(atelier);
+    const footer = node("footer", "ad-footer");
+    footer.innerHTML = "<span>献给在艾特瓦利亚相遇的每一个你。</span><span>非官方同人作品 · 进度保存在当前浏览器</span>";
+    content.appendChild(footer);
+    start.disabled = !selected;
+    current.disabled = !selected;
+    if (selected) select(selected);
+    filter();
     return overlay;
 }
 
-/**
- * Create a single character card
- */
-function createCharacterCard(card, onClick) {
-    const cardEl = document.createElement("div");
-    cardEl.className = "roster-card rl-roster-card";
-
-    // The rarity readout (spec/01 §4.3) and, on 5★ only, the corner star.
-    const rarity = document.createElement("div");
-    rarity.className = "rarity";
-    rarity.textContent = "★".repeat(Math.max(1, Math.min(5, card.rare || card.rarity || 3)));
-    cardEl.appendChild(rarity);
-    if ((card.rare || card.rarity || 0) >= 5) {
-        cardEl.insertAdjacentHTML("beforeend", STAR5_SVG);
-    }
-
-    // 卡面 (spec/01 §6.1): 750×1000 WebP fetched per roster id, never
-    // cropped by anything but object-fit, never stretched. A missing file
-    // degrades to a mint placeholder with the name — the roster must not
-    // depend on the art being on disk to be usable.
-    const art = document.createElement("img");
-    art.className = "art";
-    art.src = CARD_ART_BASE + card.id + ".webp";
-    art.alt = "";
-    // Eager, not lazy: 40 卡面 are 3.6 MB total, and a lazy image never
-    // loads in an occluded tab (no intersection events) — the art is the
-    // 门面 and must be there when the screen is.
-    art.addEventListener("error", () => {
-        const fallback = document.createElement("div");
-        fallback.className = "art missing";
-        fallback.textContent = card.characterZh || card.name || "";
-        cardEl.replaceChild(fallback, art);
-    });
-    cardEl.appendChild(art);
-
-    // Character name + element dot (one small element accent, spec/01 §2.2)
-    const who = document.createElement("div");
-    who.className = "who";
-    const dot = document.createElement("span");
-    dot.className = "el";
-    dot.style.background = ELEMENT_VAR[card.element] || "var(--kf-mint)";
-    who.appendChild(dot);
-    const name = document.createElement("span");
-    name.textContent = card.characterZh || card.name;
-    who.appendChild(name);
-    cardEl.appendChild(who);
-
-    // Stats preview -- only when the truth table actually shipped the row's
-    // init block; a card without numbers renders without the block rather
-    // than taking the whole roster down.
-    if (card.init && card.init.hp !== undefined) {
-        const stats = document.createElement("div");
-        stats.className = "stats";
-        stats.innerHTML = `
-            <div class="row"><span>HP ${card.init.hp}</span><span>ATK ${card.init.atk}</span></div>
-            <div class="row"><span>DEF ${card.init.def}</span><span>SPD ${card.init.spd}</span></div>
-        `;
-        cardEl.appendChild(stats);
-    }
-
-    // Click handler
-    cardEl.addEventListener("click", onClick);
-
-    return cardEl;
-}
-
-/**
- * Show the roster selection screen
- * @param {Array} cards - Full cards array from cards-rl.json
- * @returns {Promise<number>} Resolves with selected card ID, rejects on cancel
- */
-export function showRoster(cards, options) {
+export function showRoster(cards, options = {}) {
     return new Promise((resolve, reject) => {
-        const opts = options || {};
-        const overlay = createRosterUI({
-            cards: cards,
-            onSelect: (cardId) => resolve(cardId),
-            onCancel: () => reject(new Error("Roster selection cancelled")),
-            onCodex: opts.onCodex || null,
-            onAchievements: opts.onAchievements || null,
-            onTrain: opts.onTrain || null,
-            onStorage: opts.onStorage || null,
-            onContinue: opts.onContinue || null,
-            skillsTable: opts.skillsTable || null
-        });
+        const overlay = createRosterUI({ ...options, cards, onSelect: resolve,
+            onCancel: () => reject(new Error("Roster selection cancelled")) });
         document.body.appendChild(overlay);
     });
 }
