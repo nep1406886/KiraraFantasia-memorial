@@ -4,6 +4,7 @@ The visual assortment is a named fixture, not evidence for drop probabilities.
 Approach/compare/cancel/equip and shop stock use the normal application paths.
 Browser screenshots omit OS cursors; the cursor preview is labelled separately.
 """
+import base64
 import functools
 import hashlib
 import json
@@ -17,7 +18,7 @@ from rl_recovery_browser import press
 
 ROOT = Path(__file__).resolve().parents[1]
 OUT = ROOT / '.codex-tmp/feedback-20260910/item-art'
-FILES = ['index.html', 'site/models.html', 'site/gacha.html', 'site/game/roguelike.html', 'site/css/kirara-cursor.css',
+FILES = ['index.html', 'site/models.html', 'site/gacha.html', 'site/game/roguelike.html', 'site/etowaria-defense/index.html', 'site/css/kirara-cursor.css',
          'site/game/rl/main.js', 'site/game/rl/world.js', 'site/game/rl/ui/decisions.js', 'site/game/rl/ui/theme.css',
          'site/game/rl/gadgets.js', 'site/game/rl/equipment.js', 'site/game/rl/ui/equipmentbrief.js', 'tools/fetch_rl_icons.py']
 
@@ -27,6 +28,11 @@ def fingerprints():
     for directory in ['site/asset/img/rl/equipment', 'site/asset/img/rl/drop', 'site/asset/img/ui']:
         paths.extend(path for path in (ROOT / directory).glob('*') if path.is_file())
     return {path.relative_to(ROOT).as_posix(): hashlib.sha256(path.read_bytes()).hexdigest() for path in paths}
+
+
+def has_cursor(value, filename):
+    data = base64.b64encode((ROOT / 'site/asset/img/ui' / filename).read_bytes()).decode('ascii')
+    return 'data:image/png;base64,' + data in value
 
 
 CURSORS = """() => {
@@ -70,11 +76,11 @@ def main():
             site = browser.new_context(java_script_enabled=False)
             site.route('**/*', lambda route: route.continue_() if route.request.url.startswith(base)
                        and route.request.resource_type in ['document', 'stylesheet'] else route.fulfill(status=204))
-            for name in ['index.html', 'site/models.html', 'site/gacha.html']:
+            for name in ['index.html', 'site/models.html', 'site/gacha.html', 'site/etowaria-defense/index.html']:
                 page = site.new_page(); page.goto(base + '/' + name, wait_until='load', timeout=60000)
                 data = page.evaluate(CURSORS)
                 check(name + ' 正文与操作使用两态星彩石光标',
-                      'kirara-crystal.png' in data['body'] and 'kirara-crystal-link.png' in data['button']
+                      has_cursor(data['body'], 'kirara-crystal.png') and has_cursor(data['button'], 'kirara-crystal-link.png')
                       and data['child'] == data['button'], data)
                 page.close()
             site.close()
@@ -85,7 +91,7 @@ def main():
             page.goto(base + '/site/game/roguelike.html?volume=1&seed=10926', wait_until='load', timeout=60000)
             page.wait_for_selector('.roster-card', timeout=60000)
             cursors = page.evaluate(CURSORS); report['cursors'] = cursors
-            check('游戏页使用同一原作晶体与热点', cursors['fine'] and 'kirara-crystal.png' in cursors['body']
+            check('游戏页使用同一原作晶体与热点', cursors['fine'] and has_cursor(cursors['body'], 'kirara-crystal.png')
                   and '6 3' in cursors['body'] and cursors['child'] == cursors['button'], cursors)
             check('文本、编辑区、禁用、等待和滑动光标保留语义',
                   all(cursors[key] == 'text' for key in ['text', 'edit', 'area'])
@@ -241,14 +247,14 @@ def main():
             touch.route('**/*', lambda route: route.continue_() if route.request.resource_type in ['document', 'stylesheet'] else route.fulfill(status=204))
             page = touch.new_page(); page.goto(base + '/site/game/roguelike.html', wait_until='load')
             data = page.evaluate(CURSORS)
-            check('纯触控不启用自定义鼠标', not data['fine'] and 'kirara-crystal' not in data['body'], data)
+            check('纯触控不启用自定义鼠标', not data['fine'] and 'url(' not in data['body'], data)
             touch.close()
             hidpi = browser.new_context(device_scale_factor=2, java_script_enabled=False)
             hidpi.route('**/*', lambda route: route.continue_() if route.request.resource_type in ['document', 'stylesheet'] else route.fulfill(status=204))
             page = hidpi.new_page(); page.goto(base + '/site/game/roguelike.html', wait_until='load')
             data = page.evaluate(CURSORS)
             check('二倍屏继续使用相同逻辑像素热点与系统光标文件', data['fine']
-                  and 'kirara-crystal.png' in data['body'] and '6 3' in data['body'], data)
+                  and has_cursor(data['body'], 'kirara-crystal.png') and '6 3' in data['body'], data)
             hidpi.close(); browser.close()
         check('无未捕获页面异常', not report['errors'], report['errors'])
     finally:

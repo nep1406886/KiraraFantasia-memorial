@@ -147,8 +147,8 @@
       3
     ],
     "files": [
-      "asset/img/ui/kirara-crystal.png",
-      "asset/img/ui/kirara-crystal-link.png"
+      "site/asset/img/ui/kirara-crystal.png",
+      "site/asset/img/ui/kirara-crystal-link.png"
     ]
   }
 }

@@ -1,4 +1,5 @@
 """Identity and reproducibility gates for original currency and authored equipment art."""
+import base64
 import hashlib
 import json
 import unittest
@@ -71,7 +72,10 @@ class ItemArtTests(unittest.TestCase):
             self.assertEqual(image.getpixel((31, 31))[3], 0)
         self.assertLess(y, 6)
         self.assertLess(x, 12)
-        css = (ROOT / 'css/kirara-cursor.css').read_text(encoding='utf8')
+        css = (ROOT / 'site/css/kirara-cursor.css').read_text(encoding='utf8')
+        for filename in cursor['files']:
+            data = base64.b64encode((ROOT / filename).read_bytes()).decode('ascii')
+            self.assertIn('data:image/png;base64,' + data, css)
         self.assertIn(') %d %d,' % (x, y), css)
         self.assertIn('(pointer: fine)', css)
         self.assertIn('cursor: text', css)

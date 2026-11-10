@@ -9,8 +9,10 @@ The SP mark is the original CMD_SkillSP art, not a gem or evolution material.
 Usage: python tools/fetch_rl_icons.py (Pillow and UnityPy required).
 The cached source is reused; provenance records its hash and sprite path IDs.
 """
+import base64
 import hashlib
 import json
+import re
 from pathlib import Path
 import urllib.request
 
@@ -63,6 +65,18 @@ def cursor_images(gem):
     return normal, active, tip
 
 
+def embed_cursor_images():
+    path = ROOT / 'site/css/kirara-cursor.css'
+    css = path.read_text(encoding='utf8')
+    for name, fallback in [('kirara-crystal.png', 'default'), ('kirara-crystal-link.png', 'pointer')]:
+        data = base64.b64encode((CURSORS / name).read_bytes()).decode('ascii')
+        css, count = re.subn(r'(cursor: url\(")[^"]+("\) \d+ \d+, ' + fallback + r' !important;)',
+                            lambda match: match[1] + 'data:image/png;base64,' + data + match[2], css)
+        if count != 1:
+            raise ValueError('Expected one cursor declaration for ' + name)
+    path.write_text(css, encoding='utf8', newline='\n')
+
+
 def main():
     import UnityPy
     CACHE.mkdir(parents=True, exist_ok=True)
@@ -101,6 +115,7 @@ def main():
         path = CURSORS / name
         image.save(path)
         files.append(path.relative_to(ROOT).as_posix())
+    embed_cursor_images()
     manifest['cursor'] = {'sprite': 'GemIcon', 'pathId': sprites['GemIcon'][1],
         'size': [32, 32], 'hotspot': list(tip), 'files': files}
     (OUT / 'provenance.json').write_text(json.dumps(manifest, ensure_ascii=False, indent=2) + '\n', encoding='utf8')
