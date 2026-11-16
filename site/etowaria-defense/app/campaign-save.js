@@ -1,6 +1,6 @@
 import { LEVELS, ENDLESS, UNIT_RULES, ENEMY_RULES, SAVE_KEY, DECK_KEY, DECK_SIZE, DECK_ORDER, ACHIEVEMENTS, canOpenLevel, levelById, unlockedUnits } from "../data/campaign.js";
 import { evaluateChallenge } from "./challenge-evaluator.js";
-import { emptyEvolution, normalizeEvolution, earnEvolution, evolutionQuote, evolveCandidate } from '../../core/evolution.js';
+import { emptyEvolution, normalizeEvolution } from '../../core/evolution.js';
 
 const EVOLUTION_IDS = Object.keys(UNIT_RULES).filter(id=>id.startsWith('U'));
 
@@ -186,9 +186,8 @@ export function validateDeck(value) {
 }
 
 export class CampaignSave {
-    constructor(storage, catalogue) {
+    constructor(storage) {
         this.storage = storage;
-        this.evolutionCards = new Map((catalogue?.units || []).map(card=>[card.id,{id:card.id,element:card.elementId,rarity:card.rarity}]));
         this.progress = emptyProgress();
         this.problem = null;
         this.finishedRuns = new Set();
@@ -204,15 +203,6 @@ export class CampaignSave {
     }
 
     get unlocked() { return unlockedUnits(); }
-    evolutionQuote(id) { return evolutionQuote(this.progress.evolution,this.evolutionCards.get(id)); }
-    evolve(id) {
-        const candidate=evolveCandidate(this.progress.evolution,this.evolutionCards.get(id));
-        if(candidate.reason)return {ok:false,reason:candidate.reason};
-        const previous=this.progress;
-        this.progress={...previous,evolution:candidate.state};
-        if(!this.persist()){this.progress=previous;return {ok:false,reason:'storage'};}
-        return {ok:true};
-    }
     canOpen(id) { return canOpenLevel(id, this.progress.completed); }
 
     get deck() {
@@ -260,8 +250,6 @@ export class CampaignSave {
         }
         if (battle.phase !== "won" || !this.canOpen(id)) { return { newRecord: false, achievements: [] }; }
         this.finishedRuns.add(runId);
-        const companions=[...battle.deck].map(id=>this.evolutionCards.get(id)).filter(Boolean);
-        this.progress.evolution=earnEvolution(this.progress.evolution,companions);
         const first = !this.progress.completed.includes(id);
         if (first) { this.progress.completed.push(id); }
         const result = { time: battle.time, gatesUsed: battle.stats.gatesUsed, healed: battle.stats.healed };
@@ -303,7 +291,7 @@ export class CampaignSave {
         this.progress = validateProgress(this.progress);
         this._endlessRunFresh = !!this.progress.endlessRun;
         this.persist();
-        return { newRecord, first, achievements, challenge, evolutionEarned:companions.length };
+        return { newRecord, first, achievements, challenge };
     }
 
     // Endless checkpoint, throttled by the caller (campaign.js). Storage
@@ -346,10 +334,6 @@ export class CampaignSave {
             },
             materials
         };
-        if(endlessRun){
-            const companions=endlessRun.deck.map(id=>this.evolutionCards.get(id)).filter(Boolean);
-            this.progress.evolution=earnEvolution(previous.evolution,companions);
-        }
         if (endlessRun) { this._endlessRunFresh = true; }
         if (!this.persist()) {
             this.progress = previous;

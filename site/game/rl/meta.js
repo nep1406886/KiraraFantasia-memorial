@@ -23,10 +23,9 @@
 // SETTLE_RATIO 换算成星彩石（原作货币，跨局成长资源），练级与限界突破花星彩石。
 
 import * as save from "./save.js";
-import { PLAYABLE_IDS, PLAYABLE_ROSTER } from "./rosterids.js";
+import { PLAYABLE_IDS } from "./rosterids.js";
 import { isStoryId } from "./story.js";
-import { emptyEvolution, normalizeEvolution, earnEvolution, evolutionQuote, evolveCandidate, isEvolved } from '../../core/evolution.js';
-const EVOLUTION_CARDS = new Map(PLAYABLE_ROSTER.map(card=>[card.id,{id:card.id,element:card.element,rarity:card.rare}]));
+import { emptyEvolution, normalizeEvolution } from '../../core/evolution.js';
 
 const FIRST_12 = [
     10000000,   // ゆの
@@ -201,8 +200,6 @@ export function descentReward(raw, { volume, floor, cardId }) {
     const key = String(pages[(floor - 1) % pages.length]);
     const newPages = next.pages.some(id => String(id) === key) ? [] : [key];
     next.pages.push(...newPages);
-    const card=EVOLUTION_CARDS.get(cardId);
-    if(card)next.evolution=earnEvolution(next.evolution,[card]);
     return { meta: next, newPages };
 }
 
@@ -220,8 +217,6 @@ export function terminalReward(raw, { outcome, volume, items, cardId }) {
         gems = settlementGems(items);
         next.gems += gems;
         next.volumes = Math.max(next.volumes, volume);
-        const card=EVOLUTION_CARDS.get(cardId);
-        if(card)next.evolution=earnEvolution(next.evolution,[card]);
         next.chars = Array.from(new Set(next.chars.concat(VOLUME_UNLOCKS[volume], volume === 5 ? [UTSUTSU] : [])));
         const owned = new Set(next.pages.map(String));
         for (const id of pagesForVolume(volume).concat(volume === 5 ? FINALE_PAGES : [])) {
@@ -355,15 +350,6 @@ export function createMeta() {
         },
 
         gems: function () { return state.gems; },
-        isEvolved(id) { return isEvolved(state.evolution,id); },
-        evolutionQuote(id) { return evolutionQuote(state.evolution,EVOLUTION_CARDS.get(Number(id))); },
-        evolve(id) {
-            const result=evolveCandidate(state.evolution,EVOLUTION_CARDS.get(Number(id)));
-            if(result.reason)return {ok:false,reason:result.reason};
-            const candidate={...state,evolution:result.state};
-            if(!save.write(SAVE_SLOT,candidate))return {ok:false,reason:'storage'};
-            state=candidate;return {ok:true};
-        },
 
         // T12: the prologue plays once per save (spec/05 §5 序章), not once
         // per boot — veterans of run two skip straight to the roster.

@@ -8,6 +8,7 @@ import { createEnemyMotion } from "./enemy-motion.js";
 import { applyAuthoredMaterials } from "./native-model.js";
 import { ICONS } from "../app/icons.js";
 import { premultipliedBlend } from "./materials.js";
+import { withCardForm } from '../../core/card-forms.js';
 
 const BURST = "ef_btl_dmg_all_fire_00";
 const IMPACT = "ef_btl_dmg_single_00";
@@ -300,6 +301,62 @@ export class BattleView {
         if (!this.unitPools.has(type)) { this.unitPools.set(type, []); }
         this.unitPools.get(type).push(model);
         return model;
+    }
+
+    async evolve(type) {
+        if (this.loading || this.disposed || !this.ready) return { ok: false, reason: '战场仍在准备中' };
+        const quote = this.battle.evolutionQuote(type);
+        if (!quote.ok) return quote;
+        this.loading = true; this.cancelPlacement(); this.setPaused('evolution-load', true);
+        const prepared = [];
+        try {
+            await this.warming.get(type);
+            if (this.disposed) return { ok: false, reason: '本次巡守已经结束' };
+            await this.stage.effects.prepare([BIRTH, 'ef_btl_buff_line'], 3);
+            if (this.disposed) return { ok: false, reason: '本次巡守已经结束' };
+            const card = withCardForm(this.unitData(type), 'evolved');
+            const units = [...this.battle.units.values()].filter(unit => unit.type === type);
+            for (const unit of units) {
+                const model = await NativeModel.player(this.stage.assets, card);
+                prepared.push(model);
+                if (this.disposed) return { ok: false, reason: '本次巡守已经结束' };
+                if (UNIT_RULES[type].kind === 'lobber') model.trailTexture = await this.stage.items.prepareTrail(card.elementId);
+                if (unit.gear) {
+                    const weapon = UNIT_RULES[unit.gear]?.weapon;
+                    if (weapon) await model.actor.equip({ resourceIdR: weapon.resourceIdR ?? weapon.resourceIdL });
+                }
+            }
+            if (this.disposed || this.options.isCurrent && !this.options.isCurrent()) {
+                return { ok: false, reason: '本次巡守已经结束，应援未扣除' };
+            }
+            const result = this.battle.evolve(type);
+            if (!result.ok) return result;
+            this.catalogue.units = this.catalogue.units.map(unit => unit.id === type ? card : unit);
+            this.planCache?.delete(type);
+            for (const model of this.unitPools.get(type) || []) { model.dispose(); this.allModels.delete(model); }
+            this.unitPools.set(type, []);
+            for (const [index, unit] of units.entries()) {
+                const old = this.models.get(unit.id), model = prepared[index];
+                if (old) {
+                    old.label?.remove(); old.shadow?.removeFromParent(); this.clearScaleFx(old, false);
+                    this.stage.players = this.stage.players.filter(row => row !== old);
+                    old.dispose(); this.allModels.delete(old);
+                }
+                this.allModels.add(model); this.addModel(unit.id, model, unit.row, unit.col);
+                prepared[index] = null;
+                this.emit(BIRTH, model.group.position.clone(), 1.2);
+                this.emit('ef_btl_buff_line', model.group.position.clone(), 1.1);
+                this.floater(model, '进化 · 新的守望', 'heal'); model.play('battle_in', false);
+            }
+            prepared.length = 0;
+            this.options.audio.se('chime', { volume: .4 });
+            this.warm(type); this.notify();
+            return { ok: true };
+        } finally {
+            for (const model of prepared) model?.dispose();
+            this.loading = false;
+            if (!this.disposed) this.setPaused('evolution-load', false);
+        }
     }
 
     async createEnemy(type) {
@@ -800,8 +857,9 @@ export class BattleView {
         if (guard > 0) { model.shieldFill.style.transform = `scaleX(${Math.min(1, guard / Math.max(1, guardMax))})`; }
         this.badgeNodes(model, statuses, hasted);
         const states = statuses.map(status => STATUS_BADGES[status][0]).join("、");
-        const text = `${model.unit.name}，第${entity.row + 1}路，生命${Math.ceil(entity.hp)} / ${entity.maxHp}${guard > 0 ? `，${model.kind === "enemy" ? "护甲" : "护盾"}${Math.ceil(guard)}` : ""}${states ? `，${states}` : ""}${ratio <= .25 ? "，危急" : ""}`;
+        const text = `${model.unit.name}，第${entity.row + 1}路，生命${Math.ceil(entity.hp)} / ${entity.maxHp}${guard > 0 ? `，${model.kind === "enemy" ? "护甲" : "护盾"}${Math.ceil(guard)}` : ""}${states ? `，${states}` : ""}${ratio <= .25 ? "，危急" : ""}${every ? `，${count === every - 1 ? "下击强化" : `强化进度${count}/${every}`}` : ""}`;
         model.label.setAttribute("aria-label", text);
+        model.label.title = text;
         if (model.hpText.textContent !== text) { model.hpText.textContent = text; }
     }
 
@@ -1688,7 +1746,10 @@ export class BattleView {
                 // 部署会以变形体型出场。
                 model.group.scale.set(1, 1, 1);
                 this.clearScaleFx(model, false);
-                if (model.kind === "player") { this.unitPools.get(model.unit.id).push(model); }
+                if (model.kind === "player") {
+                    if (model.unit.appearance === this.unitData(model.unit.id)?.appearance) this.unitPools.get(model.unit.id).push(model);
+                    else { model.dispose(); this.allModels.delete(model); }
+                }
                 else if (model.kind === "facility") { this.allModels.delete(model); }
                 else if (model.kind === "enemy") {
                     model.hop = null; model.group.position.y = 0;

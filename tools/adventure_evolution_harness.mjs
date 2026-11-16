@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
-import { emptyEvolution, earnEvolution, evolveCandidate, evolutionQuote, EVOLUTION_ITEMS } from '../site/core/evolution.js';
+import { emptyEvolution, normalizeEvolution, defenseEvolutionCost } from '../site/core/evolution.js';
 import { Battle } from '../site/etowaria-defense/sim/battle.js';
 import { LEVELS, ENDLESS, UNIT_RULES } from '../site/etowaria-defense/data/campaign.js';
 import { CampaignSave, validateProgress } from '../site/etowaria-defense/app/campaign-save.js';
@@ -9,144 +9,162 @@ import { createMeta, mergeState, pagesForVolume, FINALE_PAGES } from '../site/ga
 import { createProfileValidator } from '../site/game/rl/profileschema.js';
 import { createStats } from '../site/asset/rl/stats.js';
 import { ACHIEVEMENTS } from '../site/game/rl/achievements.js';
-import { PLAYABLE_ROSTER } from '../site/game/rl/rosterids.js';
 import { RUN_GENERATOR_VERSION } from '../site/game/rl/runschema.js';
 import { createWorld } from '../site/game/rl/world.js';
 import { setAffixTable, affixTableFromPassives, calculateLoadout } from '../site/game/rl/equipment.js';
 import { setWeaponCatalog } from '../site/game/rl/weaponcatalog.js';
 
 const read = path => JSON.parse(readFileSync(new URL('../site/' + path, import.meta.url), 'utf8'));
-const catalogue = read('etowaria-defense/data/units.json');
-const weapons = read('asset/rl/weapons-rl.json');
-const stats = createStats({cards:read('asset/rl/cards-rl.json').cards,growth:read('asset/rl/growth.json'),enemies:read('asset/rl/enemies.json').enemies});
-const validate = createProfileValidator({stats,weapons,mergeMeta:mergeState,
-    pageIds:[1,2,3,4,5].flatMap(pagesForVolume).concat(FINALE_PAGES),achievementIds:ACHIEVEMENTS.map(row=>row.id)});
-save.setImportValidator(validate);
-setWeaponCatalog(weapons.catalog);
-setAffixTable(affixTableFromPassives(weapons.passives));
-let passed=0;
-function test(name,fn){fn();passed++;console.log('PASS '+name);}
-function storage(){const memory=new Map();return {memory,fail:false,getItem:key=>memory.get(key)??null,
-    setItem(key,value){if(this.fail)throw Error('quota');memory.set(key,String(value));},removeItem:key=>memory.delete(key),
-    get length(){return memory.size;},key:index=>[...memory.keys()][index]??null};}
-const clone=value=>JSON.parse(JSON.stringify(value));
-const ready=card=>earnEvolution(emptyEvolution(),[card],3);
-const tdCard={id:'U01',element:catalogue.units.find(c=>c.id==='U01').elementId,rarity:5};
-const rlCard=PLAYABLE_ROSTER.find(c=>c.id===14002001);
-const run={schemaVersion:3,generatorVersion:RUN_GENERATOR_VERSION,seed:12345,volume:1,floor:1,
-    cardId:rlCard.id,level:1,exp:0,hp:100,gauge:0,coin:0,stackHits:0,stackKills:0,equipment:[],roomClaims:[],appearance:'base',evolved:false};
-function campWith(evolution=emptyEvolution()){
-    const disk=storage();save.setStorage(disk);save.write('meta',mergeState({evolution}));save.initializeStorage();
-    const camp=createMeta();camp.read();return {disk,camp};
+const catalogue = read('etowaria-defense/data/units.json'), weapons = read('asset/rl/weapons-rl.json');
+const stats = createStats({ cards: read('asset/rl/cards-rl.json').cards, growth: read('asset/rl/growth.json'), enemies: read('asset/rl/enemies.json').enemies });
+const skills = read('asset/rl/skills-rl.json'); skills.weaponChildren = weapons.childSkills || {};
+save.setImportValidator(createProfileValidator({ stats, weapons, mergeMeta: mergeState,
+    pageIds: [1, 2, 3, 4, 5].flatMap(pagesForVolume).concat(FINALE_PAGES), achievementIds: ACHIEVEMENTS.map(row => row.id) }));
+setWeaponCatalog(weapons.catalog); setAffixTable(affixTableFromPassives(weapons.passives));
+let passed = 0;
+function test(name, fn) { fn(); passed++; console.log('PASS ' + name); }
+function storage() { const memory = new Map(); return { memory, getItem: key => memory.get(key) ?? null,
+    setItem: (key, value) => memory.set(key, String(value)), removeItem: key => memory.delete(key),
+    get length() { return memory.size; }, key: index => [...memory.keys()][index] ?? null }; }
+const clone = value => JSON.parse(JSON.stringify(value)), card = stats.card(14002001);
+const run = { schemaVersion: 3, generatorVersion: RUN_GENERATOR_VERSION, seed: 12345, volume: 1, floor: 1,
+    cardId: card.id, level: 1, exp: 0, hp: 100, gauge: 0, coin: 100, stackHits: 0, stackKills: 0,
+    equipment: [], roomClaims: [], appearance: 'base', evolved: false };
+function campWith(evolution = emptyEvolution()) {
+    save.setStorage(storage()); save.write('meta', mergeState({ evolution })); save.initializeStorage();
+    const camp = createMeta(); camp.read(); return camp;
 }
-
-test('material icons follow original evolution recipes, including swapped water/wind numbering',()=>{
-    const cards=new Map(read('asset/rl/_raw/CharacterList.json').map(c=>[c.m_CharaID,c]));
-    for(const recipe of read('asset/rl/_raw/CharacterEvolutionList.json')){
-        const card=cards.get(recipe.m_SrcCharaID);if(!card||recipe.m_RecipeType!==0)continue;
-        for(const id of recipe.m_ItemIDs.filter(id=>id>=6000&&id<6030))assert.equal(id%6,EVOLUTION_ITEMS[card.m_Element]%6);
+function battleReady(level = LEVELS[0]) {
+    const b = new Battle(level, { deck: ['U01'], seed: 55, runId: 'growth-check' });
+    b.resource = 999; assert.ok(b.deploy('U01', 0, 1).ok); b.phase = 'running'; b.time = 20; return b;
+}
+function worldReady(options = {}) {
+    const w = createWorld({ seed: 13, tables: { stats, skills } });
+    w.spawnPlayer({ card, level: 1, ...options }); w.floor = 2; w.coin = 100; return w;
+}
+test('原作进化配方与双卡面绑定一致', () => {
+    const recipes = new Map(read('asset/rl/_raw/CharacterEvolutionList.json').map(row => [row.m_SrcCharaID, row.m_DestCharaID]));
+    for (const unit of catalogue.units) {
+        assert.equal(unit.forms.evolved.cardId, recipes.get(unit.forms.base.cardId));
+        assert.notEqual(unit.forms.base.card, unit.forms.evolved.card);
     }
 });
-
-test('five-star and seasonal four-star gates consume matching pearls once',()=>{
-    const card={id:'test',element:2,rarity:5};
-    assert.equal(evolveCandidate(emptyEvolution(),card).reason,'experience');
-    const progress=ready(card);progress.pearls[2]=2;
-    assert.equal(evolveCandidate(progress,card).reason,'pearls');
-    const seasonal={...card,rarity:4},result=evolveCandidate(progress,seasonal);
-    assert.equal(result.state.pearls[2],0);assert.equal(progress.pearls[2],2);
-    assert.equal(evolveCandidate(result.state,seasonal).reason,'evolved');
-    assert.equal(evolutionQuote(progress,{...card,element:8}).reason,'invalid');
+test('旧永久记录继续读取，非法字段被过滤', () => {
+    const old = { experience: { U01: 3, unknown: 99 }, evolved: ['U01', 'U01', 'unknown'], pearls: [3, -1, 99999] };
+    const normalized = normalizeEvolution(old, ['U01']);
+    assert.deepEqual(normalized, { experience: { U01: 3 }, evolved: ['U01'], pearls: [3, 0, 9999, 0, 0, 0] });
+    assert.deepEqual(validateProgress({ version: 1, completed: [], evolution: old }).evolution, normalized);
 });
-test('a party earns one pearl per represented element, experience per companion',()=>{
-    const cards=[tdCard,{...tdCard,id:'U02'}],state=earnEvolution(emptyEvolution(),cards);
-    assert.equal(state.pearls[tdCard.element],1);assert.deepEqual(state.experience,{U01:1,U02:1});
+test('巡守进化要求驻场与应援，设施不可进化', () => {
+    const b = battleReady(); b.time = 19.9; assert.equal(b.evolve('U01').ok, false);
+    b.time = 20; b.resource = defenseEvolutionCost(UNIT_RULES.U01.cost) - 1;
+    assert.equal(b.evolve('U01').ok, false); b.resource++; assert.ok(b.evolutionQuote('U01').ok);
+    assert.equal(b.evolve('F01').ok, false);
 });
-test('TD victory receipts earn experience once; defeats earn none',()=>{
-    const campaign=new CampaignSave(storage(),catalogue),battle=new Battle(LEVELS[0],{deck:['F01','U01']});
-    battle.phase='lost';campaign.finish('lost',battle);assert.equal(campaign.evolutionQuote('U01').experience,0);
-    battle.phase='won';campaign.finish('first',battle);campaign.finish('first',battle);
-    assert.equal(campaign.evolutionQuote('U01').experience,1);assert.equal(campaign.evolutionQuote('U01').owned,1);
-});
-test('TD evolution purchase survives reload and rolls back on storage failure',()=>{
-    const disk=storage(),campaign=new CampaignSave(disk,catalogue);campaign.progress.evolution=ready(tdCard);campaign.persist();
-    const before=JSON.stringify(campaign.progress);disk.fail=true;
-    assert.equal(campaign.evolve('U01').reason,'storage');assert.equal(JSON.stringify(campaign.progress),before);
-    disk.fail=false;assert.ok(campaign.evolve('U01').ok);
-    const reloaded=new CampaignSave(disk,catalogue);assert.ok(reloaded.evolutionQuote('U01').evolved);
-    assert.equal(reloaded.evolve('U01').reason,'evolved');assert.equal(reloaded.evolutionQuote('U01').owned,0);
-});
-test('TD growth applies once to actual deployed health and attack; old setup stays base',()=>{
-    const battle=new Battle(LEVELS[0],{deck:['U01'],evolved:['U01']});battle.resource=999;assert.ok(battle.deploy('U01',0,1));
-    const unit=[...battle.units.values()][0],rule=UNIT_RULES.U01;
-    assert.equal(unit.maxHp,Math.round(rule.hp*1.15));assert.equal(battle.unitRule(unit).damage,Math.round(rule.damage*1.12));
-    const snapshot=battle.serializeSetup(),restored=new Battle(LEVELS[0],{deck:['U01']});
-    assert.ok(Battle.applySetup(restored,snapshot));assert.equal([...restored.units.values()][0].maxHp,unit.maxHp);
-    delete snapshot.evolved;const legacy=new Battle(LEVELS[0],{deck:['U01'],evolved:['U01']});
-    assert.ok(Battle.applySetup(legacy,snapshot));assert.equal([...legacy.units.values()][0].maxHp,rule.hp);
-});
-test('TD malformed setup cannot partially change live battle state',()=>{
-    const source=new Battle(LEVELS[0],{deck:['U01'],evolved:['U01']});source.resource=999;source.deploy('U01',0,1);
-    for(const mutate of [s=>s.evolved='U01',s=>s.units.push({...s.units[0],row:99}),s=>s.readyAt=[null]]){
-        const target=new Battle(LEVELS[0]),snapshot=source.serializeSetup(),before=target.serializeSetup();mutate(snapshot);
-        assert.equal(Battle.applySetup(target,snapshot),false);assert.deepEqual(target.serializeSetup(),before);
+test('巡守暂停、撤离、战斗结束均不可扣费', () => {
+    for (const block of [b => b.pauses.add('manual'), b => b.units.clear(), b => b.phase = 'won']) {
+        const b = battleReady(); block(b); const resource = b.resource;
+        assert.equal(b.evolve('U01').ok, false); assert.equal(b.resource, resource); assert.equal(b.evolved.size, 0);
     }
 });
-test('TD endless retains growth, rejects inconsistent units and rewards only once after reload',()=>{
-    const battle=new Battle(ENDLESS,{deck:['U01'],evolved:['U01'],runId:'growth-endless',seed:55});
-    battle.resource=999;battle.deploy('U01',0,1);while(battle.plannedWave<5)battle.planWave();
-    battle.wave=5;battle.settledWaves.add(5);battle.waveBounds.get(5).remaining=0;
-    const snapshot=battle.serializeEndless(),disk=storage(),campaign=new CampaignSave(disk,catalogue);
-    const receipt={runId:battle.runId,wave:5,drops:[],bonusDrops:[],checkpoint:snapshot};
-    assert.ok(campaign.settleEndlessReward(receipt).applied);
-    const loaded=new CampaignSave(disk,catalogue);assert.equal(loaded.settleEndlessReward(receipt).applied,false);
-    assert.equal(loaded.evolutionQuote('U01').experience,1);
-    const restored=new Battle(ENDLESS,{deck:['U01']});assert.ok(Battle.applyEndless(restored,loaded.progress.endlessRun));
-    assert.equal([...restored.units.values()][0].evolved,true);
-    for(const mutate of [s=>s.evolved='U01',s=>s.units[0].evolved=false,s=>s.units[0].evolved='yes']){
-        const bad=clone(snapshot);mutate(bad);const target=new Battle(ENDLESS),before=target.serializeEndless();
-        assert.equal(Battle.applyEndless(target,bad),false);assert.deepEqual(target.serializeEndless(),before);
-        assert.equal(validateProgress({...campaign.progress,endlessRun:bad}).endlessRun,null);
+test('同卡进化保留装备、生命比例和技能计时，只扣费一次', () => {
+    const b = battleReady(), first = [...b.units.values()][0]; b.readyAt.clear(); assert.ok(b.deploy('U01', 1, 1).ok);
+    const gear = Object.values(UNIT_RULES).find(row => row.kind === 'gear' && row.gear.maxHp);
+    b.applyGear(first, gear); first.hp = Math.floor(first.maxHp * .6); first.nextAction = 27; first.attacks = 3; first.shield = 12;
+    const hp = first.hp, maxHp = first.maxHp, resource = b.resource, spent = b.stats.spent;
+    assert.ok(b.evolve('U01').ok);
+    assert.equal(first.maxHp, maxHp + Math.round(UNIT_RULES.U01.hp * 1.15) - UNIT_RULES.U01.hp);
+    assert.equal(first.hp, Math.floor(hp / maxHp * first.maxHp));
+    assert.equal(first.nextAction, 27); assert.equal(first.attacks, 3); assert.equal(first.shield, 12); assert.equal(first.gear, gear.id);
+    const cost = defenseEvolutionCost(UNIT_RULES.U01.cost);
+    assert.equal(b.resource, resource - cost); assert.equal(b.stats.spent, spent + cost);
+    assert.equal(b.evolve('U01').ok, false); assert.equal(b.resource, resource - cost);
+    b.readyAt.clear(); assert.ok(b.deploy('U01', 2, 1).ok); assert.ok([...b.units.values()].every(unit => unit.evolved));
+});
+test('新巡守清空进化，布阵与无尽续档保持能力且拒绝坏数据', () => {
+    const b = battleReady(); b.evolve('U01'); b.phase = 'setup';
+    const snapshot = b.serializeSetup(), restored = new Battle(LEVELS[0], { deck: ['U01'] });
+    assert.ok(Battle.applySetup(restored, snapshot)); assert.ok(restored.evolved.has('U01'));
+    assert.equal([...restored.units.values()][0].maxHp, [...b.units.values()][0].maxHp);
+    delete snapshot.evolved; const legacy = new Battle(LEVELS[0]); assert.ok(Battle.applySetup(legacy, snapshot));
+    assert.equal([...legacy.units.values()][0].maxHp, UNIT_RULES.U01.hp); assert.equal(battleReady().evolved.size, 0);
+    const endless = battleReady(ENDLESS); endless.evolve('U01'); const snap = endless.serializeEndless();
+    const resumed = new Battle(ENDLESS); assert.ok(Battle.applyEndless(resumed, snap)); assert.ok(resumed.evolved.has('U01'));
+    for (const mutate of [s => s.evolved = 'U01', s => s.units[0].evolved = false, s => s.units[0].evolved = 'yes']) {
+        const bad = clone(snap); mutate(bad); const target = new Battle(ENDLESS), before = target.serializeEndless();
+        assert.equal(Battle.applyEndless(target, bad), false); assert.deepEqual(target.serializeEndless(), before);
     }
 });
-test('RL progression is inside the accepted descent transaction, with failure and duplicate rejection',()=>{
-    const {disk,camp}=campWith();const started=save.beginRun(run);assert.ok(started.accepted);
-    const checkpoint=save.load('run');disk.fail=true;
-    assert.equal(camp.descendRun(started.runId,checkpoint).ok,false);assert.equal(camp.evolutionQuote(rlCard.id).experience,0);
-    disk.fail=false;save.retryStorage();const descent=camp.descendRun(started.runId,checkpoint);assert.ok(descent.ok,JSON.stringify(descent));
-    assert.equal(camp.evolutionQuote(rlCard.id).experience,1);assert.equal(camp.evolutionQuote(rlCard.id).owned,1);
-    assert.equal(camp.descendRun(started.runId,checkpoint).ok,false);assert.equal(camp.evolutionQuote(rlCard.id).owned,1);
-    assert.equal(save.load('run').evolved,false);
+test('巡守与无尽奖励不再增加永久进化材料', () => {
+    const campaign = new CampaignSave(storage()), b = battleReady();
+    const old = { experience: { U01: 3 }, evolved: ['U01'], pearls: [3, 0, 0, 0, 0, 0] };
+    campaign.progress.evolution = clone(old); b.phase = 'won'; campaign.finish('won', b); assert.deepEqual(campaign.progress.evolution, old);
+    const endless = battleReady(ENDLESS); while (endless.plannedWave < 5) endless.planWave();
+    endless.wave = 5; endless.settledWaves.add(5); endless.waveBounds.get(5).remaining = 0;
+    assert.ok(campaign.settleEndlessReward({ runId: endless.runId, wave: 5, drops: [], bonusDrops: [], checkpoint: endless.serializeEndless() }).applied);
+    assert.deepEqual(campaign.progress.evolution, old);
 });
-test('RL victory awards final-floor growth once, defeat cannot award it',()=>{
-    for(const outcome of ['victory','defeat']){
-        const {camp}=campWith(),started=save.beginRun({...run,floor:20});
-        const facts={outcome,volume:1,floor:20,cardId:rlCard.id,level:1,coin:0,items:[]};
-        assert.ok(camp.settleRun(started.runId,facts).receipt);camp.settleRun(started.runId,facts);
-        assert.equal(camp.evolutionQuote(rlCard.id).owned,outcome==='victory'?1:0);
+test('冒险成长只计清理过的战斗房，第二层满足成长条件', () => {
+    const w = worldReady(); w.floor = 1;
+    w.dungeon = { rooms: [{ id: 0, type: 'rest' }, { id: 1, type: 'battle' }, { id: 2, type: 'boss' }, { id: 3, type: 'battle' }] };
+    for (const room of w.dungeon.rooms) w.roomState.set(room.id, { cleared: room.id < 3 });
+    assert.equal(w.evolutionQuote().progress, 2); assert.equal(w.evolvePlayer().ok, false);
+    w.roomState.get(3).cleared = true; assert.ok(w.evolutionQuote().ok);
+    w.roomState.clear(); w.floor = 2; assert.ok(w.evolutionQuote().ok);
+});
+test('冒险金币、死亡、过场与未清理敌人阻止进化', () => {
+    for (const block of [w => w.coin = 59, w => w.player.dead = true, w => w.transition = {},
+        w => { w.roomId = 1; w.dungeon = { rooms: [{ id: 1, type: 'battle' }] }; w.enemies.push({ dead: false }); }]) {
+        const w = worldReady(); block(w); const coin = w.coin;
+        assert.equal(w.evolvePlayer().ok, false); assert.equal(w.coin, coin); assert.equal(w.player.evolved, false);
     }
 });
-test('RL purchase preserves material on quota failure and persists through strict export/import',()=>{
-    const {disk,camp}=campWith(ready(rlCard)),before=JSON.stringify(camp.state);disk.fail=true;
-    assert.equal(camp.evolve(rlCard.id).reason,'storage');assert.equal(JSON.stringify(camp.state),before);
-    disk.fail=false;assert.ok(camp.evolve(rlCard.id).ok);assert.equal(camp.evolve(rlCard.id).reason,'evolved');
-    const exported=save.exportSave();save.setStorage(storage());assert.ok(save.importSave(exported).ok);
-    const loaded=createMeta();loaded.read();assert.ok(loaded.isEvolved(rlCard.id));assert.equal(loaded.evolutionQuote(rlCard.id).owned,0);
-    const bad=JSON.parse(exported);bad.meta.evolution.evolved=[rlCard.id];assert.equal(save.importSave(JSON.stringify(bad)).ok,false);
-});
-test('RL actual spawn and repeated equipment replacement retain growth without stat or health inflation',()=>{
-    const card=stats.card(rlCard.id),world=createWorld({seed:13,tables:{stats}});
-    world.spawnPlayer({card,level:1,evolved:true});const p=world.player,truth=stats.statsFor(card.id,1);
-    assert.equal(p.maxHp,Math.round(truth.hp*1.15));assert.equal(p.base.atk,truth.atk*1.12);
-    p.hp=Math.floor(p.maxHp*.6);
-    const weapon=weapons.catalog.find(w=>w.class===card.class&&w.charaId<0&&w.rare===3);
-    const item={slot:'weapon',rarity:'rare',affixes:[],catalogId:weapon.id};
-    const expected=calculateLoadout(truth,[item],p).stats;
-    for(let i=0;i<8;i++){
-        const hp=p.hp,ratio=p.hp/p.maxHp,drop={x:p.x,y:p.y,items:[clone(item)]};world.drops.push(drop);
-        assert.ok(world.previewEquipment(drop.items[0]));assert.ok(world.takeDrop(drop,drop.items[0]));
-        assert.deepEqual(p.base,expected);assert.ok(p.hp/p.maxHp<=ratio+1e-9);if(i)assert.equal(p.hp,hp);
+test('保存失败或抛错时，冒险金币与能力不变', () => {
+    for (const persist of [() => false, () => { throw Error('quota'); }]) {
+        const w = worldReady(), p = w.player, before = { hp: p.hp, maxHp: p.maxHp, base: clone(p.base) };
+        assert.equal(w.evolvePlayer(persist).ok, false); assert.equal(w.coin, 100); assert.equal(p.evolved, false);
+        assert.deepEqual({ hp: p.hp, maxHp: p.maxHp, base: p.base }, before);
     }
-    assert.deepEqual(p.truthBase,truth);
 });
-console.log(JSON.stringify({passed}));
+test('冒险先保存再进化，保留生命比例、装备、技能冷却与必杀槽', () => {
+    const w = worldReady(), p = w.player, truth = stats.statsFor(card.id, 1);
+    p.hp = Math.floor(p.maxHp * .6); p.skills.slots[0].remaining = 4.5; p.skills.addGauge(.4);
+    const before = { hp: p.hp, maxHp: p.maxHp, gauge: p.skills.gauge, equipment: p.equipment }; let patch;
+    assert.ok(w.evolvePlayer(next => { assert.equal(w.coin, 100); assert.equal(p.evolved, false); patch = next; return true; }).ok);
+    assert.equal(w.coin, 40); assert.equal(p.appearance, 'evolved'); assert.equal(p.maxHp, Math.round(truth.hp * 1.15));
+    assert.equal(p.hp, Math.floor(before.hp / before.maxHp * p.maxHp)); assert.equal(p.hp, patch.hp);
+    assert.equal(p.atk, p.base.atk); assert.equal(p.base.atk, truth.atk * 1.12);
+    assert.equal(p.skills.slots[0].remaining, 4.5); assert.equal(p.skills.gauge, before.gauge); assert.equal(p.equipment, before.equipment);
+    assert.equal(w.evolvePlayer().ok, false); assert.equal(w.coin, 40);
+});
+test('进化后反复换装不叠加能力，不制造回复', () => {
+    const w = worldReady(); w.evolvePlayer(); const p = w.player, truth = p.truthBase; p.hp = Math.floor(p.maxHp * .6);
+    const weapon = weapons.catalog.find(row => row.class === card.class && row.charaId < 0 && row.rare === 3);
+    const item = { slot: 'weapon', rarity: 'rare', affixes: [], catalogId: weapon.id }, expected = calculateLoadout(truth, [item], p).stats;
+    for (let i = 0; i < 8; i++) {
+        const hp = p.hp, ratio = p.hp / p.maxHp, drop = { x: p.x, y: p.y, items: [clone(item)] }; w.drops.push(drop);
+        assert.ok(w.takeDrop(drop, drop.items[0])); assert.deepEqual(p.base, expected);
+        assert.ok(p.hp / p.maxHp <= ratio + 1e-9); if (i) assert.equal(p.hp, hp);
+    }
+    assert.deepEqual(p.truthBase, truth);
+});
+test('冒险进化事务可续档与导入，新局恢复基础能力', () => {
+    campWith(); const started = save.beginRun(run), w = worldReady();
+    assert.ok(w.evolvePlayer(patch => save.write('run', { ...save.load('run'), ...patch }, { runId: started.runId })).ok);
+    const exported = save.exportSave(); save.setStorage(storage()); assert.ok(save.importSave(exported).ok);
+    const snapshot = save.load('run'); assert.equal(snapshot.evolved, true); assert.equal(snapshot.appearance, 'evolved'); assert.equal(snapshot.coin, 40);
+    assert.equal(worldReady({ evolved: snapshot.evolved }).player.maxHp, w.player.maxHp); assert.equal(worldReady().player.evolved, false);
+});
+test('旧永久记录可导入，楼层和终局奖励不再改变它', () => {
+    const old = { experience: { [card.id]: 3 }, evolved: [String(card.id)], pearls: [3, 2, 1, 0, 0, 0] };
+    const camp = campWith(old), started = save.beginRun(run);
+    assert.ok(camp.descendRun(started.runId, save.load('run')).ok); assert.deepEqual(camp.state.evolution, old);
+    const exported = save.exportSave(); save.setStorage(storage()); assert.ok(save.importSave(exported).ok);
+    const restored = createMeta(); restored.read(); assert.deepEqual(restored.state.evolution, old);
+    for (const outcome of ['victory', 'defeat']) {
+        const camp = campWith(old), started = save.beginRun({ ...run, floor: 20 });
+        assert.ok(camp.settleRun(started.runId, { outcome, volume: 1, floor: 20, cardId: card.id, level: 1, coin: 0, items: [] }).receipt);
+        assert.deepEqual(camp.state.evolution, old);
+    }
+});
+console.log(JSON.stringify({ passed }));

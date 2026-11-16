@@ -30,8 +30,8 @@ import { createClock } from "./clock.js";
 import { createMotionSampler } from "./view/motion.js";
 import { createInput } from "./input.js";
 import { PLAYABLE_IDS, PLAYABLE_ROSTER } from "./rosterids.js";
-import { readFormPreferences, formName, withCardForm } from "../../core/card-forms.js";
-import { evolvedStats } from '../../core/evolution.js';
+import { withCardForm } from "../../core/card-forms.js";
+import { showRunEvolution } from '../../core/run-evolution-view.js';
 import { createRandom, hash32, seedFrom } from "./random.js";
 import { setAffixPool } from "./loot.js";
 import { setAffixTable, affixTableFromPassives } from "./equipment.js";
@@ -512,7 +512,7 @@ function setup(modules) {
 
     // The real HUD + touch controls (spec/01 §4). toggleMenu is hoisted, so
     // the pause button can be wired before its definition reads.
-    hud = createHud({ input: input, onMenu: toggleMenu, onInteract: handleInteract, parent: stage,
+    hud = createHud({ input: input, onMenu: toggleMenu, onInteract: handleInteract, onEvolution: openRunEvolution, parent: stage,
         isShrineVisible: function () { return !!currentFloorShrine(); },
         // 装备芯片简报（ui/hud.js）的数据面：与菜单装备视图同一批表，只在
         // 打开/刷新简报时调用，不进每帧路径。
@@ -525,6 +525,7 @@ function setup(modules) {
     // Last-chance autosave: a reload or tab close fires pagehide after the
     // last frame, capturing HP the 5-second cadence might still be holding.
     window.addEventListener("pagehide", function () {
+        activeDecision?.dispose?.();
         saveRun();
         pauseRoomLoad('页面已离开，房间装配已暂停。返回后请重试。');
         pauseDescent("页面已离开，加载已暂停。返回后请重试下潜。");
@@ -1018,7 +1019,7 @@ function consumeEvents() {
             clearEnemyViews();
             clearDropViews();
             clearInteractViews();
-            if (activeDecision) { activeDecision.close(); }
+            if (activeDecision) { (activeDecision.dispose || activeDecision.close)(); }
             rebuildRoom(event.room);
             recordEncounters();
             sweepAchievements();
@@ -1350,6 +1351,13 @@ function consumeEvents() {
                 + event.level + " 级" + (event.healed > 0 ? "（+" + event.healed + " HP）" : ""), 2.4);
             saveRun();   // level re-derives every stat on resume — pin it immediately
             break;
+        case "evolution":
+            skillVFX.emitNative('ef_btl_buff_ring', event.unit.x, event.unit.y, { scale: 1.15, duration: 1.2 });
+            skillVFX.emitNative('ef_btl_buff_line', event.unit.x, event.unit.y, { scale: 1.05, duration: 1.4 });
+            playerView?.play('battle_in', { loop: false, fade: .12 });
+            audio.se('chime', { volume: .45 });
+            beat('进化完成 · 将这份成长写进旅途', 3);
+            break;
         case "shopOpen":
             saveRun();
             beat("♣ 商店开业了——按 E 进店", 3.0);
@@ -1628,7 +1636,7 @@ function finishRun(outcome) {
     if (runPhase !== "active") { return false; }
     runPhase = outcome;
     cancelRoomLoad();
-    if (activeDecision) { activeDecision.close(); }
+    if (activeDecision) { (activeDecision.dispose || activeDecision.close)(); }
     input.detach();
     menuOpen = false;
     shopOpen = false;
@@ -2437,6 +2445,54 @@ function closeDecision() {
     activeDecision = null;
     input.clear();
     syncWorldFrozen();
+}
+
+function openRunEvolution() {
+    if (runPhase !== 'active' || world.frozen || !playerView || world.player.dead) return;
+    const player = world.player, previous = playerView, runId = activeRunId;
+    const card = cards.all().find(card => card.id === player.card.id || card.evolvedId === player.card.id);
+    if (!card?.evolvedId) return;
+    const base = withCardForm(card, 'base'), evolved = withCardForm(card, 'evolved');
+    decisionOpen = true; input.clear(); syncWorldFrozen();
+    activeDecision = showRunEvolution({
+        title: '把成长写进旅途',
+        description: '净化3处战斗房，或抵达下一层后，可在安全房间用60金币进化。这份力量将陪伴你走完本次旅途。',
+        choices: [{ id: String(card.id), name: card.characterZh || card.name, currency: '金币',
+            before: new URL('../../' + base.card, import.meta.url).href,
+            after: new URL('../../' + evolved.card, import.meta.url).href,
+            benefits: '生命上限 +15% · 攻击与魔攻 +12%' }],
+        quote: () => world.evolutionQuote(),
+        async confirm(_, signal) {
+            const quote = world.evolutionQuote();
+            if (!quote.ok) return quote;
+            let actor = null, nextView = null;
+            try {
+                actor = await actorModule.create({ resourceId: evolved.resourceId, classId: player.card.class,
+                    headId: evolved.headId, dedicatedWeapon: card.dedicatedWeapon,
+                    weapon: 'default', skillId: evolved.resourceId });
+                // Prepare off-scene; the old model remains visible until the save commits.
+                const staging = new THREE.Group();
+                nextView = attachPlayerView(player, actor, staging);
+                await nextView.equipmentReady;
+                if (nextView.equipment.status !== 'ready') return { ok: false, reason: '装备模型未能准备好，金币未扣除，请重试。' };
+                if (signal.aborted || runPhase !== 'active' || activeRunId !== runId
+                        || world.player !== player || playerView !== previous || storageConflict) {
+                    return { ok: false, reason: '旅途状态已改变，金币未扣除。' };
+                }
+                const result = world.evolvePlayer(persistRoomEvent);
+                if (!result.ok) return result;
+                player.displayCardId = evolved.displayCardId;
+                playerView = nextView;
+                for (const child of [...staging.children]) scene.add(child);
+                nextView = null; actor = null;
+                previous.dispose(); previous.actor.object.removeFromParent(); previous.actor.dispose();
+                return result;
+            } finally {
+                nextView?.dispose(); actor?.object.removeFromParent(); actor?.dispose();
+            }
+        },
+        onClose: closeDecision
+    });
 }
 
 function openStorage() {
@@ -3597,9 +3653,9 @@ function loadPlayer() {
         // not re-randomised here — it was decided once at module boot.
         const bootFloor = resume ? resume.floor : startFloor;
         say("读取中 " + (card.characterZh || card.character || card.name) + "…");
-        const evolved=resume?resume.evolved===true:meta.isEvolved(row.id);
+        const evolved=resume?.evolved===true;
         const appearance = resume ? (resume.appearance || (row.id === card.evolvedId ? "evolved" : "base"))
-            : evolved?formName(card, readFormPreferences()):'base';
+            : 'base';
         const visual = withCardForm(card, appearance);
         return actorModule.create({
             resourceId: visual.resourceId,
@@ -3771,14 +3827,6 @@ function loadPlayer() {
     }
     const rosterOptions = {
         cardForms: gachaById,
-        evolutionQuote:id=>meta.evolutionQuote(id),
-        evolutionPreview:id=>{
-            const level=Math.max(world.encounter?.playerLevel || 1,meta.levelOf(id));
-            const before=tables.stats.statsFor(id,level),after=evolvedStats(before,true);
-            return {caption:`新旅程 Lv.${level} · 未计装备增益`,stats:[['hp','生命'],['atk','物攻'],['mgc','魔攻']]
-                .map(([key,label])=>({label,before:before[key],after:Math.round(after[key])}))};
-        },
-        onEvolve:id=>{const result=meta.evolve(id);if(result.ok)audio.se('chime',{volume:.35});return result;},
         onCodex: openCodex,
         onAchievements: openAchievements,
         onStorage: openStorage,

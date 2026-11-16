@@ -1,0 +1,170 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, user-scalable=no">
+  <meta name="theme-color" content="#17132e">
+  <meta name="description" content="闪耀幻想曲：星落漫游。使用原作角色卡面、模型与音乐的非官方同人横版动作 Roguelike。">
+  <meta name="referrer" content="no-referrer">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self' blob: data:; script-src 'self' 'unsafe-inline' 'wasm-unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; media-src 'self' blob:; connect-src 'self' blob:; worker-src 'self' blob:; object-src 'none'; base-uri 'self'">
+  <title>星落漫游 · 闪耀幻想曲</title>
+  <link rel="icon" href="../../favicon.png">
+  <link rel="stylesheet" href="../../css/kirara-cursor.css?v=20261110-1" fetchpriority="high">
+  <link rel="stylesheet" href="./styles.css?v=20261112-1">
+  <script type="importmap">{"imports":{"three":"../../vendor/three/three.module.min.js"}}</script>
+</head>
+<body>
+  <div id="app">
+    <div id="stage-wrap">
+      <div id="stage" aria-label="星落漫游游戏画面">
+        <canvas id="world-canvas" aria-hidden="true"></canvas>
+        <canvas id="model-canvas" aria-hidden="true"></canvas>
+        <canvas id="fx-canvas" aria-hidden="true"></canvas>
+
+        <div id="ui">
+          <!-- 标题 -->
+          <section id="screen-title" class="screen title-screen">
+            <div class="title-vignette" aria-hidden="true"></div>
+            <div class="title-copy">
+              <p class="eyebrow">闪耀幻想曲 · 同人外传 <span>/</span> SIDE STORY</p>
+              <h1 class="title-wordmark">
+                <span class="title-cn">星落漫游</span>
+                <span class="title-en">STARFALL PROMENADE</span>
+              </h1>
+              <p class="title-tagline">把碎掉的夜空，一起捡回来。</p>
+              <p class="title-genre">横版动作 · 星愿构筑 · 三卷漫游</p>
+              <nav class="title-menu" aria-label="主菜单">
+                <button class="menu-button primary" data-action="start" type="button"><span>开始漫游</span><small>NEW JOURNEY</small></button>
+                <button class="menu-button continue hidden" data-action="continue" type="button"><span>继续漫游</span><small>CONTINUE</small></button>
+                <div class="title-menu-row">
+                  <button class="menu-button small" data-action="starmap" type="button">星图</button>
+                  <button class="menu-button small" data-action="help" type="button">玩法</button>
+                  <button class="menu-button small" data-action="settings" type="button">设置</button>
+                </div>
+              </nav>
+              <p class="title-foot"><span class="foot-star" aria-hidden="true">✧</span> 键盘与触屏均可游玩 <span class="foot-dot">·</span> 建议横屏 <span class="foot-dot">·</span> <a href="../../../index.html">返回纪念之庭</a></p>
+            </div>
+            <div class="title-art" aria-hidden="true">
+              <div class="title-moon"></div>
+              <div class="title-cloud c1"></div>
+              <div class="title-cloud c2"></div>
+              <div class="title-card-fan">
+                <img class="fan-card f1" src="../../asset/img/rl/card/17002001.webp" alt="">
+                <img class="fan-card f2" src="../../asset/img/rl/card/30002001.webp" alt="">
+                <img class="fan-card f3" src="../../asset/img/rl/card/15002001.webp" alt="">
+                <img class="fan-card f4" src="../../asset/img/rl/card/32172001.webp" alt="">
+                <img class="fan-card f5" src="../../asset/img/rl/card/14002001.webp" alt="">
+              </div>
+              <img class="title-stand" src="../../imgs/optimized/Kirara_part2_Star5_StandPic_0-480.webp" alt="">
+              <span class="title-spark s1">✦</span><span class="title-spark s2">✧</span><span class="title-spark s3">✦</span>
+              <p class="title-credit">ART FROM KIRARA FANTASIA</p>
+            </div>
+            <p class="title-version">v1.0 · 2026</p>
+          </section>
+
+          <!-- 角色选择 -->
+          <section id="screen-select" class="screen select-screen hidden" aria-labelledby="select-title">
+            <header class="screen-head">
+              <button class="ghost-button back" data-action="back-title" type="button" aria-label="返回标题">‹ 返回</button>
+              <div>
+                <p class="eyebrow">CHOOSE YOUR COMPANION</p>
+                <h2 id="select-title">今天，和谁一起出发？</h2>
+              </div>
+              <div class="starlight-pill"><span aria-hidden="true">✧</span><b id="select-starlight">0</b><small>星辉</small></div>
+            </header>
+            <div class="select-body">
+              <div class="select-art">
+                <div class="select-card-frame">
+                  <img id="select-art" src="../../asset/img/rl/card/32002001.webp" alt="">
+                  <div class="select-art-shade"></div>
+                  <div class="select-nameplate">
+                    <div class="class-badge" id="select-class-badge"><span id="select-class-icon">✦</span><b id="select-class">牧师</b></div>
+                    <h3 id="select-name">琪拉拉</h3>
+                    <p id="select-work">漫画版 · 闪耀幻想曲</p>
+                  </div>
+                </div>
+                <p class="select-quote" id="select-quote">“去把星星捡回来吧。”</p>
+              </div>
+              <div class="select-info">
+                <div class="select-stats" id="select-stats"></div>
+                <div class="select-skill-grid">
+                  <article class="select-skill">
+                    <div class="skill-seal" id="select-skill-seal">✦</div>
+                    <div><p class="skill-kind">特技 <span>K / X</span></p><h4 id="select-skill-name">星屑诊疗</h4><p id="select-skill-desc"></p></div>
+                  </article>
+                  <article class="select-skill ult">
+                    <div class="skill-seal" id="select-ult-seal">★</div>
+                    <div><p class="skill-kind">星坠 <span>Q</span></p><h4 id="select-ult-name">银河点心</h4><p id="select-ult-desc"></p></div>
+                  </article>
+                </div>
+                <div class="select-trait"><span>旅途特质</span><p id="select-trait"></p></div>
+                <div class="select-meta" id="select-meta"></div>
+                <button class="menu-button primary select-start" data-action="begin-run" type="button"><span>从这一页出发</span><small>ENTER THE STORY</small></button>
+              </div>
+            </div>
+            <div class="roster-strip" id="roster-strip" role="listbox" aria-label="可选同伴"></div>
+          </section>
+
+          <!-- 游戏 HUD -->
+          <div id="hud" class="hud hidden">
+            <div class="hud-top">
+              <div class="hud-player">
+                <div class="hud-portrait"><img id="hud-icon" src="" alt=""><span id="hud-element" class="element-pip"></span></div>
+                <div class="hud-vitals">
+                  <div class="hud-name-row"><b id="hud-name">琪拉拉</b><span id="hud-hp-text">110 / 110</span></div>
+                  <div class="hp-track"><div id="hud-hp-ghost" class="hp-ghost"></div><div id="hud-hp-fill" class="hp-fill"></div></div>
+                  <div class="hud-sub"><span id="hud-shield" class="shield-chip hidden">护盾 <b>0</b></span><span id="hud-boon-count">星愿 0</span><span id="hud-revive" class="hidden">复起 ×1</span></div>
+                </div>
+              </div>
+              <div class="hud-chapter">
+                <p id="hud-act-label">第一卷 · 晨曦花径</p>
+                <div class="room-pips" id="hud-room-pips"></div>
+                <p id="hud-room-label" class="hud-room-label">第 1 页</p>
+              </div>
+              <div class="hud-resources">
+                <div class="dust-pill"><img src="../../asset/img/rl/drop/star.webp" alt=""><b id="hud-dust">0</b></div>
+                <button class="hud-icon-button" data-action="boons" type="button" aria-label="查看星愿" title="查看星愿">✧<small id="hud-boon-badge">0</small></button>
+                <button class="hud-icon-button" data-action="pause" type="button" aria-label="暂停" title="暂停">Ⅱ</button>
+              </div>
+            </div>
+            <div id="boss-bar" class="boss-bar hidden">
+              <div class="boss-name-row"><span id="boss-phase">守卷人</span><b id="boss-name">生姜</b><span id="boss-hp-text">900 / 900</span></div>
+              <div class="boss-track"><div id="boss-hp-fill"></div><div id="boss-hp-ghost"></div></div>
+            </div>
+            <div id="wave-banner" class="wave-banner hidden"><b></b><span></span></div>
+            <div id="interact-prompt" class="interact-prompt hidden"><span class="keycap">E</span><b></b><small></small></div>
+            <div id="hud-toast" class="hud-toast" role="status" aria-live="polite"></div>
+            <div class="skill-bar" id="skill-bar">
+              <div class="skill-slot attack"><span class="skill-key">J</span><div class="skill-glyph">⚔</div><span class="skill-label">攻击</span></div>
+              <div class="skill-slot skill" id="slot-skill"><span class="skill-key">K</span><div class="skill-glyph" id="slot-skill-glyph">✦</div><div class="cd-mask" id="slot-skill-cd"></div><span class="skill-label" id="slot-skill-label">特技</span><span class="cd-text" id="slot-skill-cd-text"></span></div>
+              <div class="skill-slot dash" id="slot-dash"><span class="skill-key">L</span><div class="skill-glyph">»</div><div class="cd-mask" id="slot-dash-cd"></div><span class="skill-label">闪身</span></div>
+              <div class="skill-slot ult" id="slot-ult"><span class="skill-key">Q</span><div class="skill-glyph">★</div><div class="ult-fill" id="slot-ult-fill"></div><span class="skill-label">星坠</span><span class="ult-pct" id="slot-ult-pct">0%</span></div>
+            </div>
+            <div class="hud-hint" id="hud-hint"><span>A D</span> 移动 <span>空格</span> 跳跃 <span>J</span> 攻击 <span>K</span> 特技 <span>L</span> 闪身 <span>Q</span> 星坠</div>
+          </div>
+
+          <!-- 触屏控制 -->
+          <div id="touch-controls" class="touch-controls hidden" aria-hidden="true">
+            <div class="touch-move"><button data-touch="left" type="button" aria-label="向左">‹</button><button data-touch="right" type="button" aria-label="向右">›</button></div>
+            <div class="touch-actions">
+              <button class="t-interact" data-touch="interact" type="button" aria-label="交互">E</button>
+              <button class="t-dash" data-touch="dash" type="button" aria-label="闪身">»</button>
+              <button class="t-skill" data-touch="skill" type="button" aria-label="特技">✦</button>
+              <button class="t-attack" data-touch="attack" type="button" aria-label="攻击">⚔</button>
+              <button class="t-jump" data-touch="jump" type="button" aria-label="跳跃">↑</button>
+            </div>
+          </div>
+
+          <!-- 覆盖层：星愿/暂停/剧情/商店提示/结算/星图/设置/帮助 -->
+          <div id="overlay" class="overlay hidden" role="dialog" aria-modal="true"></div>
+          <div id="fade" class="fade-layer" aria-hidden="true"></div>
+          <div id="page-turn" class="page-turn" aria-hidden="true"></div>
+          <div id="loading" class="loading hidden" aria-live="polite"><div class="loading-page"><span class="loading-star">✧</span><p id="loading-text">正在翻开这一页…</p><div class="loading-track"><i id="loading-bar"></i></div></div></div>
+          <div id="rotate-hint" class="rotate-hint hidden">横屏游玩，视野更开阔</div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <script type="module" src="./src/main.js?v=20261112-1"></script>
+</body>
+</html>

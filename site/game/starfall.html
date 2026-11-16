@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
+<meta name="theme-color" content="#1a1430">
+<title>星降旅记 · Kirara Starfall</title>
+<link rel="stylesheet" href="../css/kirara-cursor.css?v=20261110-1">
+<link rel="icon" href="../favicon.png">
+<style>
+  html, body { margin: 0; height: 100%; overflow: hidden; background: #14102a; }
+  body {
+    display: flex; align-items: center; justify-content: center;
+    font-family: "Noto Sans SC", "PingFang SC", "Microsoft YaHei", sans-serif;
+    -webkit-tap-highlight-color: transparent;
+  }
+  canvas {
+    display: block; outline: none;
+    touch-action: none; user-select: none; -webkit-user-select: none;
+    box-shadow: 0 0 60px rgba(0,0,0,.65);
+  }
+  .sf-back {
+    position: fixed; top: 12px; left: 14px; z-index: 10;
+    padding: 7px 14px; border-radius: 999px;
+    color: #fffaf0; text-decoration: none; font-size: 12px; font-weight: 600;
+    background: rgba(30,22,48,.62); border: 1px solid rgba(255,235,190,.35);
+    backdrop-filter: blur(6px);
+    transition: opacity .25s, background .2s;
+  }
+  .sf-back:hover { background: rgba(231,102,143,.8); }
+  body.playing .sf-back { opacity: 0; pointer-events: none; }
+  #fallback {
+    position: fixed; inset: 0; display: none; place-items: center;
+    color: #fffaf0; text-align: center; line-height: 2; padding: 24px;
+  }
+</style>
+</head>
+<body>
+  <a class="sf-back" href="../../index.html">← 返回纪念主页 / Back</a>
+  <canvas id="game" width="960" height="540" tabindex="0" aria-label="星降旅记游戏画面"></canvas>
+  <div id="fallback">需要通过本地 HTTP 服务打开本页面。<br>请在仓库目录运行 <code>python tools/serve.py</code> 后访问。</div>
+  <script type="module">
+    import { boot } from './starfall/game.js';
+    boot().catch((err) => {
+      console.error(err);
+      document.getElementById('fallback').style.display = 'grid';
+    });
+  </script>
+</body>
+</html>

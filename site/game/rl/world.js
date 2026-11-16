@@ -57,7 +57,7 @@ import { applyEquipment, equipmentMultipliers, passiveRuntime, calculateLoadout,
 import { gadgetRuntime, gadgetDefinition, gadgetTerms, rollGadget, sameGadgetEffect } from './gadgets.js';
 import { createAssistance } from './assistance.js';
 import { restEventChoices, altarEventChoices } from './roomevents.js';
-import { evolvedStats } from '../../core/evolution.js';
+import { evolvedStats, ADVENTURE_EVOLUTION_ROOMS, ADVENTURE_EVOLUTION_COINS } from '../../core/evolution.js';
 
 let nextId = 1;
 
@@ -1212,6 +1212,32 @@ export function createWorld(options) {
         const health = healthForLoadout(p, calculateLoadout(p.truthBase, equipment, p));
         return { equipment, hp: health.hp };
     }
+
+    world.evolutionQuote = function () {
+        const p = world.player;
+        const cleared = world.floor > 1 ? ADVENTURE_EVOLUTION_ROOMS : (world.dungeon?.rooms || [])
+            .filter(room => ['battle', 'boss'].includes(room.type) && world.roomState.get(room.id)?.cleared).length;
+        const reason = !p || p.dead ? '当前没有可进化的同行者' : p.evolved ? '本次旅途已进化'
+            : world.roomLocked || world.transition ? '先清理房间，再安稳地迎接成长'
+            : cleared < ADVENTURE_EVOLUTION_ROOMS ? `再净化 ${ADVENTURE_EVOLUTION_ROOMS - cleared} 处战斗房`
+            : world.coin < ADVENTURE_EVOLUTION_COINS ? `还差 ${ADVENTURE_EVOLUTION_COINS - world.coin} 金币` : null;
+        return { ok: !reason, reason, evolved: !!p?.evolved, cost: ADVENTURE_EVOLUTION_COINS, owned: world.coin,
+            progress: Math.min(cleared, ADVENTURE_EVOLUTION_ROOMS), needed: ADVENTURE_EVOLUTION_ROOMS };
+    };
+
+    world.evolvePlayer = function (persist) {
+        const quote = world.evolutionQuote(), p = world.player;
+        if (!quote.ok) return quote;
+        const loadout = calculateLoadout(p.truthBase, p.equipment, { ...p, evolved: true });
+        const next = { evolved: true, appearance: 'evolved', coin: world.coin - quote.cost, hp: healthForLoadout(p, loadout).hp };
+        try { if (persist && persist(next) !== true) return { ok: false, reason: '保存失败，金币与能力均未改变' }; }
+        catch (_) { return { ok: false, reason: '保存失败，金币与能力均未改变' }; }
+        p.evolved = true; p.appearance = 'evolved'; world.coin = next.coin;
+        reapplyEquipment(p);
+        refreshPlayer(p);
+        world.events.push({ type: 'evolution', unit: p });
+        return { ok: true };
+    };
 
     world.previewEquipment = function (item) {
         const p = world.player;

@@ -2,9 +2,8 @@ import { LEVELS, CHAPTERS, ENDLESS, UNIT_RULES, ENEMY_RULES, ENEMY_FIRST_SEEN, D
 import { CampaignSave } from "./campaign-save.js";
 import { evaluateChallenge } from "./challenge-evaluator.js";
 import { portraitMarkup, siteUrl } from "./assets.js";
-import { readFormPreferences, formName, saveFormPreference, withCardForm } from "../../core/card-forms.js";
-import { isEvolved, EVOLUTION_HEALTH, EVOLUTION_POWER } from '../../core/evolution.js';
-import { createEvolutionPanel, showEvolutionResult } from '../../core/evolution-view.js';
+import { withCardForm } from "../../core/card-forms.js";
+import { showRunEvolution } from '../../core/run-evolution-view.js';
 import { ICONS } from "./icons.js";
 // 来客小像：懒拍池内模型本体。模块本身零重依赖（three/拍摄管线都在
 // 拍摄函数内部按需动态导入），在选关图载入它没有额外成本。
@@ -106,6 +105,7 @@ const markup = `
       <button class="hud-button" data-action="restock" data-role="restock" hidden aria-label="换卡">${ICONS.gear}<span data-role="restock-label">换卡×0</span></button>
       <button class="hud-button" data-action="recall" aria-pressed="false" aria-label="召回">${ICONS.recall}<span>召回</span></button>
       <button class="hud-button" data-action="inspect" aria-label="战场详情">${ICONS.list}<span>详情</span></button>
+      <button class="hud-button" data-action="evolution" aria-label="本场进化">✧<span>进化</span></button>
       <button class="hud-button" data-action="checkpoint" data-role="checkpoint" hidden aria-label="保存进度">${ICONS.collect}<span data-role="checkpoint-label">保存</span></button>
     </div>
     <div class="battle-viewport" data-role="viewport" role="group" aria-label="巡守战场"><p class="sr-only" data-role="battle-live" aria-live="polite"></p><div class="battle-objectives" data-role="objectives" aria-label="本关目标"></div>
@@ -134,7 +134,6 @@ export class Campaign {
         this.options = options;
         this.host = options.host;
         this.catalogue = options.catalogue;
-        this.formPreferences = readFormPreferences();
         this.formUnits = new Map();
         this.audio = options.audio;
         this.host.innerHTML = markup;
@@ -160,7 +159,7 @@ export class Campaign {
         if (options.manualClock) {
             storage = { getItem: key => localStorage.getItem(`${key}.review`), setItem: (key, value) => localStorage.setItem(`${key}.review`, value) };
         }
-        this.save = new CampaignSave(storage, this.catalogue);
+        this.save = new CampaignSave(storage);
         this.levelId = this.save.progress.lastLevel;
         this.deckSearch = "";
         this.deckFamily = "全部";
@@ -189,10 +188,10 @@ export class Campaign {
     }
     unit(id) {
         const evolved=this.mode==='battle' && this.battleEvolution
-            ? this.battleEvolution.has(id) : isEvolved(this.save.progress.evolution,id);
+            ? this.battleEvolution.has(id) : false;
         if (!this.formUnits.has(id) || this.formUnits.get(id).evolved!==evolved) {
             const card = this.catalogue.units.find(unit => unit.id === id);
-            if (card) this.formUnits.set(id, {...withCardForm(card, evolved?formName(card,this.formPreferences):'base'),evolved});
+            if (card) this.formUnits.set(id, {...withCardForm(card, evolved?'evolved':'base'),evolved});
         }
         return this.formUnits.get(id);
     }
@@ -307,53 +306,23 @@ export class Campaign {
     showCardForms(id = this.unit(this.deckFocus) ? this.deckFocus : this.deckChoice.find(id => this.unit(id)) || "U01") {
         const card = this.unit(id), dialog = this.formDialog;
         if (!card) return;
-        let preview=card.appearance;
-        const image = document.createElement("img"); image.className = "card-form-art"; image.alt = card.name + "完整卡面";
-        const copy = document.createElement("div"), heading = document.createElement("h2"), description = document.createElement("p");
+        const image = document.createElement('img'); image.className = 'card-form-art'; image.alt = card.name + '完整卡面';
+        const copy = document.createElement('div'), heading = document.createElement('h2'), description = document.createElement('p');
         heading.textContent = card.name; description.textContent = `★${card.rarity} · ${card.work} · ${UNIT_RULES[id].help}`;
-        const controls = document.createElement("div"); controls.className = "card-form-controls";
-        const status=document.createElement('p');status.setAttribute('role','status');
-        const evolve=document.createElement('button');evolve.type='button';evolve.className='native-button primary';evolve.dataset.action='evolve-card';
-        const retention='编队、装备与城镇成长均保留；已保存的巡守继续使用该局的成长状态。';
-        const rule=UNIT_RULES[id],statRows=[['hp','生命',EVOLUTION_HEALTH],['damage','单次攻击',EVOLUTION_POWER],['healing','单次治疗',EVOLUTION_POWER],['shield','护盾',EVOLUTION_POWER]];
-        const growthPreview={caption:'巡守基础能力 · 未计装备与城镇',stats:statRows.filter(([key])=>rule[key]>0)
-            .map(([key,label,factor])=>({label,before:rule[key],after:Math.round(rule[key]*factor)}))};
-        const growth=createEvolutionPanel({button:evolve,activity:'同行巡守',retention,
-            reward:'战役胜利或无尽每完成5波，编队伙伴获得1点阅历，每种编队属性带回1枚进化珠。'});
-        const sync = () => {
-            const quote=this.save.evolutionQuote(id);image.src=siteUrl(card.forms[preview].card);
-            for (const button of controls.children) {
-                button.setAttribute('aria-pressed',String(button.dataset.form===preview));
-                button.textContent=button.dataset.form==='base'?'进化前':quote.evolved?'进化后':'进化后 · 预览';
-            }
-            growth.update(quote,growthPreview);
-        };
-        for (const [form, label] of [["base", "进化前"], ["evolved", "进化后"]]) {
+        const controls = document.createElement('div'); controls.className = 'card-form-controls';
+        for (const [form, label] of [['base', '进化前'], ['evolved', '进化后 · 预览']]) {
             if (!card.forms?.[form]) continue;
-            const button = document.createElement("button"); button.type = "button"; button.className = "native-button";
+            const button = document.createElement('button'); button.type = 'button'; button.className = 'native-button';
             button.textContent = label; button.dataset.form = form;
-            button.addEventListener("click", () => {
-                preview=form;
-                if(this.save.evolutionQuote(id).evolved)saveFormPreference(card,form,this.formPreferences);
-                this.formUnits.delete(id);
-                const art = this.get("deck-grid").querySelector(`[data-card="${id}"] .deck-illustration`);
-                if (art) art.src = siteUrl(this.unit(id).card);
-                this.renderDeckPicker(); sync();
+            button.addEventListener('click', () => {
+                image.src = siteUrl(card.forms[form].card);
+                for (const child of controls.children) child.setAttribute('aria-pressed', String(child === button));
             }); controls.append(button);
         }
-        evolve.addEventListener('click',()=>{
-            const result=this.save.evolve(id);
-            if(!result.ok){status.textContent=result.reason==='storage'?'保存失败，素材未扣除。请导出记录或恢复存储后重试。':'尚未满足进化条件。';return;}
-            preview='evolved';saveFormPreference(card,preview,this.formPreferences);this.formUnits.delete(id);
-            const art=this.get('deck-grid').querySelector(`[data-card="${id}"] .deck-illustration`);
-            if(art)art.src=siteUrl(this.unit(id).card);
-            this.renderDeckPicker();sync();image.classList.remove('evolution-reveal');void image.offsetWidth;image.classList.add('evolution-reveal');
-            this.audio.se('chime');status.textContent='进化完成。下一次巡守将使用新的成长能力。';
-            showEvolutionResult({name:card.name,before:siteUrl(card.forms.base.card),after:siteUrl(card.forms.evolved.card),preview:growthPreview,retention});
-        });
-        const close = document.createElement("button"); close.type = "button"; close.className = "native-button primary"; close.textContent = "确认形态";
-        close.addEventListener("click", () => dialog.close()); copy.append(heading,description,controls,growth.element,status,close);
-        dialog.replaceChildren(image, copy); sync(); dialog.showModal();
+        const hint = document.createElement('p'); hint.textContent = '进化在本场巡守中完成：部署伙伴，驻场20秒后，用应援换取新的身影与能力。新的巡守从进化前开始。';
+        const close = document.createElement('button'); close.type = 'button'; close.className = 'native-button primary'; close.textContent = '返回编队';
+        close.addEventListener('click', () => dialog.close()); copy.append(heading,description,controls,hint,close);
+        dialog.replaceChildren(image,copy); controls.firstChild?.click(); dialog.showModal();
     }
 
     unitArt(id) {
@@ -447,6 +416,7 @@ export class Campaign {
             collect: () => this.view?.collectAll(), recall: () => this.view?.setRecall(!this.view.recallMode),
             "confirm-placement": () => this.view?.confirmPlacement(),
             "cancel-placement": () => this.view?.cancelPlacement(),
+            evolution: () => this.openEvolution(),
             inspect: () => this.inspect(), checkpoint: () => this.saveCheckpointNow(), "inspect-close": () => this.closeDialog("inspect-dialog", "inspect"),
             settings: () => this.options.onSettings(),
             "result-map": () => this.showMap(), retry: () => this.startLevel(this.levelId),
@@ -781,6 +751,7 @@ export class Campaign {
 
     releaseBattle() {
         this.epoch++;
+        this.runEvolutionDialog?.dispose();
         this.view?.dispose(); this.view = null;
         this.closeDialogs();
         this.audio.suspend(false);
@@ -811,7 +782,7 @@ export class Campaign {
         this.releaseBattle();
         const growthSnapshot = resuming || (level.endless && this.save.progress.endlessRun?.wave >= 2 ? this.save.progress.endlessRun : null);
         this.battleEvolution = new Set(growthSnapshot
-            ? Array.isArray(growthSnapshot.evolved) ? growthSnapshot.evolved : [] : this.save.progress.evolution.evolved);
+            ? Array.isArray(growthSnapshot.evolved) ? growthSnapshot.evolved : [] : []);
         this.levelId = id;
         this.save.rememberLevel(id);
         this.mode = "battle";
@@ -897,7 +868,7 @@ export class Campaign {
                         this.notice(`${rule.name}：${tacticalHint(rule)}`);
                     }
                 },
-                onInspect: () => this.inspect(),
+                onInspect: (unit, kind) => kind === 'player' ? this.openEvolution(unit.type) : this.inspect(),
                 onError: error => { if (epoch === this.epoch) { this.error(error); } },
                 onFinished: event => { if (epoch === this.epoch) { this.finish(event); } }
             });
@@ -989,18 +960,23 @@ export class Campaign {
         }
     }
 
-    // Touch players drag a card onto the field; releasing over a cell plants
-    // it, releasing anywhere else keeps the card in hand, as in the original PvZ.
+    // Let the browser scroll along the card shelf; only a cross-axis gesture
+    // starts deployment. touch-action in CSS declares the same scroll axis.
     beginCardDrag(event, id) {
         if (event.pointerType === "mouse" || !this.view || event.button !== 0) { return; }
         const start = { x: event.clientX, y: event.clientY };
+        const vertical = getComputedStyle(this.get("bank")).flexDirection === "column";
         let moved = false;
         const move = moveEvent => {
-            if (!moved && Math.hypot(moveEvent.clientX - start.x, moveEvent.clientY - start.y) < 12) { return; }
+            if (moveEvent.pointerId !== event.pointerId) { return; }
+            const dx = Math.abs(moveEvent.clientX - start.x), dy = Math.abs(moveEvent.clientY - start.y);
+            if (!moved && Math.hypot(dx, dy) < 12) { return; }
+            if (!moved && (vertical ? dy >= dx : dx >= dy)) { end(moveEvent); return; }
             if (!moved) { moved = true; this.dragging = true; if (this.view.selected !== id || this.view.recallMode) { this.view.select(id); } }
-            this.view.dragTo(moveEvent.clientX, moveEvent.clientY);
+            this.view?.dragTo(moveEvent.clientX, moveEvent.clientY);
         };
         const end = upEvent => {
+            if (upEvent.pointerId !== event.pointerId) { return; }
             window.removeEventListener("pointermove", move);
             window.removeEventListener("pointerup", end);
             window.removeEventListener("pointercancel", end);
@@ -1091,6 +1067,12 @@ export class Campaign {
         this.text("pause-label", paused ? "继续" : "暂停");
         this.button("pause").disabled = state.phase !== "setup" && state.phase !== "running";
         this.button("collect").disabled = !state.pickups.length || !!state.pauses.length;
+        const evolution = this.button('evolution');
+        const battle = this.view?.battle;
+        const ready = !!battle && [...battle.deck].some(id => battle.evolutionQuote(id).ok);
+        evolution.classList.toggle('evolution-ready', ready);
+        evolution.disabled = controls.loading || state.phase !== 'running' || !!state.pauses.length;
+        this.attr(evolution, 'aria-label', ready ? '伙伴已准备好，可以进行本场进化' : '查看本场进化条件');
         this.text("collect-label", state.pickups.length ? `收取 ${state.pickups.length}` : "收取");
         this.button("collect").title = state.pickups.length ? `收取${state.pickups.length}份应援；资源会在8秒后自动收取` : "应援资源会在8秒后自动收取";
         const restockButton = this.button("restock");
@@ -1147,7 +1129,7 @@ export class Campaign {
         this.text("range-caption", controls.preview ? `第${controls.preview.row + 1}路，第${controls.preview.col + 1}格：${controls.preview.text}${controls.preview.valid ? "" : `。${controls.preview.reason}`}` : "");
         this.get("placement-actions").hidden = !controls.touchConfirm;
         this.button("confirm-placement").disabled = controls.loading || !controls.preview?.valid;
-        this.text("confirm-label", controls.recall ? "确认召回" : "确认部署");
+        this.text("confirm-label", controls.recall ? "确认召回" : rule?.kind === "gear" ? "确认佩戴" : "确认部署");
         if (this.view) {
             this.laneNodes.forEach(({ marker, warning }, row) => {
                 marker.classList.toggle("spent", !state.gates[row]);
@@ -1239,7 +1221,7 @@ export class Campaign {
         this.text("result-copy", won ? `${battle.level.title}完成。${event.stats.gatesUsed ? "结界替大家争取了时间。" : "每一条道路都守住了。"}`
             : endless ? `本次守到第${event.wave}波，击退${event.stats.kills}位来客。`
             : `第${event.row + 1}路被突破。可以试着减少前期支出，或更早补上这一条路的输出。`);
-        if(result.evolutionEarned)this.get('result-copy').append(' 同行伙伴阅历 +1，对应属性进化珠已带回；可在「卡面与形态」中进化。');
+        this.get('result-copy').append(' 本场进化随巡守落幕。下一次，重新安排你的应援。');
         const stats = this.get("result-stats"); stats.replaceChildren();
         // 纯数字格做 800ms count-up（击退/治疗/结界/波次数）；「巡守时间
         // 1:23」这类带格式的值直接渲染终值。review=1（manualClock）、应用
@@ -1950,6 +1932,30 @@ export class Campaign {
         const need = {};
         for (const id of cost) { need[id] = (need[id] || 0) + 1; }
         return Object.entries(need).every(([id, n]) => (this.save.progress.materials[id] || 0) >= n);
+    }
+
+    openEvolution(preferred) {
+        const view = this.view;
+        if (!view?.ready || view.loading || document.querySelector('dialog[open]')) return;
+        const ids = [...new Set([...view.battle.deck, ...[...view.battle.units.values()].map(unit => unit.type)])]
+            .filter(id => this.unit(id));
+        ids.sort((a, b) => Number(b === preferred) - Number(a === preferred));
+        view.cancelPlacement(); view.setPaused('evolution-ui', true);
+        this.runEvolutionDialog = showRunEvolution({
+            title: '将应援交给你', description: '伙伴驻场20秒后可以进化。先扩充防线，还是让熟悉的伙伴更强？同卡角色与后续部署共享本场进化。',
+            choices: ids.map(id => { const card = this.unit(id); return { id, name: card.name, currency: '应援',
+                before: siteUrl(card.forms.base.card), after: siteUrl(card.forms.evolved.card) }; }),
+            quote: id => view.battle.evolutionQuote(id),
+            confirm: async (id, signal) => {
+                const result = await view.evolve(id);
+                if (!result.ok || signal.aborted || this.view !== view) return result;
+                this.battleEvolution.add(id); this.formUnits.delete(id);
+                this.buildBank([...view.battle.deck]);
+                this.notice(`${this.unit(id).name}已经进化，新的身影将守护这场巡守。`);
+                return result;
+            },
+            onClose: () => { this.runEvolutionDialog = null; if (!view.disposed) view.setPaused('evolution-ui', false); }
+        });
     }
 
     inspect() {

@@ -1,6 +1,5 @@
 import { showCharacterCard } from "./infocard.js";
-import { readFormPreferences, formName, saveFormPreference, withCardForm } from "../../../core/card-forms.js";
-import { createEvolutionPanel, showEvolutionResult } from '../../../core/evolution-view.js';
+import { withCardForm } from "../../../core/card-forms.js";
 
 const SITE = new URL("../../../", import.meta.url);
 const CARD_ART_BASE = new URL("asset/img/rl/card/", SITE).href;
@@ -23,11 +22,8 @@ export function createRosterUI(options) {
     }
     const roster = [...unique.values()];
     let selected = roster[0] || null;
-    const preferences = readFormPreferences();
     const appearance = card => options.cardForms?.get(card.id);
-    const growth = card => options.evolutionQuote?.(card.id);
-    const equippedForm = card => growth(card)?.evolved===false?'base':formName(appearance(card),preferences);
-    const shownCard = card => appearance(card) ? withCardForm(appearance(card), equippedForm(card)).displayCardId : card.id;
+    const shownCard = card => appearance(card) ? withCardForm(appearance(card), 'base').displayCardId : card.id;
     let previewForm=null;
     let activeElement = null;
     let search = "";
@@ -74,7 +70,7 @@ export function createRosterUI(options) {
     const help = node("section", "rl-camp-help");
     help.id = "roster-guide-content";
     help.hidden = true;
-    help.innerHTML = `<div><b>01 · 选择同行者</b><p>选中角色后点击出发。完成楼层积累阅历与属性进化珠，在营地进化伙伴，解锁新的身影和能力。</p></div><div><b>02 · 探索与战斗</b><p><kbd class="ad-key">W A S D</kbd> 移动 · 鼠标攻击 · <kbd class="ad-key">空格</kbd> 闪避<br><kbd class="ad-key">2 / 3</kbd> 技能 · <kbd class="ad-key">R</kbd> 必杀 · <kbd class="ad-key">E</kbd> 互动</p></div><div><b>03 · 带回新的回忆</b><p>清理房间、收集装备、寻找出口。进度自动保存在当前浏览器；手机横竖屏均可使用摇杆与触控按钮。</p></div>`;
+    help.innerHTML = `<div><b>01 · 选择同行者</b><p>选中角色后点击出发。净化3处战斗房或抵达下一层后，在安全房间使用60金币完成本次旅途的进化，新的卡面与模型当场生效。</p></div><div><b>02 · 探索与战斗</b><p><kbd class="ad-key">W A S D</kbd> 移动 · 鼠标攻击 · <kbd class="ad-key">空格</kbd> 闪避<br><kbd class="ad-key">2 / 3</kbd> 技能 · <kbd class="ad-key">R</kbd> 必杀 · <kbd class="ad-key">E</kbd> 互动</p></div><div><b>03 · 带回新的回忆</b><p>清理房间、收集装备、寻找出口。进度自动保存在当前浏览器；手机横竖屏均可使用摇杆与触控按钮。</p></div>`;
     guide.addEventListener("click", () => {
         help.hidden = !help.hidden;
         guide.setAttribute("aria-expanded", String(!help.hidden));
@@ -112,48 +108,12 @@ export function createRosterUI(options) {
         button.addEventListener("click", () => {
             const card = appearance(selected); if (!card) return;
             previewForm=value;
-            if(growth(selected)?.evolved!==false)saveFormPreference(card,value,preferences);
             select(selected);
-            const entry = cardNodes.find(item => item.card.id === selected.id);
-            const art = entry?.button.querySelector("img"); if (art) art.src = CARD_ART_BASE + shownCard(selected) + ".webp";
         }); forms.append(button);
     }
-    const evolve=node('button','ad-button ad-button-primary','消耗进化珠 · 进化');evolve.type='button';evolve.id='roster-evolve';
-    const evolveStatus=node('p','rl-form-note');evolveStatus.setAttribute('role','status');
-    const retention='等级、培养和装备均保留；正在进行的冒险仍按本局成长继续。';
-    const evolution=createEvolutionPanel({button:evolve,activity:'完成楼层',retention,
-        reward:'每次成功前往下一层或完成整卷，获得1点同行阅历与1枚对应属性进化珠。'});
-    const growthDetails=node('details','rl-growth');growthDetails.hidden=!options.onEvolve;
-    const growthToggle=node('summary','rl-growth-toggle');
-    const growthCopy=node('span',''),growthProgress=node('small','rl-growth-progress'),growthState=node('span','evolution-state');
-    growthCopy.append(node('strong','','同行成长'),growthProgress);growthToggle.append(growthCopy,growthState);
-    growthDetails.append(growthToggle,evolution.element,evolveStatus);
-    function refreshGrowth() {
-        const quote=selected&&growth(selected);if(!quote)return;
-        evolution.update(quote,options.evolutionPreview?.(selected.id));
-        growthDetails.dataset.state=quote.evolved?'evolved':quote.reason?'growing':'ready';
-        growthState.textContent=quote.evolved?'已进化':quote.reason?'查看进度':'可以进化';
-        growthProgress.textContent=quote.evolved?'新卡面与成长能力已解锁':`阅历 ${quote.experience}/${quote.needed} · 进化珠 ${quote.owned}/${quote.needed}`;
-    }
-    evolve.addEventListener('click',()=>{
-        const result=options.onEvolve(selected.id);
-        if(!result.ok){evolveStatus.textContent=result.reason==='storage'?'保存失败，素材和成长未改变。请先恢复存储。':'尚未满足进化条件。';return;}
-        previewForm='evolved';saveFormPreference(appearance(selected),'evolved',preferences);select(selected);
-        const art=cardNodes.find(item=>item.card.id===selected.id)?.button.querySelector('img');if(art)art.src=artwork.src;
-        artwork.classList.remove('evolution-reveal');void artwork.offsetWidth;artwork.classList.add('evolution-reveal');
-        evolveStatus.textContent='进化完成。下一次旅途将拥有新的能力。';
-        const card=appearance(selected);
-        showEvolutionResult({name:selected.characterZh || selected.name,
-            before:new URL(withCardForm(card,'base').card,SITE).href,after:artwork.src,
-            preview:options.evolutionPreview?.(selected.id),retention});
-    });
-    copy.append(work, name, identity, role, forms, details);
-    preview.append(artwork, copy, growthDetails);
-    // Closing camp training restores focus here; refresh derived values from
-    // the owner so the preview never retains the pre-training starting level.
-    overlay.addEventListener('focusin',event=>{
-        if(!event.relatedTarget||!overlay.contains(event.relatedTarget))refreshGrowth();
-    });
+    const growthHint = node('p', 'rl-form-note', '每段旅程，从最初的你开始。净化3处战斗房，或抵达下一层后，点击头像旁的成长按钮，在安全处用60金币迎接新的身影。');
+    copy.append(work, name, identity, role, forms, details, growthHint);
+    preview.append(artwork, copy);
     layout.appendChild(preview);
     const catalogue = node("div", "rl-roster-catalogue");
     const searchLabel = node("label", "rl-roster-search");
@@ -175,7 +135,7 @@ export function createRosterUI(options) {
     const chips = [];
     const departure=node('div','rl-departure'),current=node('button','rl-current-companion');current.type='button';
     const currentArt=node('img','');currentArt.alt='';const currentCopy=node('span',''),currentName=node('strong','');
-    currentCopy.append(currentName,node('small','','卡面与成长 ↗'));current.append(currentArt,currentCopy);
+    currentCopy.append(currentName,node('small','','卡面与资料 ↗'));current.append(currentArt,currentCopy);
     current.addEventListener('click',()=>{preview.scrollIntoView({block:'start'});name.focus({preventScroll:true});});
     departure.append(current,start);
     function filter() {
@@ -203,18 +163,16 @@ export function createRosterUI(options) {
         filters.appendChild(chip);
     }
     function select(card) {
-        if(selected?.id!==card.id){previewForm=null;evolveStatus.textContent='';}
+        if(selected?.id!==card.id)previewForm=null;
         selected = card;
-        const selectedForm=previewForm || (appearance(card)?equippedForm(card):'base');
+        const selectedForm=previewForm || 'base';
         const displayId=appearance(card)?withCardForm(appearance(card),selectedForm).displayCardId:card.id;
         artwork.src = CARD_ART_BASE + displayId + ".webp";
         const original = appearance(card); forms.hidden = !original?.evolvedId;
-        const quote=growth(card);
         for (const button of forms.children){
             button.setAttribute('aria-pressed',String(original&&button.dataset.form===selectedForm));
-            button.textContent=button.dataset.form==='base'?'进化前':quote?.evolved===false?'进化后 · 预览':'进化后';
+            button.textContent=button.dataset.form==='base'?'进化前':'进化后 · 预览';
         }
-        refreshGrowth();
         artwork.hidden = false;
         artwork.alt = card.characterZh + "的角色卡";
         work.textContent = card.titleZh || "闪耀幻想曲";
@@ -224,7 +182,7 @@ export function createRosterUI(options) {
         start.textContent = `与${card.characterZh || card.name}出发 →`;
         currentArt.src = CARD_ART_BASE + shownCard(card) + '.webp';
         currentName.textContent = card.characterZh || card.name;
-        current.setAttribute('aria-label',`查看${currentName.textContent}的卡面与成长`);
+        current.setAttribute('aria-label',`查看${currentName.textContent}的卡面与资料`);
         start.disabled = false;
         for (const item of cardNodes) item.button.setAttribute("aria-pressed", String(item.card.id === card.id));
     }

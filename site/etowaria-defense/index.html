@@ -15,6 +15,8 @@
   <link rel="stylesheet" href="./styles/battle.css?v=20261031-2">
   <link rel="stylesheet" href="../css/adventure.css">
   <link rel="stylesheet" href="./styles/journal.css">
+  <link rel="stylesheet" href="./styles/companions.css">
+  <link rel="stylesheet" href="./styles/battle-mobile.css">
   <script type="importmap">{"imports":{"three":"../vendor/three/three.module.min.js"}}</script>
 </head>
 <body>
@@ -40,31 +42,28 @@
       </div>
     </section>
 
-    <section id="roster-screen" class="screen roster-screen" aria-labelledby="roster-heading" hidden>
-      <header class="panel screen-header">
+    <section id="roster-screen" class="screen companion-screen" aria-labelledby="roster-heading" hidden>
+      <header class="companion-header">
         <button class="native-button compact" id="roster-back">返回</button>
-        <h2 id="roster-heading">角色与招式</h2>
-        <p>动作观察：可带入六位伙伴，不消耗资源、不计入巡守记录</p>
-        <button class="native-button primary compact" id="roster-enter">进入场景</button>
+        <div><h2 id="roster-heading">同行伙伴录</h2><p>翻阅熟悉的面孔，选六位伙伴，在花径上看看她们的招式。</p></div>
       </header>
-      <div class="roster-layout">
-        <aside class="panel roster-detail" aria-live="polite">
-          <div class="portrait-wrap"><img id="detail-card" alt=""><p id="card-gap" hidden>该卡全身图尚待核验，当前显示精确头像</p></div>
-          <h3 id="detail-name"></h3>
-          <p id="detail-work" class="muted"></p>
-          <div id="detail-identity" class="identity-row"></div>
-          <p id="detail-role" class="detail-role"></p>
-          <p id="detail-cost" class="muted"></p>
-          <details class="original-skills"><summary>原卡技能与身份</summary><div id="detail-skills"></div></details>
-          <button id="toggle-party" class="native-button compact">加入场景</button>
+      <div class="companion-layout">
+        <aside class="companion-detail" aria-label="伙伴资料">
+          <div class="companion-art"><img id="detail-card" alt=""></div>
+          <h3 id="detail-name"></h3><p id="detail-work"></p><p id="detail-identity"></p>
+          <div id="companion-forms" class="companion-forms" aria-label="观察形态"></div>
+          <button id="toggle-party" class="native-button primary compact">加入观察队伍</button>
+          <details><summary>定位与原作招式</summary><p id="detail-role"></p><p id="detail-cost"></p><div id="detail-skills"></div></details>
         </aside>
-        <div class="panel roster-catalogue">
-          <div class="tab-row" role="tablist" aria-label="职业筛选" id="roster-tabs"></div>
-          <div id="roster-grid" class="roster-grid" aria-label="角色目录"></div>
-          <footer class="party-footer">
-            <div class="party-heading"><h3>本次伙伴</h3><p id="party-count"></p><button id="restore-party" class="text-button">恢复推荐</button></div>
-            <div id="party-slots" class="party-slots"></div>
-            <p class="muted roster-disclosure">此阶段用于检查模型与招式；费用为规划值，不消耗资源。</p>
+        <div class="companion-catalogue">
+          <div class="companion-search"><input id="companion-search" type="search" placeholder="寻找角色、作品或职业" aria-label="搜索同行伙伴"><span id="companion-count"></span></div>
+          <div id="roster-tabs" class="companion-filters" aria-label="按职业筛选"></div>
+          <div id="roster-grid" class="companion-grid" aria-label="角色目录"></div>
+          <p id="companion-empty" class="companion-empty" hidden>还没有找到这位伙伴，试试作品名或其他关键词。</p>
+          <footer class="companion-party">
+            <div class="companion-party-head"><strong id="party-count" role="status"></strong><button id="party-cancel" class="text-button" hidden>取消替换</button><button id="restore-party" class="text-button">推荐队伍</button></div>
+            <div id="party-slots" class="companion-slots" aria-label="观察队伍，点击叉号移除"></div>
+            <div class="companion-launch"><small>仅用于动作观察 · 可自由预览两种形态</small><button class="native-button primary compact" id="roster-enter">一起去花径 →</button></div>
           </footer>
         </div>
       </div>

@@ -1,0 +1,85 @@
+/* One mobile layout owner: shelves scroll inside their own grid tracks.
+   Keep the equipment shelf away from the action rail, even at 568 × 320. */
+@media (max-width: 1000px), (max-height: 560px) and (orientation: landscape) {
+  .campaign-battle { min-height: 0; padding: env(safe-area-inset-top,0px) env(safe-area-inset-right,0px) env(safe-area-inset-bottom,0px) env(safe-area-inset-left,0px); }
+  .battle-head { padding: 3px 6px; gap: 6px; }
+  .battle-heading { gap: 0; }
+  .battle-heading h2 { font-size: 12px; }
+  .battle-heading p, .battle-head .wave-meter, .battle-context, .next-wave, .battle-head [data-action="settings"] { display: none; }
+  .battle-progress { min-width: 60px; align-items: center; }
+  .battle-progress strong, .battle-progress span { font-size: 10px; }
+  .battle-head .hud-button { width: 40px; min-width: 40px; min-height: 40px; padding: 0; }
+  .battle-head .hud-button > span { display: none; }
+  .battle-viewport { margin: 4px; border-radius: 10px; }
+  .battle-seeds { padding: 4px 6px; gap: 6px; overflow: hidden; }
+  .battle-bank, .gear-bank { min-height: 0; flex: 1; overscroll-behavior: contain; scrollbar-width: thin; }
+  .battle-bank { padding: 4px 3px; gap: 6px; }
+  .seed-card { flex: 0 0 auto; width: 68px; height: 84px; padding: 4px; }
+  .seed-card .seed-art { flex-shrink: 0; width: 38px; height: 38px; }
+  .seed-art .portrait-icon, .seed-art .facility-image { width: 38px; height: 38px; }
+  .seed-card .seed-name { margin-top: 2px; font-size: 10px; line-height: 11px; min-height: 22px; }
+  .seed-cost { font-size: 11px; flex-shrink: 0; }
+  .seed-card kbd { display: none; }
+  .seed-card:hover:not(:disabled), .seed-card[aria-pressed="true"] { transform: none; }
+  .crea-counter { flex-shrink: 0; width: 48px; height: 74px; }
+  .crea-counter strong { font-size: 18px; }
+  .crea-word { font-size: 8px; }
+  .gear-tray { min-width: 0; min-height: 0; padding: 3px 6px; gap: 4px; }
+  .gear-tray-label { font-size: 10px; letter-spacing: 0; }
+  .gear-bank { padding: 3px 2px; touch-action: pan-x; }
+  .gear-chip { flex: 0 0 auto; }
+  .gear-chip-holder { font-size: 9px; line-height: 10px; }
+  .battle-tools { min-width: 0; min-height: 0; justify-content: flex-start; gap: 4px; padding: 3px 6px; overflow: auto; overscroll-behavior: contain; scrollbar-width: thin; }
+  .battle-tools .hud-button { flex: 0 0 auto; min-width: 46px; min-height: 44px; flex-direction: column; gap: 3px; padding: 3px 5px; font-size: 10px; }
+  .battle-tools .start { min-width: 76px; }
+  .placement-actions { gap: 6px; }
+  .placement-actions .hud-button { flex: 1; flex-direction: row; min-width: 0; }
+  .battle-tools:has(.placement-actions:not([hidden])) > .hud-button { display: none; }
+  .battle-tools:has(.placement-actions:not([hidden])) .placement-actions { width: 100%; }
+  .battle-unit-status { width: 26px; }
+  .battle-unit-name { display: none; }
+  .battle-objectives { top: 5px; left: 5px; max-width: min(58%,230px); gap: 2px; }
+  .objective { padding: 2px 5px; font-size: 9px; }
+  .board-guide { display: none; }
+  .battle-tip { left: 5px; bottom: 5px; max-width: calc(100% - 10px); padding: 4px 7px; font-size: 10px; gap: 5px; }
+  .battle-tip strong { font-size: 10px; }
+  .battle-tip [data-role="selected-help"] { display: none; }
+  .battle-message { max-width: calc(100% - 10px); font-size: 10px; }
+  .battle-pause-overlay { padding: 8px; overflow: auto; }
+  .battle-pause-overlay .panel { padding: 12px; }
+  .battle-pause-overlay h3 { font-size: 18px; }
+  .battle-pause-overlay p { margin: 8px 0; font-size: 11px; }
+  .pause-actions .native-button { padding: 8px; min-height: 40px; font-size: 11px; }
+  .lane-gate { width: 17px; height: 19px; }
+  .lane-warning { font-size: 9px; padding: 1px 4px; }
+}
+
+@media (max-width: 1000px) and (orientation: portrait) {
+  .campaign-battle { grid-template-columns: minmax(0,1fr); grid-template-rows: 46px minmax(0,1fr) 64px 104px 54px; grid-template-areas: "head" "view" "gear" "seeds" "tools"; }
+  .battle-bank { touch-action: pan-x; }
+}
+
+@media (max-width: 1000px) and (orientation: landscape), (max-height: 560px) and (orientation: landscape) {
+  .campaign-battle { grid-template-columns: 112px minmax(0,1fr) 60px; grid-template-rows: 46px minmax(0,1fr) 64px; grid-template-areas: "seeds head tools" "seeds view tools" "seeds gear tools"; }
+  .battle-seeds { flex-direction: column; align-items: stretch; border-right: 1px solid var(--ad-line); }
+  .crea-counter { flex-direction: row; gap: 4px; width: 100%; height: 36px; }
+  .crea-word { display: none; }
+  .crea-icon svg { width: 20px; height: 20px; }
+  .battle-bank { flex-direction: column; overflow-x: hidden; overflow-y: auto; touch-action: pan-y; }
+  .seed-card { width: 100%; height: 52px; display: grid; grid-template-columns: 32px minmax(0,1fr); grid-template-rows: 24px 14px; gap: 2px 4px; align-content: center; }
+  .seed-card .seed-art { grid-row: 1 / 3; width: 32px; height: 32px; }
+  .seed-art .portrait-icon, .seed-art .facility-image { width: 32px; height: 32px; }
+  .seed-art .class-icon, .seed-art .element-icon { display: none; }
+  .seed-card .seed-name { margin: 0; min-height: 0; height: auto; justify-content: flex-start; text-align: left; font-size: 10px; }
+  .seed-readiness { top: 50%; transform: translateY(-50%); font-size: 11px; }
+  .seed-card { touch-action: pan-y; }
+  .battle-tools { flex-direction: column; align-items: stretch; border-left: 1px solid var(--ad-line); }
+  .battle-tools .hud-button, .battle-tools .start { width: 100%; min-width: 0; min-height: 46px; }
+  .battle-tools .start > span { font-size: 9px; }
+  .placement-actions { flex-direction: column; }
+  .placement-actions .hud-button { flex-direction: column; }
+  .battle-tip:not(.invalid) { opacity: 0; }
+  .battle-message { top: auto; bottom: 4px; }
+  .battle-unit-status { width: 30px; }
+  .resource-pickup { min-height: 38px; font-size: 12px; }
+}

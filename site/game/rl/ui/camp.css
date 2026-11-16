@@ -58,17 +58,6 @@
 .rl-roster-card .who { font-size: 11px; font-weight: 600; line-height: 1.45; margin-top: 8px; }
 .rl-card-role { font-size: 10px; color: var(--ad-muted); margin-top: 3px; }
 .rl-roster-empty { padding: 30px; border: 1px dashed var(--ad-line); border-radius: 10px; color: var(--ad-muted); text-align: center; }
-.rl-growth { grid-column:1/-1; min-width:0; border-top:1px solid var(--ad-line); }
-.rl-growth-toggle { display:flex; justify-content:space-between; align-items:center; gap:8px; padding:14px 0 0; cursor:pointer; list-style:none; }
-.rl-growth-toggle::-webkit-details-marker { display:none; }
-.rl-growth-toggle>span:first-child { display:grid; gap:4px; }
-.rl-growth-toggle strong { font:600 14px var(--ad-serif); }
-.rl-growth-progress { color:var(--ad-muted); font-size:10px; }
-.rl-growth-toggle .evolution-state::after { content:' ⌄'; }
-.rl-growth[open] .evolution-state::after { content:' ⌃'; }
-.rl-growth[data-state="ready"] .evolution-state { background:var(--ad-accent); color:white; }
-.rl-growth[data-state="evolved"] .evolution-state { background:#f2e2c6; color:#79552b; }
-.rl-growth>.evolution-summary { margin:14px 0 0; }
 .rl-departure { position:sticky; bottom:max(12px,env(safe-area-inset-bottom,0px)); z-index:2; display:flex; align-items:center; justify-content:space-between; gap:12px; margin-top:16px; padding:10px 12px; border:1px solid #ddb4c7; border-radius:12px; background:#fffafdf5; box-shadow:0 6px 24px #6930471c; backdrop-filter:blur(12px); }
 .rl-current-companion { display:flex; align-items:center; gap:10px; min-width:0; padding:0; border:0; border-radius:6px; background:transparent; color:var(--ad-ink); font:12px var(--ad-sans); text-align:left; cursor:pointer; }
 .rl-current-companion img { width:34px; height:46px; object-fit:contain; }
@@ -106,11 +95,9 @@ body:has(.rl-save-status:is([data-state="unsaved"], [data-state="session"], [dat
 .rl-form-note { color:var(--ad-muted); font-size:11px; line-height:1.7; }
 .rl-camp-guide { animation:ad-float 7s ease-in-out infinite; }
 .rl-companion-preview { animation:ad-arrive .35s ease-out both; }
-.rl-growth>.rl-form-note:empty { display:none; }
 @media (max-width:700px) {
   .rl-companion-preview { grid-template-columns:100px minmax(0,1fr); align-items:start; }
   .rl-selected-art { align-self:start; }
-  .rl-growth>.evolution-summary { gap:10px; padding:12px; }
   .rl-form-controls { gap:4px; } .rl-selected-copy .rl-form-controls .ad-button { font-size:10px; padding:5px; }
 }
 @media (max-height:560px) and (orientation:landscape) {

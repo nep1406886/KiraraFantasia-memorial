@@ -1,0 +1,19 @@
+<!doctype html><html><head><meta charset="utf-8"><title>probe6</title>
+<style>html,body{margin:0;height:100%;background:#2a2348;overflow:hidden}#c{position:absolute;inset:0}#log{position:absolute;left:4px;top:4px;color:#fff;font:11px monospace;white-space:pre-wrap}</style>
+<script type="importmap">{"imports":{"three":"../../vendor/three/three.module.min.js"}}</script>
+</head><body><canvas id="c"></canvas><pre id="log"></pre>
+<script type="module">
+import { Stage3D } from './src/models.js';
+import { CHARACTERS } from './src/config.js';
+const stage=new Stage3D(document.getElementById('c'));
+stage.resize(960,540,2);
+(async()=>{
+  const handle=await stage.addPlayer(CHARACTERS[2]);
+  handle.move(480,438);
+  const log=document.getElementById('log');
+  const cam=stage.camera;
+  log.textContent='outer '+handle.outer.position.toArray().join(',')+'\nscale '+handle.outer.scale.toArray().join(',')+'\ninner scale '+handle.inner.scale.toArray().join(',')+'\ncam '+cam.position.toArray().join(',')+' rot '+cam.rotation.toArray().join(',')+'\nfrustum '+[cam.left,cam.right,cam.top,cam.bottom].join(',')+'\ncanvas '+stage.canvas.width+'x'+stage.canvas.height+' css '+stage.canvas.clientWidth+'x'+stage.canvas.clientHeight;
+  const clock={last:performance.now()};
+  function loop(){ const now=performance.now(); handle.update((now-clock.last)/1000); clock.last=now; stage.render(0,0,0,0); requestAnimationFrame(loop);} loop();
+})().catch(e=>{document.title='ERR '+e.message;console.error(e)});
+</script></body></html>

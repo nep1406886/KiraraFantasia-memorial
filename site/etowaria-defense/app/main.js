@@ -1,5 +1,6 @@
-import { loadCatalogue, portraitMarkup, siteUrl, uiUrl, classIcons, elementIcons } from "./assets.js";
-import { loadBones, loadBoneCell } from "./load-shell.js";
+import { createCompanionGallery } from './companions.js';
+import { loadCatalogue, portraitMarkup, siteUrl, uiUrl } from "./assets.js";
+import { loadBones } from "./load-shell.js";
 import { AudioDirector } from "./audio.js";
 import { UNIT_RULES } from "../data/campaign.js";
 import { se as defenseSE, setSeVolume as setSynthVolume, unlock as unlockSynth } from "../../core/audio.js";
@@ -22,9 +23,10 @@ window.addEventListener("keydown", armSynth, { capture: true });
 const $ = id => document.getElementById(id);
 const PARTY_KEY = "etowaria-defense.p0.party.v1";
 const REVIEW_CLOCK = new URLSearchParams(location.search).get("review") === "1";
-const state = { screen: "title", catalogue: null, party: [], selected: "U01", filter: "all", stage: null, epoch: 0 };
+const state = { screen: "title", catalogue: null, party: [], selected: "U01", stage: null, epoch: 0 };
 let toastTimer;
 let campaign;
+let companions;
 let stageLoadingBones;
 const audio = new AudioDirector(notice);
 audio.silent = REVIEW_CLOCK;
@@ -45,125 +47,6 @@ function showScreen(name) {
 
 function saveParty() {
     try { localStorage.setItem(PARTY_KEY, JSON.stringify(state.party)); } catch { /* Preferences are optional. */ }
-}
-
-function selectedUnit() { return state.catalogue?.units.find(unit => unit.id === state.selected); }
-
-function showDetails(unit) {
-    state.selected = unit.id;
-    const image = $("detail-card");
-    image.src = siteUrl(unit.card || unit.icon);
-    image.alt = `${unit.name}，${unit.className}，${unit.elementName}属性，卡号${unit.cardId}`;
-    image.classList.toggle("icon-only", !unit.card);
-    $("card-gap").hidden = !!unit.card;
-    $("detail-name").textContent = unit.name;
-    $("detail-work").textContent = unit.work;
-    const identity = $("detail-identity");
-    identity.replaceChildren();
-    for (const [name, alt] of [[`ClassIcon${classIcons[unit.classId]}`, unit.className], [`ElementIcon${elementIcons[unit.elementId]}`, unit.elementName]]) {
-        const icon = document.createElement("img"); icon.src = uiUrl(name); icon.alt = alt; identity.append(icon);
-    }
-    const label = document.createElement("span"); label.textContent = `${unit.className} · ${unit.elementName}`; identity.append(label);
-    const rule = UNIT_RULES[unit.id];
-    $("detail-role").textContent = rule.help;
-    $("detail-cost").textContent = `${rule.role} · 部署需要 ${rule.cost} 应援`;
-    const skills = $("detail-skills");
-    skills.replaceChildren();
-    const original = document.createElement("details");
-    const summary = document.createElement("summary"); summary.textContent = "原作招式资料";
-    original.append(summary); skills.append(original);
-    for (const skill of unit.skills) {
-        const heading = document.createElement("h4"); heading.textContent = skill.name;
-        const description = document.createElement("p"); description.textContent = skill.detail;
-        original.append(heading, description);
-    }
-    const included = state.party.includes(unit.id);
-    $("toggle-party").textContent = included ? "移出本次场景" : "加入本次场景";
-    $("toggle-party").disabled = included && state.party.length === 1;
-    for (const button of $("roster-grid").querySelectorAll("button")) {
-        button.classList.toggle("is-current", button.dataset.unit === unit.id);
-    }
-}
-
-function renderRoster() {
-    if (!state.catalogue) { return; }
-    const grid = $("roster-grid");
-    grid.replaceChildren();
-    for (const unit of state.catalogue.units) {
-        if (state.filter !== "all" && unit.classId !== Number(state.filter)) { continue; }
-        const button = document.createElement("button");
-        button.className = "roster-card";
-        button.dataset.unit = unit.id;
-        button.classList.toggle("is-in-party", state.party.includes(unit.id));
-        button.classList.toggle("is-current", state.selected === unit.id);
-        button.setAttribute("aria-label", `${unit.name}，${unit.className}，${unit.elementName}属性，${UNIT_RULES[unit.id].role}，规划费用${UNIT_RULES[unit.id].cost}`);
-        const portrait = portraitMarkup(unit);
-        // 首载垫块：portrait-icon 是 1:1 方形，骨块先占住同一块方地；
-        // 已缓存（img.complete）的图直接跳过，切职业筛选不会反复闪骨架。
-        const face = portrait.querySelector(".face");
-        if (!face.complete) {
-            const bone = loadBoneCell();
-            portrait.prepend(bone);
-            const settle = () => bone.remove();
-            face.addEventListener("load", settle, { once: true });
-            face.addEventListener("error", settle, { once: true });
-        }
-        button.append(portrait);
-        for (const [tag, cls, text] of [["strong", "", unit.name], ["span", "unit-role", UNIT_RULES[unit.id].role], ["span", "unit-cost", `费用 ${UNIT_RULES[unit.id].cost}`]]) {
-            const node = document.createElement(tag); node.className = cls; node.textContent = text; button.append(node);
-        }
-        button.addEventListener("click", () => showDetails(unit));
-        grid.append(button);
-    }
-    renderParty();
-    showDetails(selectedUnit() || state.catalogue.units[0]);
-}
-
-function renderParty() {
-    $("party-count").textContent = `${state.party.length} / 6 位伙伴`;
-    const slots = $("party-slots");
-    slots.replaceChildren();
-    for (let i = 0; i < 6; i++) {
-        const unit = state.catalogue.units.find(candidate => candidate.id === state.party[i]);
-        const button = document.createElement("button");
-        button.className = `party-slot${unit ? "" : " empty"}`;
-        if (unit) {
-            const image = document.createElement("img"); image.src = siteUrl(unit.icon); image.alt = "";
-            const name = document.createElement("span"); name.textContent = unit.name;
-            button.append(image, name);
-            button.setAttribute("aria-label", `查看本次伙伴：${unit.name}`);
-            button.addEventListener("click", () => showDetails(unit));
-        } else {
-            button.textContent = "添加伙伴";
-            button.addEventListener("click", () => $("roster-grid").querySelector("button")?.focus());
-        }
-        slots.append(button);
-    }
-    $("roster-enter").disabled = !state.party.length;
-}
-
-function buildTabs() {
-    const tabs = $("roster-tabs");
-    for (const [id, label] of [["all", "全部"], [0, "战士"], [1, "魔法使"], [3, "骑士"], [2, "僧侣"], [4, "炼金术士"]]) {
-        const button = document.createElement("button");
-        button.className = "tab-button"; button.textContent = label; button.dataset.filter = id;
-        button.setAttribute("role", "tab"); button.setAttribute("aria-controls", "roster-grid");
-        button.setAttribute("aria-selected", String(id === "all"));
-        button.addEventListener("click", () => {
-            state.filter = String(id);
-            for (const tab of tabs.children) { tab.setAttribute("aria-selected", String(tab === button)); }
-            renderRoster();
-        });
-        button.addEventListener("keydown", event => {
-            if (!["ArrowLeft", "ArrowRight"].includes(event.key)) { return; }
-            event.preventDefault();
-            const buttons = [...tabs.children];
-            const next = buttons[(buttons.indexOf(button) + (event.key === "ArrowRight" ? 1 : buttons.length - 1)) % buttons.length];
-            next.focus(); next.click();
-        });
-        tabs.append(button);
-    }
-    $("roster-grid").setAttribute("role", "tabpanel");
 }
 
 function leaveStage() {
@@ -205,7 +88,7 @@ function openRoster() {
     if (!state.catalogue) { return; }
     leaveStage();
     showScreen("roster");
-    renderRoster();
+    companions.render();
     audio.unlock();
 }
 
@@ -245,7 +128,7 @@ async function enterStage() {
     const epoch = ++state.epoch;
     showScreen("stage");
     stageControls(false);
-    const units = state.party.map(id => state.catalogue.units.find(unit => unit.id === id));
+    const units = state.party.map(id => companions.unit(id));
     buildLoadout(units);
     // 观察模式载入卡：progress 上方铺一次纸面骨条，随整卡显示与隐藏。
     if (!stageLoadingBones) { stageLoadingBones = loadBones($("stage-loading-bones"), { rows: 3 }); }
@@ -338,14 +221,6 @@ $("open-roster").addEventListener("click", openRoster);
 $("roster-enter").addEventListener("click", enterStage);
 $("roster-back").addEventListener("click", () => { showScreen("title"); audio.playTheme("day"); });
 $("stage-back").addEventListener("click", openRoster);
-$("toggle-party").addEventListener("click", () => {
-    const index = state.party.indexOf(state.selected);
-    if (index >= 0) { if (state.party.length > 1) { state.party.splice(index, 1); } }
-    else if (state.party.length < 6) { state.party.push(state.selected); }
-    else { notice("场景最多带入六位伙伴。先移出一位，再加入新的伙伴。"); return; }
-    saveParty(); renderRoster();
-});
-$("restore-party").addEventListener("click", () => { state.party = state.catalogue.defaultParty.slice(); saveParty(); renderRoster(); });
 $("scene-theme").addEventListener("change", event => command(stage => stage.setTheme(event.target.value)));
 $("toggle-grid").addEventListener("click", event => {
     const pressed = event.currentTarget.getAttribute("aria-pressed") !== "true";
@@ -459,11 +334,13 @@ async function boot() {
         const ids = new Set(state.catalogue.units.map(unit => unit.id));
         let party;
         try { party = JSON.parse(localStorage.getItem(PARTY_KEY) || "null"); } catch { party = null; }
-        state.party = Array.isArray(party) && party.length > 0 && party.length <= 6
+        state.party = Array.isArray(party) && party.length <= 6
             && new Set(party).size === party.length && party.every(id => ids.has(id))
             ? party : state.catalogue.defaultParty.slice();
-        state.selected = state.party[0];
-        buildTabs();
+        state.selected = state.party[0] || state.catalogue.units[0].id;
+        companions = createCompanionGallery({ catalogue: state.catalogue, party: state.party,
+            onChange: party => { state.party = party; saveParty(); },
+            onSelect: unit => { state.selected = unit.id; } });
         $("enter-scene").disabled = false;
         $("enter-scene").textContent = "动作观察（不计分）";
         $("start-campaign").disabled = false;

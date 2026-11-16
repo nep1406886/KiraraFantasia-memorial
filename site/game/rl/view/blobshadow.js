@@ -82,7 +82,7 @@ export function createBlobShadow(THREE, scene, radius) {
         },
 
         dispose: function () {
-            scene.remove(mesh);
+            mesh.removeFromParent();
             material.dispose();
         }
     };

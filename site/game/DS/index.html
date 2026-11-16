@@ -1,0 +1,494 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, user-scalable=no">
+  <meta name="theme-color" content="#08070f">
+  <meta name="description" content="落幕剧场 · THE LAST ENCORE —— 使用《闪耀幻想曲》原作素材制作的横版动作 Roguelike。故事早已完结，但掌声还没有停。">
+  <meta name="referrer" content="no-referrer">
+  <title>落幕剧场 · THE LAST ENCORE</title>
+  <link rel="icon" href="../../favicon.png">
+  <link rel="stylesheet" href="../../css/kirara-cursor.css?v=20261110-1">
+  <link rel="stylesheet" href="./css/main.css?v=20261112-1">
+  <link rel="stylesheet" href="./css/hud.css?v=20261112-1">
+</head>
+<body>
+<div id="app">
+  <div id="stage" aria-label="落幕剧场游戏画面">
+
+    <!-- 店内背景（菜单用） -->
+    <div id="menu-bg" aria-hidden="true">
+      <div id="menu-bg-img" class="bg-layer"></div>
+      <div class="bg-grade"></div>
+      <div class="bg-glow"></div>
+      <div class="bg-dust" id="menu-dust"></div>
+    </div>
+
+    <!-- 游戏画布 -->
+    <canvas id="game" width="1280" height="720" tabindex="0" aria-label="横版动作游戏"></canvas>
+
+    <!-- 画面滤镜 -->
+    <div class="screen-grade" aria-hidden="true"></div>
+    <div class="grain" aria-hidden="true"></div>
+    <div class="vignette" aria-hidden="true"></div>
+
+    <!-- 舞台框 -->
+    <div id="proscenium" aria-hidden="true">
+      <div class="valance"><span></span></div>
+      <div class="leg left"></div>
+      <div class="leg right"></div>
+      <div class="gold-rule top"></div>
+      <div class="gold-rule bottom"></div>
+    </div>
+
+    <!-- HUD -->
+    <div id="hud" class="hidden" aria-live="off">
+      <div class="hud-top">
+        <div class="team" id="hud-team"></div>
+        <div class="hud-center">
+          <div class="act-tag"><span id="hud-act-no">第一幕</span><b id="hud-act-name">暮林</b></div>
+          <div class="boss-bar hidden" id="boss-bar">
+            <div class="boss-name"><span id="boss-title">Boss</span><em id="boss-sub">PHASE I</em></div>
+            <div class="boss-track"><div class="boss-ghost" id="boss-ghost"></div><div class="boss-fill" id="boss-fill"></div><!-- 阶段刻度由 ui.js 按 bossDef.phases 动态生成 --></div>
+          </div>
+          <div class="room-pips" id="hud-room-pips"></div>
+        </div>
+        <div class="hud-right">
+          <div class="style-wrap" id="style-wrap">
+            <div class="combo" id="hud-combo"><b>0</b><small>HIT</small></div>
+            <div class="rank" id="hud-rank">—</div>
+            <div class="rank-name" id="hud-rank-name">静场</div>
+            <div class="style-track"><div class="style-fill" id="hud-style-fill"></div></div>
+          </div>
+          <div class="coin-row"><img src="../../asset/img/rl/drop/coin.webp" alt=""><b id="hud-shards">0</b><span>星屑</span></div>
+          <button class="icon-btn pause-btn" id="btn-pause" type="button" aria-label="暂停">Ⅱ</button>
+        </div>
+      </div>
+
+      <div class="hud-bottom">
+        <div class="boon-strip" id="hud-boons"></div>
+        <div class="hud-keys" id="hud-keys">
+          <span><kbd>A</kbd><kbd>D</kbd> 移动</span>
+          <span><kbd>J</kbd> 攻击</span>
+          <span><kbd>K</kbd> 特技</span>
+          <span><kbd>L</kbd> 闪身</span>
+          <span><kbd>空格</kbd> 跳</span>
+          <span><kbd>Shift</kbd> 换演</span>
+          <span><kbd>Q</kbd> 谢幕</span>
+        </div>
+      </div>
+
+      <div class="reaction-callout" id="reaction-callout"></div>
+      <div class="toast" id="toast"></div>
+    </div>
+
+    <!-- 触屏操作 -->
+    <div id="touch" class="hidden" aria-hidden="true">
+      <div class="stick-zone" id="stick-zone"><div class="stick-base"><i id="stick-knob"></i></div></div>
+      <div class="touch-buttons">
+        <button class="tbtn jump" data-act="jump">跳<small>JUMP</small></button>
+        <button class="tbtn atk" data-act="attack">斩<small>ATK</small></button>
+        <button class="tbtn skill" data-act="skill">技<small>SKILL</small></button>
+        <button class="tbtn dash" data-act="dash">闪<small>DASH</small></button>
+        <button class="tbtn sw" data-act="switch">换<small>SWAP</small></button>
+        <button class="tbtn ult" data-act="ult">幕<small>ULT</small></button>
+      </div>
+    </div>
+
+    <!-- 幕布转场 -->
+    <div id="curtain" aria-hidden="true">
+      <div class="curtain-left"><div class="curtain-folds"></div></div>
+      <div class="curtain-right"><div class="curtain-folds"></div></div>
+      <div class="curtain-fringe"></div>
+      <div class="curtain-mark"><span>✦</span><b>落幕剧场</b><em>THE LAST ENCORE</em></div>
+    </div>
+
+    <!-- ============================ 标题 ============================ -->
+    <section id="screen-title" class="screen title-screen">
+      <div class="title-left">
+        <p class="eyebrow"><span class="line"></span>KIRARA FANTASIA · 同人外传 <span class="slash">/</span> FAN EPILOGUE</p>
+        <h1 class="wordmark">
+          <span class="wordmark-cn">落幕剧场</span>
+          <span class="wordmark-en">THE LAST ENCORE</span>
+        </h1>
+        <p class="tagline">故事早已完结，<br>但掌声还没有停。</p>
+        <p class="title-genre">横版动作 <i>·</i> 三人共演 <i>·</i> 星纹构筑</p>
+        <nav class="title-menu" aria-label="主菜单">
+          <button class="menu-btn primary" data-action="enter-hub" type="button">
+            <span class="mb-no">01</span><span class="mb-text">推门入座<small>ENTER THE THEATRE</small></span><span class="mb-arrow">→</span>
+          </button>
+          <button class="menu-btn" data-action="help" type="button">
+            <span class="mb-no">02</span><span class="mb-text">演出手册<small>HOW TO PLAY</small></span><span class="mb-arrow">→</span>
+          </button>
+          <button class="menu-btn" data-action="settings" type="button">
+            <span class="mb-no">03</span><span class="mb-text">后台设置<small>SETTINGS</small></span><span class="mb-arrow">→</span>
+          </button>
+        </nav>
+        <p class="title-foot"><span>✦</span> 键盘 / 手柄 / 触屏 <i>·</i> 建议横屏 <i>·</i> <a href="../../../index.html">返回纪念之庭</a></p>
+      </div>
+
+      <div class="title-right" aria-hidden="true">
+        <div class="title-moon"></div>
+        <div class="title-orbit o1"></div>
+        <div class="title-orbit o2"></div>
+        <div class="title-figures">
+          <img class="tf tf-kirara" src="../../imgs/original-characters/Kirara_StandPic_0.png" alt="">
+          <img class="tf tf-kanna" src="../../imgs/original-characters/Kanna_StandPic_0.png" alt="">
+          <img class="tf tf-claire" src="../../imgs/original-characters/Claire_StandPic_0.png" alt="">
+        </div>
+        <div class="title-card fan f1"><img src="../../asset/img/rl/card/32002001.webp" alt=""><span>琪拉拉</span></div>
+        <div class="title-card fan f2"><img src="../../asset/img/rl/card/11012001.webp" alt=""><span>栞井 唯</span></div>
+        <div class="title-card fan f3"><img src="../../asset/img/rl/card/30002001.webp" alt=""><span>心爱</span></div>
+        <div class="title-spark s1">✦</div><div class="title-spark s2">✧</div><div class="title-spark s3">✦</div>
+        <div class="title-stage-floor"></div>
+        <p class="title-credit">ART FROM KIRARA FANTASIA</p>
+      </div>
+
+      <div class="title-record">
+        <span>BEST APPLAUSE</span><b id="title-best">0</b>
+        <span class="rec-div"></span>
+        <span>RUNS</span><b id="title-runs">0</b>
+      </div>
+      <p class="title-version">v1.0 · 2026 · 非官方同人作品</p>
+    </section>
+
+    <!-- ============================ 后台大厅 ============================ -->
+    <section id="screen-hub" class="screen hub-screen hidden">
+      <header class="topbar">
+        <div class="topbar-left">
+          <p class="micro">THE GREEN ROOM</p>
+          <h2>后台 · 编剧室</h2>
+        </div>
+        <div class="topbar-right">
+          <div class="currency"><span class="cur-glyph">✦</span><b id="hub-applause">0</b><small>掌声</small></div>
+          <button class="ghost-btn" data-action="title" type="button">‹ 标题</button>
+        </div>
+      </header>
+
+      <div class="hub-body">
+        <aside class="hub-cast" aria-hidden="true">
+          <div class="hub-spot"></div>
+          <img class="hub-fig hf1" src="../../imgs/original-characters/Kirara_StandPic_0.png" alt="">
+          <img class="hub-fig hf2" src="../../imgs/original-characters/Lamp_StandPic_0.png" alt="">
+          <img class="hub-fig hf3" src="../../imgs/original-characters/Cork_StandPic_0.png" alt="">
+          <div class="hub-dialogue" id="hub-dialogue">
+            <div class="dlg-speaker"><span>琪拉拉</span><em>USHER</em></div>
+            <p id="hub-dialogue-text">观众席已经空了。不过没关系，只要还有人愿意上台，幕就可以再拉开一次。</p>
+            <button class="dlg-next" id="hub-dialogue-next" type="button" aria-label="下一句">↻</button>
+          </div>
+        </aside>
+
+        <nav class="hub-menu" aria-label="后台菜单">
+          <button class="hub-card main" data-action="open-select" type="button">
+            <span class="hc-kicker">NEW PERFORMANCE</span>
+            <b>开演</b>
+            <small>挑选三位演员，走进下一场故事</small>
+            <span class="hc-go">→</span>
+          </button>
+          <div class="hub-grid">
+            <button class="hub-card" data-action="roster" type="button">
+              <span class="hc-icon">◈</span><b>演员休息室</b><small>ROSTER · 解锁与查看</small>
+            </button>
+            <button class="hub-card" data-action="upgrades" type="button">
+              <span class="hc-icon">✦</span><b>节目单</b><small>PROGRAM · 永久强化</small>
+            </button>
+            <button class="hub-card" data-action="codex" type="button">
+              <span class="hc-icon">❖</span><b>回忆</b><small>ARCHIVE · 台词与来历</small>
+            </button>
+            <button class="hub-card" data-action="help" type="button">
+              <span class="hc-icon">◇</span><b>演出手册</b><small>MANUAL · 操作与机制</small>
+            </button>
+          </div>
+          <div class="hub-footer">
+            <button class="text-btn" data-action="settings" type="button">设置</button>
+            <span class="dot">·</span>
+            <button class="text-btn" data-action="title" type="button">返回标题</button>
+            <span class="hub-best">最佳掌声 <b id="hub-best">0</b></span>
+          </div>
+        </nav>
+      </div>
+    </section>
+
+    <!-- ============================ 选角 ============================ -->
+    <section id="screen-select" class="screen select-screen hidden">
+      <header class="topbar">
+        <div class="topbar-left">
+          <p class="micro">CASTING CALL</p>
+          <h2>今夜，谁来共演？</h2>
+        </div>
+        <div class="topbar-right">
+          <div class="currency"><span class="cur-glyph">✦</span><b id="select-applause">0</b><small>掌声</small></div>
+          <button class="ghost-btn" data-action="hub" type="button">‹ 后台</button>
+        </div>
+      </header>
+
+      <div class="select-body">
+        <div class="select-showcase">
+          <div class="showcase-frame">
+            <div class="showcase-spot"></div>
+            <img id="select-stand" src="../../imgs/original-characters/Kirara_StandPic_0.png" alt="">
+            <div class="showcase-name"><span id="select-en">KIRARA</span><b id="select-name">琪拉拉</b><em id="select-title">星杖的引路人</em></div>
+            <div class="showcase-elements" id="select-elements"></div>
+          </div>
+          <p class="showcase-quote" id="select-quote">“把最后一束光，留给还在看的人。”</p>
+          <div class="showcase-meta" id="select-meta"></div>
+        </div>
+
+        <div class="select-cast">
+          <div class="team-slots" id="team-slots"></div>
+          <div class="cast-filter" id="cast-filter">
+            <button class="chip-btn active" data-filter="all" type="button">全部</button>
+            <button class="chip-btn" data-filter="fighter" type="button">战士</button>
+            <button class="chip-btn" data-filter="knight" type="button">骑士</button>
+            <button class="chip-btn" data-filter="mage" type="button">法师</button>
+            <button class="chip-btn" data-filter="priest" type="button">牧师</button>
+            <button class="chip-btn" data-filter="rogue" type="button">游侠</button>
+          </div>
+          <div class="roster-grid" id="roster-grid"></div>
+          <div class="select-detail" id="select-detail"></div>
+        </div>
+      </div>
+
+      <footer class="select-footer">
+        <p class="select-hint">选择 <b>3</b> 位演员。战斗中可按 <kbd>Shift</kbd> 换演，切换时的登场技会附加属性。</p>
+        <button class="big-btn" id="btn-begin-run" type="button" disabled><span>拉开帷幕</span><small>BEGIN THE PERFORMANCE</small></button>
+      </footer>
+    </section>
+
+    <!-- ============================ 奖励：共演卡 ============================ -->
+    <section id="screen-reward" class="screen reward-screen hidden">
+      <div class="overlay-scrim"></div>
+      <div class="reward-inner">
+        <header class="overlay-head">
+          <p class="micro">AFTER THE APPLAUSE</p>
+          <h2>谢幕之后<span class="head-dot">·</span>选一位共演者</h2>
+          <p class="overlay-sub" id="reward-sub">掌声惊醒了某段沉睡的记忆。选择一张星纹卡，让它加入今晚的节目。</p>
+        </header>
+        <div class="card-row" id="reward-cards"></div>
+        <footer class="overlay-foot">
+          <span class="foot-hint">点击卡面，让共演者入席 · 键盘 1-3 亦可选择</span>
+          <button class="text-btn" id="reward-skip" type="button">放弃这次共演</button>
+        </footer>
+      </div>
+    </section>
+
+    <!-- ============================ 下一场选择 ============================ -->
+    <section id="screen-next" class="screen next-screen hidden">
+      <div class="overlay-scrim"></div>
+      <div class="next-inner">
+        <header class="overlay-head">
+          <p class="micro">NEXT ON STAGE</p>
+          <h2>下一场，演什么？</h2>
+          <p class="overlay-sub">舞台的灯还亮着。挑一张节目单，走向下一幕。</p>
+        </header>
+        <div class="poster-row" id="next-rooms"></div>
+      </div>
+    </section>
+
+    <!-- ============================ 商店 ============================ -->
+    <section id="screen-shop" class="screen shop-screen hidden">
+      <div class="overlay-scrim"></div>
+      <div class="shop-inner">
+        <header class="overlay-head">
+          <p class="micro">BACKSTAGE STALL</p>
+          <h2>后台小卖部</h2>
+          <p class="overlay-sub">“道具、情报、退路，我都备好了。”——科克</p>
+          <div class="shop-purse"><img src="../../asset/img/rl/drop/coin.webp" alt=""><b id="shop-shards">0</b><span>星屑</span></div>
+        </header>
+        <div class="shop-grid" id="shop-items"></div>
+        <footer class="overlay-foot">
+          <button class="text-btn" id="shop-reroll" type="button">换一批 <b>15</b> 星屑</button>
+          <button class="big-btn small" id="shop-leave" type="button"><span>离开后台</span><small>CONTINUE</small></button>
+        </footer>
+      </div>
+    </section>
+
+    <!-- ============================ 休息 ============================ -->
+    <section id="screen-rest" class="screen rest-screen hidden">
+      <div class="overlay-scrim"></div>
+      <div class="rest-inner">
+        <header class="overlay-head">
+          <p class="micro">INTERMISSION</p>
+          <h2>中场休息</h2>
+          <p class="overlay-sub">把面具摘下来，喘口气。灯油还够，故事也还长。</p>
+        </header>
+        <div class="rest-choices" id="rest-choices"></div>
+      </div>
+    </section>
+
+    <!-- ============================ 事件 ============================ -->
+    <section id="screen-event" class="screen event-screen hidden">
+      <div class="overlay-scrim"></div>
+      <div class="event-inner">
+        <div class="event-portrait" id="event-portrait"><span>?</span></div>
+        <header class="overlay-head">
+          <p class="micro">IMPROVISATION</p>
+          <h2 id="event-title">空无一人的观众席</h2>
+          <p class="overlay-sub" id="event-text"></p>
+        </header>
+        <div class="event-choices" id="event-choices"></div>
+      </div>
+    </section>
+
+    <!-- ============================ 暂停 ============================ -->
+    <section id="screen-pause" class="screen pause-screen hidden">
+      <div class="overlay-scrim"></div>
+      <div class="pause-inner">
+        <header class="overlay-head">
+          <p class="micro">INTERMISSION</p>
+          <h2>暂停演出</h2>
+        </header>
+        <div class="pause-grid">
+          <div class="pause-panel">
+            <h3>今晚的演员</h3>
+            <div id="pause-team"></div>
+            <h3>持有的星纹</h3>
+            <div class="pause-boons" id="pause-boons"></div>
+          </div>
+          <div class="pause-panel">
+            <h3>舞台说明</h3>
+            <div class="pause-keys">
+              <p><kbd>A</kbd><kbd>D</kbd><span>移动</span></p>
+              <p><kbd>空格</kbd><span>跳跃 / 二段跳</span></p>
+              <p><kbd>J</kbd><span>普攻（可连击）</span></p>
+              <p><kbd>K</kbd><span>特技</span></p>
+              <p><kbd>L</kbd><span>闪身（无敌帧）</span></p>
+              <p><kbd>Shift</kbd><span>换演 / 登场技</span></p>
+              <p><kbd>Q</kbd><span>谢幕（满星辉）</span></p>
+              <p><kbd>Esc</kbd><span>暂停</span></p>
+            </div>
+            <p class="pause-touch-hint">左手摇杆移动，右手按钮：<b>斩</b> 普攻（可连击）、<b>技</b> 特技、<b>闪</b> 闪身（无敌帧）、<b>跳</b> 跳跃 / 二段跳、<b>换</b> 换演、<b>幕</b> 谢幕（满星辉）。右上角 Ⅱ 暂停。</p>
+            <div class="pause-actions">
+              <button class="menu-btn" data-action="resume" type="button"><span class="mb-text">继续演出<small>RESUME</small></span></button>
+              <button class="menu-btn" data-action="settings" type="button"><span class="mb-text">设置<small>SETTINGS</small></span></button>
+              <button class="menu-btn danger" data-action="abandon" type="button"><span class="mb-text">中止演出<small>ABANDON RUN</small></span></button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============================ 结算 ============================ -->
+    <section id="screen-result" class="screen result-screen hidden">
+      <div class="result-bg"></div>
+      <div class="result-inner">
+        <div class="result-copy">
+          <p class="micro" id="result-kicker">CURTAIN CALL</p>
+          <h2 id="result-title">谢幕</h2>
+          <p class="result-quote" id="result-quote">“灯灭了，但你看，星星还在。”</p>
+          <div class="result-stats" id="result-stats"></div>
+          <div class="result-applause"><span>获得掌声</span><b id="result-applause">0</b><em>APPLAUSE</em></div>
+          <div class="result-unlocks" id="result-unlocks"></div>
+          <div class="result-actions">
+            <button class="big-btn" data-action="again" type="button"><span>再演一场</span><small>ENCORE</small></button>
+            <button class="text-btn" data-action="hub" type="button">返回后台</button>
+          </div>
+        </div>
+        <div class="result-figure" aria-hidden="true">
+          <div class="result-spot"></div>
+          <img id="result-stand" src="../../imgs/original-characters/Kirara_StandPic_0.png" alt="">
+        </div>
+      </div>
+    </section>
+
+    <!-- ============================ 图鉴 ============================ -->
+    <section id="screen-codex" class="screen codex-screen hidden">
+      <header class="topbar">
+        <div class="topbar-left">
+          <p class="micro">ARCHIVE OF ENCORES</p>
+          <h2>回忆 · 演出档案</h2>
+        </div>
+        <div class="topbar-right">
+          <button class="ghost-btn" data-action="hub" type="button">‹ 后台</button>
+        </div>
+      </header>
+      <div class="codex-body">
+        <div class="codex-list" id="codex-list"></div>
+        <div class="codex-detail" id="codex-detail"></div>
+      </div>
+    </section>
+
+    <!-- ============================ 强化 ============================ -->
+    <section id="screen-upgrades" class="screen upgrade-screen hidden">
+      <header class="topbar">
+        <div class="topbar-left">
+          <p class="micro">ETERNAL PROGRAM</p>
+          <h2>节目单 · 永久强化</h2>
+        </div>
+        <div class="topbar-right">
+          <div class="currency"><span class="cur-glyph">✦</span><b id="upgrade-applause">0</b><small>掌声</small></div>
+          <button class="ghost-btn" data-action="hub" type="button">‹ 后台</button>
+        </div>
+      </header>
+      <div class="upgrade-body">
+        <div class="upgrade-grid" id="upgrade-grid"></div>
+        <aside class="upgrade-note">
+          <span>✦</span>
+          <p>掌声会在每次谢幕后结算。它不属于任何一场演出，却能让下一次开演更从容。</p>
+        </aside>
+      </div>
+    </section>
+
+    <!-- ============================ 设置 ============================ -->
+    <section id="screen-settings" class="screen settings-screen hidden">
+      <div class="overlay-scrim"></div>
+      <div class="settings-inner">
+        <header class="overlay-head">
+          <p class="micro">BACKSTAGE CONTROL</p>
+          <h2>后台设置</h2>
+        </header>
+        <div class="settings-list">
+          <label class="setting-row"><span>音乐音量<small>MUSIC</small></span><input type="range" id="set-music" min="0" max="100" step="1"><b id="set-music-val">70</b></label>
+          <label class="setting-row"><span>音效音量<small>SFX</small></span><input type="range" id="set-sfx" min="0" max="100" step="1"><b id="set-sfx-val">80</b></label>
+          <label class="setting-row"><span>画面震动<small>SCREEN SHAKE</small></span><input type="checkbox" id="set-shake"><i class="switch"></i></label>
+          <label class="setting-row"><span>伤害数字<small>DAMAGE NUMBERS</small></span><input type="checkbox" id="set-damage"><i class="switch"></i></label>
+          <label class="setting-row"><span>显示触屏按键<small>TOUCH CONTROLS</small></span><input type="checkbox" id="set-touch"><i class="switch"></i></label>
+          <label class="setting-row"><span>低特效模式<small>LOW FX</small></span><input type="checkbox" id="set-lowfx"><i class="switch"></i></label>
+        </div>
+        <div class="settings-actions">
+          <button class="menu-btn" data-action="back" type="button"><span class="mb-text">返回<small>BACK</small></span></button>
+          <button class="text-btn danger" id="btn-reset-save" type="button">清空所有存档</button>
+        </div>
+        <p class="settings-note">本作是非官方同人作品，素材版权归《闪耀幻想曲》及相关权利方所有。</p>
+      </div>
+    </section>
+
+    <!-- ============================ 手册 ============================ -->
+    <section id="screen-help" class="screen help-screen hidden">
+      <div class="overlay-scrim"></div>
+      <div class="help-inner">
+        <header class="overlay-head">
+          <p class="micro">HOW TO PLAY</p>
+          <h2>演出手册</h2>
+          <p class="overlay-sub">这是舞台，也是战场。别怕输，观众只有星星。</p>
+        </header>
+        <div class="help-grid">
+          <article><h3>① 三人共演</h3><p>带三位演员上场。生命各自独立，倒下的人要等中场休息才能回来。按 <kbd>Shift</kbd> 换演，登场技会造成伤害并附加该演员的属性。</p></article>
+          <article><h3>② 星纹反应</h3><p>攻击会给敌人留下属性印记。用另一种属性命中，就会触发反应：蒸腾、燎原、蚀爆、凝霜……善用三位演员的不同属性，伤害会成倍增长。</p></article>
+          <article><h3>③ 喝彩与谢幕</h3><p>连续命中、闪避、触发反应都会提升喝彩等级，最高 SSS，直接放大伤害。星辉槽满后按 <kbd>Q</kbd> 发动谢幕技，全屏演出。</p></article>
+          <article><h3>④ 星纹卡</h3><p>每场谢幕后，会有一位共演者加入节目单，提供被动强化。搭配职业与属性，构筑今晚的打法。</p></article>
+          <article><h3>⑤ 幕与选择</h3><p>全剧三幕，每幕由若干场演出与一位幕终主角组成。每次清场后可以挑选下一场：战斗、精英、商店、休息或即兴事件。</p></article>
+          <article><h3>⑥ 掌声永存</h3><p>即使演出失败，掌声也会留下。回到后台，用它解锁新演员、购买永久强化，然后再次拉开帷幕。</p></article>
+        </div>
+        <div class="help-controls">
+          <p><kbd>A</kbd><kbd>D</kbd> 移动</p><p><kbd>空格</kbd> 跳跃 / 二段跳</p><p><kbd>J</kbd> 攻击</p><p><kbd>K</kbd> 特技</p><p><kbd>L</kbd> 闪身</p><p><kbd>Shift</kbd> 换演</p><p><kbd>Q</kbd> 谢幕</p><p><kbd>Esc</kbd> 暂停</p>
+        </div>
+        <footer class="overlay-foot"><button class="big-btn small" data-action="back" type="button"><span>明白了</span><small>BACK</small></button></footer>
+      </div>
+    </section>
+
+    <!-- 加载 -->
+    <div id="loading" class="loading">
+      <div class="loading-mark">✦</div>
+      <p>正在点亮舞台</p>
+      <div class="loading-track"><i id="loading-fill"></i></div>
+      <small id="loading-note">LIGHTING THE STAGE…</small>
+    </div>
+
+    <!-- 全局提示 -->
+    <div id="global-toast" class="global-toast"></div>
+  </div>
+</div>
+<script type="module" src="./src/main.js?v=20261112-1"></script>
+</body>
+</html>

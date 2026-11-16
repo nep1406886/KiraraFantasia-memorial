@@ -1,6 +1,6 @@
 import { TICK, UNIT_RULES, ENEMY_RULES, ENDLESS_ROSTER, DECK_ORDER, ENDLESS_MILESTONES } from "../data/campaign.js";
 import { attackContains, healingContains, burstContains, areaContains, ATTACK_BACK_REACH } from "./targeting.js";
-import { EVOLUTION_POWER, EVOLUTION_HEALTH } from '../../core/evolution.js';
+import { EVOLUTION_POWER, EVOLUTION_HEALTH, DEFENSE_EVOLUTION_SECONDS, defenseEvolutionCost } from '../../core/evolution.js';
 
 const EPS = 1e-8;
 const cellKey = (row, col) => `${row}:${col}`;
@@ -261,6 +261,36 @@ export class Battle {
         this.setupRevision = (this.setupRevision || 0) + 1;
         this.emit("deployed", { id: unit.id, unitType: type, row, col });
         return { ok: true, id: unit.id };
+    }
+
+    evolutionQuote(type) {
+        const rule = UNIT_RULES[type], units = [...this.units.values()].filter(unit => unit.type === type && unit.hp > 0);
+        const age = units.length ? Math.max(...units.map(unit => this.time - unit.createdAt)) : 0;
+        const cost = rule ? defenseEvolutionCost(rule.cost) : 0;
+        const evolved = this.evolved.has(type);
+        const reason = !type?.startsWith('U') || !rule ? '请选择一位角色伙伴'
+            : evolved ? '本场已进化' : this.phase !== 'running' ? '开战后，伙伴通过驻场积累成长'
+            : !units.length ? '先将这位伙伴部署到战场'
+            : age < DEFENSE_EVOLUTION_SECONDS ? `还需驻场 ${Math.ceil(DEFENSE_EVOLUTION_SECONDS - age)} 秒`
+            : this.resource < cost ? `还差 ${cost - this.resource} 应援` : null;
+        return { ok: !reason, reason, evolved, cost, owned: this.resource, progress: Math.min(DEFENSE_EVOLUTION_SECONDS, Math.floor(age)), needed: DEFENSE_EVOLUTION_SECONDS };
+    }
+
+    evolve(type) {
+        const quote = this.evolutionQuote(type);
+        if (!quote.ok) return quote;
+        if ([...this.pauses].some(reason => !['evolution-ui', 'evolution-load'].includes(reason))) return { ok: false, reason: '请先关闭其他暂停界面' };
+        this.resource -= quote.cost; this.stats.spent += quote.cost;
+        this.evolved.add(type);
+        const delta = this.growthRule(type, true).hp - UNIT_RULES[type].hp;
+        for (const unit of this.units.values()) {
+            if (unit.type !== type || unit.evolved || unit.hp <= 0) continue;
+            const ratio = unit.hp / unit.maxHp;
+            unit.evolved = true; unit.maxHp += delta; unit.hp = Math.max(1, Math.floor(unit.maxHp * ratio));
+        }
+        this.setupRevision = (this.setupRevision || 0) + 1;
+        this.emit('evolved', { unitType: type });
+        return { ok: true };
     }
 
     recall(row, col) {

@@ -190,7 +190,9 @@ export function createHud(options) {
     portrait.hidden = true;
     portrait.addEventListener("error", () => { portrait.hidden = true; });
     let portraitId = null;
-    identity.append(portrait, playerName, playerLevel);
+    const evolutionBtn = el('button', 'hud-evolution');
+    evolutionBtn.type = 'button';
+    identity.append(portrait, playerName, playerLevel, evolutionBtn);
     if (hudPanel) { hudPanel.prepend(identity); }
 
     // --- 装备四槽芯片（hud-identity 下，spec/01 §4 左上身份区新增行） ---------
@@ -487,6 +489,7 @@ export function createHud(options) {
         return () => { touch = null; };
     }
     const clearMenuTap = bindTap(pauseBtn, onMenu), clearInteractTap = bindTap(interactBtn, options.onInteract);
+    const clearEvolutionTap = bindTap(evolutionBtn, options.onEvolution);
 
     [skillbar, gauge, zone, stickBase, stickKnob,
      attackBtn, dodgeBtn, interactBtn].forEach(function (node) {
@@ -500,7 +503,7 @@ export function createHud(options) {
     let touchOn = null;
     function clearInput() {
         attackAim.clear();
-        clearMenuTap(); clearInteractTap(); clearStick();
+        clearMenuTap(); clearInteractTap(); clearEvolutionTap(); clearStick();
         input.clear(); latches.clear();
         if (tooltip) { tooltip.hide(); }
         closeBrief(); clearPulses();
@@ -604,6 +607,13 @@ export function createHud(options) {
         const shrineReady = !!world.canCommuneAtShrine && (!options.isShrineVisible || options.isShrineVisible());
         text(playerName, p?.card?.characterZh || p?.card?.name || "");
         text(playerLevel, p ? "Lv " + p.level : "");
+        const evolution = world?.evolutionQuote?.();
+        evolutionBtn.hidden = !p || !options.onEvolution;
+        evolutionBtn.disabled = locked;
+        evolutionBtn.classList.toggle('is-ready', !!evolution?.ok);
+        text(evolutionBtn, evolution?.evolved ? '已进化' : evolution?.ok ? '✧ 进化' : `成长 ${evolution?.progress || 0}/3`);
+        attr(evolutionBtn, 'aria-label', `本局进化：${evolution?.reason || '成长就绪，使用60金币进化'}`);
+        evolutionBtn.title = evolution?.reason || '使用60金币进化';
         if (p?.card?.id && portraitId !== (p.displayCardId || p.card.id)) {
             portraitId = p.displayCardId || p.card.id;
             portrait.hidden = false;
